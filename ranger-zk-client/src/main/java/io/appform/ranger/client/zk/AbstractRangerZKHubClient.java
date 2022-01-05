@@ -50,7 +50,7 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
     }
 
     @Override
-    protected ServiceDataSource getDataStore() {
+    protected ServiceDataSource getDataSource() {
         return new ZkServiceDataSource(getNamespace(), connectionString, curatorFramework);
     }
 

@@ -38,7 +38,7 @@ public class UnshardedRangerHttpHubClient<T>
     private final HttpClientConfig clientConfig;
 
     @Override
-    protected ServiceDataSource getDataStore() {
+    protected ServiceDataSource getDataSource() {
         return new HttpServiceDataSource<>(clientConfig, getMapper());
     }
 

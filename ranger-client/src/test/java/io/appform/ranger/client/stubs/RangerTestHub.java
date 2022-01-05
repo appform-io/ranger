@@ -30,7 +30,7 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
         ListBasedServiceRegistry<TestNodeData>, TestDeserializer<TestNodeData>> {
 
     @Override
-    protected ServiceDataSource getDataStore() {
+    protected ServiceDataSource getDataSource() {
         return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
     }
 

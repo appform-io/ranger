@@ -114,10 +114,10 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
     }
 
-    protected abstract ServiceDataSource getDataStore();
+    protected abstract ServiceDataSource getDataSource();
 
     protected ServiceDataSource buildServiceDataSource(){
-        return !services.isEmpty() ? new StaticDataSource(services) : getDataStore();
+        return !services.isEmpty() ? new StaticDataSource(services) : getDataSource();
     }
 
     protected abstract ServiceFinderFactory<T, R> buildFinderFactory();
