@@ -42,6 +42,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings({"unchecked", "rawtypes", "unused"})
 public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProviderBuilder<T, B, S>, S extends Serializer<T>> {
 
     protected String namespace;
@@ -53,13 +54,13 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
-    protected List<Healthcheck> healthchecks = Lists.newArrayList();
+    protected final List<Healthcheck> healthchecks = Lists.newArrayList();
     protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
     protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
     protected final List<Signal<HealthcheckResult>> additionalRefreshSignals = Lists.newArrayList();
 
     /* list of isolated monitors */
-    private List<IsolatedHealthMonitor> isolatedMonitors = Lists.newArrayList();
+    private final List<IsolatedHealthMonitor> isolatedMonitors = Lists.newArrayList();
 
     public B withNamespace(final String namespace) {
         this.namespace = namespace;
@@ -107,7 +108,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     }
 
     /**
-     * Register a monitor to the service, to setup a continuous monitoring on the monitor
+     * Register a monitor to the service, to set up a continuous monitoring on the monitor
      * this method can be used to add a {@link IsolatedHealthMonitor} which will later be
      * scheduled at regular intervals and monitored to generate and maintain an aggregated health of the service
      * the scheduling will happen in an isolated thread
