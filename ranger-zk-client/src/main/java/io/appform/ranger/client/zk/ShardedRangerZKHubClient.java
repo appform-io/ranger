@@ -30,7 +30,7 @@ public class ShardedRangerZKHubClient<T>
         extends AbstractRangerZKHubClient<T, MapBasedServiceRegistry<T>, ZkNodeDataDeserializer<T>> {
 
     @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> withFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
         return ZkShardedServiceFinderFactory.<T>builder()
                 .curatorFramework(getCuratorFramework())
                 .connectionString(getConnectionString())

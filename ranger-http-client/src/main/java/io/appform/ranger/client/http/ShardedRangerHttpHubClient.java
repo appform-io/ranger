@@ -45,14 +45,14 @@ public class ShardedRangerHttpHubClient<T>
     @Override
     protected ServiceFinderHub<T, MapBasedServiceRegistry<T>> buildHub() {
         return new HttpServiceFinderHubBuilder<T, MapBasedServiceRegistry<T>>()
-                .withServiceDataSource(withServiceDataStore())
-                .withServiceFinderFactory(withFinderFactory())
+                .withServiceDataSource(buildServiceDataSource())
+                .withServiceFinderFactory(buildFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .build();
     }
 
     @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> withFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
         return HttpShardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(clientConfig)
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())

@@ -18,7 +18,6 @@ package io.appform.ranger.client.zk;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
-import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
 import io.appform.ranger.zookeeper.servicefinderhub.ZKUnshardedServiceFinderFactory;
@@ -32,7 +31,7 @@ public class UnshardedRangerZKHubClient<T>
 
 
     @Override
-    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> withFinderFactory() {
+    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
         return ZKUnshardedServiceFinderFactory.<T>builder()
             .curatorFramework(getCuratorFramework())
             .connectionString(getConnectionString())

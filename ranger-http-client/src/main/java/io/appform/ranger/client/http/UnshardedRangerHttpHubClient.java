@@ -45,14 +45,14 @@ public class UnshardedRangerHttpHubClient<T>
     @Override
     protected ServiceFinderHub<T, ListBasedServiceRegistry<T>> buildHub() {
         return new HttpServiceFinderHubBuilder<T, ListBasedServiceRegistry<T>>()
-                .withServiceDataSource(withServiceDataStore())
-                .withServiceFinderFactory(withFinderFactory())
+                .withServiceDataSource(buildServiceDataSource())
+                .withServiceFinderFactory(buildFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .build();
     }
 
     @Override
-    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> withFinderFactory() {
+    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
         return HttpUnshardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(clientConfig)
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
