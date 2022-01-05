@@ -21,6 +21,7 @@ import lombok.val;
 import java.io.File;
 
 @UtilityClass
+@SuppressWarnings("unused")
 public class Healthchecks {
     public static Healthcheck fileExistenceCheck(final String filePath) {
         return () -> {
