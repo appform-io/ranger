@@ -22,12 +22,15 @@ import com.google.common.collect.ListMultimap;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
+
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@EqualsAndHashCode(callSuper = true)
 public class MapBasedServiceRegistry<T> extends ServiceRegistry<T> {
     private final AtomicReference<ListMultimap<T, ServiceNode<T>>> nodes = new AtomicReference<>();
 

@@ -33,8 +33,6 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void run(AppConfiguration appConfiguration, Environment environment) {
-        /*
-            Nothing to do run!
-         */
+        //Nothing to do in run!
     }
 }

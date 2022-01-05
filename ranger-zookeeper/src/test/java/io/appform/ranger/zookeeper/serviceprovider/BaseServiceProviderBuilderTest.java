@@ -52,7 +52,7 @@ public class BaseServiceProviderBuilderTest {
     }
 
     @Test
-    public void testbuilder() {
+    public void testServiceProviderBuilder() {
         val host = "localhost";
         val port = 9000;
         Exception exception = null;

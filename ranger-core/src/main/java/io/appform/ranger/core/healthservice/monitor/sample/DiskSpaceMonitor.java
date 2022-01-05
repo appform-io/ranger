@@ -23,6 +23,7 @@ import java.io.File;
 /**
  * A simple monitor to keep track of the disk space in a partition
  */
+@SuppressWarnings("unused")
 public class DiskSpaceMonitor extends CountMonitor {
 
     private final String partition;

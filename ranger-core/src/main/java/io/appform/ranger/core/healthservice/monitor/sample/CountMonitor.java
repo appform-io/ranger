@@ -31,8 +31,9 @@ import lombok.val;
  *
  * @see DiskSpaceMonitor
  */
-@SuppressWarnings("rawtypes")
-public abstract class CountMonitor extends IsolatedHealthMonitor {
+
+@SuppressWarnings("unused")
+public abstract class CountMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
 
     public enum CheckSign {
         LESSER_THAN,
@@ -50,7 +51,7 @@ public abstract class CountMonitor extends IsolatedHealthMonitor {
      * @param threshold  threshold with which the current count will be checked
      * @param timeEntity how often the {@link #monitor()} check needs to be executed
      */
-    public CountMonitor(String name, CheckSign checkSign, Integer threshold, TimeEntity timeEntity) {
+    protected CountMonitor(String name, CheckSign checkSign, Integer threshold, TimeEntity timeEntity) {
         super(name, timeEntity);
         this.checkSign = checkSign;
         this.threshold = threshold;

@@ -41,20 +41,20 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>, Healthcheck {
 
     /* An atomic reference of the aggregated health */
-    private AtomicReference<HealthcheckStatus> healthcheckStatus;
+    private final AtomicReference<HealthcheckStatus> healthcheckStatus;
 
     /* List of all futures of scheduled monitors */
     private List<ScheduledFuture<?>> scheduledFutureList;
 
     /* List of all registered inline monitors */
-    private List<Monitor<HealthcheckStatus>> inlineHealthMonitorList;
+    private final List<Monitor<HealthcheckStatus>> inlineHealthMonitorList;
 
     /* List of all registered isolated monitors */
-    private List<IsolatedHealthMonitor> isolatedHealthMonitorList;
+    private final List<IsolatedHealthMonitor<HealthcheckStatus>> isolatedHealthMonitorList;
 
     /* If aggregator is running or not */
     @Getter
-    private AtomicBoolean running;
+    private final AtomicBoolean running;
 
     public ServiceHealthAggregator() {
         this.healthcheckStatus = new AtomicReference<>();
@@ -71,9 +71,9 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
      * @param monitor any extension of the {@link IsolatedHealthMonitor}
      */
     @Override
-    public void addIsolatedMonitor(IsolatedHealthMonitor monitor) {
+    public void addIsolatedMonitor(IsolatedHealthMonitor<HealthcheckStatus> monitor) {
         if (running.get()) {
-            /* cant add monitors when the Aggregator is already running */
+            /* can't add monitors when the Aggregator is already running */
             throw new IllegalStateException("Cannot add a monitor when Aggregator is running");
         }
         isolatedHealthMonitorList.add(monitor);
@@ -89,7 +89,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
     @Override
     public void addInlineMonitor(Monitor<HealthcheckStatus> monitor) {
         if (running.get()) {
-            /* cant add monitors when the Aggregator is already running */
+            /* can't add monitors when the Aggregator is already running */
             throw new IllegalStateException("Cannot add a monitor when Aggregator is running");
         }
         inlineHealthMonitorList.add(monitor);
@@ -158,7 +158,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
         return getServiceHealth();
     }
 
-    private boolean isIsolatedMonitorHealthy(IsolatedHealthMonitor isolatedHealthMonitor, Date currentTime) {
+    private boolean isIsolatedMonitorHealthy(IsolatedHealthMonitor<HealthcheckStatus> isolatedHealthMonitor, Date currentTime) {
         if (HealthcheckStatus.unhealthy == isolatedHealthMonitor.getHealthStatus()) {
             return true;
         }

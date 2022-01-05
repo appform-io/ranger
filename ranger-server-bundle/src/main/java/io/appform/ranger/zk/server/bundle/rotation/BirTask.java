@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class BirTask extends Task {
 
-    private RotationStatus rotationStatus;
+    private final RotationStatus rotationStatus;
 
     public BirTask(RotationStatus rotationStatus) {
         super("ranger-bir");

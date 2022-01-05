@@ -30,9 +30,10 @@ import java.util.Date;
 
 public class ServiceHealthAggregatorTest {
 
-
     ServiceHealthAggregator serviceHealthAggregator = new ServiceHealthAggregator();
     TestMonitor testMonitor;
+
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         testMonitor = new TestMonitor("TestHealthMonitor", TimeEntity.everySecond(), 1000);
@@ -82,10 +83,6 @@ public class ServiceHealthAggregatorTest {
     @SuppressWarnings("rawtypes")
     private static class TestMonitor extends IsolatedHealthMonitor {
         int threadSleep = 2000;
-
-        public TestMonitor(String name, TimeEntity timeEntity) {
-            super(name, timeEntity);
-        }
 
         public TestMonitor(String name, TimeEntity timeEntity, long stalenessAllowedInMillis) {
             super(name, timeEntity, stalenessAllowedInMillis);

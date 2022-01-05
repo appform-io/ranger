@@ -37,9 +37,8 @@ import java.util.concurrent.TimeUnit;
  * </li>
  * </ul>
  */
-
-@SuppressWarnings("rawtypes")
-public class RotationStatusMonitor extends IsolatedHealthMonitor {
+@SuppressWarnings("unused")
+public class RotationStatusMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
 
     private final String filePath;
 

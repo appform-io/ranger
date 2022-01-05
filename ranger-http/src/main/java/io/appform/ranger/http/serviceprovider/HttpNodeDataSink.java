@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.http.serviceprovider;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSink;
@@ -70,7 +71,7 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
         }
     }
 
-    private Optional<ServiceRegistrationResponse> registerService(HttpUrl httpUrl, RequestBody requestBody){
+    private Optional<ServiceRegistrationResponse<T>> registerService(HttpUrl httpUrl, RequestBody requestBody){
         val request = new Request.Builder()
                 .url(httpUrl)
                 .post(requestBody)
@@ -82,8 +83,8 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
                         log.warn("HTTP call to {} returned empty body", httpUrl);
                     }
                     else {
-                        val bytes = body.bytes();
-                        return Optional.of(mapper.readValue(bytes, ServiceRegistrationResponse.class));
+                        return Optional.of(mapper.readValue(body.bytes(),
+                                                            new TypeReference<ServiceRegistrationResponse<T>>() {}));
                     }
                 }
             }

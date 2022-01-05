@@ -42,7 +42,7 @@ public class ServiceProviderHealthcheckTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private Map<String, TestServiceProvider> serviceProviders = Maps.newHashMap();
+    private final Map<String, TestServiceProvider> serviceProviders = Maps.newHashMap();
 
     @Before
     public void startTestCluster() throws Exception {
@@ -50,8 +50,7 @@ public class ServiceProviderHealthcheckTest {
         testingCluster = new TestingCluster(3);
         testingCluster.start();
         registerService("localhost-1", 9000, 1);
-        //registerService("localhost-2", 9000, 1);
-        registerService("localhost-3", 9000, 2);
+        registerService("localhost-3", 9001, 2);
     }
 
     @After
@@ -105,7 +104,7 @@ public class ServiceProviderHealthcheckTest {
     }
 
     private static final class TestServiceProvider {
-        private CustomHealthcheck healthcheck = new CustomHealthcheck();
+        private final CustomHealthcheck healthcheck = new CustomHealthcheck();
         private final ObjectMapper objectMapper;
         private final String connectionString;
         private final String host;
@@ -126,6 +125,7 @@ public class ServiceProviderHealthcheckTest {
             this.shardId = shardId;
         }
 
+        @SuppressWarnings("unused")
         public void bir() {
             healthcheck.setStatus(HealthcheckStatus.healthy);
         }

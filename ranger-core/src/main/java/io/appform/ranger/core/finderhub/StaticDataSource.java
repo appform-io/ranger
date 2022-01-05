@@ -39,15 +39,11 @@ public class StaticDataSource implements ServiceDataSource{
 
     @Override
     public void start() {
-        /*
-            Nothing to do here.
-         */
+        //Nothing to do here
     }
 
     @Override
     public void stop() {
-        /*
-            Nothing to do here.
-         */
+        //Nothing to do here
     }
 }

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthChecker;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
+import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.HealthService;
 import io.appform.ranger.core.healthservice.ServiceHealthAggregator;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
@@ -42,7 +43,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuppressWarnings({"unchecked", "rawtypes", "unused"})
+@SuppressWarnings({"unchecked", "unused", "UnusedReturnValue"})
 public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProviderBuilder<T, B, S>, S extends Serializer<T>> {
 
     protected String namespace;
@@ -60,11 +61,11 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected final List<Signal<HealthcheckResult>> additionalRefreshSignals = Lists.newArrayList();
 
     /* list of isolated monitors */
-    private final List<IsolatedHealthMonitor> isolatedMonitors = Lists.newArrayList();
+    private final List<IsolatedHealthMonitor<HealthcheckStatus>> isolatedMonitors = Lists.newArrayList();
 
-    public B withNamespace(final String namespace) {
+    public BaseServiceProviderBuilder<T, B, S> withNamespace(final String namespace) {
         this.namespace = namespace;
-        return (B)this;
+        return this;
     }
 
     public B withServiceName(final String serviceName) {
@@ -116,7 +117,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
      * @param monitor an implementation of the {@link IsolatedHealthMonitor}
      * @return builder for next call
      */
-    public B withIsolatedHealthMonitor(IsolatedHealthMonitor monitor) {
+    public B withIsolatedHealthMonitor(IsolatedHealthMonitor<HealthcheckStatus> monitor) {
         this.isolatedMonitors.add(monitor);
         return (B)this;
     }

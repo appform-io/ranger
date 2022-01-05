@@ -20,6 +20,7 @@ import java.util.List;
 /**
  *
  */
+@SuppressWarnings("unused")
 public interface NodeDataSource<T, D extends Deserializer<T>> extends NodeDataStoreConnector<T> {
 
     List<ServiceNode<T>> refresh(D deserializer);

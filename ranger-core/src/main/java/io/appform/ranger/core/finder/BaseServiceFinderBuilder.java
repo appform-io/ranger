@@ -168,6 +168,7 @@ public abstract class BaseServiceFinderBuilder
         return finder;
     }
 
+    @SuppressWarnings("unused")
     protected List<Signal<T>> implementationSpecificRefreshSignals(Service service, NodeDataSource<T, D> nodeDataSource) {
         return Collections.emptyList();
     }

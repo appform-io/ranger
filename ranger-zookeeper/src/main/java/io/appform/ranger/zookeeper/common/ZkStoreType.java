@@ -16,5 +16,5 @@
 package io.appform.ranger.zookeeper.common;
 
 public enum ZkStoreType {
-    SOURCE, SINK;
+    SOURCE, SINK
 }

@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class OorTask extends Task {
 
-    private RotationStatus rotationStatus;
+    private final RotationStatus rotationStatus;
 
     public OorTask(RotationStatus rotationStatus) {
         super("ranger-oor");

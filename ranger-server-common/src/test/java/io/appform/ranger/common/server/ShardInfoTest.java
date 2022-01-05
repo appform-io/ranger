@@ -17,6 +17,7 @@ public class ShardInfoTest {
 
     private String getResource(String path) {
         val data = ShardInfoTest.class.getClassLoader().getResourceAsStream(path);
+        if(null == data) return null;
         return new BufferedReader(
                 new InputStreamReader(data))
                 .lines()
@@ -24,8 +25,10 @@ public class ShardInfoTest {
     }
 
     @SneakyThrows
+    @SuppressWarnings("SameParameterValue")
     private  <T> T getResource(String path, Class<T> klass) {
         val data = getResource(path);
+        if(null == data) return null;
         return mapper.readValue(data, klass);
     }
 

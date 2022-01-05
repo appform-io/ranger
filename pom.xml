@@ -7,7 +7,7 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-RC1</version>
+    <version>1.0-RC2</version>
     <name>Ranger</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
@@ -96,6 +96,8 @@
         <http.client.version>4.9.3</http.client.version>
         <wiremock.version>2.27.2</wiremock.version>
         <mockito.version>4.2.0</mockito.version>
+
+        <logback.version>1.2.10</logback.version>
     </properties>
 
     <dependencies>
@@ -128,11 +130,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>runtime</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

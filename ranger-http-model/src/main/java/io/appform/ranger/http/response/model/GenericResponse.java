@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.http.response.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Value;
@@ -27,9 +26,4 @@ import lombok.extern.jackson.Jacksonized;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GenericResponse<T> {
     T data;
-
-    @JsonIgnore
-    public boolean valid(){
-        return null != data;
-    }
 }

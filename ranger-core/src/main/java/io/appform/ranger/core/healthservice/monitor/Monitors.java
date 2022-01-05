@@ -23,6 +23,7 @@ import java.io.File;
 /**
  * Helper for creating instances of {@link Monitor}
  */
+@SuppressWarnings("unused")
 public class Monitors {
 
     private Monitors() {

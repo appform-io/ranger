@@ -46,7 +46,7 @@ public class ServiceProviderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
 
     @Before
     public void startTestCluster() throws Exception {
@@ -54,9 +54,9 @@ public class ServiceProviderTest {
         testingCluster = new TestingCluster(3);
         testingCluster.start();
         registerService("localhost-1", 9000, 1);
-        registerService("localhost-2", 9000, 1);
-        registerService("localhost-3", 9000, 1);
-        registerService("localhost-4", 9000, 2);
+        registerService("localhost-2", 9001, 1);
+        registerService("localhost-3", 9002, 1);
+        registerService("localhost-4", 9003, 2);
     }
 
     @After

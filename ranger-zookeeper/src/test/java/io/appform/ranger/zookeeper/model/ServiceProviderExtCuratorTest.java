@@ -47,7 +47,7 @@ public class ServiceProviderExtCuratorTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
     private CuratorFramework curatorFramework;
 
     @Before
@@ -61,8 +61,8 @@ public class ServiceProviderExtCuratorTest {
                 .retryPolicy(new ExponentialBackoffRetry(1000, 100)).build();
         curatorFramework.start();
         registerService("localhost-1", 9000, 1);
-        registerService("localhost-2", 9000, 1);
-        registerService("localhost-3", 9000, 2);
+        registerService("localhost-2", 9001, 1);
+        registerService("localhost-3", 9002, 2);
     }
 
     @After

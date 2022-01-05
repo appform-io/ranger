@@ -67,13 +67,17 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
         //1. First time
         //2. Stale update threshold breach
         //3. Update in health status
-        val currentTime = System.currentTimeMillis();
-        if (lastHealthcheckStatus == null
-                || (currentTime - lastUpdatedTime) > staleUpdateThreshold
-                || lastHealthcheckStatus != healthcheckStatus) {
-            lastUpdatedTime = currentTime;
+        try {
+            val currentTime = System.currentTimeMillis();
+            if (lastHealthcheckStatus == null
+                    || (currentTime - lastUpdatedTime) > staleUpdateThreshold
+                    || lastHealthcheckStatus != healthcheckStatus) {
+                lastUpdatedTime = currentTime;
+                return true;
+            }
+        }
+        finally {
             lastHealthcheckStatus = healthcheckStatus;
-            return true;
         }
         return false;
     }
