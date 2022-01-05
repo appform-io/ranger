@@ -16,6 +16,7 @@
 package io.appform.ranger.client.zk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
@@ -23,67 +24,39 @@ import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
-import com.google.common.base.Preconditions;
-import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
 
-import java.util.function.Predicate;
-
 @Slf4j
 @Getter
+@SuperBuilder
 public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedServiceRegistry<T>> {
 
-    private final SimpleShardedServiceFinder<T> serviceFinder;
+    private final String serviceName;
+    private final String namespace;
+    private final ObjectMapper mapper;
+    private final boolean disableWatchers;
+    private final String connectionString;
     private final ZkNodeDataDeserializer<T> deserializer;
+    private CuratorFramework curatorFramework;
+    private int nodeRefreshIntervalMs;
+    private SimpleShardedServiceFinder<T> serviceFinder;
 
-    @Builder(builderMethodName = "fromConnectionString", builderClassName = "FromConnectionStringBuilder")
-    public SimpleRangerZKClient(
-            String namespace,
-            String serviceName,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            boolean disableWatchers,
-            String connectionString,
-            Predicate<T> initialCriteria,
-            ZkNodeDataDeserializer<T> deserializer,
-            boolean alwaysUseInitialCriteria
-    ){
-        this(
-                namespace,
-                serviceName,
-                mapper,
-                nodeRefreshIntervalMs,
-                disableWatchers,
-                CuratorFrameworkFactory.newClient(connectionString, new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME)),
-                initialCriteria,
-                deserializer,
-                alwaysUseInitialCriteria
-        );
-    }
-
-    @Builder(builderMethodName = "fromCurator", builderClassName = "FromCuratorBuilder")
-    public SimpleRangerZKClient(
-            String namespace,
-            String serviceName,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            boolean disableWatchers,
-            CuratorFramework curatorFramework,
-            Predicate<T> initialCriteria,
-            ZkNodeDataDeserializer<T> deserializer,
-            boolean alwaysUseInitialCriteria
-    ){
-        super(initialCriteria, alwaysUseInitialCriteria);
+    @Override
+    public void start() {
+        log.info("Starting the service finder");
 
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
 
         int effectiveRefreshTime = nodeRefreshIntervalMs;
+
         if (effectiveRefreshTime < RangerClientConstants.MINIMUM_REFRESH_TIME) {
             effectiveRefreshTime = RangerClientConstants.MINIMUM_REFRESH_TIME;
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
@@ -91,7 +64,11 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
                     RangerClientConstants.MINIMUM_REFRESH_TIME);
         }
 
-        this.deserializer = deserializer;
+        if(null == curatorFramework){
+            Preconditions.checkNotNull(connectionString, "Connection string can't be null");
+            curatorFramework = CuratorFrameworkFactory.newClient(connectionString, new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME));
+        }
+
         this.serviceFinder = ServiceFinderBuilders.<T>shardedFinderBuilder()
                 .withCuratorFramework(curatorFramework)
                 .withNamespace(namespace)
@@ -101,11 +78,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
                 .withDisableWatchers(disableWatchers)
                 .withShardSelector(new MatchingShardSelector<>())
                 .build();
-    }
 
-    @Override
-    public void start() {
-        log.info("Starting the service finder");
         this.serviceFinder.start();
     }
 

@@ -15,57 +15,27 @@
  */
 package io.appform.ranger.client.zk;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
-import io.appform.ranger.core.finderhub.StaticDataSource;
-import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
 import io.appform.ranger.zookeeper.servicefinderhub.ZkServiceDataSource;
 import io.appform.ranger.zookeeper.servicefinderhub.ZkServiceFinderHubBuilder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.Predicate;
-
 @Slf4j
 @Getter
+@SuperBuilder
 public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>, D extends ZkNodeDataDeserializer<T>>
         extends AbstractRangerHubClient<T, R, D> {
 
     private final boolean disablePushUpdaters;
     private final String connectionString;
     private final CuratorFramework curatorFramework;
-    /**
-        Use this if you don't want the datasource to fetch the entire set of services;
-        but know beforehand about the services you are going to build the hub for.
-    **/
-    private final Set<Service> services;
-
-    protected AbstractRangerZKHubClient(
-            String namespace,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            boolean disablePushUpdaters,
-            String connectionString,
-            CuratorFramework curatorFramework,
-            Predicate<T> criteria,
-            D deserializer,
-            Set<Service> services,
-            boolean alwaysUseInitialCriteria
-    ) {
-        super(namespace, mapper, nodeRefreshIntervalMs, criteria, deserializer, alwaysUseInitialCriteria);
-        this.disablePushUpdaters = disablePushUpdaters;
-        this.connectionString = connectionString;
-        this.services = null != services ? services : Collections.emptySet();
-        this.curatorFramework = curatorFramework;
-
-    }
 
     @Override
     protected ServiceFinderHub<T, R> buildHub() {
@@ -74,16 +44,14 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
                 .withConnectionString(connectionString)
                 .withNamespace(getNamespace())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-                .withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
+                .withServiceDataSource(withServiceDataStore())
+                .withServiceFinderFactory(withFinderFactory())
                 .build();
     }
 
     @Override
-    protected ServiceDataSource buildServiceDataSource() {
-        return !services.isEmpty() ?
-                new StaticDataSource(services) :
-                new ZkServiceDataSource(getNamespace(), connectionString, curatorFramework);
+    protected ServiceDataSource getDataStore() {
+        return new ZkServiceDataSource(getNamespace(), connectionString, curatorFramework);
     }
 
 }

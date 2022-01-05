@@ -15,54 +15,22 @@
  */
 package io.appform.ranger.client.zk;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
-import io.appform.ranger.core.model.Service;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
 import io.appform.ranger.zookeeper.servicefinderhub.ZkShardedServiceFinderFactory;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.framework.CuratorFramework;
-
-import java.util.Set;
-import java.util.function.Predicate;
 
 @Slf4j
+@SuperBuilder
 public class ShardedRangerZKHubClient<T>
         extends AbstractRangerZKHubClient<T, MapBasedServiceRegistry<T>, ZkNodeDataDeserializer<T>> {
 
-    @Builder
-    public ShardedRangerZKHubClient(
-            String namespace,
-            ObjectMapper mapper,
-            int refreshTimeMs,
-            boolean disablePushUpdaters,
-            String connectionString,
-            CuratorFramework curatorFramework,
-            Predicate<T> criteria,
-            ZkNodeDataDeserializer<T> deserializer,
-            Set<Service> services,
-            boolean alwaysUseInitialCriteria
-    ) {
-        super(
-                namespace,
-                mapper,
-                refreshTimeMs,
-                disablePushUpdaters,
-                connectionString,
-                curatorFramework,
-                criteria,
-                deserializer,
-                services,
-                alwaysUseInitialCriteria
-        );
-    }
-
     @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> withFinderFactory() {
         return ZkShardedServiceFinderFactory.<T>builder()
                 .curatorFramework(getCuratorFramework())
                 .connectionString(getConnectionString())

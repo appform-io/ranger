@@ -16,14 +16,13 @@
 
 package io.appform.ranger.core.finder;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ServiceRegistryUpdater;
 import io.appform.ranger.core.finder.serviceregistry.signal.ScheduledRegistryUpdateSignal;
 import io.appform.ranger.core.model.*;
-import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.signals.Signal;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 

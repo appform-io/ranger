@@ -24,7 +24,7 @@ public class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
 
     @Test
     public void testBaseClient(){
-        val client  = SimpleRangerZKClient.<TestNodeData>fromCurator()
+        val client  = SimpleRangerZKClient.<TestNodeData>builder()
                 .curatorFramework(getCuratorFramework())
                 .deserializer(this::read)
                 .namespace("test-n")

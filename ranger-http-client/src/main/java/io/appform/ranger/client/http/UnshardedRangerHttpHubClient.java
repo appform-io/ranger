@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.client.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
@@ -23,61 +22,37 @@ import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
-import io.appform.ranger.core.finderhub.StaticDataSource;
-import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
 import io.appform.ranger.http.servicefinderhub.HttpUnshardedServiceFinderFactory;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.Predicate;
-
 @Slf4j
+@SuperBuilder
 public class UnshardedRangerHttpHubClient<T>
         extends AbstractRangerHubClient<T, ListBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
 
-    private final Set<Service> services;
     private final HttpClientConfig clientConfig;
 
-    @Builder
-    public UnshardedRangerHttpHubClient(
-            String namespace,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            Predicate<T> criteria,
-            HTTPResponseDataDeserializer<T> deserializer,
-            HttpClientConfig clientConfig,
-            Set<Service> services,
-            boolean alwaysUseInitialCriteria
-    ) {
-        super(namespace, mapper, nodeRefreshIntervalMs, criteria, deserializer, alwaysUseInitialCriteria);
-        this.clientConfig = clientConfig;
-        this.services = null != services ? services : Collections.emptySet();
+    @Override
+    protected ServiceDataSource getDataStore() {
+        return new HttpServiceDataSource<>(clientConfig, getMapper());
     }
 
     @Override
     protected ServiceFinderHub<T, ListBasedServiceRegistry<T>> buildHub() {
         return new HttpServiceFinderHubBuilder<T, ListBasedServiceRegistry<T>>()
-                .withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
+                .withServiceDataSource(withServiceDataStore())
+                .withServiceFinderFactory(withFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .build();
     }
 
     @Override
-    protected ServiceDataSource buildServiceDataSource() {
-        return !services.isEmpty() ?
-                new StaticDataSource(services) :
-                new HttpServiceDataSource<>(clientConfig, getMapper());
-    }
-
-    @Override
-    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> withFinderFactory() {
         return HttpUnshardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(clientConfig)
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())

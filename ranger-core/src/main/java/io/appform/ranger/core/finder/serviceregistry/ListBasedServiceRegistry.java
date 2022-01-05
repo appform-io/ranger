@@ -15,10 +15,10 @@
  */
 package io.appform.ranger.core.finder.serviceregistry;
 
+import com.google.common.collect.ImmutableList;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
-import com.google.common.collect.ImmutableList;
 import lombok.val;
 
 import java.util.Collections;
@@ -33,6 +33,7 @@ public class ListBasedServiceRegistry<T> extends ServiceRegistry<T> {
         super(service);
     }
 
+    @Override
     public List<ServiceNode<T>> nodeList() {
         val nodeList = this.nodes.get();
         return null == nodeList ? Collections.emptyList() : nodeList;

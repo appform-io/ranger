@@ -30,7 +30,7 @@ public class UnshardedRangerHttpClientTest extends BaseRangerHttpClientTest {
                 .namespace("test-n")
                 .deserializer(this::read)
                 .mapper(getObjectMapper())
-                .nodeRefreshIntervalMs(1000)
+                .nodeRefreshTimeMs(1000)
                 .build();
         client.start();
         RangerTestUtils.sleepUntilHubStarts(client.getHub());

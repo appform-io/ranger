@@ -17,6 +17,7 @@ package io.appform.ranger.http.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.common.server.ShardInfo;
@@ -24,7 +25,6 @@ import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.http.server.AppConfiguration;
 import io.appform.ranger.http.server.healthcheck.RangerHttpHealthCheck;
 import io.appform.ranger.zk.server.bundle.RangerServerBundle;
-import com.google.common.collect.ImmutableList;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -46,7 +46,7 @@ public class HttpServerBundle extends RangerServerBundle<ShardInfo, AppConfigura
                 .namespace(rangerConfiguration.getNamespace())
                 .mapper(getMapper())
                 .clientConfig(clientConfig)
-                .nodeRefreshIntervalMs(rangerConfiguration.getNodeRefreshTimeMs())
+                .nodeRefreshTimeMs(rangerConfiguration.getNodeRefreshTimeMs())
                 .deserializer(data -> {
                     try {
                         return getMapper().readValue(data, new TypeReference<ServiceNodesResponse<ShardInfo>>() {

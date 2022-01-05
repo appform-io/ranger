@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.client.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
@@ -23,65 +22,37 @@ import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
-import io.appform.ranger.core.finderhub.StaticDataSource;
-import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
 import io.appform.ranger.http.servicefinderhub.HttpShardedServiceFinderFactory;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.Predicate;
-
 @Slf4j
+@SuperBuilder
 public class ShardedRangerHttpHubClient<T>
         extends AbstractRangerHubClient<T, MapBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
 
-    private final Set<Service> services;
     private final HttpClientConfig clientConfig;
 
-    @Builder
-    public ShardedRangerHttpHubClient(
-            String namespace,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            Predicate<T> criteria,
-            HTTPResponseDataDeserializer<T> deserializer,
-            HttpClientConfig clientConfig,
-            Set<Service> services,
-            boolean alwaysUseInitialCriteria
-    ) {
-        super(namespace, mapper, nodeRefreshIntervalMs, criteria, deserializer, alwaysUseInitialCriteria);
-        this.clientConfig = clientConfig;
-        this.services = null != services ? services : Collections.emptySet();
+    @Override
+    protected ServiceDataSource getDataStore() {
+        return new HttpServiceDataSource<>(clientConfig, getMapper());
     }
 
     @Override
     protected ServiceFinderHub<T, MapBasedServiceRegistry<T>> buildHub() {
         return new HttpServiceFinderHubBuilder<T, MapBasedServiceRegistry<T>>()
-                .withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
+                .withServiceDataSource(withServiceDataStore())
+                .withServiceFinderFactory(withFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .build();
     }
 
-    /*
-        If the client knows the services for which a refresh ought to be run. Use that
-        information instead of a data source! Handy during service integrations!
-     */
     @Override
-    protected ServiceDataSource buildServiceDataSource() {
-        return !services.isEmpty() ?
-                new StaticDataSource(services) :
-                new HttpServiceDataSource<>(clientConfig, getMapper());
-    }
-
-    @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> withFinderFactory() {
         return HttpShardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(clientConfig)
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())

@@ -19,20 +19,17 @@ import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@SuperBuilder
 public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> implements RangerClient<T> {
 
     private final Predicate<T> initialCriteria;
     private final boolean alwaysUseInitialCriteria;
-
-    protected AbstractRangerClient(Predicate<T> initialCriteria, boolean alwaysUseInitialCriteria){
-        this.initialCriteria = initialCriteria;
-        this.alwaysUseInitialCriteria = alwaysUseInitialCriteria;
-    }
 
     public abstract ServiceFinder<T, R> getServiceFinder();
 

@@ -16,53 +16,40 @@
 package io.appform.ranger.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
+import io.appform.ranger.core.finderhub.StaticDataSource;
 import io.appform.ranger.core.model.Deserializer;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
-import com.google.common.base.Preconditions;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Slf4j
 @Getter
+@SuperBuilder
 public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T> {
 
     private final String namespace;
     private final ObjectMapper mapper;
     private final D deserializer;
-
-    private int nodeRefreshTimeMs;
-    private ServiceFinderHub<T, R> hub;
     private final Predicate<T> initialCriteria;
     private final boolean alwaysUseInitialCriteria;
+    private int nodeRefreshTimeMs;
+    private ServiceFinderHub<T, R> hub;
+    @Builder.Default
+    private Set<Service> services = Collections.emptySet();
 
-    protected AbstractRangerHubClient(
-            String namespace,
-            ObjectMapper mapper,
-            int nodeRefreshTimeMs,
-            Predicate<T> initialCriteria,
-            D deserializer,
-            boolean alwaysUseInitialCriteria
-    ){
-        this.namespace = namespace;
-        this.mapper = mapper;
-        this.nodeRefreshTimeMs = nodeRefreshTimeMs;
-        this.initialCriteria = initialCriteria;
-        this.deserializer = deserializer;
-        this.alwaysUseInitialCriteria = alwaysUseInitialCriteria;
-    }
-
+    @Override
     public void start(){
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
@@ -78,22 +65,26 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         this.hub.start();
     }
 
+    @Override
     public void stop(){
         hub.stop();
     }
 
+    @Override
     public Optional<ServiceNode<T>> getNode(
             final Service service
     ){
         return getNode(service, initialCriteria);
     }
 
+    @Override
     public List<ServiceNode<T>> getAllNodes(
             final Service service
     ){
         return getAllNodes(service, initialCriteria);
     }
 
+    @Override
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria
@@ -103,6 +94,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         );
     }
 
+    @Override
     public List<ServiceNode<T>> getAllNodes(
             final Service service,
             final Predicate<T> criteria
@@ -112,6 +104,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         ).orElse(Collections.emptyList());
     }
 
+    @Override
     public Collection<Service> getRegisteredServices() {
         try{
             return this.getHub().getServiceDataSource().services();
@@ -121,11 +114,15 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
     }
 
+    protected abstract ServiceDataSource getDataStore();
+
+    protected ServiceDataSource withServiceDataStore(){
+        return !services.isEmpty() ? new StaticDataSource(services) : getDataStore();
+    }
+
+    protected abstract ServiceFinderFactory<T, R> withFinderFactory();
+
     protected abstract ServiceFinderHub<T, R> buildHub();
-
-    protected abstract ServiceDataSource buildServiceDataSource();
-
-    protected abstract ServiceFinderFactory<T, R> buildFinderFactory();
 
 }
 
