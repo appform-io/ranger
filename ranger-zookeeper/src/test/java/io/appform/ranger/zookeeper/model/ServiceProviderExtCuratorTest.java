@@ -18,6 +18,7 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
@@ -26,7 +27,6 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
@@ -47,7 +47,7 @@ public class ServiceProviderExtCuratorTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
     private CuratorFramework curatorFramework;
 
     @Before
@@ -61,8 +61,8 @@ public class ServiceProviderExtCuratorTest {
                 .retryPolicy(new ExponentialBackoffRetry(1000, 100)).build();
         curatorFramework.start();
         registerService("localhost-1", 9000, 1);
-        registerService("localhost-2", 9000, 1);
-        registerService("localhost-3", 9000, 2);
+        registerService("localhost-2", 9001, 1);
+        registerService("localhost-3", 9002, 2);
     }
 
     @After

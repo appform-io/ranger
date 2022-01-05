@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "unused", "UnusedReturnValue"})
 public abstract class BaseServiceFinderBuilder
         <
                 T,

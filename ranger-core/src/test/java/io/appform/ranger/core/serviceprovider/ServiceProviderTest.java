@@ -31,12 +31,13 @@ public class ServiceProviderTest {
 
     static TestNodeData testNodeData = null;
 
+    @SuppressWarnings("unused")
     interface TestSerializer<T> extends Serializer<T> {
         byte[] serialize(final ServiceNode<TestNodeData> node);
     }
 
     static class TestSerializerImpl implements TestSerializer<TestNodeData>{
-        private ObjectMapper objectMapper;
+        private final ObjectMapper objectMapper;
 
         public TestSerializerImpl(){
             objectMapper = new ObjectMapper();

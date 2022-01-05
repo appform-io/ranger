@@ -17,11 +17,11 @@ package io.appform.ranger.http.serviceprovider;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.response.model.GenericResponse;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.Builder;
 import lombok.Data;
 import lombok.val;

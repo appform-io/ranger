@@ -17,6 +17,7 @@ package io.appform.ranger.zk.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
@@ -26,7 +27,6 @@ import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.zk.server.AppConfiguration;
 import io.appform.ranger.zk.server.healthcheck.RangerHealthCheck;
 import io.appform.ranger.zk.server.lifecycle.CuratorLifecycle;
-import com.google.common.collect.ImmutableList;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -62,7 +62,7 @@ public class ZKServerBundle extends RangerServerBundle<ShardInfo, AppConfigurati
                 .curatorFramework(curatorFramework)
                 .disablePushUpdaters(rangerConfiguration.isDisablePushUpdaters())
                 .mapper(getMapper())
-                .refreshTimeMs(rangerConfiguration.getNodeRefreshTimeMs())
+                .nodeRefreshTimeMs(rangerConfiguration.getNodeRefreshTimeMs())
                 .deserializer(data -> {
                     try {
                         return getMapper().readValue(data, new TypeReference<ServiceNode<ShardInfo>>() {

@@ -54,8 +54,8 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
             try {
                 healthcheckStatus = healthcheck.check();
             }
-            catch (Throwable t) {
-                log.error("Error running healthcheck. Setting node to unhealthy", t);
+            catch (Exception e) {
+                log.error("Error running healthcheck. Setting node to unhealthy", e);
                 healthcheckStatus = HealthcheckStatus.unhealthy;
             }
             if (HealthcheckStatus.unhealthy == healthcheckStatus) {

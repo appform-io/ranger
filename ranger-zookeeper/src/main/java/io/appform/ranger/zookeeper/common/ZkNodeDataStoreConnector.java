@@ -15,11 +15,11 @@
  */
 package io.appform.ranger.zookeeper.common;
 
+import com.github.rholder.retry.*;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.util.Exceptions;
 import io.appform.ranger.zookeeper.util.PathBuilder;
-import com.github.rholder.retry.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +46,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
 
+    @SuppressWarnings({"UnstableApiUsage", "ConstantConditions"})
     private final Retryer<Boolean> discoveryRetrier = RetryerBuilder.<Boolean>newBuilder()
             .retryIfException(e -> IllegalStateException.class.isAssignableFrom(e.getClass()))
             .retryIfResult(aBoolean -> false)

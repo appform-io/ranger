@@ -20,6 +20,7 @@ import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.healthservice.monitor.sample.DiskSpaceMonitor;
+import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,10 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 public class DiskSpaceMonitorTest {
 
-    final IsolatedHealthMonitor diskSpaceMonitor = new DiskSpaceMonitor("/", 1000, new TimeEntity(2, TimeUnit.SECONDS));
-
     @Test
-    public void testGetCount() throws Exception {
+    public void testGetCount() {
+        val diskSpaceMonitor = new DiskSpaceMonitor("/", 1000, new TimeEntity(2, TimeUnit.SECONDS));
         Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
         Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
         Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());

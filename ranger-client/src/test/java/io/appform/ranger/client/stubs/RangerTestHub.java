@@ -15,26 +15,23 @@
  */
 package io.appform.ranger.client.stubs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.client.utils.RangerHubTestUtils;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finderhub.*;
 import io.appform.ranger.core.units.TestNodeData;
-import com.google.common.collect.Sets;
-import lombok.Builder;
 import lombok.Getter;
-
-import java.util.function.Predicate;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
         ListBasedServiceRegistry<TestNodeData>, TestDeserializer<TestNodeData>> {
 
-    @Builder
-    public RangerTestHub(String namespace, ObjectMapper mapper, int nodeRefreshTimeMs,
-                         Predicate<TestNodeData> criteria, TestDeserializer<TestNodeData> deserializer) {
-        super(namespace, mapper, nodeRefreshTimeMs, criteria, deserializer, false);
+    @Override
+    protected ServiceDataSource getDataSource() {
+        return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
     }
 
     @Override
@@ -52,11 +49,6 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
         }.withServiceDataSource(buildServiceDataSource())
                 .withServiceFinderFactory(buildFinderFactory())
                 .build();
-    }
-
-    @Override
-    protected ServiceDataSource buildServiceDataSource() {
-        return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
     }
 
     @Override

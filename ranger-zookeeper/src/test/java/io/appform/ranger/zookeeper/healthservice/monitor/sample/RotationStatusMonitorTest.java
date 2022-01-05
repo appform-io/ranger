@@ -52,7 +52,6 @@ public class RotationStatusMonitorTest {
         deleteRotationFile();
         if (file.createNewFile()) {
             val rotationStatusMonitor = new RotationStatusMonitor(filePath);
-            val monitorResult = rotationStatusMonitor.monitor();
             Assert.assertEquals(HealthcheckStatus.healthy, rotationStatusMonitor.monitor());
         } else {
             System.out.println("Unable to create file = " + filePath);

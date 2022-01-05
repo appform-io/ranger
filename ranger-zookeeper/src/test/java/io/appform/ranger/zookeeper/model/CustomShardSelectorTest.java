@@ -18,6 +18,7 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
@@ -26,9 +27,9 @@ import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
-import com.google.common.collect.Lists;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.After;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ import java.util.function.Predicate;
 public class CustomShardSelectorTest {
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = Lists.newArrayList();
 
     @Before
     public void startTestCluster() throws Exception {
@@ -53,8 +54,8 @@ public class CustomShardSelectorTest {
         testingCluster = new TestingCluster(3);
         testingCluster.start();
         registerService("localhost-1", 9000, 1, 2);
-        registerService("localhost-2", 9000, 1, 3);
-        registerService("localhost-3", 9000, 2, 3);
+        registerService("localhost-2", 9001, 1, 3);
+        registerService("localhost-3", 9002, 2, 3);
     }
 
     @After
@@ -65,51 +66,12 @@ public class CustomShardSelectorTest {
         }
     }
 
-    private static final class TestShardInfo {
-        private int a;
-        private int b;
-
-        public TestShardInfo(int a, int b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        public TestShardInfo() {
-        }
-
-        public int getA() {
-            return a;
-        }
-
-        public void setA(int a) {
-            this.a = a;
-        }
-
-        public int getB() {
-            return b;
-        }
-
-        public void setB(int b) {
-            this.b = b;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TestShardInfo that = (TestShardInfo) o;
-
-            return a == that.a && b == that.b;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = a;
-            result = 31 * result + b;
-            return result;
-        }
+    @Value
+    @Builder
+    @Jacksonized
+    private static class TestShardInfo {
+        int a;
+        int b;
 
         private static Predicate<TestShardInfo> getCriteria(int a, int b){
             return nodeData -> nodeData.getA() == a && nodeData.getB() == b;
@@ -157,6 +119,10 @@ public class CustomShardSelectorTest {
             val node = serviceFinder.get(TestShardInfo.getCriteria(1, 2)).orElse(null);
             Assert.assertNotNull(node);
             Assert.assertEquals(new TestShardInfo(1, 2), node.getNodeData());
+        }
+        {
+            val node = serviceFinder.get(TestShardInfo.getCriteria(2, 3)).orElse(null);
+            Assert.assertNotNull(node);
         }
         serviceFinder.stop();
     }

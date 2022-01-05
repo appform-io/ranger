@@ -19,11 +19,11 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.HashMultiset;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
-import com.google.common.collect.HashMultiset;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.After;
@@ -44,9 +44,9 @@ public class SimpleServiceProviderTest {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
-        registerService("localhost-1", 9000, 1);
-        registerService("localhost-2", 9000, 1);
-        registerService("localhost-3", 9000, 2);
+        registerService("localhost-1", 9000);
+        registerService("localhost-2", 9001 );
+        registerService("localhost-3", 9002);
     }
 
     @After
@@ -103,7 +103,7 @@ public class SimpleServiceProviderTest {
         System.out.println("Frequency: " + frequency);
     }
 
-    private void registerService(String host, int port, int shardId) {
+    private void registerService(String host, int port) {
         val serviceProvider = ServiceProviderBuilders.<UnshardedInfo>unshardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")

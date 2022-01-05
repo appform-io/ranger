@@ -36,15 +36,16 @@ import java.util.concurrent.*;
  * Maintains every healthcheck in a {@link RollingWindowHealthQueue} to prevent continuous flaps of health
  */
 @Slf4j
+@SuppressWarnings("unused")
 public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
     
-    private HttpRequest httpRequest;
-    private String host;
-    private ExecutorService executorService;
-    private Integer pingTimeoutInMilliseconds;
-    private CloseableHttpClient httpClient;
-    private int port;
-    private RollingWindowHealthQueue rollingWindowHealthQueue;
+    private final HttpRequest httpRequest;
+    private final String host;
+    private final ExecutorService executorService;
+    private final Integer pingTimeoutInMilliseconds;
+    private final CloseableHttpClient httpClient;
+    private final int port;
+    private final RollingWindowHealthQueue rollingWindowHealthQueue;
 
     /**
      * @param timeEntity                how often the {@link #monitor()} check needs to be executed

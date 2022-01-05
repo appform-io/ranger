@@ -31,6 +31,8 @@ import lombok.val;
  *
  * @see DiskSpaceMonitor
  */
+
+@SuppressWarnings("unused")
 public abstract class CountMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
 
     public enum CheckSign {

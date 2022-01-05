@@ -17,6 +17,7 @@ package io.appform.ranger.zk.server.bundle.rotation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@SuppressWarnings("unused")
 public class RotationStatus {
     private final AtomicBoolean status;
 

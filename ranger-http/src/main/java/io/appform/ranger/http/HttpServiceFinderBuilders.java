@@ -20,6 +20,7 @@ import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilider;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@SuppressWarnings("unused")
 public final class HttpServiceFinderBuilders {
 
     public static <T> HttpShardedServiceFinderBuilder<T> httpShardedServiceFinderBuilder(){

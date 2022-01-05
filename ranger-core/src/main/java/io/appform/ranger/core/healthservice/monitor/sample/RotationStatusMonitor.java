@@ -37,9 +37,10 @@ import java.util.concurrent.TimeUnit;
  * </li>
  * </ul>
  */
+@SuppressWarnings("unused")
 public class RotationStatusMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
 
-    private String filePath;
+    private final String filePath;
 
     /**
      * @param filePath location of the file

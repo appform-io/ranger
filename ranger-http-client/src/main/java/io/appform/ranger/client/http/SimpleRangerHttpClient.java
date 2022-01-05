@@ -16,6 +16,7 @@
 package io.appform.ranger.client.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
@@ -23,33 +24,27 @@ import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.http.HttpServiceFinderBuilders;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
-import com.google.common.base.Preconditions;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.function.Predicate;
-
 @Slf4j
+@SuperBuilder
 public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBasedServiceRegistry<T>> {
 
+    private final String serviceName;
+    private final String namespace;
+    private final ObjectMapper mapper;
+    private final int nodeRefreshIntervalMs;
+    private final HttpClientConfig clientConfig;
+    private final HTTPResponseDataDeserializer<T> deserializer;
+
     @Getter
-    private final SimpleUnshardedServiceFinder<T> serviceFinder;
+    private SimpleUnshardedServiceFinder<T> serviceFinder;
 
-    @Builder
-    public SimpleRangerHttpClient(
-            String namespace,
-            String serviceName,
-            ObjectMapper mapper,
-            int nodeRefreshIntervalMs,
-            HttpClientConfig clientConfig,
-            Predicate<T> initialCriteria,
-            HTTPResponseDataDeserializer<T> deserializer,
-            boolean alwaysUseInitialCriteria
-    ) {
-
-        super(initialCriteria, alwaysUseInitialCriteria);
-
+    @Override
+    public void start() {
+        log.info("Starting the service finder");
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
@@ -63,12 +58,8 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
                 .withDeserializer(deserializer)
                 .withShardSelector(new ListShardSelector<>())
                 .build();
-    }
-
-    @Override
-    public void start() {
-        log.info("Starting the service finder");
         this.serviceFinder.start();
+        log.info("Started the service finder");
     }
 
     @Override

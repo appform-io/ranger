@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A simple time unit wrapper for any task, with initialDelay, interval and unit
  */
+@SuppressWarnings("unused")
 public class TimeEntity {
 
     private long initialDelay;

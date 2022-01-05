@@ -29,16 +29,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RollingWindowHealthQueue {
 
     /* size of the rolling window */
-    private Integer rollingWindowSize;
+    private final Integer rollingWindowSize;
 
     /* maximum failures allowed in the window */
-    private Integer maxFailures;
+    private final Integer maxFailures;
 
     /* current failures in the window */
     private final AtomicReference<Integer> currentFailuresCount = new AtomicReference<>();
 
     /* queue of health statuses */
-    private Queue<HealthcheckStatus> statusQueue;
+    private final Queue<HealthcheckStatus> statusQueue;
 
     /**
      * @param rollingWindowSize size of the rolling window to be maintained
@@ -74,7 +74,6 @@ public class RollingWindowHealthQueue {
                     currentFailuresCount.getAndSet(currentFailuresCount.get() - 1);
                 }
             }
-            statusQueue.add(currentHealthStatus);
         } else {
             if (statusQueue.size() == rollingWindowSize) {
                 oldestStatus = statusQueue.remove();
@@ -84,8 +83,8 @@ public class RollingWindowHealthQueue {
             } else {
                 currentFailuresCount.getAndSet(currentFailuresCount.get() + 1);
             }
-            statusQueue.add(currentHealthStatus);
         }
+        statusQueue.add(currentHealthStatus);
         return currentFailuresCount.get() < maxFailures;
     }
 }

@@ -17,9 +17,11 @@ package io.appform.ranger.http.server.healthcheck;
 
 import com.codahale.metrics.health.HealthCheck;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.inject.Singleton;
 
+@EqualsAndHashCode(callSuper = true)
 @Singleton
 @Data
 public class RangerHttpHealthCheck extends HealthCheck {

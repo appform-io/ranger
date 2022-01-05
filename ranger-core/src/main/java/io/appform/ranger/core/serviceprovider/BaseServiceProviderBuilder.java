@@ -16,6 +16,9 @@
 
 package io.appform.ranger.core.serviceprovider;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthChecker;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
@@ -29,9 +32,6 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings({"unchecked", "unused", "UnusedReturnValue"})
 public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProviderBuilder<T, B, S>, S extends Serializer<T>> {
 
     protected String namespace;
@@ -54,7 +55,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
-    protected List<Healthcheck> healthchecks = Lists.newArrayList();
+    protected final List<Healthcheck> healthchecks = Lists.newArrayList();
     protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
     protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
     protected final List<Signal<HealthcheckResult>> additionalRefreshSignals = Lists.newArrayList();
@@ -108,7 +109,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     }
 
     /**
-     * Register a monitor to the service, to setup a continuous monitoring on the monitor
+     * Register a monitor to the service, to set up a continuous monitoring on the monitor
      * this method can be used to add a {@link IsolatedHealthMonitor} which will later be
      * scheduled at regular intervals and monitored to generate and maintain an aggregated health of the service
      * the scheduling will happen in an isolated thread

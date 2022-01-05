@@ -59,6 +59,10 @@ public class RangerTestUtils {
         await().pollDelay(Duration.ofSeconds(numSeconds)).until(() -> true);
     }
 
+    public static void sleepFor(int numSeconds) {
+        await().atMost(Duration.ofSeconds(numSeconds)).until(() -> true);
+    }
+
     /*
         Use this when you have to alter the numSeconds in any of the specific assertions. For finder and hub, the values are appropriately coded
         keeping the start intervals in mind.

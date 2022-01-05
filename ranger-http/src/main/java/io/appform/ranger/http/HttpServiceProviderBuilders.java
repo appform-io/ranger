@@ -19,6 +19,7 @@ import io.appform.ranger.http.serviceprovider.HttpShardedServiceProviderBuilder;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@SuppressWarnings("unused")
 public final class HttpServiceProviderBuilders {
 
     public static <T> HttpShardedServiceProviderBuilder<T> httpServiceProviderBuilder() {

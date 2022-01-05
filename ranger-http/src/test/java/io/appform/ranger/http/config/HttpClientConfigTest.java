@@ -25,6 +25,7 @@ public class HttpClientConfigTest {
     @Test
     public void testHttpClientConfig(){
         val resource = ResourceHelper.getResource("fixtures/httpClientConfig.json", HttpClientConfig.class);
+        Assert.assertNotNull(resource);
         Assert.assertEquals("localhost-1", resource.getHost());
         Assert.assertEquals(80, resource.getPort());
         Assert.assertEquals(10, resource.getConnectionTimeoutMs());

@@ -15,10 +15,10 @@
  */
 package io.appform.ranger.core.finderhub;
 
+import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
-import com.google.common.base.Preconditions;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 /**
  *
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private ServiceDataSource serviceDataSource;
     private ServiceFinderFactory<T, R> serviceFinderFactory;

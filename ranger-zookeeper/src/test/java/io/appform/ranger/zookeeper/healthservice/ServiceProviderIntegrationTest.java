@@ -19,17 +19,17 @@ package io.appform.ranger.zookeeper.healthservice;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
+import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.RotationStatusMonitor;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.util.Exceptions;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.val;
-import lombok.var;
 import org.apache.curator.test.TestingCluster;
 import org.junit.After;
 import org.junit.Assert;
@@ -50,19 +50,8 @@ public class ServiceProviderIntegrationTest {
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
 
-    SimpleUnshardedServiceFinder serviceFinder;
+    SimpleShardedServiceFinder<TestNodeData> serviceFinder;
 
-    private static final class UnshardedClusterInfo {
-        @Override
-        public int hashCode() {
-            return 0;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return super.equals(obj);
-        }
-    }
     @Before
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
@@ -71,18 +60,18 @@ public class ServiceProviderIntegrationTest {
 
         /* registering 3 with RotationMonitor on file and 1 on anotherFile */
         registerService("localhost-1", 9000, 1, file);
-        registerService("localhost-2", 9000, 1, file);
-        registerService("localhost-3", 9000, 2, file);
+        registerService("localhost-2", 9001, 1, file);
+        registerService("localhost-3", 9002, 2, file);
 
-        registerService("localhost-4", 9000, 2, anotherFile);
+        registerService("localhost-4", 9003, 2, anotherFile);
 
-        serviceFinder = ServiceFinderBuilders.<UnshardedClusterInfo>unshardedFinderBuilder()
+        serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
                 .withDeserializer(data -> {
                     try {
-                        return objectMapper.readValue(data, new TypeReference<ServiceNode<UnshardedClusterInfo>>() {});
+                        return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {});
                     } catch (IOException e) {
                         Exceptions.illegalState(e);
                     }
@@ -101,23 +90,24 @@ public class ServiceProviderIntegrationTest {
         serviceFinder.stop();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testBasicDiscovery() throws Exception {
 
         /* clean slate */
-        var delete = file.delete();
-        delete = anotherFile.delete();
+        file.delete();
+        anotherFile.delete();
 
         /* with file existing, 3 nodes should be healthy */
-        var filecreate = file.createNewFile();
+        file.createNewFile();
         System.out.println("created file");
         RangerTestUtils.sleepUntil(5);
-        List<ServiceNode<UnshardedClusterInfo>> all = serviceFinder.getAll(null);
+        List<ServiceNode<TestNodeData>> all = serviceFinder.getAll(null);
         System.out.println("all = " + all);
         Assert.assertEquals(3, all.size());
 
         /* with file deleted, all 3 nodes should be unhealthy */
-        delete = file.delete();
+        file.delete();
         System.out.println("deleted file");
         RangerTestUtils.sleepUntil(5);
         all = serviceFinder.getAll(null);
@@ -125,7 +115,7 @@ public class ServiceProviderIntegrationTest {
         Assert.assertEquals(0, all.size());
 
         /* with anotherFile created, the 4th node should become healthy and discoverable */
-        filecreate = anotherFile.createNewFile();
+        anotherFile.createNewFile();
         System.out.println("created anotherFile");
         RangerTestUtils.sleepUntil(5);
         all = serviceFinder.getAll(null);
@@ -133,12 +123,12 @@ public class ServiceProviderIntegrationTest {
         Assert.assertEquals(1, all.size());
 
         /* clean slate */
-        delete = file.delete();
-        delete = anotherFile.delete();
+        file.delete();
+        anotherFile.delete();
     }
 
     private void registerService(String host, int port, int shardId, File file) {
-        val serviceProvider = ServiceProviderBuilders.unshardedServiceProviderBuilder()
+        val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -150,6 +140,7 @@ public class ServiceProviderIntegrationTest {
                     }
                     return null;
                 })
+                .withNodeData(TestNodeData.builder().shardId(shardId).build())
                 .withHostname(host)
                 .withPort(port)
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())

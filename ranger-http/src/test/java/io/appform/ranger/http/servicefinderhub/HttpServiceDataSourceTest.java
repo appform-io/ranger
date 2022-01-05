@@ -15,15 +15,12 @@
  */
 package io.appform.ranger.http.servicefinderhub;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.google.common.collect.Sets;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.common.collect.Sets;
-import lombok.Builder;
-import lombok.Data;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -34,16 +31,6 @@ import java.io.IOException;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class HttpServiceDataSourceTest {
-
-    @Data
-    private static final class TestNodeData {
-        private final String farmId;
-
-        @Builder
-        public TestNodeData(@JsonProperty("farmId") String farmId) {
-            this.farmId = farmId;
-        }
-    }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
