@@ -31,6 +31,7 @@ import lombok.val;
  *
  * @see DiskSpaceMonitor
  */
+@SuppressWarnings("rawtypes")
 public abstract class CountMonitor extends IsolatedHealthMonitor {
 
     public enum CheckSign {
@@ -40,8 +41,8 @@ public abstract class CountMonitor extends IsolatedHealthMonitor {
         GREATER_THAN_EQUALTO,
     }
 
-    private Integer threshold;
-    private CheckSign checkSign;
+    private final Integer threshold;
+    private final CheckSign checkSign;
 
     /**
      * @param name       name of monitor

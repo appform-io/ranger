@@ -25,7 +25,7 @@ import java.io.File;
  */
 public class DiskSpaceMonitor extends CountMonitor {
 
-    private String partition;
+    private final String partition;
 
     /**
      * @param partition       partition to be monitored

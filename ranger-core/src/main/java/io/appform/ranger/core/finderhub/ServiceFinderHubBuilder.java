@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 /**
  *
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private ServiceDataSource serviceDataSource;
     private ServiceFinderFactory<T, R> serviceFinderFactory;

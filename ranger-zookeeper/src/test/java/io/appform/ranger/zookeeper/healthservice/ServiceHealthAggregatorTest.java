@@ -79,6 +79,7 @@ public class ServiceHealthAggregatorTest {
 
     }
 
+    @SuppressWarnings("rawtypes")
     private static class TestMonitor extends IsolatedHealthMonitor {
         int threadSleep = 2000;
 
@@ -96,10 +97,7 @@ public class ServiceHealthAggregatorTest {
 
         @Override
         public synchronized HealthcheckStatus monitor() {
-            try {
-                Thread.sleep(threadSleep);
-            } catch (InterruptedException e) {
-            }
+            RangerTestUtils.sleepFor(threadSleep);
             return HealthcheckStatus.healthy;
         }
     }

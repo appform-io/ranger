@@ -15,19 +15,14 @@
  */
 package io.appform.ranger.core.healthcheck;
 
+import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.io.File;
 
-/**
- *
- */
+@UtilityClass
 public class Healthchecks {
-    private Healthchecks() {
-        throw new InstantiationError("Must not instantiate this class");
-    }
-
-    public static Healthcheck fileExistanceCheck(final String filePath) {
+    public static Healthcheck fileExistenceCheck(final String filePath) {
         return () -> {
             val file = new File(filePath);
             return file.exists() ? HealthcheckStatus.healthy : HealthcheckStatus.unhealthy;

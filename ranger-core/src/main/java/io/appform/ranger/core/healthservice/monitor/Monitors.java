@@ -29,7 +29,7 @@ public class Monitors {
         throw new InstantiationError("Must not instantiate this class");
     }
 
-    public static Monitor<HealthcheckStatus> fileExistanceCheckMonitor(final String filePath) {
+    public static Monitor<HealthcheckStatus> fileExistenceCheckMonitor(final String filePath) {
         return new Monitor<HealthcheckStatus>() {
             @Override
             public HealthcheckStatus monitor() {

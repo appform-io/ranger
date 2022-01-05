@@ -39,19 +39,19 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
     protected String name;
 
     /* reference of the health that this monitor tracks */
-    private AtomicReference<T> healthStatus;
+    private final AtomicReference<T> healthStatus;
 
     /* reference to when this monitor ran successfully */
     private Date lastStatusUpdateTime;
 
     /* how often should this monitor run */
-    private TimeEntity runInterval;
+    private final TimeEntity runInterval;
 
     /* reference to if this monitor is disabled or not (default: false) */
     private final AtomicBoolean disabled = new AtomicBoolean(false);
 
     /* after how long (in milliseconds) should the monitor be regarded as stale (default: 60 seconds) */
-    private long stalenessAllowedInMillis;
+    private final long stalenessAllowedInMillis;
 
     /**
      * @param name       name of the monitor

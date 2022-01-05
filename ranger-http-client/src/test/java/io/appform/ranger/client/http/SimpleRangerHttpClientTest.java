@@ -36,8 +36,9 @@ public class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
         client.start();
         RangerTestUtils.sleepUntilFinderStarts(client.getServiceFinder());
         Assert.assertNotNull(client.getNode().orElse(null));
+        Assert.assertFalse(client.getAllNodes().isEmpty());
         Assert.assertNotNull(client.getNode(nodeData -> nodeData.getShardId() == 1).orElse(null));
-        Assert.assertNull(client.getNode(nodeData -> nodeData.getShardId() == 2).orElse(null));
+        Assert.assertFalse(client.getAllNodes(nodeData -> nodeData.getShardId() == 1).isEmpty());
         client.stop();
     }
 }

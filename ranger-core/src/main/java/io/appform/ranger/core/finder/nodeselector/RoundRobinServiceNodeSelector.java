@@ -21,7 +21,7 @@ import io.appform.ranger.core.model.ServiceNodeSelector;
 import java.util.List;
 
 public class RoundRobinServiceNodeSelector<T> implements ServiceNodeSelector<T> {
-    private static final ThreadLocal<Integer> index = ThreadLocal.withInitial(() -> 0);
+    static final ThreadLocal<Integer> index = ThreadLocal.withInitial(() -> 0);
 
     @Override
     public ServiceNode<T> select(List<ServiceNode<T>> serviceNodes) {
