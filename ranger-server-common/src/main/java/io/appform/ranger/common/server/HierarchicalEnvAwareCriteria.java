@@ -42,7 +42,7 @@ public class HierarchicalEnvAwareCriteria implements Predicate<ShardInfo> {
     @Override
     public boolean test(ShardInfo shardInfo) {
         if(null == shardInfo || null == shardInfo.getEnvironment() || null == environment) return false;
-        if(environment.equalsIgnoreCase(ALL_ENV)) return true;
+        if(environment.equals(ALL_ENV)) return true;
         val environments = Arrays.stream(environment.split(SEPARATOR)).collect(Collectors.toList());
         return environments.stream().anyMatch(each ->
                 each.equalsIgnoreCase(shardInfo.getEnvironment()) &&
