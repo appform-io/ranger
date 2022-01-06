@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UnshardedRangerZKHubClient<T>
         extends AbstractRangerZKHubClient<T, ListBasedServiceRegistry<T>, ZkNodeDataDeserializer<T>> {
 
-
     @Override
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
         return ZKUnshardedServiceFinderFactory.<T>builder()
