@@ -1,3 +1,5 @@
 {
-  "environment" : "e"
+  "environment" : "e",
+  "tags" : ["tag1"],
+  "healthScore" : 50
 }
