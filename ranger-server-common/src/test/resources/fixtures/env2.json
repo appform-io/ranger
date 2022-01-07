@@ -1,5 +1,5 @@
 {
   "environment" : "e",
   "tags" : ["tag1"],
-  "healthScore" : 50
+  "livelinessScore" : 50
 }
