@@ -22,8 +22,8 @@ import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.http.model.ServiceNodesResponse;
-import io.appform.ranger.http.server.AppConfiguration;
-import io.appform.ranger.http.server.healthcheck.RangerHttpHealthCheck;
+import io.appform.ranger.http.server.bundle.config.HttpAppConfiguration;
+import io.appform.ranger.http.server.bundle.healthcheck.RangerHttpHealthCheck;
 import io.appform.ranger.zk.server.bundle.RangerServerBundle;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +37,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Singleton
 @NoArgsConstructor
-public class HttpServerBundle extends RangerServerBundle<ShardInfo, AppConfiguration> {
+@SuppressWarnings("unused")
+public class HttpServerBundle extends RangerServerBundle<ShardInfo, HttpAppConfiguration> {
 
     @Override
-    protected List<RangerHubClient<ShardInfo>> withHubs(AppConfiguration configuration) {
+    protected List<RangerHubClient<ShardInfo>> withHubs(HttpAppConfiguration configuration) {
         val rangerConfiguration = configuration.getRangerConfiguration();
         return rangerConfiguration.getHttpClientConfigs().stream().map(clientConfig -> UnshardedRangerHttpHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
@@ -60,12 +61,12 @@ public class HttpServerBundle extends RangerServerBundle<ShardInfo, AppConfigura
     }
 
     @Override
-    protected boolean withInitialRotationStatus(AppConfiguration configuration) {
+    protected boolean withInitialRotationStatus(HttpAppConfiguration configuration) {
         return configuration.isInitialRotationStatus();
     }
 
     @Override
-    protected List<HealthCheck> withHealthChecks(AppConfiguration configuration) {
+    protected List<HealthCheck> withHealthChecks(HttpAppConfiguration configuration) {
         return ImmutableList.of(new RangerHttpHealthCheck());
     }
 }

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server;
+package io.appform.ranger.http.server.bundle.config;
 
-import io.appform.ranger.zk.server.config.RangerConfiguration;
+import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.dropwizard.Configuration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,14 +30,12 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AppConfiguration extends Configuration {
-
+public class HttpAppConfiguration extends Configuration {
     @NotEmpty
     @NotNull
     String name;
     @Valid
     @NotNull
-    RangerConfiguration rangerConfiguration;
+    RangerHttpConfiguration rangerConfiguration;
     boolean initialRotationStatus;
-
 }

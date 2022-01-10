@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.http.server.healthcheck;
+package io.appform.ranger.zk.server.bundle.config;
 
-import com.codahale.metrics.health.HealthCheck;
+import io.appform.ranger.client.RangerClientConstants;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import javax.inject.Singleton;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
-@EqualsAndHashCode(callSuper = true)
-@Singleton
 @Data
-public class RangerHttpHealthCheck extends HealthCheck {
-    @Override
-    protected Result check() {
-        return HealthCheck.Result.healthy("Healthy");
-    }
+@AllArgsConstructor
+@NoArgsConstructor
+public class RangerConfiguration {
+    @NotEmpty
+    @NotNull
+    String namespace;
+    @NotEmpty
+    @NotNull
+    String zookeeper;
+    boolean disablePushUpdaters;
+    @Min(1000)
+    int nodeRefreshTimeMs = RangerClientConstants.MINIMUM_REFRESH_TIME;
 }

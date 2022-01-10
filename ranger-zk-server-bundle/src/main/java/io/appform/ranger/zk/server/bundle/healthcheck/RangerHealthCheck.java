@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.healthcheck;
+package io.appform.ranger.zk.server.bundle.healthcheck;
 
 import com.codahale.metrics.health.HealthCheck;
 import lombok.extern.slf4j.Slf4j;

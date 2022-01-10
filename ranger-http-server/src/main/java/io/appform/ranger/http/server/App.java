@@ -16,23 +16,24 @@
 package io.appform.ranger.http.server;
 
 import io.appform.ranger.http.server.bundle.HttpServerBundle;
+import io.appform.ranger.http.server.bundle.config.HttpAppConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class App extends Application<AppConfiguration> {
+public class App extends Application<HttpAppConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new App().run(args);
     }
 
     @Override
-    public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+    public void initialize(Bootstrap<HttpAppConfiguration> bootstrap) {
         bootstrap.addBundle(new HttpServerBundle());
     }
 
     @Override
-    public void run(AppConfiguration appConfiguration, Environment environment) {
+    public void run(HttpAppConfiguration appConfiguration, Environment environment) {
         //Nothing to do in run!
     }
 }
