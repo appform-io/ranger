@@ -1,5 +1,4 @@
 {
   "environment" : "e",
-  "tags" : ["tag1"],
-  "livelinessScore" : 50
+  "tags" : ["tag1"]
 }

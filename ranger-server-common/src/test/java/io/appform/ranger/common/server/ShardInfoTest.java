@@ -43,9 +43,7 @@ public class ShardInfoTest {
         Assert.assertEquals("r", shardInfo1.getRegion());
         Assert.assertNull(shardInfo2.getRegion());
         Assert.assertNotNull(shardInfo1.getTags());
-        Assert.assertEquals(100, shardInfo1.getLivelinessScore(), 0.0);
         Assert.assertNotNull(shardInfo2.getTags());
         Assert.assertTrue(shardInfo2.getTags().contains("tag1"));
-        Assert.assertEquals(50, shardInfo2.getLivelinessScore(), 0.0);
     }
 }

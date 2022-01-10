@@ -23,4 +23,6 @@ import lombok.Value;
 public class HealthcheckResult {
     HealthcheckStatus status;
     long updatedTime;
+    @Builder.Default
+    int livelinessScore = 100;
 }

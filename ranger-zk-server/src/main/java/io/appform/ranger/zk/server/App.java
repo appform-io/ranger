@@ -20,9 +20,7 @@ import io.appform.ranger.zk.server.bundle.ZKServerBundle;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class App extends Application<ZKAppConfiguration> {
 
     public static void main(String[] args) throws Exception {

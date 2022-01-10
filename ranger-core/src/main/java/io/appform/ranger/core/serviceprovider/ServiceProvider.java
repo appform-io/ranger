@@ -70,6 +70,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             return;
         }
         serviceNode.setHealthcheckStatus(result.getStatus());
+        serviceNode.setLivelinessScore(result.getLivelinessScore());
         serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
         dataSink.updateState(serializer, serviceNode);
         log.debug("Updated node with health check result: {}", result);

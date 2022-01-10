@@ -37,7 +37,5 @@ public class ShardInfo {
     String environment;
     String region;
     @Builder.Default
-    double livelinessScore = 100;
-    @Builder.Default
     Set<String> tags = Collections.emptySet();
 }

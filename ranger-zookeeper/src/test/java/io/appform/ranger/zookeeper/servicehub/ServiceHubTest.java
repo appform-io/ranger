@@ -100,6 +100,7 @@ public class ServiceHubTest {
                 () -> HealthcheckResult.builder()
                         .status(HealthcheckStatus.healthy)
                         .updatedTime(new Date().getTime())
+                        .livelinessScore(59)
                         .build(), Collections.emptyList());
         val provider1 = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withHostname("localhost")
@@ -121,6 +122,7 @@ public class ServiceHubTest {
         val node = hub.finder(RangerTestUtils.getService(NAMESPACE, "s1"))
                 .flatMap(finder -> finder.get(nodeData -> nodeData.getShardId() == 1)).orElse(null);
         Assert.assertNotNull(node);
+        Assert.assertEquals(59, node.getLivelinessScore());
         hub.stop();
         provider1.stop();
     }
