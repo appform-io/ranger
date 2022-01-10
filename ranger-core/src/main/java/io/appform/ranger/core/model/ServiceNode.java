@@ -31,8 +31,6 @@ public class ServiceNode<T> {
     private int port;
     private T nodeData;
     private HealthcheckStatus healthcheckStatus = HealthcheckStatus.healthy;
-    @Builder.Default
-    private double livelinessScore = 1.0;
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
 
     public String representation() {
