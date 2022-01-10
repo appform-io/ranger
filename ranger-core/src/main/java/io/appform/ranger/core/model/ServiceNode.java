@@ -31,13 +31,8 @@ public class ServiceNode<T> {
     private int port;
     private T nodeData;
     private HealthcheckStatus healthcheckStatus = HealthcheckStatus.healthy;
-    /*
-        The expectation is that, generally there will be a bounded range associated with this.
-        And precision (or the lack of it, of let's say a double) may not be all that much of an issue.
-        Setting it to a default 100 in case no score is going to be provided.
-     */
     @Builder.Default
-    private int livelinessScore = 100;
+    private double livelinessScore = 1.0;
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
 
     public String representation() {
