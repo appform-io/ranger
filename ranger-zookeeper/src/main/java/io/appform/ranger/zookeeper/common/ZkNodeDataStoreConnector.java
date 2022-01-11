@@ -84,7 +84,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
                      service.getServiceName());
             return;
         }
-        val path = PathBuilder.parentPath(service);
+        val path = PathBuilder.servicePath(service);
         try {
             curatorFramework.blockUntilConnected();
             log.info("Connected to zookeeper cluster for {}", service.getServiceName());

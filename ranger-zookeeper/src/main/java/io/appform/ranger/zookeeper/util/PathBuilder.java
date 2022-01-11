@@ -27,15 +27,15 @@ public class PathBuilder {
         return String.format("/%s", namespace);
     }
 
-    public static String parentPath(final Service service){
-        return String.format("/%s", service.getNamespace());
+    public static String servicePath(final Service service) {
+        return String.format("/%s", service.getServiceName());
     }
 
-    public static String servicePath(final Service service) {
+    public static String serviceFinderPath(final Service service) {
         return String.format("/%s/%s", service.getNamespace(), service.getServiceName());
     }
 
     public static<T> String instancePath(final Service service, final ServiceNode<T> node) {
-        return String.format("/%s/%s/%s", service.getNamespace(), service.getServiceName(), node.representation());
+        return String.format("/%s/%s", service.getServiceName(), node.representation());
     }
 }
