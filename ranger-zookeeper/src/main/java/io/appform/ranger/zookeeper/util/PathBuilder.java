@@ -23,9 +23,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class PathBuilder {
 
-    public static String registeredServicesPath(){
-        return "/";
-    }
+    public static String REGISTERED_SERVICES_PATH = "/";
 
     public static String servicePath(final Service service) {
         return String.format("/%s", service.getServiceName());
