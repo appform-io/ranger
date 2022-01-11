@@ -144,7 +144,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
         /* check health status of isolated monitors */
         val hasUnhealthyMonitor = isolatedHealthMonitorList.stream()
                 .filter(isolatedHealthMonitor -> !isolatedHealthMonitor.isDisabled())
-                .anyMatch(isolatedHealthMonitor -> isIsolatedMonitorHealthy(isolatedHealthMonitor, currentTime));
+                .anyMatch(isolatedHealthMonitor -> isIsolatedMonitorUnHealthy(isolatedHealthMonitor, currentTime));
         if (hasUnhealthyMonitor) {
             healthcheckStatus.set(HealthcheckStatus.unhealthy);
         }
@@ -158,7 +158,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
         return getServiceHealth();
     }
 
-    private boolean isIsolatedMonitorHealthy(IsolatedHealthMonitor<HealthcheckStatus> isolatedHealthMonitor, Date currentTime) {
+    private boolean isIsolatedMonitorUnHealthy(IsolatedHealthMonitor<HealthcheckStatus> isolatedHealthMonitor, Date currentTime) {
         if (HealthcheckStatus.unhealthy == isolatedHealthMonitor.getHealthStatus()) {
             return true;
         }
