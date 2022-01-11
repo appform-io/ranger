@@ -15,25 +15,35 @@
  */
 package io.appform.ranger.zk.server;
 
-import io.appform.ranger.zk.server.bundle.ZKAppConfiguration;
 import io.appform.ranger.zk.server.bundle.ZKServerBundle;
+import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class App extends Application<ZKAppConfiguration> {
+public class App extends Application<AppConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new App().run(args);
     }
 
     @Override
-    public void initialize(Bootstrap<ZKAppConfiguration> bootstrap) {
-        bootstrap.addBundle(new ZKServerBundle());
+    public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+        bootstrap.addBundle(new ZKServerBundle<AppConfiguration>() {
+            @Override
+            protected RangerConfiguration getRangerConfiguration(AppConfiguration configuration) {
+                return configuration.getRangerConfiguration();
+            }
+
+            @Override
+            protected boolean withInitialRotationStatus(AppConfiguration configuration) {
+                return configuration.isInitialRotationStatus();
+            }
+        });
     }
 
     @Override
-    public void run(ZKAppConfiguration appConfiguration, Environment environment) {
+    public void run(AppConfiguration appConfiguration, Environment environment) {
         /*
             Nothing to do here.
         */
