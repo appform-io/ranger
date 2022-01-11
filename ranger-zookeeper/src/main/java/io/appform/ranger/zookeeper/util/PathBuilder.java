@@ -23,7 +23,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class PathBuilder {
 
-    public static String registeredServicesPath(final String namespace){
+    public static String registeredServicesPath(){
         return "/";
     }
 
