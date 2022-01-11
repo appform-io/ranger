@@ -27,6 +27,10 @@ public class PathBuilder {
         return String.format("/%s", namespace);
     }
 
+    public static String parentPath(final Service service){
+        return String.format("/%s", service.getNamespace());
+    }
+
     public static String servicePath(final Service service) {
         return String.format("/%s/%s", service.getNamespace(), service.getServiceName());
     }

@@ -84,6 +84,8 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     @Override
     public void stop() {
         log.info("Stopping the service finder");
-        this.serviceFinder.stop();
+        if(null != serviceFinder){
+            this.serviceFinder.stop();
+        }
     }
 }

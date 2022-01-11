@@ -2,8 +2,8 @@ name: ranger-server
 initialRotationStatus: false
 
 rangerConfiguration:
-  namespace: test
-  zookeeper: localhost:2181
+  namespace: phonepe
+  zookeeper: stg-appzk001.phonepe.nb6:2181,stg-appzk002.phonepe.nb6:2181,stg-appzk003.phonepe.nb6:2181
   disablePushUpdaters: true
 
 server:
