@@ -71,7 +71,7 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
                          service.getServiceName());
                 return Collections.emptyList();
             }
-            val parentPath = PathBuilder.serviceFinderPath(service);
+            val parentPath = PathBuilder.servicePath(service);
             log.debug("Looking for node list of [{}]", serviceName);
             val children = curatorFramework.getChildren().forPath(parentPath);
             List<ServiceNode<T>> nodes = Lists.newArrayListWithCapacity(children.size());

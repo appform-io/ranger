@@ -50,10 +50,12 @@ public abstract class ZKServerBundle<U extends Configuration> extends RangerServ
 
     @Override
     protected void preBundle(U configuration) {
-        curatorFramework = CuratorFrameworkFactory.newClient(
-                getRangerConfiguration(configuration).getZookeeper(),
-                new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME)
-        );
+        val rangerConfiguration = getRangerConfiguration(configuration);
+        curatorFramework = CuratorFrameworkFactory.builder()
+                .connectString(rangerConfiguration.getZookeeper())
+                .namespace(rangerConfiguration.getNamespace())
+                .retryPolicy(new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME))
+                .build();
     }
 
     @Override

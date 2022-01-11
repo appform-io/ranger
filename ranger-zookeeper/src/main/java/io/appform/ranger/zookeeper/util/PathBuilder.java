@@ -24,15 +24,11 @@ import lombok.experimental.UtilityClass;
 public class PathBuilder {
 
     public static String registeredServicesPath(final String namespace){
-        return String.format("/%s", namespace);
+        return "/";
     }
 
     public static String servicePath(final Service service) {
         return String.format("/%s", service.getServiceName());
-    }
-
-    public static String serviceFinderPath(final Service service) {
-        return String.format("/%s/%s", service.getNamespace(), service.getServiceName());
     }
 
     public static<T> String instancePath(final Service service, final ServiceNode<T> node) {
