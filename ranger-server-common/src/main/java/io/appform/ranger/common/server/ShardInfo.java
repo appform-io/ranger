@@ -20,8 +20,14 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+import java.util.Collections;
+import java.util.Set;
+
 /*
     An example nodeData with which we have written our ranger-servers. When you write your own servers you could define your own node data!
+    The idea of this nodeData is to include an environment (prod/stage etc.) along with the region to indicate the DC you may be running your
+    service on. It also additionally contains a livelinessScore, ranging from 0 -> 100 (that you can compute basis your own monitor running) and
+    a bunch of tags, so help run an AB or the like should it be desired.
  */
 @Value
 @Builder
@@ -30,4 +36,6 @@ import lombok.extern.jackson.Jacksonized;
 public class ShardInfo {
     String environment;
     String region;
+    @Builder.Default
+    Set<String> tags = Collections.emptySet();
 }

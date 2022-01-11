@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.http.server;
+package io.appform.ranger.http.server.bundle.config;
 
-import io.appform.ranger.http.server.config.RangerHttpConfiguration;
-import io.dropwizard.Configuration;
+import io.appform.ranger.client.RangerClientConstants;
+import io.appform.ranger.http.config.HttpClientConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class AppConfiguration extends Configuration {
+public class RangerHttpConfiguration {
+
     @NotEmpty
     @NotNull
-    String name;
-    @Valid
+    String namespace;
+    @NotEmpty
     @NotNull
-    RangerHttpConfiguration rangerConfiguration;
-    boolean initialRotationStatus;
+    List<HttpClientConfig> httpClientConfigs;
+    @Min(RangerClientConstants.MINIMUM_REFRESH_TIME)
+    int nodeRefreshTimeMs = RangerClientConstants.MINIMUM_REFRESH_TIME;
 }

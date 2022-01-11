@@ -24,9 +24,8 @@ import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
-import io.appform.ranger.zk.server.AppConfiguration;
-import io.appform.ranger.zk.server.healthcheck.RangerHealthCheck;
-import io.appform.ranger.zk.server.lifecycle.CuratorLifecycle;
+import io.appform.ranger.zk.server.bundle.healthcheck.RangerHealthCheck;
+import io.appform.ranger.zk.server.bundle.lifecycle.CuratorLifecycle;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -41,12 +40,12 @@ import java.util.List;
 @Slf4j
 @Singleton
 @NoArgsConstructor
-public class ZKServerBundle extends RangerServerBundle<ShardInfo, AppConfiguration> {
+public class ZKServerBundle extends RangerServerBundle<ShardInfo, ZKAppConfiguration> {
 
     private CuratorFramework curatorFramework;
 
     @Override
-    protected void preBundle(AppConfiguration configuration) {
+    protected void preBundle(ZKAppConfiguration configuration) {
         curatorFramework = CuratorFrameworkFactory.newClient(
                 configuration.getRangerConfiguration().getZookeeper(),
                 new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME)
@@ -54,7 +53,7 @@ public class ZKServerBundle extends RangerServerBundle<ShardInfo, AppConfigurati
     }
 
     @Override
-    protected List<RangerHubClient<ShardInfo>> withHubs(AppConfiguration configuration) {
+    protected List<RangerHubClient<ShardInfo>> withHubs(ZKAppConfiguration configuration) {
         val rangerConfiguration = configuration.getRangerConfiguration();
         return ImmutableList.of(UnshardedRangerZKHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
@@ -76,19 +75,19 @@ public class ZKServerBundle extends RangerServerBundle<ShardInfo, AppConfigurati
     }
 
     @Override
-    protected boolean withInitialRotationStatus(AppConfiguration configuration) {
+    protected boolean withInitialRotationStatus(ZKAppConfiguration configuration) {
         return configuration.isInitialRotationStatus();
     }
 
     @Override
-    protected List<Signal<ShardInfo>> withLifecycleSignals(AppConfiguration configuration) {
+    protected List<Signal<ShardInfo>> withLifecycleSignals(ZKAppConfiguration configuration) {
         return ImmutableList.of(
                 new CuratorLifecycle(curatorFramework)
         );
     }
 
     @Override
-    protected List<HealthCheck> withHealthChecks(AppConfiguration configuration) {
+    protected List<HealthCheck> withHealthChecks(ZKAppConfiguration configuration) {
         return ImmutableList.of(new RangerHealthCheck(curatorFramework));
     }
 }

@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.config;
+package io.appform.ranger.zk.server.bundle;
 
-import io.appform.ranger.client.RangerClientConstants;
+import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
+import io.dropwizard.Configuration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RangerConfiguration {
+@EqualsAndHashCode(callSuper = true)
+public class ZKAppConfiguration extends Configuration {
     @NotEmpty
     @NotNull
-    String namespace;
-    @NotEmpty
+    String name;
+    @Valid
     @NotNull
-    String zookeeper;
-    boolean disablePushUpdaters;
-    @Min(1000)
-    int nodeRefreshTimeMs = RangerClientConstants.MINIMUM_REFRESH_TIME;
+    RangerConfiguration rangerConfiguration;
+    boolean initialRotationStatus;
 }

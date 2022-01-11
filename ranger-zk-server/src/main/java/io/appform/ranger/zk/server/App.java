@@ -15,26 +15,25 @@
  */
 package io.appform.ranger.zk.server;
 
+import io.appform.ranger.zk.server.bundle.ZKAppConfiguration;
 import io.appform.ranger.zk.server.bundle.ZKServerBundle;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-public class App extends Application<AppConfiguration> {
+public class App extends Application<ZKAppConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new App().run(args);
     }
 
     @Override
-    public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+    public void initialize(Bootstrap<ZKAppConfiguration> bootstrap) {
         bootstrap.addBundle(new ZKServerBundle());
     }
 
     @Override
-    public void run(AppConfiguration appConfiguration, Environment environment) {
+    public void run(ZKAppConfiguration appConfiguration, Environment environment) {
         /*
             Nothing to do here.
         */

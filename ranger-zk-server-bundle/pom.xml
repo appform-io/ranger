@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ranger-http-server</artifactId>
+    <artifactId>ranger-zk-server-bundle</artifactId>
 
     <properties>
         <dropwizard.version>2.0.23</dropwizard.version>
@@ -18,18 +18,18 @@
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-http-server-bundle</artifactId>
+            <artifactId>ranger-zk-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-            <version>${dropwizard.version}</version>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-server-bundle</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-server-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -37,9 +37,10 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
