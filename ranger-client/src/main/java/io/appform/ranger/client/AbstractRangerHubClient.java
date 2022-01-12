@@ -67,7 +67,9 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
     @Override
     public void stop(){
-        hub.stop();
+        if(null != hub){
+            hub.stop();
+        }
     }
 
     @Override

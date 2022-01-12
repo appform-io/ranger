@@ -65,7 +65,11 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
 
         if(null == curatorFramework){
             Preconditions.checkNotNull(connectionString, "Connection string can't be null");
-            curatorFramework = CuratorFrameworkFactory.newClient(connectionString, new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME));
+            curatorFramework = CuratorFrameworkFactory.builder()
+                    .connectString(connectionString)
+                    .namespace(namespace)
+                    .retryPolicy(new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME))
+                    .build();
         }
 
         this.serviceFinder = ServiceFinderBuilders.<T>shardedFinderBuilder()
@@ -84,6 +88,8 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     @Override
     public void stop() {
         log.info("Stopping the service finder");
-        this.serviceFinder.stop();
+        if(null != serviceFinder){
+            this.serviceFinder.stop();
+        }
     }
 }

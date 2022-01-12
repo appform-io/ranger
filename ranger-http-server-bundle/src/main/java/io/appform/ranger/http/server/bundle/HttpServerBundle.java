@@ -22,9 +22,10 @@ import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.http.model.ServiceNodesResponse;
-import io.appform.ranger.http.server.bundle.config.HttpAppConfiguration;
+import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.appform.ranger.http.server.bundle.healthcheck.RangerHttpHealthCheck;
 import io.appform.ranger.zk.server.bundle.RangerServerBundle;
+import io.dropwizard.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -38,11 +39,13 @@ import java.util.stream.Collectors;
 @Singleton
 @NoArgsConstructor
 @SuppressWarnings("unused")
-public class HttpServerBundle extends RangerServerBundle<ShardInfo, HttpAppConfiguration> {
+public abstract class HttpServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, U> {
+
+    protected abstract RangerHttpConfiguration getRangerConfiguration(U configuration);
 
     @Override
-    protected List<RangerHubClient<ShardInfo>> withHubs(HttpAppConfiguration configuration) {
-        val rangerConfiguration = configuration.getRangerConfiguration();
+    protected List<RangerHubClient<ShardInfo>> withHubs(U configuration) {
+        val rangerConfiguration = getRangerConfiguration(configuration);
         return rangerConfiguration.getHttpClientConfigs().stream().map(clientConfig -> UnshardedRangerHttpHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
                 .mapper(getMapper())
@@ -60,13 +63,7 @@ public class HttpServerBundle extends RangerServerBundle<ShardInfo, HttpAppConfi
                 .build()).collect(Collectors.toList());
     }
 
-    @Override
-    protected boolean withInitialRotationStatus(HttpAppConfiguration configuration) {
-        return configuration.isInitialRotationStatus();
-    }
-
-    @Override
-    protected List<HealthCheck> withHealthChecks(HttpAppConfiguration configuration) {
+    protected List<HealthCheck> withHealthChecks(U configuration) {
         return ImmutableList.of(new RangerHttpHealthCheck());
     }
 }

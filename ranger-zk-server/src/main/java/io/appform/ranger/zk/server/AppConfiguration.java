@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle;
+package io.appform.ranger.zk.server;
 
 import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
 import io.dropwizard.Configuration;
@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ZKAppConfiguration extends Configuration {
+public class AppConfiguration extends Configuration {
     @NotEmpty
     @NotNull
     String name;

@@ -16,7 +16,7 @@
 package io.appform.ranger.http.server;
 
 import io.appform.ranger.http.server.bundle.HttpServerBundle;
-import io.appform.ranger.http.server.bundle.config.HttpAppConfiguration;
+import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -29,7 +29,17 @@ public class App extends Application<HttpAppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<HttpAppConfiguration> bootstrap) {
-        bootstrap.addBundle(new HttpServerBundle());
+        bootstrap.addBundle(new HttpServerBundle<HttpAppConfiguration>() {
+            @Override
+            protected RangerHttpConfiguration getRangerConfiguration(HttpAppConfiguration configuration) {
+                return configuration.getRangerConfiguration();
+            }
+
+            @Override
+            protected boolean withInitialRotationStatus(HttpAppConfiguration configuration){
+                return configuration.isInitialRotationStatus();
+            }
+        });
     }
 
     @Override

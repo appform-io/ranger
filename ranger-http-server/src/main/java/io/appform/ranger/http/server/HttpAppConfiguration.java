@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.http.server.bundle.config;
+package io.appform.ranger.http.server;
 
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.dropwizard.Configuration;

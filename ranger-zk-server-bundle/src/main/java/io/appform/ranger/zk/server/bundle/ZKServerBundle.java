@@ -24,8 +24,10 @@ import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
+import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
 import io.appform.ranger.zk.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.zk.server.bundle.lifecycle.CuratorLifecycle;
+import io.dropwizard.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -40,21 +42,25 @@ import java.util.List;
 @Slf4j
 @Singleton
 @NoArgsConstructor
-public class ZKServerBundle extends RangerServerBundle<ShardInfo, ZKAppConfiguration> {
+public abstract class ZKServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, U> {
 
     private CuratorFramework curatorFramework;
 
+    protected abstract RangerConfiguration getRangerConfiguration(U configuration);
+
     @Override
-    protected void preBundle(ZKAppConfiguration configuration) {
-        curatorFramework = CuratorFrameworkFactory.newClient(
-                configuration.getRangerConfiguration().getZookeeper(),
-                new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME)
-        );
+    protected void preBundle(U configuration) {
+        val rangerConfiguration = getRangerConfiguration(configuration);
+        curatorFramework = CuratorFrameworkFactory.builder()
+                .connectString(rangerConfiguration.getZookeeper())
+                .namespace(rangerConfiguration.getNamespace())
+                .retryPolicy(new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME))
+                .build();
     }
 
     @Override
-    protected List<RangerHubClient<ShardInfo>> withHubs(ZKAppConfiguration configuration) {
-        val rangerConfiguration = configuration.getRangerConfiguration();
+    protected List<RangerHubClient<ShardInfo>> withHubs(U configuration) {
+        val rangerConfiguration = getRangerConfiguration(configuration);
         return ImmutableList.of(UnshardedRangerZKHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
                 .connectionString(rangerConfiguration.getZookeeper())
@@ -74,20 +80,13 @@ public class ZKServerBundle extends RangerServerBundle<ShardInfo, ZKAppConfigura
                 .build());
     }
 
-    @Override
-    protected boolean withInitialRotationStatus(ZKAppConfiguration configuration) {
-        return configuration.isInitialRotationStatus();
-    }
-
-    @Override
-    protected List<Signal<ShardInfo>> withLifecycleSignals(ZKAppConfiguration configuration) {
+    protected List<Signal<ShardInfo>> withLifecycleSignals(U configuration) {
         return ImmutableList.of(
                 new CuratorLifecycle(curatorFramework)
         );
     }
 
-    @Override
-    protected List<HealthCheck> withHealthChecks(ZKAppConfiguration configuration) {
+    protected List<HealthCheck> withHealthChecks(U configuration) {
         return ImmutableList.of(new RangerHealthCheck(curatorFramework));
     }
 }

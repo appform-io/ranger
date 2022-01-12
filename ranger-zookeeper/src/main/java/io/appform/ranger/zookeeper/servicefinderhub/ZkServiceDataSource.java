@@ -53,7 +53,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
     @SneakyThrows
     public Collection<Service> services() {
         val children = curatorFramework.getChildren()
-                .forPath(PathBuilder.registeredServicesPath(namespace));
+                .forPath(PathBuilder.REGISTERED_SERVICES_PATH);
         return null == children ? Collections.emptySet() :
                 children.stream()
                         .map(child -> Service.builder().namespace(namespace).serviceName(child).build())
