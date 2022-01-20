@@ -22,6 +22,7 @@ import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
 import io.appform.ranger.common.server.ShardInfo;
+import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
@@ -42,7 +43,7 @@ import java.util.List;
 @Slf4j
 @Singleton
 @NoArgsConstructor
-public abstract class ZKServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, U> {
+public abstract class ZKServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, ListBasedServiceRegistry<ShardInfo>, U> {
 
     private CuratorFramework curatorFramework;
 
@@ -59,7 +60,7 @@ public abstract class ZKServerBundle<U extends Configuration> extends RangerServ
     }
 
     @Override
-    protected List<RangerHubClient<ShardInfo>> withHubs(U configuration) {
+    protected List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> withHubs(U configuration) {
         val rangerConfiguration = getRangerConfiguration(configuration);
         return ImmutableList.of(UnshardedRangerZKHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())

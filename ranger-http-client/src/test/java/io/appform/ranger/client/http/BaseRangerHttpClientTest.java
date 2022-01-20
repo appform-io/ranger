@@ -38,6 +38,7 @@ import org.junit.Rule;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 @Slf4j
 @Getter
@@ -45,7 +46,7 @@ public abstract class BaseRangerHttpClientTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Rule
-    public WireMockRule server = new WireMockRule(8888);
+    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
     private HttpClientConfig httpClientConfig;
 
     @Before

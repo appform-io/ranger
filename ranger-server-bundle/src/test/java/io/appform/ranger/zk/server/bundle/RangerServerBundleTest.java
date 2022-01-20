@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.stubs.RangerTestHub;
 import io.appform.ranger.client.utils.RangerHubTestUtils;
+import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.dropwizard.Configuration;
@@ -54,11 +55,11 @@ public class RangerServerBundleTest {
     private final Bootstrap<?> bootstrap = mock(Bootstrap.class);
     private final Configuration configuration = mock(Configuration.class);
 
-    private final RangerServerBundle<TestNodeData, Configuration>
-            rangerServerBundle = new RangerServerBundle<TestNodeData, Configuration>() {
+    private final RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>
+            rangerServerBundle = new RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>() {
 
         @Override
-        protected List<RangerHubClient<TestNodeData>> withHubs(Configuration configuration) {
+        protected List<RangerHubClient<TestNodeData, ListBasedServiceRegistry<TestNodeData>>> withHubs(Configuration configuration) {
             return Collections.singletonList(RangerHubTestUtils.getTestHub());
         }
 
@@ -80,14 +81,14 @@ public class RangerServerBundleTest {
 
         rangerServerBundle.initialize(bootstrap);
         rangerServerBundle.run(configuration, environment);
-        for (val lifeCycle : lifecycleEnvironment.getManagedObjects()){
+        for (val lifeCycle : lifecycleEnvironment.getManagedObjects()) {
             lifeCycle.start();
         }
     }
 
 
     @Test
-    public void testRangerBundle(){
+    public void testRangerBundle() {
         var hub = rangerServerBundle.getHubs().get(0);
         Assert.assertTrue(hub instanceof RangerTestHub);
         RangerTestUtils.sleepUntilHubStarts(((RangerTestHub) hub).getHub());
@@ -98,12 +99,13 @@ public class RangerServerBundleTest {
         Assert.assertEquals(1, node.getNodeData().getShardId());
         Assert.assertNull(hub.getNode(RangerTestUtils.getService("test", "test")).orElse(null));
         Assert.assertNull(hub.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));
-        Assert.assertNull(hub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).orElse(null));
+        Assert.assertNull(hub.getNode(RangerTestUtils.getService("test", "test"),
+                                      nodeData -> nodeData.getShardId() == 1).orElse(null));
     }
 
     @After
     public void tearDown() throws Exception {
-        for (LifeCycle lifeCycle: lifecycleEnvironment.getManagedObjects()){
+        for (LifeCycle lifeCycle : lifecycleEnvironment.getManagedObjects()) {
             lifeCycle.stop();
         }
     }

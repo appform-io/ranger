@@ -41,7 +41,7 @@ public class SimpleShardFinderTest {
     }
 
     @Test
-    public void testSimpleShardedFinder(){
+    public void testSimpleShardedFinder() {
         val serviceRegistry = RegistryTestUtils.getServiceRegistry();
         val shardSelector = new TestSimpleShardSelector<TestNodeData>();
         val roundRobinServiceNodeSelector = new RoundRobinServiceNodeSelector<TestNodeData>();

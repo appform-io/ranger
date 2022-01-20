@@ -31,12 +31,12 @@ public class CriteriaUtils {
         So when useInitialCriteria is true, the initial criteria defined will always be used, no matter what,
         it is a predicate and. (Not to be confused with or)
      */
-    public static <T>Predicate<T> getCriteria(
+    public static <T> Predicate<T> getCriteria(
             boolean useInitialCriteria,
             Predicate<T> initialCriteria,
-            Predicate<T> argCriteria
-    ){
-        return null != initialCriteria && null != argCriteria && useInitialCriteria ?
-           initialCriteria.and(argCriteria) : argCriteria;
+            Predicate<T> argCriteria) {
+        return null != initialCriteria && null != argCriteria && useInitialCriteria
+               ? initialCriteria.and(argCriteria)
+               : argCriteria;
     }
 }

@@ -16,12 +16,15 @@
 package io.appform.ranger.client;
 
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.ServiceNodeSelector;
+import io.appform.ranger.core.model.ServiceRegistry;
+import io.appform.ranger.core.model.ShardSelector;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public interface RangerClient<T> {
+public interface RangerClient<T, R extends ServiceRegistry<T>> {
 
     void start();
 
@@ -31,7 +34,16 @@ public interface RangerClient<T> {
 
     Optional<ServiceNode<T>> getNode(final Predicate<T> criteria);
 
+    Optional<ServiceNode<T>> getNode(final Predicate<T> criteria, final ShardSelector<T, R> shardSelector);
+
+    Optional<ServiceNode<T>> getNode(
+            final Predicate<T> criteria,
+            final ShardSelector<T, R> shardSelector,
+            final ServiceNodeSelector<T> nodeSelector);
+
     List<ServiceNode<T>> getAllNodes();
 
     List<ServiceNode<T>> getAllNodes(final Predicate<T> criteria);
+
+    List<ServiceNode<T>> getAllNodes(final Predicate<T> criteria, final ShardSelector<T, R> shardSelector);
 }

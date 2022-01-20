@@ -18,8 +18,8 @@ package io.appform.ranger.core.model;
 import java.util.List;
 import java.util.function.Predicate;
 
-public interface ShardSelector<T, ServiceRegistryType extends ServiceRegistry<T>> {
+public interface ShardSelector<T, R extends ServiceRegistry<T>> {
 
-    List<ServiceNode<T>> nodes(Predicate<T> criteria, ServiceRegistryType serviceRegistry);
+    List<ServiceNode<T>> nodes(final Predicate<T> criteria, final R serviceRegistry);
 
 }

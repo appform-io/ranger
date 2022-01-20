@@ -21,6 +21,7 @@ import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
+import io.appform.ranger.core.util.ObjectUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -37,9 +38,11 @@ public abstract class ServiceFinder<T, R extends ServiceRegistry<T>> {
     private final ShardSelector<T, R> shardSelector;
     private final ServiceNodeSelector<T> nodeSelector;
     @Getter
-    private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
+    private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null,
+                                                                                            Collections.emptyList());
     @Getter
-    private final ExternalTriggeredSignal<Void> stopSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
+    private final ExternalTriggeredSignal<Void> stopSignal = new ExternalTriggeredSignal<>(() -> null,
+                                                                                           Collections.emptyList());
 
     protected ServiceFinder(
             R serviceRegistry,
@@ -51,12 +54,33 @@ public abstract class ServiceFinder<T, R extends ServiceRegistry<T>> {
     }
 
     public Optional<ServiceNode<T>> get(Predicate<T> criteria) {
-        val nodes = shardSelector.nodes(criteria, serviceRegistry);
-        return null == nodes || nodes.isEmpty() ? Optional.empty() : Optional.of(nodeSelector.select(nodes));
+        return this.get(criteria, null);
+    }
+
+    public Optional<ServiceNode<T>> get(
+            Predicate<T> criteria,
+            final ShardSelector<T, R> shardSelector) {
+        return get(criteria, shardSelector, null);
+    }
+
+    public Optional<ServiceNode<T>> get(
+            Predicate<T> criteria,
+            final ShardSelector<T, R> shardSelector,
+            final ServiceNodeSelector<T> nodeSelector) {
+        val nodes = ObjectUtils.requireNonNullElse(shardSelector, this.shardSelector)
+                .nodes(criteria, serviceRegistry);
+        return nodes.isEmpty()
+               ? Optional.empty()
+               : Optional.ofNullable(ObjectUtils.requireNonNullElse(nodeSelector, this.nodeSelector).select(nodes));
     }
 
     public List<ServiceNode<T>> getAll(Predicate<T> criteria) {
-        return shardSelector.nodes(criteria, serviceRegistry);
+        return getAll(criteria, this.shardSelector);
+    }
+
+    public List<ServiceNode<T>> getAll(Predicate<T> criteria, final ShardSelector<T, R> shardSelector) {
+        return ObjectUtils.requireNonNullElse(shardSelector, this.shardSelector)
+                .nodes(criteria, serviceRegistry);
     }
 
     public void start() {

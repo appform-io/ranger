@@ -18,7 +18,9 @@ package io.appform.ranger.client;
 import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
+import io.appform.ranger.core.model.ShardSelector;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @SuperBuilder
-public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> implements RangerClient<T> {
+public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> implements RangerClient<T, R> {
 
     private final Predicate<T> initialCriteria;
     private final boolean alwaysUseInitialCriteria;
@@ -35,21 +37,47 @@ public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> impl
 
     @Override
     public Optional<ServiceNode<T>> getNode() {
-        return getServiceFinder().get(initialCriteria);
+        return getNode(initialCriteria);
     }
 
     @Override
     public Optional<ServiceNode<T>> getNode(Predicate<T> criteria) {
-        return getServiceFinder().get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria));
+        return getNode(criteria, null);
+    }
+
+    @Override
+    public Optional<ServiceNode<T>> getNode(
+            Predicate<T> criteria, ShardSelector<T, R> shardSelector) {
+        return getNode(criteria, shardSelector, null);
+    }
+
+    @Override
+    public Optional<ServiceNode<T>> getNode(
+            Predicate<T> criteria,
+            ShardSelector<T, R> shardSelector,
+            ServiceNodeSelector<T> nodeSelector) {
+        return getServiceFinder().get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria),
+                                      shardSelector,
+                                      nodeSelector);
     }
 
     @Override
     public List<ServiceNode<T>> getAllNodes() {
-        return getServiceFinder().getAll(initialCriteria);
+        return getAllNodes(initialCriteria);
     }
 
     @Override
     public List<ServiceNode<T>> getAllNodes(Predicate<T> criteria) {
-        return getServiceFinder().getAll(CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria));
+        return getAllNodes(criteria, null);
     }
+
+    @Override
+    public List<ServiceNode<T>> getAllNodes(
+            Predicate<T> criteria, ShardSelector<T, R> shardSelector) {
+        return getServiceFinder().getAll(CriteriaUtils.getCriteria(alwaysUseInitialCriteria,
+                                                                   initialCriteria,
+                                                                   criteria),
+                                         shardSelector);
+    }
+
 }

@@ -19,6 +19,7 @@ import com.codahale.metrics.annotation.Metered;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.http.response.model.GenericResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -37,12 +38,12 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/ranger")
-public class RangerResource<T> {
+public class RangerResource<T, R extends ServiceRegistry<T>> {
 
-    private final List<RangerHubClient<T>> rangerHubs;
+    private final List<RangerHubClient<T, R>> rangerHubs;
 
     @Inject
-    public RangerResource(List<RangerHubClient<T>> rangerHubs){
+    public RangerResource(List<RangerHubClient<T, R>> rangerHubs){
         this.rangerHubs = rangerHubs;
     }
 

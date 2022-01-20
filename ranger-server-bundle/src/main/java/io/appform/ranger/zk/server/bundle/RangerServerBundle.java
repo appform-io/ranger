@@ -19,6 +19,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
+import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.zk.server.bundle.resources.RangerResource;
 import io.appform.ranger.zk.server.bundle.rotation.BirTask;
@@ -38,6 +39,7 @@ import java.util.List;
 @Slf4j
 public abstract class RangerServerBundle<
         T,
+        R extends ServiceRegistry<T>,
         U extends Configuration> implements ConfiguredBundle<U>{
 
     /*
@@ -49,7 +51,7 @@ public abstract class RangerServerBundle<
         You could also define your custom aggregation by using the {@link RangerHubClient}
      */
     @Getter
-    private List<RangerHubClient<T>> hubs;
+    private List<RangerHubClient<T, R>> hubs;
     @Getter
     private ObjectMapper mapper;
 
@@ -77,7 +79,7 @@ public abstract class RangerServerBundle<
         return ImmutableList.of();
     }
 
-    protected abstract List<RangerHubClient<T>> withHubs(U configuration);
+    protected abstract List<RangerHubClient<T, R>> withHubs(U configuration);
 
     protected abstract List<HealthCheck> withHealthChecks(U configuration);
 

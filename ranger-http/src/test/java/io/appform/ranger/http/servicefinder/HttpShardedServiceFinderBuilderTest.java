@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 /**
  *
@@ -52,7 +53,7 @@ public class HttpShardedServiceFinderBuilderTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Rule
-    public WireMockRule server = new WireMockRule(8888);
+    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
 
     @Test
     public void testFinder() throws Exception {

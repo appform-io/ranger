@@ -21,9 +21,11 @@ import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
+import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.HttpServiceFinderBuilders;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,8 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
     private final int nodeRefreshIntervalMs;
     private final HttpClientConfig clientConfig;
     private final HTTPResponseDataDeserializer<T> deserializer;
+    @Builder.Default
+    private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
 
     @Getter
     private SimpleUnshardedServiceFinder<T> serviceFinder;
@@ -56,7 +60,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
                 .withObjectMapper(mapper)
                 .withNodeRefreshIntervalMs(nodeRefreshIntervalMs)
                 .withDeserializer(deserializer)
-                .withShardSelector(new ListShardSelector<>())
+                .withShardSelector(shardSelector)
                 .build();
         this.serviceFinder.start();
         log.info("Started the service finder");

@@ -22,11 +22,14 @@ import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
+import io.appform.ranger.core.model.ServiceNodeSelector;
+import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
 import io.appform.ranger.http.servicefinderhub.HttpUnshardedServiceFinderFactory;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +39,11 @@ public class UnshardedRangerHttpHubClient<T>
         extends AbstractRangerHubClient<T, ListBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
 
     private final HttpClientConfig clientConfig;
+    @Builder.Default
+    private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
+
+    @Builder.Default
+    private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
 
     @Override
     protected ServiceDataSource getDataSource() {
@@ -57,8 +65,8 @@ public class UnshardedRangerHttpHubClient<T>
                 .httpClientConfig(clientConfig)
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
-                .shardSelector(new ListShardSelector<>())
-                .nodeSelector(new RoundRobinServiceNodeSelector<>())
+                .shardSelector(shardSelector)
+                .nodeSelector(nodeSelector)
                 .mapper(getMapper())
                 .build();
     }

@@ -29,13 +29,14 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class HttpServiceDataSourceTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Rule
-    public WireMockRule server = new WireMockRule(8888);
+    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
 
     @Test
     public void testServiceDataSource() throws IOException {

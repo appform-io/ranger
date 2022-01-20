@@ -28,6 +28,8 @@ import java.util.Set;
     The idea of this nodeData is to include an environment (prod/stage etc.) along with the region to indicate the DC you may be running your
     service on. It also additionally contains a livelinessScore, ranging from 0 -> 100 (that you can compute basis your own monitor running) and
     a bunch of tags, so help run an AB or the like should it be desired.
+    The iterable interface can be used to implement selectors that use a parseable environment string.
+     For example for hierarchical lookups.
  */
 @Value
 @Builder

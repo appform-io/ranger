@@ -22,8 +22,10 @@ import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
+import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,8 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     private CuratorFramework curatorFramework;
     private int nodeRefreshIntervalMs;
     private SimpleShardedServiceFinder<T> serviceFinder;
+    @Builder.Default
+    private ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector = new MatchingShardSelector<>();
 
     @Override
     public void start() {
@@ -59,11 +63,11 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
         if (effectiveRefreshTime < RangerClientConstants.MINIMUM_REFRESH_TIME) {
             effectiveRefreshTime = RangerClientConstants.MINIMUM_REFRESH_TIME;
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
-                    nodeRefreshIntervalMs,
-                    RangerClientConstants.MINIMUM_REFRESH_TIME);
+                     nodeRefreshIntervalMs,
+                     RangerClientConstants.MINIMUM_REFRESH_TIME);
         }
 
-        if(null == curatorFramework){
+        if (null == curatorFramework) {
             Preconditions.checkNotNull(connectionString, "Connection string can't be null");
             curatorFramework = CuratorFrameworkFactory.builder()
                     .connectString(connectionString)
@@ -79,7 +83,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
                 .withDeserializer(deserializer)
                 .withNodeRefreshIntervalMs(effectiveRefreshTime)
                 .withDisableWatchers(disableWatchers)
-                .withShardSelector(new MatchingShardSelector<>())
+                .withShardSelector(shardSelector)
                 .build();
 
         this.serviceFinder.start();
@@ -88,7 +92,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     @Override
     public void stop() {
         log.info("Stopping the service finder");
-        if(null != serviceFinder){
+        if (null != serviceFinder) {
             this.serviceFinder.stop();
         }
     }

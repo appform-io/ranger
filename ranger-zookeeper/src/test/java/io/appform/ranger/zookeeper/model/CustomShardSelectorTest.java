@@ -61,7 +61,7 @@ public class CustomShardSelectorTest {
     @After
     public void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
-        if(null != testingCluster) {
+        if (null != testingCluster) {
             testingCluster.close();
         }
     }
@@ -73,7 +73,7 @@ public class CustomShardSelectorTest {
         int a;
         int b;
 
-        private static Predicate<TestShardInfo> getCriteria(int a, int b){
+        private static Predicate<TestShardInfo> getCriteria(int a, int b) {
             return nodeData -> nodeData.getA() == a && nodeData.getB() == b;
         }
     }
@@ -135,7 +135,8 @@ public class CustomShardSelectorTest {
                 .withSerializer(data -> {
                     try {
                         return objectMapper.writeValueAsBytes(data);
-                    } catch (JsonProcessingException e) {
+                    }
+                    catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
                     return null;

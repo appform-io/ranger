@@ -49,15 +49,15 @@ public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> impl
                         : "http")
                 .host(config.getHost())
                 .port(config.getPort() == 0
-                        ? defaultPort()
-                        : config.getPort())
+                      ? defaultPort()
+                      : config.getPort())
                 .encodedPath("/ranger/services/v1")
                 .build();
         val request = new Request.Builder()
                 .url(httpUrl)
                 .get()
                 .build();
-        
+
         try (val response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 try (val body = response.body()) {
@@ -67,10 +67,13 @@ public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> impl
                     else {
                         val bytes = body.bytes();
                         val serviceDataSourceResponse = mapper.readValue(bytes, ServiceDataSourceResponse.class);
-                        if(serviceDataSourceResponse.valid()){
+                        if (serviceDataSourceResponse.valid()) {
                             return serviceDataSourceResponse.getData();
-                        }else{
-                            log.warn("Http call to {} returned a failure response with data {}", httpUrl, serviceDataSourceResponse);
+                        }
+                        else {
+                            log.warn("Http call to {} returned a failure response with data {}",
+                                     httpUrl,
+                                     serviceDataSourceResponse);
                         }
                     }
                 }

@@ -22,10 +22,7 @@ import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.finderhub.StaticDataSource;
-import io.appform.ranger.core.model.Deserializer;
-import io.appform.ranger.core.model.Service;
-import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.ServiceRegistry;
+import io.appform.ranger.core.model.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -37,7 +34,7 @@ import java.util.function.Predicate;
 @Slf4j
 @Getter
 @SuperBuilder
-public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T> {
+public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T, R> {
 
     private final String namespace;
     private final ObjectMapper mapper;
@@ -50,15 +47,15 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private Set<Service> services = Collections.emptySet();
 
     @Override
-    public void start(){
+    public void start() {
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
 
         if (this.nodeRefreshTimeMs < RangerClientConstants.MINIMUM_REFRESH_TIME) {
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
-                    this.nodeRefreshTimeMs,
-                    RangerClientConstants.MINIMUM_REFRESH_TIME);
+                     this.nodeRefreshTimeMs,
+                     RangerClientConstants.MINIMUM_REFRESH_TIME);
         }
         this.nodeRefreshTimeMs = Math.max(RangerClientConstants.MINIMUM_REFRESH_TIME, this.nodeRefreshTimeMs);
         this.hub = buildHub();
@@ -66,51 +63,78 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     }
 
     @Override
-    public void stop(){
-        if(null != hub){
+    public void stop() {
+        if (null != hub) {
             hub.stop();
         }
     }
 
     @Override
-    public Optional<ServiceNode<T>> getNode(
-            final Service service
-    ){
+    public Optional<ServiceNode<T>> getNode(final Service service) {
         return getNode(service, initialCriteria);
     }
 
     @Override
-    public List<ServiceNode<T>> getAllNodes(
-            final Service service
-    ){
+    public List<ServiceNode<T>> getAllNodes(final Service service) {
         return getAllNodes(service, initialCriteria);
+    }
+
+    @Override
+    public Optional<ServiceNode<T>> getNode(final Service service, final Predicate<T> criteria) {
+        return this.getNode(service, criteria, null);
     }
 
     @Override
     public Optional<ServiceNode<T>> getNode(
             final Service service,
-            final Predicate<T> criteria
-    ){
-        return  this.getHub().finder(service).flatMap(trServiceFinder -> trServiceFinder.get(
-                CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria))
-        );
+            final Predicate<T> criteria,
+            final ShardSelector<T,R> shardSelector) {
+        return getNode(service, criteria, shardSelector, null);
+    }
+
+    @Override
+    public Optional<ServiceNode<T>> getNode(
+            final Service service,
+            final Predicate<T> criteria,
+            final ShardSelector<T,R> shardSelector,
+            final ServiceNodeSelector<T> nodeSelector) {
+        return this.getHub()
+                .finder(service)
+                .flatMap(trServiceFinder
+                                 -> trServiceFinder.get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria,
+                                                                                  initialCriteria,
+                                                                                  criteria),
+                                                        shardSelector,
+                                                        nodeSelector));
     }
 
     @Override
     public List<ServiceNode<T>> getAllNodes(
             final Service service,
             final Predicate<T> criteria
-    ){
-        return this.getHub().finder(service).map(trServiceFinder -> trServiceFinder.getAll(
-                CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria))
-        ).orElse(Collections.emptyList());
+                                           ) {
+        return getAllNodes(service, criteria, null);
+    }
+
+    @Override
+    public List<ServiceNode<T>> getAllNodes(
+            final Service service,
+            final Predicate<T> criteria,
+            final ShardSelector<T, R> shardSelector) {
+        return this.getHub()
+                .finder(service)
+                .map(trServiceFinder -> trServiceFinder.getAll(
+                        CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria),
+                        shardSelector))
+                .orElse(Collections.emptyList());
     }
 
     @Override
     public Collection<Service> getRegisteredServices() {
-        try{
+        try {
             return this.getHub().getServiceDataSource().services();
-        }catch (Exception e){
+        }
+        catch (Exception e) {
             log.error("Call to the hub failed with exception, {}", e.getMessage());
             return Collections.emptySet();
         }
@@ -118,8 +142,10 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
     protected abstract ServiceDataSource getDataSource();
 
-    protected ServiceDataSource buildServiceDataSource(){
-        return !services.isEmpty() ? new StaticDataSource(services) : getDataSource();
+    protected ServiceDataSource buildServiceDataSource() {
+        return !services.isEmpty()
+               ? new StaticDataSource(services)
+               : getDataSource();
     }
 
     protected abstract ServiceFinderFactory<T, R> buildFinderFactory();

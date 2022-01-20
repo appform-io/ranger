@@ -19,8 +19,11 @@ import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
+import io.appform.ranger.core.model.ServiceNodeSelector;
+import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
 import io.appform.ranger.zookeeper.servicefinderhub.ZKUnshardedServiceFinderFactory;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UnshardedRangerZKHubClient<T>
         extends AbstractRangerZKHubClient<T, ListBasedServiceRegistry<T>, ZkNodeDataDeserializer<T>> {
 
+    @Builder.Default
+    private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
+
+    @Builder.Default
+    private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
 
     @Override
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
@@ -38,8 +46,8 @@ public class UnshardedRangerZKHubClient<T>
             .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
             .disablePushUpdaters(isDisablePushUpdaters())
             .deserializer(getDeserializer())
-            .shardSelector(new ListShardSelector<>())
-            .nodeSelector(new RoundRobinServiceNodeSelector<>())
+            .shardSelector(shardSelector)
+            .nodeSelector(nodeSelector)
             .build();
     }
 

@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class HttpShardedServiceProviderBuilderTest {
 
@@ -46,7 +47,7 @@ public class HttpShardedServiceProviderBuilderTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Rule
-    public WireMockRule server = new WireMockRule(8888);
+    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
 
     @Test
     public void testProvider() throws Exception {
