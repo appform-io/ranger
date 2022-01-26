@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle;
+package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,9 +25,9 @@ import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
-import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
-import io.appform.ranger.zk.server.bundle.healthcheck.RangerHealthCheck;
-import io.appform.ranger.zk.server.bundle.lifecycle.CuratorLifecycle;
+import io.appform.ranger.server.bundle.config.RangerConfiguration;
+import io.appform.ranger.server.bundle.healthcheck.RangerHealthCheck;
+import io.appform.ranger.server.bundle.lifecycle.CuratorLifecycle;
 import io.dropwizard.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

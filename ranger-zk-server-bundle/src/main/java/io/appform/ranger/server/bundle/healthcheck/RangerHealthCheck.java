@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle.rotation;
+package io.appform.ranger.server.bundle.healthcheck;
 
-import io.dropwizard.servlets.tasks.Task;
+import com.codahale.metrics.health.HealthCheck;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
 
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
+import javax.inject.Singleton;
 
+@Singleton
 @Slf4j
-public class BirTask extends Task {
+public class RangerHealthCheck extends HealthCheck {
 
-    private final RotationStatus rotationStatus;
+    private final CuratorFramework curatorFramework;
 
-    public BirTask(RotationStatus rotationStatus) {
-        super("ranger-bir");
-        this.rotationStatus = rotationStatus;
+    public RangerHealthCheck(CuratorFramework curatorFramework){
+        this.curatorFramework = curatorFramework;
     }
 
     @Override
-    public void execute(Map<String, List<String>> map, PrintWriter printWriter) {
-        rotationStatus.bir();
-        log.info("Taking node back into rotation on ranger");
+    protected Result check() {
+        return curatorFramework.getZookeeperClient().isConnected() ?
+                Result.healthy("Service is healthy") : Result.unhealthy("Can't connect to zookeeper");
     }
 }

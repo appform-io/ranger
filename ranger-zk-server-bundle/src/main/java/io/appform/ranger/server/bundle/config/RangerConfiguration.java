@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle.config;
+package io.appform.ranger.server.bundle.config;
 
 import io.appform.ranger.client.RangerClientConstants;
 import lombok.AllArgsConstructor;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle.rotation;
+package io.appform.ranger.server.bundle.rotation;
 
 import io.dropwizard.servlets.tasks.Task;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +23,18 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class OorTask extends Task {
+public class BirTask extends Task {
 
     private final RotationStatus rotationStatus;
 
-    public OorTask(RotationStatus rotationStatus) {
-        super("ranger-oor");
+    public BirTask(RotationStatus rotationStatus) {
+        super("ranger-bir");
         this.rotationStatus = rotationStatus;
     }
 
     @Override
     public void execute(Map<String, List<String>> map, PrintWriter printWriter) {
-        rotationStatus.oor();
-        log.info("Taking node out of rotation on ranger");
+        rotationStatus.bir();
+        log.info("Taking node back into rotation on ranger");
     }
 }

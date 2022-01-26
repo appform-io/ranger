@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle;
+package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,10 +21,10 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
-import io.appform.ranger.zk.server.bundle.resources.RangerResource;
-import io.appform.ranger.zk.server.bundle.rotation.BirTask;
-import io.appform.ranger.zk.server.bundle.rotation.OorTask;
-import io.appform.ranger.zk.server.bundle.rotation.RotationStatus;
+import io.appform.ranger.server.bundle.resources.RangerResource;
+import io.appform.ranger.server.bundle.rotation.BirTask;
+import io.appform.ranger.server.bundle.rotation.OorTask;
+import io.appform.ranger.server.bundle.rotation.RotationStatus;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.lifecycle.Managed;
