@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.core.model;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Data;
 
 import java.util.List;
@@ -22,8 +23,14 @@ import java.util.List;
 @Data
 public abstract class ServiceRegistry<T> {
     private final Service service;
+    private final AtomicBoolean initialRefreshCompleted = new AtomicBoolean(false);
 
     public abstract List<ServiceNode<T>> nodeList();
 
-    public abstract void updateNodes(List<ServiceNode<T>> nodes);
+    public abstract void update(List<ServiceNode<T>> nodes);
+
+    public void updateNodes(List<ServiceNode<T>> nodes) {
+        update(nodes);
+        initialRefreshCompleted.compareAndSet(false, true);
+    }
 }

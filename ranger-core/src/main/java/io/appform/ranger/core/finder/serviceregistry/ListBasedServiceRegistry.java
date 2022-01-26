@@ -42,7 +42,7 @@ public class ListBasedServiceRegistry<T> extends ServiceRegistry<T> {
     }
 
     @Override
-    public void updateNodes(List<ServiceNode<T>> serviceNodes) {
+    public void update(List<ServiceNode<T>> serviceNodes) {
         nodes.set(ImmutableList.copyOf(serviceNodes));
     }
 }

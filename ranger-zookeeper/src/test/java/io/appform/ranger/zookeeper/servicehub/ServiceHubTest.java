@@ -82,20 +82,6 @@ public class ServiceHubTest {
 
     @Test
     public void testHub() {
-        ExternalTriggeredSignal<Void> refreshHubSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
-        val hub = new ZkServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>()
-                .withCuratorFramework(curatorFramework)
-                .withNamespace("test")
-                .withRefreshFrequencyMs(1000)
-                .withServiceDataSource(new ZkServiceDataSource("test", testingCluster.getConnectString(), curatorFramework))
-                .withServiceFinderFactory(ZkShardedServiceFinderFactory.<TestNodeData>builder()
-                                                  .curatorFramework(curatorFramework)
-                                                  .deserializer(this::read)
-                                                  .build())
-                .withExtraRefreshSignal(refreshHubSignal)
-                .build();
-        hub.start();
-
         val refreshProviderSignal = new ExternalTriggeredSignal<>(
                 () -> HealthcheckResult.builder()
                         .status(HealthcheckStatus.healthy)
@@ -113,10 +99,22 @@ public class ServiceHubTest {
                 .withCuratorFramework(curatorFramework)
                 .build();
         provider1.start();
-
         refreshProviderSignal.trigger();
+
+        ExternalTriggeredSignal<Void> refreshHubSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
+        val hub = new ZkServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>()
+            .withCuratorFramework(curatorFramework)
+            .withNamespace("test")
+            .withRefreshFrequencyMs(1000)
+            .withServiceDataSource(new ZkServiceDataSource("test", testingCluster.getConnectString(), curatorFramework))
+            .withServiceFinderFactory(ZkShardedServiceFinderFactory.<TestNodeData>builder()
+                .curatorFramework(curatorFramework)
+                .deserializer(this::read)
+                .build())
+            .withExtraRefreshSignal(refreshHubSignal)
+            .build();
+        hub.start();
         refreshHubSignal.trigger();
-        RangerTestUtils.sleepUntilHubStarts(hub);
 
         val node = hub.finder(RangerTestUtils.getService(NAMESPACE, "s1"))
                 .flatMap(finder -> finder.get(nodeData -> nodeData.getShardId() == 1)).orElse(null);

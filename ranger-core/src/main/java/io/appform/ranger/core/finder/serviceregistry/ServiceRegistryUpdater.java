@@ -50,7 +50,6 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
     private Future<Void> queryThreadFuture;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
-    private final AtomicBoolean initialRefreshCompleted = new AtomicBoolean(false);
 
     public ServiceRegistryUpdater(
             ServiceRegistry<T> serviceRegistry,
@@ -74,7 +73,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> null == r || !r)
                     .build()
-                    .call(initialRefreshCompleted::get);
+                    .call(() -> serviceRegistry.getInitialRefreshCompleted().get());
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not perform initial state for service: " + serviceName, e);
@@ -139,7 +138,6 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             log.debug("Updating nodelist of size: {} for [{}]", nodeList.size(),
                          serviceRegistry.getService().getServiceName());
             serviceRegistry.updateNodes(nodeList);
-            initialRefreshCompleted.compareAndSet(false, true);
         }
         else {
             log.warn("Empty list returned from node data source. We are in a weird state. Keeping old list for {}",

@@ -50,7 +50,7 @@ public class MapBasedServiceRegistry<T> extends ServiceRegistry<T> {
     }
 
     @Override
-    public void updateNodes(List<ServiceNode<T>> nodes) {
+    public void update(List<ServiceNode<T>> nodes) {
         ListMultimap<T, ServiceNode<T>> serviceNodes = ArrayListMultimap.create();
         nodes.forEach(serviceNode -> serviceNodes.put(serviceNode.getNodeData(), serviceNode));
         this.nodes.set(ImmutableListMultimap.copyOf(serviceNodes));

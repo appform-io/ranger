@@ -15,12 +15,14 @@
  */
 package io.appform.ranger.core.finderhub;
 
+import com.github.rholder.retry.RetryerBuilder;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
+import io.appform.ranger.core.util.Exceptions;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -85,6 +87,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
         updateAvailable();
+        waitTillHubIsReady();
         log.info("Service finder hub started");
     }
 
@@ -168,5 +171,24 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             alreadyUpdating.set(false);
         }
         finders.set(updatedFinders);
+    }
+
+    private void waitTillHubIsReady() {
+        serviceDataSource.services().forEach(service -> {
+            try {
+                val serviceRegistry = RetryerBuilder.<ServiceFinder<T, R>>newBuilder()
+                    .retryIfResult(r -> r == null)
+                    .build()
+                    .call(() -> getFinders().get().get(service));
+                RetryerBuilder.<Boolean>newBuilder()
+                    .retryIfResult(r -> r == null || !r)
+                    .build()
+                    .call(() -> serviceRegistry.getServiceRegistry()
+                        .getInitialRefreshCompleted().get());
+            } catch (Exception e) {
+                Exceptions
+                    .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
+            }
+        });
     }
 }
