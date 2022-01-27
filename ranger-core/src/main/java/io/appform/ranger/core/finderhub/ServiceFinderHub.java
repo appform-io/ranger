@@ -16,6 +16,7 @@
 package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
+import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
@@ -23,6 +24,7 @@ import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -38,6 +40,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.var;
 
 /**
  *
@@ -83,12 +86,14 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     public void start() {
+        log.info("Waiting for the service finder hub to start");
+        var stopwatch = Stopwatch.createStarted();
         monitorFuture = executorService.submit(this::monitor);
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
         updateAvailable();
         waitTillHubIsReady();
-        log.info("Service finder hub started");
+        log.info("Service finder hub started in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void stop() {
