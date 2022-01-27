@@ -40,7 +40,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.var;
 
 /**
  *
@@ -87,7 +86,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
 
     public void start() {
         log.info("Waiting for the service finder hub to start");
-        var stopwatch = Stopwatch.createStarted();
+        val stopwatch = Stopwatch.createStarted();
         monitorFuture = executorService.submit(this::monitor);
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
@@ -188,8 +187,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> r == null || !r)
                     .build()
-                    .call(() -> serviceRegistry.getServiceRegistry()
-                        .getInitialRefreshCompleted().get());
+                    .call(() -> serviceRegistry.getServiceRegistry().isRefreshed());
             } catch (Exception e) {
                 Exceptions
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);

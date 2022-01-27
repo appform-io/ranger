@@ -16,7 +16,6 @@
 package io.appform.ranger.core.utils;
 
 import io.appform.ranger.core.finder.ServiceFinder;
-import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.units.TestNodeData;
@@ -75,6 +74,6 @@ public class RangerTestUtils {
         Only applicable for initial node population using finder. Works when you intend to start the finder with nodes in 'em.
      */
     public static <T, R extends ServiceRegistry<T>> void sleepUntilFinderStarts(ServiceFinder<T, R> finder){
-        await().pollDelay(Duration.ofSeconds(3)).until(() -> finder.getServiceRegistry().getInitialRefreshCompleted().get());
+        await().pollDelay(Duration.ofSeconds(3)).until(() -> finder.getServiceRegistry().isRefreshed());
     }
 }

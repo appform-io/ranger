@@ -32,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -73,7 +72,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> null == r || !r)
                     .build()
-                    .call(() -> serviceRegistry.getInitialRefreshCompleted().get());
+                    .call(serviceRegistry::isRefreshed);
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not perform initial state for service: " + serviceName, e);

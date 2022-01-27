@@ -101,7 +101,7 @@ public class ServiceHubTest {
         provider1.start();
         refreshProviderSignal.trigger();
 
-        ExternalTriggeredSignal<Void> refreshHubSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
+        val refreshHubSignal = new ExternalTriggeredSignal<Void>(() -> null, Collections.emptyList());
         val hub = new ZkServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>()
             .withCuratorFramework(curatorFramework)
             .withNamespace("test")
