@@ -180,14 +180,13 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private void waitTillHubIsReady() {
         serviceDataSource.services().forEach(service -> {
             try {
-                val serviceRegistry = RetryerBuilder.<ServiceFinder<T, R>>newBuilder()
-                    .retryIfResult(r -> r == null)
-                    .build()
-                    .call(() -> getFinders().get().get(service));
                 RetryerBuilder.<Boolean>newBuilder()
-                    .retryIfResult(r -> r == null || !r)
+                    .retryIfResult(r -> !r)
                     .build()
-                    .call(() -> serviceRegistry.getServiceRegistry().isRefreshed());
+                    .call(() -> Optional.ofNullable(getFinders().get().get(service))
+                            .map(ServiceFinder::getServiceRegistry)
+                            .map(ServiceRegistry::isRefreshed)
+                            .orElse(false));
             } catch (Exception e) {
                 Exceptions
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);

@@ -25,13 +25,7 @@ public abstract class ServiceRegistry<T> {
     private final Service service;
     private final AtomicBoolean refreshed = new AtomicBoolean(false);
 
-    protected ServiceRegistry(Service service) {
-        this.service = service;
-    }
-
     public abstract List<ServiceNode<T>> nodeList();
-
-    protected abstract void update(List<ServiceNode<T>> nodes);
 
     public void updateNodes(List<ServiceNode<T>> nodes) {
         update(nodes);
@@ -41,4 +35,10 @@ public abstract class ServiceRegistry<T> {
     public boolean isRefreshed() {
         return refreshed.get();
     }
+
+    protected ServiceRegistry(Service service) {
+        this.service = service;
+    }
+
+    protected abstract void update(List<ServiceNode<T>> nodes);
 }
