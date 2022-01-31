@@ -25,7 +25,7 @@ import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.appform.ranger.http.server.bundle.healthcheck.RangerHttpHealthCheck;
-import io.appform.ranger.zk.server.bundle.RangerServerBundle;
+import io.appform.ranger.server.bundle.RangerServerBundle;
 import io.dropwizard.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -15,7 +15,7 @@
  */
 package io.appform.ranger.zk.server;
 
-import io.appform.ranger.zk.server.bundle.config.RangerConfiguration;
+import io.appform.ranger.server.bundle.config.RangerConfiguration;
 import io.dropwizard.Configuration;
 import lombok.AllArgsConstructor;
 import lombok.Data;

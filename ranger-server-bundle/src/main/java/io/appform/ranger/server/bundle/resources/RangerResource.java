@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.zk.server.bundle.resources;
+package io.appform.ranger.server.bundle.resources;
 
 import com.codahale.metrics.annotation.Metered;
 import io.appform.ranger.client.RangerHubClient;

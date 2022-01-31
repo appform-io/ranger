@@ -15,12 +15,16 @@
  */
 package io.appform.ranger.core.finderhub;
 
+import com.github.rholder.retry.RetryerBuilder;
+import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
+import io.appform.ranger.core.util.Exceptions;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -81,11 +85,14 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     public void start() {
+        log.info("Waiting for the service finder hub to start");
+        val stopwatch = Stopwatch.createStarted();
         monitorFuture = executorService.submit(this::monitor);
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
         updateAvailable();
-        log.info("Service finder hub started");
+        waitTillHubIsReady();
+        log.info("Service finder hub started in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void stop() {
@@ -168,5 +175,22 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             alreadyUpdating.set(false);
         }
         finders.set(updatedFinders);
+    }
+
+    private void waitTillHubIsReady() {
+        serviceDataSource.services().forEach(service -> {
+            try {
+                RetryerBuilder.<Boolean>newBuilder()
+                    .retryIfResult(r -> !r)
+                    .build()
+                    .call(() -> Optional.ofNullable(getFinders().get().get(service))
+                            .map(ServiceFinder::getServiceRegistry)
+                            .map(ServiceRegistry::isRefreshed)
+                            .orElse(false));
+            } catch (Exception e) {
+                Exceptions
+                    .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
+            }
+        });
     }
 }
