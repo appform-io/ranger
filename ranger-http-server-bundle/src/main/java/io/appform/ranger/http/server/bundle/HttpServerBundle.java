@@ -20,7 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.http.ShardedRangerHttpHubClient;
+import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.common.server.ShardInfo;
+import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
@@ -40,14 +42,14 @@ import java.util.stream.Collectors;
 @Singleton
 @NoArgsConstructor
 @SuppressWarnings("unused")
-public abstract class HttpServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, MapBasedServiceRegistry<ShardInfo>, U> {
+public abstract class HttpServerBundle<U extends Configuration> extends RangerServerBundle<ShardInfo, ListBasedServiceRegistry<ShardInfo>, U> {
 
     protected abstract RangerHttpConfiguration getRangerConfiguration(U configuration);
 
     @Override
-    protected List<RangerHubClient<ShardInfo, MapBasedServiceRegistry<ShardInfo>>> withHubs(U configuration) {
+    protected List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> withHubs(U configuration) {
         val rangerConfiguration = getRangerConfiguration(configuration);
-        return rangerConfiguration.getHttpClientConfigs().stream().map(clientConfig -> ShardedRangerHttpHubClient.<ShardInfo>builder()
+        return rangerConfiguration.getHttpClientConfigs().stream().map(clientConfig -> UnshardedRangerHttpHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
                 .mapper(getMapper())
                 .clientConfig(clientConfig)
