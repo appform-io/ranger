@@ -37,5 +37,4 @@ public class AppConfiguration extends Configuration {
     @Valid
     @NotNull
     RangerConfiguration rangerConfiguration;
-    boolean initialRotationStatus;
 }

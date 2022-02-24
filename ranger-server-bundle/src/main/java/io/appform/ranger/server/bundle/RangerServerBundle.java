@@ -67,7 +67,7 @@ public abstract class RangerServerBundle<
      */
     @SuppressWarnings("unused")
     protected boolean withInitialRotationStatus(U configuration){
-        return false;
+        return true;
     }
 
     /*

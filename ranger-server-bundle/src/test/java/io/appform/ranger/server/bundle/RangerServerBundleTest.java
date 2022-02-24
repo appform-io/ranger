@@ -17,6 +17,7 @@ package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.stubs.RangerTestHub;
@@ -75,9 +76,13 @@ public class RangerServerBundleTest {
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
-        AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
+        val adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment).addTask(any());
         when(environment.admin()).thenReturn(adminEnvironment);
+
+        val healthCheckRegistry = mock(HealthCheckRegistry.class);
+        doNothing().when(healthCheckRegistry).register(anyString(), any());
+        when(environment.healthChecks()).thenReturn(healthCheckRegistry);
 
         rangerServerBundle.initialize(bootstrap);
         rangerServerBundle.run(configuration, environment);
