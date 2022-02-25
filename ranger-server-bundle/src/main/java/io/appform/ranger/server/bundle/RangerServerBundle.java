@@ -91,6 +91,7 @@ public abstract class RangerServerBundle<
         */
     }
 
+
     @Override
     public void run(U configuration, Environment environment) {
         preBundle(configuration);
@@ -124,6 +125,10 @@ public abstract class RangerServerBundle<
                 log.info("Stopped the server manager");
             }
         });
+        /*
+            The reason why health checks are bound separately instead of a single checker is would like to see what was the exact health check that failed,
+            during debug if any client intends to. Combining into one, that would be lost, at best only the first failed check will be seen.
+        */
         environment.healthChecks().register("rotation-check", new RotationCheck(rotationStatus));
         healthChecks.forEach(healthCheck -> environment.healthChecks().register(healthCheck.getClass().getName(), healthCheck));
         environment.jersey().register(new RangerResource<>(hubs));
