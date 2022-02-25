@@ -24,6 +24,7 @@ import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.server.bundle.resources.RangerResource;
 import io.appform.ranger.server.bundle.rotation.BirTask;
 import io.appform.ranger.server.bundle.rotation.OorTask;
+import io.appform.ranger.server.bundle.rotation.RotationCheck;
 import io.appform.ranger.server.bundle.rotation.RotationStatus;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
@@ -123,6 +124,7 @@ public abstract class RangerServerBundle<
                 log.info("Stopped the server manager");
             }
         });
+        environment.healthChecks().register("rotation-check", new RotationCheck(rotationStatus));
         healthChecks.forEach(healthCheck -> environment.healthChecks().register(healthCheck.getClass().getName(), healthCheck));
         environment.jersey().register(new RangerResource<>(hubs));
     }
