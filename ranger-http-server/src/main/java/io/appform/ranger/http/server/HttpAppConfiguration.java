@@ -37,5 +37,4 @@ public class HttpAppConfiguration extends Configuration {
     @Valid
     @NotNull
     RangerHttpConfiguration rangerConfiguration;
-    boolean initialRotationStatus;
 }

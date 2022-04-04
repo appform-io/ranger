@@ -34,11 +34,6 @@ public class App extends Application<HttpAppConfiguration> {
             protected RangerHttpConfiguration getRangerConfiguration(HttpAppConfiguration configuration) {
                 return configuration.getRangerConfiguration();
             }
-
-            @Override
-            protected boolean withInitialRotationStatus(HttpAppConfiguration configuration){
-                return configuration.isInitialRotationStatus();
-            }
         });
     }
 
