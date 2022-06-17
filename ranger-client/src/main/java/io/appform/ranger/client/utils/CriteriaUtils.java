@@ -15,9 +15,8 @@
  */
 package io.appform.ranger.client.utils;
 
-import lombok.experimental.UtilityClass;
-
 import java.util.function.Predicate;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CriteriaUtils {

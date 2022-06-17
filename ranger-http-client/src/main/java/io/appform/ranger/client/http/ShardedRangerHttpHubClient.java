@@ -36,37 +36,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuperBuilder
 public class ShardedRangerHttpHubClient<T>
-        extends AbstractRangerHubClient<T, MapBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
+        extends AbstractRangerHttpHubClient<T, MapBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
 
-    private final HttpClientConfig clientConfig;
     @Builder.Default
     private final ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector = new MatchingShardSelector<>();
 
-    @Builder.Default
-    private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
-
     @Override
-    protected ServiceDataSource getDataSource() {
-        return new HttpServiceDataSource<>(clientConfig, getMapper());
-    }
-
-    @Override
-    protected ServiceFinderHub<T, MapBasedServiceRegistry<T>> buildHub() {
-        return new HttpServiceFinderHubBuilder<T, MapBasedServiceRegistry<T>>()
-                .withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
-                .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-                .build();
-    }
-
-    @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> getFinderFactory() {
         return HttpShardedServiceFinderFactory.<T>builder()
-                .httpClientConfig(clientConfig)
+                .httpClientConfig(this.getClientConfig())
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
                 .shardSelector(shardSelector)
-                .nodeSelector(nodeSelector)
+                .nodeSelector(this.getNodeSelector())
                 .mapper(getMapper())
                 .build();
     }

@@ -39,7 +39,7 @@ public class UnshardedRangerZKHubClient<T>
     private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
 
     @Override
-    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
         return ZKUnshardedServiceFinderFactory.<T>builder()
             .curatorFramework(getCuratorFramework())
             .connectionString(getConnectionString())
