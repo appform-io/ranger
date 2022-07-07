@@ -19,7 +19,6 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.model.ShardSelector;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;

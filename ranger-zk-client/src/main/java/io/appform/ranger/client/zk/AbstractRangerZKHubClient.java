@@ -44,13 +44,13 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
                 .withConnectionString(connectionString)
                 .withNamespace(getNamespace())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-                .withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
+                .withServiceDataSource(getServiceDataSource())
+                .withServiceFinderFactory(getFinderFactory())
                 .build();
     }
 
     @Override
-    protected ServiceDataSource getDataSource() {
+    protected ServiceDataSource getDefaultDataSource() {
         return new ZkServiceDataSource(getNamespace(), connectionString, curatorFramework);
     }
 

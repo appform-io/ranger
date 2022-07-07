@@ -21,15 +21,20 @@ import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
-import io.appform.ranger.core.finderhub.StaticDataSource;
-import io.appform.ranger.core.model.*;
-import lombok.Builder;
+import io.appform.ranger.core.model.Deserializer;
+import io.appform.ranger.core.model.Service;
+import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.ServiceNodeSelector;
+import io.appform.ranger.core.model.ServiceRegistry;
+import io.appform.ranger.core.model.ShardSelector;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.*;
-import java.util.function.Predicate;
 
 @Slf4j
 @Getter
@@ -43,8 +48,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private final boolean alwaysUseInitialCriteria;
     private int nodeRefreshTimeMs;
     private ServiceFinderHub<T, R> hub;
-    @Builder.Default
-    private Set<Service> services = Collections.emptySet();
+    private ServiceDataSource serviceDataSource;
 
     @Override
     public void start() {
@@ -58,6 +62,9 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
                      RangerClientConstants.MINIMUM_REFRESH_TIME);
         }
         this.nodeRefreshTimeMs = Math.max(RangerClientConstants.MINIMUM_REFRESH_TIME, this.nodeRefreshTimeMs);
+        if(null == this.serviceDataSource){
+            this.serviceDataSource = getDefaultDataSource();
+        }
         this.hub = buildHub();
         this.hub.start();
     }
@@ -140,15 +147,9 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
     }
 
-    protected abstract ServiceDataSource getDataSource();
+    protected abstract ServiceDataSource getDefaultDataSource();
 
-    protected ServiceDataSource buildServiceDataSource() {
-        return !services.isEmpty()
-               ? new StaticDataSource(services)
-               : getDataSource();
-    }
-
-    protected abstract ServiceFinderFactory<T, R> buildFinderFactory();
+    protected abstract ServiceFinderFactory<T, R> getFinderFactory();
 
     protected abstract ServiceFinderHub<T, R> buildHub();
 

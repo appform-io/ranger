@@ -39,7 +39,7 @@ public class ShardedRangerZKHubClient<T>
     private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
 
     @Override
-    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> buildFinderFactory() {
+    protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> getFinderFactory() {
         return ZkShardedServiceFinderFactory.<T>builder()
                 .curatorFramework(getCuratorFramework())
                 .connectionString(getConnectionString())

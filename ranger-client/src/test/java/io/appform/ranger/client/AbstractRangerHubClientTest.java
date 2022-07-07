@@ -43,4 +43,19 @@ public class AbstractRangerHubClientTest {
         Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
         testAbstractHub.stop();
     }
+
+    @Test
+    public void testAbstractHubClientWithDataSource() {
+        val testAbstractHub = RangerHubTestUtils.getTestHubWithDataSource();
+        testAbstractHub.start();
+        var node = testAbstractHub.getNode(service).orElse(null);
+        Assert.assertNotNull(node);
+        Assert.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
+        Assert.assertEquals(9200, node.getPort());
+        Assert.assertEquals(1, node.getNodeData().getShardId());
+        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test")).isPresent());
+        Assert.assertFalse(testAbstractHub.getNode(service, nodeData -> nodeData.getShardId() == 2).isPresent());
+        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
+        testAbstractHub.stop();
+    }
 }

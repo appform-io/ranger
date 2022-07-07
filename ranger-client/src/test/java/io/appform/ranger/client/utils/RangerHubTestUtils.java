@@ -16,9 +16,11 @@
 package io.appform.ranger.client.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import io.appform.ranger.client.stubs.RangerTestHub;
 import io.appform.ranger.client.stubs.TestCriteria;
 import io.appform.ranger.client.stubs.TestDeserializer;
+import io.appform.ranger.core.finderhub.StaticDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.experimental.UtilityClass;
@@ -37,6 +39,18 @@ public class RangerHubTestUtils {
                 .initialCriteria(new TestCriteria())
                 .deserializer(new TestDeserializer<>())
                 .build();
+    }
+
+    public static RangerTestHub getTestHubWithDataSource(){
+        return RangerTestHub.builder()
+            .namespace(service.getNamespace())
+            .mapper(mapper)
+            .nodeRefreshTimeMs(1000)
+            .initialCriteria(new TestCriteria())
+            .useDefaultDataSource(false)
+            .serviceDataSource(new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service)))
+            .deserializer(new TestDeserializer<>())
+            .build();
     }
 
 }

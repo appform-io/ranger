@@ -17,40 +17,40 @@ package io.appform.ranger.client.http;
 
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
-import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
-import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
-import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.ServiceNodeSelector;
-import io.appform.ranger.core.model.ShardSelector;
+import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
-import io.appform.ranger.http.servicefinderhub.HttpUnshardedServiceFinderFactory;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Getter
 @SuperBuilder
-public class UnshardedRangerHttpHubClient<T>
-        extends AbstractRangerHttpHubClient<T, ListBasedServiceRegistry<T>, HTTPResponseDataDeserializer<T>> {
+public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T>, D extends HTTPResponseDataDeserializer<T>>
+    extends AbstractRangerHubClient<T, R, D> {
 
-    @Builder.Default
-    private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
+  private final HttpClientConfig clientConfig;
+  @Builder.Default
+  private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
 
-    @Override
-    protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
-        return HttpUnshardedServiceFinderFactory.<T>builder()
-                .httpClientConfig(this.getClientConfig())
-                .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
-                .deserializer(getDeserializer())
-                .shardSelector(shardSelector)
-                .nodeSelector(this.getNodeSelector())
-                .mapper(getMapper())
-                .build();
-    }
+  @Override
+  protected ServiceDataSource getDefaultDataSource() {
+    return new HttpServiceDataSource<>(clientConfig, getMapper());
+  }
 
+  @Override
+  protected ServiceFinderHub<T, R> buildHub() {
+    return new HttpServiceFinderHubBuilder<T, R>()
+        .withServiceDataSource(getServiceDataSource())
+        .withServiceFinderFactory(getFinderFactory())
+        .withRefreshFrequencyMs(getNodeRefreshTimeMs())
+        .build();
+  }
 }

@@ -21,6 +21,7 @@ import io.appform.ranger.client.utils.RangerHubTestUtils;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finderhub.*;
 import io.appform.ranger.core.units.TestNodeData;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -29,10 +30,8 @@ import lombok.experimental.SuperBuilder;
 public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
         ListBasedServiceRegistry<TestNodeData>, TestDeserializer<TestNodeData>> {
 
-    @Override
-    protected ServiceDataSource getDataSource() {
-        return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
-    }
+    @Builder.Default
+    private final boolean useDefaultDataSource = true;
 
     @Override
     protected ServiceFinderHub<TestNodeData, ListBasedServiceRegistry<TestNodeData>> buildHub() {
@@ -46,13 +45,18 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
             protected void postBuild(ServiceFinderHub<TestNodeData, ListBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
 
             }
-        }.withServiceDataSource(buildServiceDataSource())
-                .withServiceFinderFactory(buildFinderFactory())
+        }.withServiceDataSource(getServiceDataSource())
+            .withServiceFinderFactory(getFinderFactory())
                 .build();
     }
 
     @Override
-    protected ServiceFinderFactory<TestNodeData, ListBasedServiceRegistry<TestNodeData>> buildFinderFactory() {
+    protected ServiceDataSource getDefaultDataSource() {
+        return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
+    }
+
+    @Override
+    protected ServiceFinderFactory<TestNodeData, ListBasedServiceRegistry<TestNodeData>> getFinderFactory() {
         return new TestServiceFinderFactory();
     }
 }
