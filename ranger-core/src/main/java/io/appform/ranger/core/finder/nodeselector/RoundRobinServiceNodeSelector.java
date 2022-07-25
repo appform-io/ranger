@@ -26,7 +26,6 @@ public class RoundRobinServiceNodeSelector<T> implements ServiceNodeSelector<T> 
 
     @Override
     public ServiceNode<T> select(List<ServiceNode<T>> serviceNodes) {
-        index.set((index.get() + 1) % serviceNodes.size());
-        return serviceNodes.get(index.get());
+        return serviceNodes.get(index.updateAndGet(i -> (i + 1) % serviceNodes.size()));
     }
 }
