@@ -21,11 +21,10 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.model.ShardSelector;
-import lombok.experimental.SuperBuilder;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> implements RangerClient<T, R> {
