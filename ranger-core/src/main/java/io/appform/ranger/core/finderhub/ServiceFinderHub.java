@@ -167,6 +167,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             }
             updatedFinders.putAll(newFinders);
             updatedFinders.putAll(matchingServices);
+            finders.set(updatedFinders);
         }
         catch (Exception e) {
             log.error("Error updating service list. Will maintain older list", e);
@@ -174,7 +175,6 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         finally {
             alreadyUpdating.set(false);
         }
-        finders.set(updatedFinders);
     }
 
     private void waitTillHubIsReady() {
