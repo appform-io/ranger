@@ -16,7 +16,7 @@
 package io.appform.ranger.client.http;
 
 import io.appform.ranger.client.AbstractRangerHubClient;
-import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.ServiceNodeSelector;
@@ -38,7 +38,7 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
 
   private final HttpClientConfig clientConfig;
   @Builder.Default
-  private final ServiceNodeSelector<T> nodeSelector = new RoundRobinServiceNodeSelector<>();
+  private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
   @Override
   protected ServiceDataSource getDefaultDataSource() {
