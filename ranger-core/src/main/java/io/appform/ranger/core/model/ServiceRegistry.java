@@ -29,7 +29,7 @@ public abstract class ServiceRegistry<T> {
 
     public void updateNodes(List<ServiceNode<T>> nodes) {
         update(nodes);
-        refreshed.compareAndSet(false, true);
+        refreshed.set(true);
     }
 
     public boolean isRefreshed() {
