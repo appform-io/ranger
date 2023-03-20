@@ -35,7 +35,7 @@ public class ServiceNode<T> {
     @Builder.Default
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
     @Builder.Default
-    private PortScheme scheme = PortScheme.HTTP;
+    private TransportType transportType = TransportType.HTTP;
 
     public String representation() {
         return String.format("%s:%d", host, port);

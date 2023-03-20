@@ -1,7 +1,6 @@
 package io.appform.ranger.core.model;
 
-public enum PortScheme {
+public enum TransportType {
   HTTPS,
-  HTTP,
-  TCP
+  HTTP
 }
