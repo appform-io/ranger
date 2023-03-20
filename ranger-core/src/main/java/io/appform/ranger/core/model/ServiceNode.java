@@ -30,8 +30,12 @@ public class ServiceNode<T> {
     private String host;
     private int port;
     private T nodeData;
+    @Builder.Default
     private HealthcheckStatus healthcheckStatus = HealthcheckStatus.healthy;
+    @Builder.Default
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
+    @Builder.Default
+    private PortScheme scheme = PortScheme.HTTP;
 
     public String representation() {
         return String.format("%s:%d", host, port);
