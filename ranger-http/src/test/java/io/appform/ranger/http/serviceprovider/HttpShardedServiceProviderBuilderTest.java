@@ -53,7 +53,7 @@ public class HttpShardedServiceProviderBuilderTest {
     public void testProvider() throws Exception {
         val farmNodeData = TestNodeData.builder().farmId("farm1").build();
         val testNode = ServiceNode.<TestNodeData>builder().host("127.0.0.1").port(80).nodeData(farmNodeData).build();
-        Assert.assertEquals("HTTP", testNode.getScheme());
+        Assert.assertEquals("http", testNode.getScheme());
         val response = MAPPER.writeValueAsBytes(
                 GenericResponse.builder()
                         .data(ServiceNode.<TestNodeData>builder()
