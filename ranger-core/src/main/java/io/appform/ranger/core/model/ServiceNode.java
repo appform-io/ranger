@@ -34,8 +34,9 @@ public class ServiceNode<T> {
     private HealthcheckStatus healthcheckStatus = HealthcheckStatus.healthy;
     @Builder.Default
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
+    //Can be any scheme that you intend to init.
     @Builder.Default
-    private TransportType transportType = TransportType.HTTP;
+    private String scheme = "HTTP";
 
     public String representation() {
         return String.format("%s:%d", host, port);

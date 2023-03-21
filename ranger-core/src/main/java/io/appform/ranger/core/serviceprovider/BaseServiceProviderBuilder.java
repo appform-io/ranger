@@ -30,7 +30,6 @@ import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.TransportType;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import lombok.AccessLevel;
@@ -52,7 +51,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected S serializer;
     protected String hostname;
     protected int port;
-    protected TransportType transportType;
+    protected String scheme;
     protected T nodeData;
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
@@ -90,8 +89,8 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
-    public B withTransportType(TransportType transportType){
-        this.transportType = transportType;
+    public B withScheme(String scheme){
+        this.scheme = scheme;
         return (B)this;
     }
 
@@ -206,7 +205,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
                 .add(healthcheckUpdateSignalGenerator)
                 .addAll(additionalRefreshSignals)
                 .build();
-        val serviceNode = ServiceNode.<T>builder().host(hostname).port(port).transportType(transportType).nodeData(nodeData).build();
+        val serviceNode = ServiceNode.<T>builder().host(hostname).port(port).scheme(scheme).nodeData(nodeData).build();
         val serviceProvider = new ServiceProvider<>(service, serviceNode,
                                                     serializer,
                                                     usableNodeDataSource,

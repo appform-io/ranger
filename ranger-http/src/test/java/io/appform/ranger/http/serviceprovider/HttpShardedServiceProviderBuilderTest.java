@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.appform.ranger.core.healthcheck.Healthchecks;
-import io.appform.ranger.core.model.TransportType;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.response.model.GenericResponse;
@@ -54,7 +53,7 @@ public class HttpShardedServiceProviderBuilderTest {
     public void testProvider() throws Exception {
         val farmNodeData = TestNodeData.builder().farmId("farm1").build();
         val testNode = ServiceNode.<TestNodeData>builder().host("127.0.0.1").port(80).nodeData(farmNodeData).build();
-        Assert.assertEquals(TransportType.HTTP, testNode.getTransportType());
+        Assert.assertEquals("HTTP", testNode.getScheme());
         val response = MAPPER.writeValueAsBytes(
                 GenericResponse.builder()
                         .data(ServiceNode.<TestNodeData>builder()
