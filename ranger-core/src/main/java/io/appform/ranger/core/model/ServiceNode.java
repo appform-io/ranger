@@ -36,7 +36,7 @@ public class ServiceNode<T> {
     private long lastUpdatedTimeStamp = Long.MIN_VALUE;
     //Can be any scheme that you intend to init.
     @Builder.Default
-    private String scheme = "http";
+    private String portScheme = PortSchemes.HTTP;
 
     public String representation() {
         return String.format("%s:%d", host, port);

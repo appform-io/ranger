@@ -51,7 +51,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected S serializer;
     protected String hostname;
     protected int port;
-    protected String scheme;
+    protected String portScheme;
     protected T nodeData;
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
@@ -89,8 +89,8 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
-    public B withScheme(String scheme){
-        this.scheme = scheme;
+    public B withPortScheme(String portScheme){
+        this.portScheme = portScheme;
         return (B)this;
     }
 
@@ -205,7 +205,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
                 .add(healthcheckUpdateSignalGenerator)
                 .addAll(additionalRefreshSignals)
                 .build();
-        val serviceNode = ServiceNode.<T>builder().host(hostname).port(port).scheme(scheme).nodeData(nodeData).build();
+        val serviceNode = ServiceNode.<T>builder().host(hostname).port(port).portScheme(portScheme).nodeData(nodeData).build();
         val serviceProvider = new ServiceProvider<>(service, serviceNode,
                                                     serializer,
                                                     usableNodeDataSource,
