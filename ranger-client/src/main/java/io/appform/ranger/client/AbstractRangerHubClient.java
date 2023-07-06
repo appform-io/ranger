@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -49,6 +50,11 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private int nodeRefreshTimeMs;
     private ServiceFinderHub<T, R> hub;
     private ServiceDataSource serviceDataSource;
+
+    @Override
+    public CompletableFuture<?> addService(Service service) {
+        return hub.buildFinder(service);
+    }
 
     @Override
     public void start() {
