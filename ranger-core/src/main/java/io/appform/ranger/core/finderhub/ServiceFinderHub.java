@@ -86,9 +86,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         if (finder != null) {
             return CompletableFuture.completedFuture(finder);
         }
+        serviceDataSource.add(service);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                serviceDataSource.add(service);
                 updateAvailable();
                 waitTillServiceIsReady(service);
                 return finders.get().get(service);

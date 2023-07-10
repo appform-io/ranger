@@ -52,11 +52,6 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private ServiceDataSource serviceDataSource;
 
     @Override
-    public CompletableFuture<?> addService(Service service) {
-        return hub.buildFinder(service);
-    }
-
-    @Override
     public void start() {
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
@@ -152,6 +147,26 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
             return Collections.emptySet();
         }
     }
+
+    /**
+     * Tries to dynamically add service for discovery.
+     * Method will return asynchronously after adding service to ServiceDataSource.
+     * To block till rangerHub is ready to discover service wait for future completion
+     *
+     * @throws UnsupportedOperationException for any datasource which doesnt support
+     *          dynamic addition of services
+     * @throws IllegalStateException if called before hub is started
+     *
+     * @return CompletableFuture which waits for hub to be ready for discovering the new service
+     */
+    @Override
+    public CompletableFuture<?> addService(Service service) {
+        if(hub == null) {
+            throw new IllegalStateException("Hub not started yet. Call .start()");
+        }
+        return hub.buildFinder(service);
+    }
+
 
     protected abstract ServiceDataSource getDefaultDataSource();
 

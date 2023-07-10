@@ -1,6 +1,7 @@
 package io.appform.ranger.core.finderhub;
 
 
+import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.BaseServiceFinderBuilder;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
@@ -16,12 +17,13 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 
 public class ServiceFinderHubTest {
 
     private final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub = new ServiceFinderHub<>(
-            new DynamicDataSource(),
+            new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
             service ->
                     new TestServiceFinderBuilder()
                             .withNamespace(service.getNamespace())
@@ -33,10 +35,17 @@ public class ServiceFinderHubTest {
     @Test
     public void testDynamicServiceAddition() {
         serviceFinderHub.start();
-        serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
-        val finder = serviceFinderHub.finder(new Service("NS", "SERVICE"))
+        ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> finder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
-        val node = finder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
+        Optional<ServiceNode<TestNodeData>> node = finder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
+        Assert.assertTrue(node.isPresent());
+        Assert.assertEquals("HOST", node.get().getHost());
+        Assert.assertEquals(0, node.get().getPort());
+
+        serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
+        finder = serviceFinderHub.finder(new Service("NS", "SERVICE"))
+                .orElseThrow(() -> new IllegalStateException("Finder should be present"));
+        node = finder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
         Assert.assertTrue(node.isPresent());
         Assert.assertEquals("HOST", node.get().getHost());
         Assert.assertEquals(0, node.get().getPort());
@@ -64,12 +73,13 @@ public class ServiceFinderHubTest {
                 })
                 .build());
         serviceFinderHub.start();
-        val future = serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
         try {
+            val future = serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
             future.join();
-        } catch (CompletionException completionException) {
-            Assert.assertTrue("Unsupported exception should be thrown", completionException.getCause() instanceof UnsupportedOperationException);
+        } catch (UnsupportedOperationException exception) {
+            Assert.assertTrue("Unsupported exception should be thrown", exception instanceof UnsupportedOperationException);
         }
+
     }
 
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
