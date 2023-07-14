@@ -17,8 +17,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 public class ServiceFinderHubTest {
 
@@ -35,20 +33,20 @@ public class ServiceFinderHubTest {
     @Test
     public void testDynamicServiceAddition() {
         serviceFinderHub.start();
-        ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> finder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
+        val preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
-        Optional<ServiceNode<TestNodeData>> node = finder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
+        val node = preRegisteredServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
         Assert.assertTrue(node.isPresent());
         Assert.assertEquals("HOST", node.get().getHost());
         Assert.assertEquals(0, node.get().getPort());
 
         serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
-        finder = serviceFinderHub.finder(new Service("NS", "SERVICE"))
+        val dynamicServiceFinder = serviceFinderHub.finder(new Service("NS", "SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
-        node = finder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
-        Assert.assertTrue(node.isPresent());
-        Assert.assertEquals("HOST", node.get().getHost());
-        Assert.assertEquals(0, node.get().getPort());
+        val dynamicServiceNode = dynamicServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
+        Assert.assertTrue(dynamicServiceNode.isPresent());
+        Assert.assertEquals("HOST", dynamicServiceNode.get().getHost());
+        Assert.assertEquals(0, dynamicServiceNode.get().getPort());
     }
 
     @Test
@@ -76,7 +74,8 @@ public class ServiceFinderHubTest {
         try {
             val future = serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
             future.join();
-        } catch (UnsupportedOperationException exception) {
+            Assert.fail("Exception should have been thrown");
+        } catch (Exception exception) {
             Assert.assertTrue("Unsupported exception should be thrown", exception instanceof UnsupportedOperationException);
         }
 
