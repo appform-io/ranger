@@ -16,6 +16,7 @@
 package io.appform.ranger.server.bundle.resources;
 
 import com.codahale.metrics.annotation.Metered;
+import com.codahale.metrics.annotation.Timed;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -49,7 +50,7 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
 
     @GET
     @Path("/services/v1")
-    @Metered
+    @Timed
     public GenericResponse<Set<Service>> getServices() {
         return GenericResponse.<Set<Service>>builder()
                 .data(rangerHubs.stream().map(RangerHubClient::getRegisteredServices)
@@ -59,7 +60,7 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
 
     @GET
     @Path("/nodes/v1/{namespace}/{serviceName}")
-    @Metered
+    @Timed
     public GenericResponse<List<ServiceNode<T>>> getNodes(
             @NotNull @NotEmpty @PathParam("namespace") final String namespace,
             @NotNull @NotEmpty @PathParam("serviceName") final String serviceName
