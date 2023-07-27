@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -146,6 +147,26 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
             return Collections.emptySet();
         }
     }
+
+    /**
+     * Tries to dynamically add service for discovery.
+     * Method will return asynchronously after adding service to ServiceDataSource.
+     * To block till rangerHub is ready to discover service wait for future completion
+     *
+     * @throws UnsupportedOperationException for any datasource which doesnt support
+     *          dynamic addition of services
+     * @throws IllegalStateException if called before hub is started
+     *
+     * @return CompletableFuture which waits for hub to be ready for discovering the new service
+     */
+    @Override
+    public CompletableFuture<?> addService(Service service) {
+        if(hub == null) {
+            throw new IllegalStateException("Hub not started yet. Call .start()");
+        }
+        return hub.buildFinder(service);
+    }
+
 
     protected abstract ServiceDataSource getDefaultDataSource();
 

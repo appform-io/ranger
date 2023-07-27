@@ -24,15 +24,12 @@ import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
@@ -47,7 +44,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     @Getter
-    private final AtomicReference<Map<Service, ServiceFinder<T, R>>> finders = new AtomicReference<>(new HashMap<>());
+    private final AtomicReference<Map<Service, ServiceFinder<T, R>>> finders = new AtomicReference<>(new ConcurrentHashMap<>());
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
     private boolean updateAvailable = false;
@@ -75,13 +72,31 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                                                      () -> null,
-                                                      Collections.emptyList(),
-                                                      10_000));
+                () -> null,
+                Collections.emptyList(),
+                10_000));
     }
 
     public Optional<ServiceFinder<T, R>> finder(final Service service) {
         return Optional.ofNullable(finders.get().get(service));
+    }
+
+    public CompletableFuture<ServiceFinder<T, R>> buildFinder(final Service service) {
+        val finder = finders.get().get(service);
+        if (finder != null) {
+            return CompletableFuture.completedFuture(finder);
+        }
+        serviceDataSource.add(service);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                updateAvailable();
+                waitTillServiceIsReady(service);
+                return finders.get().get(service);
+            } catch(Exception e) {
+                log.warn("Exception whiling building finder", e);
+                throw e;
+            }
+        });
     }
 
     public void start() {
@@ -100,14 +115,12 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         if (null != monitorFuture) {
             try {
                 monitorFuture.cancel(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("Error stopping service finder hub monitor: {}", e.getMessage());
             }
         }
         log.info("Service finder hub stopped");
     }
-
     public void registerUpdateSignal(final Signal<Void> refreshSignal) {
         refreshSignals.add(refreshSignal);
     }
@@ -117,8 +130,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             updateLock.lock();
             updateAvailable = true;
             updateCond.signalAll();
-        }
-        finally {
+        } finally {
             updateLock.unlock();
         }
     }
@@ -131,13 +143,11 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                     updateCond.await();
                 }
                 updateRegistry();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
                 Thread.currentThread().interrupt();
                 break;
-            }
-            finally {
+            } finally {
                 updateAvailable = false;
                 updateLock.unlock();
             }
@@ -168,29 +178,29 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             updatedFinders.putAll(newFinders);
             updatedFinders.putAll(matchingServices);
             finders.set(updatedFinders);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error updating service list. Will maintain older list", e);
-        }
-        finally {
+        } finally {
             alreadyUpdating.set(false);
         }
     }
 
     private void waitTillHubIsReady() {
-        serviceDataSource.services().forEach(service -> {
-            try {
-                RetryerBuilder.<Boolean>newBuilder()
+        serviceDataSource.services().forEach(this::waitTillServiceIsReady);
+    }
+
+    private void waitTillServiceIsReady(Service service) {
+        try {
+            RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)
                             .map(ServiceRegistry::isRefreshed)
                             .orElse(false));
-            } catch (Exception e) {
-                Exceptions
+        } catch (Exception e) {
+            Exceptions
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
-            }
-        });
+        }
     }
 }

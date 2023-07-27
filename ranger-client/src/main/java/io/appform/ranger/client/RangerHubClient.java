@@ -23,6 +23,7 @@ import io.appform.ranger.core.model.ShardSelector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 public interface RangerHubClient<T, R extends ServiceRegistry<T>> {
@@ -31,6 +32,8 @@ public interface RangerHubClient<T, R extends ServiceRegistry<T>> {
     void stop();
 
     Collection<Service> getRegisteredServices();
+
+    CompletableFuture addService(Service service);
 
     Optional<ServiceNode<T>> getNode(final Service service);
 

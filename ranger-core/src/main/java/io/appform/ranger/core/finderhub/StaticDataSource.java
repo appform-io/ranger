@@ -28,7 +28,7 @@ A static data source to be used when we know the services beforehand and don't h
 
 @Slf4j
 @AllArgsConstructor
-public class StaticDataSource implements ServiceDataSource{
+public class StaticDataSource implements ServiceDataSource {
 
     private final Set<Service> services;
 
