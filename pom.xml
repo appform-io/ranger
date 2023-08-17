@@ -22,11 +22,8 @@
         <module>ranger-http-client</module>
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
-        <module>ranger-zk-server</module>
-        <module>ranger-http-server</module>
         <module>ranger-http-model</module>
-        <module>ranger-http-server-bundle</module>
-        <module>ranger-zk-server-bundle</module>
+        <module>ranger-hub-server-bundle</module>
     </modules>
 
     <distributionManagement>
