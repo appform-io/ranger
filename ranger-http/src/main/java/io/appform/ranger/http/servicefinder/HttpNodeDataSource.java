@@ -95,7 +95,7 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
         } catch (IOException e) {
             log.error("Error getting service data from the http endPoint: ", e);
         }
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
