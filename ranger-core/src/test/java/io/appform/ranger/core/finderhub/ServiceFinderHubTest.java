@@ -10,6 +10,7 @@ import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
+import java.util.Optional;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,10 +107,10 @@ public class ServiceFinderHubTest {
 
         private static class TestNodeDataSource implements NodeDataSource<TestNodeData, Deserializer<TestNodeData>> {
             @Override
-            public List<ServiceNode<TestNodeData>> refresh(Deserializer<TestNodeData> deserializer) {
+            public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
                 val list = new ArrayList<ServiceNode<TestNodeData>>();
                 list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, 10L, "HTTP"));
-                return list;
+                return Optional.of(list);
             }
 
             @Override
