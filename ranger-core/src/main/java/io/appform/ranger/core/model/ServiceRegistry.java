@@ -29,9 +29,6 @@ public abstract class ServiceRegistry<T> {
 
     public void updateNodes(List<ServiceNode<T>> nodes) {
         update(nodes);
-    }
-
-    public void markAsRefreshed() {
         refreshed.set(true);
     }
 

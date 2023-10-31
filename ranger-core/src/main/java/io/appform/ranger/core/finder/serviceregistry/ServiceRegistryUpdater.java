@@ -142,7 +142,6 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             log.warn("Empty list returned from node data source. We are in a weird state. Keeping old list for {}",
                      serviceRegistry.getService().getServiceName());
         }
-        serviceRegistry.markAsRefreshed();
     }
 
 }

@@ -34,7 +34,6 @@ public class RegistryTestUtils {
                 ServiceNode.<TestNodeData>builder().host("localhost-3").port(9002).nodeData(TestNodeData.builder().shardId(3).build()).build()
         );
         serviceRegistry.updateNodes(serviceNodes);
-        serviceRegistry.markAsRefreshed();
         return serviceRegistry;
     }
 
@@ -46,7 +45,6 @@ public class RegistryTestUtils {
                 ServiceNode.<TestNodeData>builder().host("localhost-3").port(9002).nodeData(TestNodeData.builder().shardId(3).build()).build()
         );
         serviceRegistry.updateNodes(serviceNodes);
-        serviceRegistry.markAsRefreshed();
         return serviceRegistry;
     }
 }

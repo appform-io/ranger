@@ -89,6 +89,12 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             }
             return Optional.of(nodes);
         }
+        catch (NoNodeException e) {
+            log.error(
+                    "No ZK container node found for service: {}. Will return empty list for now. Please doublecheck service name",
+                    service.getServiceName());
+            return Optional.of(Collections.emptyList());
+        }
         catch (Exception e) {
             log.error("Error getting service data from zookeeper: ", e);
         }
