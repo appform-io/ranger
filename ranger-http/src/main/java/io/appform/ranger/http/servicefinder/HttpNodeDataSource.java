@@ -24,6 +24,7 @@ import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.HttpUrl;
@@ -50,7 +51,7 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
     }
 
     @Override
-    public List<ServiceNode<T>> refresh(D deserializer) {
+    public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
         val url = String.format("/ranger/nodes/v1/%s/%s", service.getNamespace(), service.getServiceName());
@@ -80,10 +81,10 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
                         val bytes = body.bytes();
                         val serviceNodesResponse = deserializer.deserialize(bytes);
                         if(serviceNodesResponse.valid()){
-                            return FinderUtils.filterValidNodes(
-                                    service,
-                                    serviceNodesResponse.getData(),
-                                    healthcheckZombieCheckThresholdTime(service));
+                            return Optional.of(FinderUtils.filterValidNodes(
+                                               service,
+                                               serviceNodesResponse.getData(),
+                                               healthcheckZombieCheckThresholdTime(service)));
                         } else{
                             log.warn("Http call to {} returned a failure response with response {}", httpUrl, serviceNodesResponse);
                         }
@@ -95,7 +96,7 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
         } catch (IOException e) {
             log.error("Error getting service data from the http endPoint: ", e);
         }
-        return Collections.emptyList();
+        return Optional.empty();
     }
 
     @Override

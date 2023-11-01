@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0-RC13]
+- Handling NodeDataSource refresh failures gracefully
+
 ## [1.0-RC12]
 - Dynamic service registration
 
