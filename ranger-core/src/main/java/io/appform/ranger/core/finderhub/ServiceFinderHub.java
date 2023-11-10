@@ -163,6 +163,10 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         final Map<Service, ServiceFinder<T, R>> updatedFinders = new HashMap<>();
         try {
             val services = serviceDataSource.services();
+            if(services.isEmpty()) {
+                log.debug("No services found for the service data source. Skipping update on the registry");
+                return;
+            }
             val knownServiceFinders = finders.get();
             val newFinders = services.stream()
                     .filter(service -> !knownServiceFinders.containsKey(service))
