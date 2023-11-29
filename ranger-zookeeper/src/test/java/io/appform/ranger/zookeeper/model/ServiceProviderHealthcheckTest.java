@@ -30,10 +30,10 @@ import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.Getter;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class ServiceProviderHealthcheckTest {
     private ObjectMapper objectMapper;
     private final Map<String, TestServiceProvider> serviceProviders = Maps.newHashMap();
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -53,7 +53,7 @@ public class ServiceProviderHealthcheckTest {
         registerService("localhost-3", 9001, 2);
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         if (null != testingCluster) {
             testingCluster.close();
@@ -80,12 +80,12 @@ public class ServiceProviderHealthcheckTest {
                 .build();
         serviceFinder.start();
         val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-        Assert.assertNotNull(node);
-        Assert.assertEquals("localhost-1", node.getHost());
+        Assertions.assertNotNull(node);
+        Assertions.assertEquals("localhost-1", node.getHost());
         TestServiceProvider testServiceProvider = serviceProviders.get(node.getHost());
         testServiceProvider.oor();
         RangerTestUtils.sleepUntil(2); //Sleep till the increment refresh healthCheck interval (> 1sec), no upper bound condition.
-        Assert.assertFalse(serviceFinder.get(RangerTestUtils.getCriteria(1)).isPresent());
+        Assertions.assertFalse(serviceFinder.get(RangerTestUtils.getCriteria(1)).isPresent());
         serviceFinder.stop();
     }
 

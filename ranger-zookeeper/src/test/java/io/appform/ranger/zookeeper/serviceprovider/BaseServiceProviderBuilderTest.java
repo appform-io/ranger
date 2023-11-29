@@ -22,29 +22,29 @@ import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author tushar.naik
  * @version 1.0
  * @date 12/03/16 - 7:40 PM
  */
-public class BaseServiceProviderBuilderTest {
+class BaseServiceProviderBuilderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         if(null != testingCluster) {
             testingCluster.close();
@@ -52,7 +52,7 @@ public class BaseServiceProviderBuilderTest {
     }
 
     @Test
-    public void testServiceProviderBuilder() {
+    void testServiceProviderBuilder() {
         val host = "localhost";
         val port = 9000;
         Exception exception = null;
@@ -77,7 +77,7 @@ public class BaseServiceProviderBuilderTest {
         } catch (Exception e) {
             exception = e;
         }
-        Assert.assertTrue(exception instanceof IllegalArgumentException);
+        Assertions.assertTrue(exception instanceof IllegalArgumentException);
 
         val serviceProvider = ServiceProviderBuilders.unshardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())

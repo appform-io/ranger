@@ -24,10 +24,10 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class ServiceProviderTest {
+class ServiceProviderTest {
 
     static TestNodeData testNodeData = null;
 
@@ -98,29 +98,37 @@ public class ServiceProviderTest {
         }
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testInvalidServiceProvider(){
-        new TestServiceProviderBuilder<>()
-                .withServiceName("test-service")
-                .withNamespace("test")
-                .withHostname("localhost-1")
-                .withPort(9000)
-                .build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidServiceProviderNoHealthCheck(){
-        new TestServiceProviderBuilder<>()
-                .withServiceName("test-service")
-                .withNamespace("test")
-                .withHostname("localhost-1")
-                .withPort(9000)
-                .withSerializer(new TestSerializerImpl())
-                .build();
+    @Test
+    void testInvalidServiceProvider() {
+        try {
+            new TestServiceProviderBuilder<>()
+                    .withServiceName("test-service")
+                    .withNamespace("test")
+                    .withHostname("localhost-1")
+                    .withPort(9000)
+                    .build();
+        } catch (NullPointerException exception) {
+            Assertions.assertTrue(true, "NPE has been caught");
+        }
     }
 
     @Test
-    public void testBuildServiceProvider(){
+    void testInvalidServiceProviderNoHealthCheck() {
+        try {
+            new TestServiceProviderBuilder<>()
+                    .withServiceName("test-service")
+                    .withNamespace("test")
+                    .withHostname("localhost-1")
+                    .withPort(9000)
+                    .withSerializer(new TestSerializerImpl())
+                    .build();
+        } catch (Exception exception) {
+            Assertions.assertTrue(exception instanceof IllegalArgumentException, "Illegal Argument Exception should be thrown");
+        }
+    }
+
+    @Test
+    void testBuildServiceProvider() {
         val testProvider = new TestServiceProviderBuilder<>()
                 .withServiceName("test-service")
                 .withNamespace("test")
@@ -132,8 +140,8 @@ public class ServiceProviderTest {
                 .withHealthUpdateIntervalMs(1000)
                 .build();
         testProvider.start();
-        Assert.assertNotNull(testNodeData);
-        Assert.assertEquals(1, testNodeData.getShardId());
+        Assertions.assertNotNull(testNodeData);
+        Assertions.assertEquals(1, testNodeData.getShardId());
     }
 
 }

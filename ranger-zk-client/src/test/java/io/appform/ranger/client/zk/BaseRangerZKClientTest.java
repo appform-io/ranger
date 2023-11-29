@@ -33,8 +33,9 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -49,7 +50,7 @@ public abstract class BaseRangerZKClientTest {
     private CuratorFramework curatorFramework;
     private ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>> provider;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -65,7 +66,7 @@ public abstract class BaseRangerZKClientTest {
         log.debug("Started zk subsystem");
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         log.debug("Stopping zk subsystem");
         curatorFramework.close();
@@ -112,7 +113,7 @@ public abstract class BaseRangerZKClientTest {
                 .withNodeData(TestNodeData.builder().shardId(1).build())
                 .withHealthcheck(() -> HealthcheckStatus.healthy)
                 .withAdditionalRefreshSignal(refreshProviderSignal)
-                .withCuratorFramework(getCuratorFramework())
+                .withCuratorFramework(curatorFramework)
                 .build();
         provider.start();
         refreshProviderSignal.trigger();

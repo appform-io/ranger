@@ -18,13 +18,13 @@ package io.appform.ranger.client.http;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
+class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
 
     @Test
-    public void testSimpleHttpRangerClient(){
+    void testSimpleHttpRangerClient(){
         val client = SimpleRangerHttpClient.<TestNodeData>builder()
                 .clientConfig(getHttpClientConfig())
                 .mapper(getObjectMapper())
@@ -35,10 +35,10 @@ public class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
                 .build();
         client.start();
         RangerTestUtils.sleepUntilFinderStarts(client.getServiceFinder());
-        Assert.assertNotNull(client.getNode().orElse(null));
-        Assert.assertFalse(client.getAllNodes().isEmpty());
-        Assert.assertNotNull(client.getNode(nodeData -> nodeData.getShardId() == 1).orElse(null));
-        Assert.assertFalse(client.getAllNodes(nodeData -> nodeData.getShardId() == 1).isEmpty());
+        Assertions.assertNotNull(client.getNode().orElse(null));
+        Assertions.assertFalse(client.getAllNodes().isEmpty());
+        Assertions.assertNotNull(client.getNode(nodeData -> nodeData.getShardId() == 1).orElse(null));
+        Assertions.assertFalse(client.getAllNodes(nodeData -> nodeData.getShardId() == 1).isEmpty());
         client.stop();
     }
 }

@@ -18,27 +18,26 @@ package io.appform.ranger.client;
 import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
-import lombok.var;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
 
-public class CriteriaUtilsTest {
+class CriteriaUtilsTest {
 
     private Predicate<TestNodeData> getCriteria(int shardId){
         return testNodeData -> testNodeData.getShardId() == shardId;
     }
 
     @Test
-    public void testGetCriteria(){
+    void testGetCriteria(){
         val initialCriteria = getCriteria(1);
         val argCriteria = getCriteria(2);
         var mergedCriteria = CriteriaUtils.getCriteria(true, initialCriteria, argCriteria);
-        Assert.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(1).build()));
-        Assert.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(2).build()));
+        Assertions.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(1).build()));
+        Assertions.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(2).build()));
         mergedCriteria = CriteriaUtils.getCriteria(false, initialCriteria, argCriteria);
-        Assert.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(1).build()));
-        Assert.assertTrue(mergedCriteria.test(TestNodeData.builder().shardId(2).build()));
+        Assertions.assertFalse(mergedCriteria.test(TestNodeData.builder().shardId(1).build()));
+        Assertions.assertTrue(mergedCriteria.test(TestNodeData.builder().shardId(2).build()));
     }
 }

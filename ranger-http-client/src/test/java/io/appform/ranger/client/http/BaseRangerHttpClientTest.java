@@ -17,7 +17,7 @@ package io.appform.ranger.client.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
@@ -31,9 +31,9 @@ import io.appform.ranger.http.model.ServiceNodesResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 
@@ -45,11 +45,14 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public abstract class BaseRangerHttpClientTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Rule
-    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
     private HttpClientConfig httpClientConfig;
 
-    @Before
+    @RegisterExtension
+    static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+            .build();
+
+    @BeforeEach
     public void startTestCluster() throws Exception {
         val testNode = TestNodeData.builder().shardId(1).build();
         val node = ServiceNode.<TestNodeData>builder().host("127.0.0.1").port(80).nodeData(testNode).build();
@@ -59,7 +62,7 @@ public abstract class BaseRangerHttpClientTest {
                 ServiceNodesResponse.<TestNodeData>builder()
                         .data(Lists.newArrayList(node))
                         .build());
-        server.stubFor(get(urlEqualTo("/ranger/nodes/v1/test-n/test-s"))
+        wireMockExtension.stubFor(get(urlEqualTo("/ranger/nodes/v1/test-n/test-s"))
                 .willReturn(aResponse()
                         .withBody(payload)
                         .withStatus(200)));
@@ -70,21 +73,21 @@ public abstract class BaseRangerHttpClientTest {
                 ))
                 .build();
         val response = objectMapper.writeValueAsBytes(responseObj);
-        server.stubFor(get(urlEqualTo("/ranger/services/v1"))
+        wireMockExtension.stubFor(get(urlEqualTo("/ranger/services/v1"))
                 .willReturn(aResponse()
                         .withBody(response)
                         .withStatus(200)));
 
         httpClientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
-                .port(server.port())
+                .port(wireMockExtension.getPort())
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
         log.debug("Started http subsystem");
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() {
         log.debug("Stopping http subsystem");
     }

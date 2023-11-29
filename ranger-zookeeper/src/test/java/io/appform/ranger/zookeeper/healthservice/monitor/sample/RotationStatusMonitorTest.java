@@ -18,41 +18,41 @@ package io.appform.ranger.zookeeper.healthservice.monitor.sample;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.monitor.sample.RotationStatusMonitor;
 import lombok.val;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-public class RotationStatusMonitorTest {
+class RotationStatusMonitorTest {
 
     final String filePath = "/tmp/rangerRotationFile.html";
     File file = new File(filePath);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         deleteRotationFile();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         deleteRotationFile();
     }
 
     @Test
-    public void testMonitor() throws Exception {
+    void testMonitor() throws Exception {
         deleteRotationFile();
         val rotationStatusMonitor = new RotationStatusMonitor("/tmp/rotationFile.html");
-        Assert.assertEquals(HealthcheckStatus.unhealthy, rotationStatusMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.unhealthy, rotationStatusMonitor.monitor());
     }
 
     @Test
-    public void testMonitor2() throws Exception {
+    void testMonitor2() throws Exception {
         deleteRotationFile();
         if (file.createNewFile()) {
             val rotationStatusMonitor = new RotationStatusMonitor(filePath);
-            Assert.assertEquals(HealthcheckStatus.healthy, rotationStatusMonitor.monitor());
+            Assertions.assertEquals(HealthcheckStatus.healthy, rotationStatusMonitor.monitor());
         } else {
             System.out.println("Unable to create file = " + filePath);
             throw new Exception("Unable to create file = " + filePath);

@@ -18,7 +18,8 @@ package io.appform.ranger.http.servicefinder;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.utils.RangerTestUtils;
@@ -26,20 +27,19 @@ import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import lombok.Data;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 /**
  *
  */
-public class HttpShardedServiceFinderBuilderTest {
+@WireMockTest
+class HttpShardedServiceFinderBuilderTest {
 
     @Data
     private static final class NodeData {
@@ -52,11 +52,8 @@ public class HttpShardedServiceFinderBuilderTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Rule
-    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
-
     @Test
-    public void testFinder() throws Exception {
+    void testFinder(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
         val testNode = new NodeData("testNode");
         val node = ServiceNode.<NodeData>builder().host("127.0.0.1").port(80).nodeData(testNode).build();
         node.setHealthcheckStatus(HealthcheckStatus.healthy);
@@ -65,13 +62,13 @@ public class HttpShardedServiceFinderBuilderTest {
                 ServiceNodesResponse.<NodeData>builder()
                         .data(Collections.singletonList(node))
                         .build());
-        server.stubFor(get(urlEqualTo("/ranger/nodes/v1/testns/test"))
+        stubFor(get(urlEqualTo("/ranger/nodes/v1/testns/test"))
                                .willReturn(aResponse()
                                                    .withBody(payload)
                                                    .withStatus(200)));
         val clientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
-                .port(server.port())
+                .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
@@ -94,7 +91,7 @@ public class HttpShardedServiceFinderBuilderTest {
                 .build();
         finder.start();
         RangerTestUtils.sleepUntilFinderStarts(finder);
-        Assert.assertNotNull(finder.get(nodeData -> true).orElse(null));
+        Assertions.assertNotNull(finder.get(nodeData -> true).orElse(null));
     }
 
 }

@@ -33,12 +33,8 @@ import io.dropwizard.setup.AdminEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.val;
-import lombok.var;
 import org.eclipse.jetty.util.component.LifeCycle;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,14 +45,14 @@ import static org.mockito.Mockito.*;
 
 public class RangerServerBundleTest {
 
-    private final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
-    private final MetricRegistry metricRegistry = mock(MetricRegistry.class);
-    private final LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment(metricRegistry);
-    private final Environment environment = mock(Environment.class);
-    private final Bootstrap<?> bootstrap = mock(Bootstrap.class);
-    private final Configuration configuration = mock(Configuration.class);
+    private static final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
+    private static final MetricRegistry metricRegistry = mock(MetricRegistry.class);
+    private static final LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment(metricRegistry);
+    private static final Environment environment = mock(Environment.class);
+    private static final Bootstrap<?> bootstrap = mock(Bootstrap.class);
+    private static final Configuration configuration = mock(Configuration.class);
 
-    private final RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>
+    private static final RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>
             rangerServerBundle = new RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>() {
 
         @Override
@@ -70,8 +66,8 @@ public class RangerServerBundleTest {
         }
     };
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeAll
+    public static void setup() throws Exception {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
@@ -93,22 +89,22 @@ public class RangerServerBundleTest {
 
 
     @Test
-    public void testRangerBundle() {
+    void testRangerBundle() {
         var hub = rangerServerBundle.getHubs().get(0);
-        Assert.assertTrue(hub instanceof RangerTestHub);
+        Assertions.assertTrue(hub instanceof RangerTestHub);
         var node = hub.getNode(service).orElse(null);
-        Assert.assertNotNull(node);
-        Assert.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
-        Assert.assertEquals(9200, node.getPort());
-        Assert.assertEquals(1, node.getNodeData().getShardId());
-        Assert.assertNull(hub.getNode(RangerTestUtils.getService("test", "test")).orElse(null));
-        Assert.assertNull(hub.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));
-        Assert.assertNull(hub.getNode(RangerTestUtils.getService("test", "test"),
+        Assertions.assertNotNull(node);
+        Assertions.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
+        Assertions.assertEquals(9200, node.getPort());
+        Assertions.assertEquals(1, node.getNodeData().getShardId());
+        Assertions.assertNull(hub.getNode(RangerTestUtils.getService("test", "test")).orElse(null));
+        Assertions.assertNull(hub.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));
+        Assertions.assertNull(hub.getNode(RangerTestUtils.getService("test", "test"),
                                       nodeData -> nodeData.getShardId() == 1).orElse(null));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterAll
+    public static void tearDown() throws Exception {
         for (LifeCycle lifeCycle : lifecycleEnvironment.getManagedObjects()) {
             lifeCycle.stop();
         }

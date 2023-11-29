@@ -22,12 +22,12 @@ import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.core.utils.RegistryTestUtils;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class UnshardedClusterFinderTest {
+class UnshardedClusterFinderTest {
 
     static class TestUnshardedNodeSelector implements ServiceNodeSelector<TestNodeData> {
 
@@ -37,7 +37,7 @@ public class UnshardedClusterFinderTest {
         }
     }
     @Test
-    public void unshardedClusterFinder(){
+    void unshardedClusterFinder(){
         val unshardedRegistry = RegistryTestUtils.getUnshardedRegistry();
         val shardSelector = new ListShardSelector<TestNodeData>();
         val simpleUnshardedServiceFinder = new SimpleUnshardedServiceFinder<>(
@@ -46,7 +46,7 @@ public class UnshardedClusterFinderTest {
                 new TestUnshardedNodeSelector()
         );
         val serviceNode = simpleUnshardedServiceFinder.get(RangerTestUtils.getCriteria(1));
-        Assert.assertTrue(serviceNode.isPresent());
-        Assert.assertEquals("localhost-1", serviceNode.get().getHost());
+        Assertions.assertTrue(serviceNode.isPresent());
+        Assertions.assertEquals("localhost-1", serviceNode.get().getHost());
     }
 }

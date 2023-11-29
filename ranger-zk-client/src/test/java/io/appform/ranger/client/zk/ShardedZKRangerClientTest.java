@@ -19,14 +19,14 @@ import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class ShardedZKRangerClientTest extends BaseRangerZKClientTest {
+class ShardedZKRangerClientTest extends BaseRangerZKClientTest {
 
     @Test
-    public void testShardedHub(){
+    void testShardedHub(){
         val zkHubClient = ShardedRangerZKHubClient.<TestNodeData>builder()
                 .namespace("test-n")
                 .connectionString(getTestingCluster().getConnectString())
@@ -37,8 +37,8 @@ public class ShardedZKRangerClientTest extends BaseRangerZKClientTest {
                 .nodeRefreshTimeMs(1000)
                 .build();
         zkHubClient.start();
-        Assert.assertNotNull(zkHubClient.getNode(RangerTestUtils.getService("test-n", "s1")).orElse(null));
-        Assert.assertNotNull(zkHubClient.getNode(RangerTestUtils.getService("test-n", "s1"), nodeData -> nodeData.getShardId() == 1).orElse(null));
+        Assertions.assertNotNull(zkHubClient.getNode(RangerTestUtils.getService("test-n", "s1")).orElse(null));
+        Assertions.assertNotNull(zkHubClient.getNode(RangerTestUtils.getService("test-n", "s1"), nodeData -> nodeData.getShardId() == 1).orElse(null));
         zkHubClient.stop();
     }
 }

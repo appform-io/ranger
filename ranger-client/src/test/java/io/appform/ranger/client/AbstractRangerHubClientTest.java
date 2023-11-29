@@ -20,42 +20,41 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class AbstractRangerHubClientTest {
+class AbstractRangerHubClientTest {
 
     private static final Service service = RangerTestUtils.getService("test-ns", "test-s");
 
     @Test
-    public void testAbstractHubClient() {
+    void testAbstractHubClient() {
         val testAbstractHub = RangerHubTestUtils.getTestHub();
         testAbstractHub.start();
         var node = testAbstractHub.getNode(service).orElse(null);
-        Assert.assertNotNull(node);
-        Assert.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
-        Assert.assertEquals(9200, node.getPort());
-        Assert.assertEquals(1, node.getNodeData().getShardId());
-        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test")).isPresent());
-        Assert.assertFalse(testAbstractHub.getNode(service, nodeData -> nodeData.getShardId() == 2).isPresent());
-        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
+        Assertions.assertNotNull(node);
+        Assertions.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
+        Assertions.assertEquals(9200, node.getPort());
+        Assertions.assertEquals(1, node.getNodeData().getShardId());
+        Assertions.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test")).isPresent());
+        Assertions.assertFalse(testAbstractHub.getNode(service, nodeData -> nodeData.getShardId() == 2).isPresent());
+        Assertions.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
         testAbstractHub.stop();
     }
 
     @Test
-    public void testAbstractHubClientWithDataSource() {
+    void testAbstractHubClientWithDataSource() {
         val testAbstractHub = RangerHubTestUtils.getTestHubWithDataSource();
         testAbstractHub.start();
-        var node = testAbstractHub.getNode(service).orElse(null);
-        Assert.assertNotNull(node);
-        Assert.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
-        Assert.assertEquals(9200, node.getPort());
-        Assert.assertEquals(1, node.getNodeData().getShardId());
-        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test")).isPresent());
-        Assert.assertFalse(testAbstractHub.getNode(service, nodeData -> nodeData.getShardId() == 2).isPresent());
-        Assert.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
+        val node = testAbstractHub.getNode(service).orElse(null);
+        Assertions.assertNotNull(node);
+        Assertions.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
+        Assertions.assertEquals(9200, node.getPort());
+        Assertions.assertEquals(1, node.getNodeData().getShardId());
+        Assertions.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test")).isPresent());
+        Assertions.assertFalse(testAbstractHub.getNode(service, nodeData -> nodeData.getShardId() == 2).isPresent());
+        Assertions.assertFalse(testAbstractHub.getNode(RangerTestUtils.getService("test", "test"), nodeData -> nodeData.getShardId() == 1).isPresent());
         testAbstractHub.stop();
     }
 }

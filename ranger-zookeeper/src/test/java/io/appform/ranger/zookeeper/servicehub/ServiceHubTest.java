@@ -35,10 +35,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -48,7 +48,7 @@ import java.util.Date;
  *
  */
 @Slf4j
-public class ServiceHubTest {
+class ServiceHubTest {
 
     private static final String NAMESPACE = "test";
 
@@ -56,7 +56,7 @@ public class ServiceHubTest {
     private ObjectMapper objectMapper = new ObjectMapper();
     private CuratorFramework curatorFramework;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -71,7 +71,7 @@ public class ServiceHubTest {
         log.debug("Started zk subsystem");
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         log.debug("Stopping zk subsystem");
         curatorFramework.close();
@@ -81,7 +81,7 @@ public class ServiceHubTest {
     }
 
     @Test
-    public void testHub() {
+    void testHub() {
         val refreshProviderSignal = new ExternalTriggeredSignal<>(
                 () -> HealthcheckResult.builder()
                         .status(HealthcheckStatus.healthy)
@@ -118,7 +118,7 @@ public class ServiceHubTest {
 
         val node = hub.finder(RangerTestUtils.getService(NAMESPACE, "s1"))
                 .flatMap(finder -> finder.get(nodeData -> nodeData.getShardId() == 1)).orElse(null);
-        Assert.assertNotNull(node);
+        Assertions.assertNotNull(node);
         hub.stop();
         provider1.stop();
     }
