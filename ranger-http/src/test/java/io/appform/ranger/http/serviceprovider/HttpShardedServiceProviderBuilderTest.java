@@ -27,6 +27,7 @@ import io.appform.ranger.http.response.model.GenericResponse;
 import lombok.Builder;
 import lombok.Data;
 import lombok.val;
+import org.apache.hc.client5.http.fluent.Executor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -69,8 +70,6 @@ class HttpShardedServiceProviderBuilderTest {
         val clientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
                 .port(wireMockRuntimeInfo.getHttpPort())
-                .connectionTimeoutMs(30_000)
-                .operationTimeoutMs(30_000)
                 .build();
         val serviceProvider = new HttpShardedServiceProviderBuilder<TestNodeData>()
                 .withNamespace("testns")
@@ -83,6 +82,7 @@ class HttpShardedServiceProviderBuilderTest {
                 .withClientConfiguration(clientConfig)
                 .withNodeData(farmNodeData)
                 .withSerializer(node -> requestBytes)
+                .withHttpExecutor(Executor.newInstance())
                 .build();
         serviceProvider.start();
         Assertions.assertNotNull(serviceProvider);

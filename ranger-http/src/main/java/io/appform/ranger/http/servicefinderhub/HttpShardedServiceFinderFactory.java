@@ -27,6 +27,7 @@ import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinder.HttpShardedServiceFinderBuilder;
 import lombok.Builder;
 import lombok.val;
+import org.apache.hc.client5.http.fluent.Executor;
 
 public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
 
@@ -36,6 +37,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
     private final ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector;
     private final ServiceNodeSelector<T> nodeSelector;
     private final int nodeRefreshIntervalMs;
+    private final Executor httpExecutor;
 
     @Builder
     public HttpShardedServiceFinderFactory(
@@ -44,7 +46,8 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
             HTTPResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,
             ServiceNodeSelector<T> nodeSelector,
-            int nodeRefreshIntervalMs)
+            int nodeRefreshIntervalMs,
+            Executor httpExecutor)
     {
         this.clientConfig = httpClientConfig;
         this.mapper = mapper;
@@ -52,6 +55,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
         this.shardSelector = shardSelector;
         this.nodeSelector = nodeSelector;
         this.nodeRefreshIntervalMs = nodeRefreshIntervalMs;
+        this.httpExecutor = httpExecutor;
     }
 
     @Override
@@ -65,6 +69,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
                 .withNodeRefreshIntervalMs(nodeRefreshIntervalMs)
                 .withShardSelector(shardSelector)
                 .withNodeSelector(nodeSelector)
+                .withHttpExecutor(httpExecutor)
                 .build();
         serviceFinder.start();
         return serviceFinder;

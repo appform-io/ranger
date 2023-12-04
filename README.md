@@ -17,7 +17,20 @@ Ranger provides two types of discovery out of the box:
 - Sharded service discovery with service provider node healthchecks
   We'll take these up, one by one.
 
-###Build instructions
+### Bill of materials
+You could use the ranger-bom using the following in your dependency management.
+
+```
+<dependency>
+    <groupId>io.appform.ranger</groupId>
+    <artifactId>ranger-bom</artifactId>
+    <version>${ranger.version}</version>
+    <type>pom</type>
+    <scope>import</scope>
+</dependency>
+```
+
+### Build instructions
 - Clone the source:
 
       git clone github.com/appform-io/ranger

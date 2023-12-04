@@ -16,77 +16,70 @@
 package io.appform.ranger.http.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
+import io.appform.ranger.http.utils.HttpClientUtils;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.util.Timeout;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    public HttpServiceDataSource(HttpClientConfig config, ObjectMapper mapper) {
-        super(config, mapper);
+    public HttpServiceDataSource(HttpClientConfig config, ObjectMapper mapper, Executor httpExecutor) {
+        super(config, mapper, httpExecutor);
     }
 
     @Override
+    @SneakyThrows
     public Collection<Service> services() {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
 
-        val httpUrl = new HttpUrl.Builder()
-                .scheme(config.isSecure()
+        val httpUrl = new URIBuilder()
+                .setScheme(config.isSecure()
                         ? "https"
                         : "http")
-                .host(config.getHost())
-                .port(config.getPort() == 0
+                .setHost(config.getHost())
+                .setPort(config.getPort() == 0
                       ? defaultPort()
                       : config.getPort())
-                .encodedPath("/ranger/services/v1")
-                .build();
-        val request = new Request.Builder()
-                .url(httpUrl)
-                .get()
+                .setPath("/ranger/services/v1")
                 .build();
 
-        try (val response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                try (val body = response.body()) {
-                    if (null == body) {
-                        log.warn("HTTP call to {} returned empty body", httpUrl);
-                    }
-                    else {
-                        val bytes = body.bytes();
-                        val serviceDataSourceResponse = mapper.readValue(bytes, ServiceDataSourceResponse.class);
-                        if (serviceDataSourceResponse.valid()) {
-                            return serviceDataSourceResponse.getData();
-                        }
-                        else {
-                            log.warn("Http call to {} returned a failure response with data {}",
-                                     httpUrl,
-                                     serviceDataSourceResponse);
-                        }
-                    }
-                }
-            }
-            else {
-                log.warn("HTTP call to {} returned code: {}", httpUrl, response.code());
-            }
-        }
-        catch (IOException e) {
-            log.info("Error parsing the response from server for : {} with exception {}", httpUrl, e);
-        }
+        return HttpClientUtils.executeRequest(httpExecutor, Request.get(httpUrl), (Function<byte[], Collection<Service>>) responseBytes -> {
+            val serviceDataSourceResponse = getServiceDataSourceResponse(responseBytes);
 
-        log.error("No data returned from server: " + httpUrl);
-        return Collections.emptySet();
+            if (serviceDataSourceResponse.valid()) {
+                return serviceDataSourceResponse.getData();
+            } else {
+                log.warn("Http call to {} returned an invalid response with data {}",
+                        httpUrl,
+                        serviceDataSourceResponse);
+                return Set.of();
+            }
+
+        }, (Function<Exception, Collection<Service>>) exception -> {
+            log.error("Error getting list of services from the server with httpUrl {} with exception. Executing the error handler ", httpUrl, exception);
+            return Set.of();
+        });
+    }
+
+    @SneakyThrows
+    private ServiceDataSourceResponse getServiceDataSourceResponse(final byte[] responseBytes) {
+        return mapper.readValue(responseBytes, ServiceDataSourceResponse.class);
     }
 }

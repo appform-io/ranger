@@ -7,13 +7,17 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-RC15</version>
+    <version>1.0-RC16</version>
+
     <name>Ranger</name>
     <url>https://github.com/appform-io/ranger</url>
-    <description>Service Discovery for Java</description>
+    <description>Service Discovery for Java including dropwizard backed bundles and lightweight hub servers</description>
     <inceptionYear>2015</inceptionYear>
 
     <modules>
+        <module>ranger-bom</module>
+        <module>ranger-parent</module>
+
         <module>ranger-core</module>
         <module>ranger-zookeeper</module>
         <module>ranger-http</module>
@@ -82,94 +86,16 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <guava.version>31.0.1-jre</guava.version>
-        <curator.version>5.5.0</curator.version>
-        <slf4j.version>1.7.32</slf4j.version>
 
-        <maven.compiler.version>3.8.0</maven.compiler.version>
         <java.version>17</java.version>
         <java.release.version>11</java.release.version>
-        <lombok.version>1.18.22</lombok.version>
-        <annotations.version>3.0.1u2</annotations.version>
-
-        <junit.jupiter.version>5.8.2</junit.jupiter.version>
-        <awaitility.version>4.1.1</awaitility.version>
-        <guava-retrying.version>2.0.0</guava-retrying.version>
-
-        <http.client.version>4.9.3</http.client.version>
-        <wiremock.version>3.3.1</wiremock.version>
-        <mockito.version>4.2.0</mockito.version>
-
-        <dropwizard.version>2.1.10</dropwizard.version>
+        <maven.compiler.version>3.8.0</maven.compiler.version>
+        <maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+        <jacoco.version>0.8.8</jacoco.version>
+        <maven.source.plugin.version>3.2.0</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.6.3</maven.javadoc.plugin.version>
+        <nexus.staging.plguin.version>1.6.13</nexus.staging.plguin.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.jupiter.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard</groupId>
-                <artifactId>dropwizard-bom</artifactId>
-                <type>pom</type>
-                <scope>import</scope>
-                <version>${dropwizard.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${annotations.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.rholder</groupId>
-            <artifactId>guava-retrying</artifactId>
-            <version>${guava-retrying.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -186,12 +112,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>${maven.surefire.plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -206,13 +132,11 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>${maven.source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -225,7 +149,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
+                <version>${maven.javadoc.plugin.version}</version>
                 <configuration>
                     <doclint>all,-missing</doclint>
                 </configuration>
@@ -241,7 +165,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.13</version>
+                <version>${nexus.staging.plguin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
@@ -287,20 +211,5 @@
                 </plugins>
             </build>
         </profile>
-        <!-- The following are required for dns cache manipulator.
-        Ref: https://github.com/alibaba/java-dns-cache-manipulator#jvm-settings-for-java-16 -->
-        <profile>
-            <id>add-java-open-options-for-jdk16+</id>
-            <activation>
-                <jdk>[16,)</jdk>
-            </activation>
-            <properties>
-                <argLine>
-                    --add-opens java.base/java.net=ALL-UNNAMED
-                    --add-opens java.base/sun.net=ALL-UNNAMED
-                </argLine>
-            </properties>
-        </profile>
     </profiles>
-
 </project>

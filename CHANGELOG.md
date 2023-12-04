@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0-RC16]
+
+- Migrated from OkHttpClient to Apache http client (fluent interface)
+- Added bill of materials for ranger, for clients who intend to use ranger. 
+
 ## [1.0-RC15]
 - Moved discovery bundle from https://github.com/appform-io/dropwizard-service-discovery.
 - Updated to dropwizard version 2.1.10 : BOM update.

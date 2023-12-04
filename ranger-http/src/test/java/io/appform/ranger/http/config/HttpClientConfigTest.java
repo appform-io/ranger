@@ -29,6 +29,5 @@ class HttpClientConfigTest {
         Assertions.assertEquals("localhost-1", resource.getHost());
         Assertions.assertEquals(80, resource.getPort());
         Assertions.assertEquals(10, resource.getConnectionTimeoutMs());
-        Assertions.assertEquals(10, resource.getOperationTimeoutMs());
     }
 }

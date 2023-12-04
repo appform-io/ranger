@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.http.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -25,11 +26,23 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HttpClientConfig {
     String host;
     int port;
     boolean secure;
-    long connectionTimeoutMs;
-    long operationTimeoutMs;
-    long refreshIntervalMillis;
+    @Builder.Default
+    int maxConnPerRoute = 10;
+    @Builder.Default
+    int maxConnTotal = 20;
+    @Builder.Default
+    int operationTimeout = 10000;
+    @Builder.Default
+    long connectionTimeoutMs = 10000;
+    @Builder.Default
+    long validateAfterInactivityMs = 10000;
+    @Builder.Default
+    long ttlMs = 60000;
+    @Builder.Default
+    long idleConnEvictMs = 60000;
 }

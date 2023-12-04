@@ -27,6 +27,7 @@ import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import lombok.Data;
 import lombok.val;
+import org.apache.hc.client5.http.fluent.Executor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -70,7 +71,6 @@ class HttpShardedServiceFinderBuilderTest {
                 .host("127.0.0.1")
                 .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)
-                .operationTimeoutMs(30_000)
                 .build();
 
         val finder = new HttpShardedServiceFinderBuilder<NodeData>()
@@ -80,7 +80,8 @@ class HttpShardedServiceFinderBuilderTest {
                 .withObjectMapper(MAPPER)
                 .withDeserializer(data -> {
                     try {
-                        return MAPPER.readValue(data, new TypeReference<ServiceNodesResponse<NodeData>>() {});
+                        return MAPPER.readValue(data, new TypeReference<>() {
+                        });
                     }
                     catch (IOException e) {
                         throw new IllegalArgumentException(e);
@@ -88,6 +89,7 @@ class HttpShardedServiceFinderBuilderTest {
                 })
                 .withShardSelector((criteria, registry) -> registry.nodeList())
                 .withNodeRefreshIntervalMs(1000)
+                .withHttpExecutor(Executor.newInstance())
                 .build();
         finder.start();
         RangerTestUtils.sleepUntilFinderStarts(finder);
