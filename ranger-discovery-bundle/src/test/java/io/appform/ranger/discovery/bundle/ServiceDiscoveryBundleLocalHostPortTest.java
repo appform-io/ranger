@@ -30,10 +30,12 @@ import io.dropwizard.setup.AdminEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
@@ -138,7 +140,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         });
 
         assertTrue(thrown.getMessage()
-                .contains("Couldn't resolve host address for zkHost"));
+                           .contains("Couldn't resolve host address for zkHost"));
 
     }
 
@@ -168,9 +170,10 @@ class ServiceDiscoveryBundleLocalHostPortTest {
                 .build();
         bundle.initialize(bootstrap);
 
-        String publishedHost = ConfigurationUtils.resolveNonEmptyPublishedHost(
+        val publishedHost = ConfigurationUtils.resolveNonEmptyPublishedHost(
                 serviceDiscoveryConfiguration.getPublishedHost());
-        if (LOCAL_ADDRESSES.contains(publishedHost)) {
+        val publishedHostAddress = InetAddress.getByName(publishedHost).getHostAddress();
+        if (LOCAL_ADDRESSES.contains(publishedHostAddress) || LOCAL_ADDRESSES.contains(publishedHost)) {
             assertLocalHostNotAllowed();
         } else {
             assertDoesNotThrow();
@@ -202,9 +205,10 @@ class ServiceDiscoveryBundleLocalHostPortTest {
                 .build();
         bundle.initialize(bootstrap);
 
-        String publishedHost = ConfigurationUtils.resolveNonEmptyPublishedHost(
+        val publishedHost = ConfigurationUtils.resolveNonEmptyPublishedHost(
                 serviceDiscoveryConfiguration.getPublishedHost());
-        if (LOCAL_ADDRESSES.contains(publishedHost)) {
+        val publishedHostAddress = InetAddress.getByName(publishedHost).getHostAddress();
+        if (LOCAL_ADDRESSES.contains(publishedHostAddress) || LOCAL_ADDRESSES.contains(publishedHost)) {
             assertLocalHostNotAllowed();
         } else {
             assertDoesNotThrow();
@@ -276,7 +280,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
 
         });
         assertTrue(thrown.getMessage()
-                .contains("Not allowed to publish localhost address to remote zookeeper"));
+                           .contains("Not allowed to publish localhost address to remote zookeeper"));
     }
 
 
