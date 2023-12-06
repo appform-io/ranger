@@ -21,20 +21,20 @@ import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.healthservice.monitor.Monitor;
 import io.appform.ranger.core.utils.RangerTestUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-public class ServiceHealthAggregatorTest {
+class ServiceHealthAggregatorTest {
 
     ServiceHealthAggregator serviceHealthAggregator = new ServiceHealthAggregator();
     TestMonitor testMonitor;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setUp() {
         testMonitor = new TestMonitor("TestHealthMonitor", TimeEntity.everySecond(), 1000);
         serviceHealthAggregator.addIsolatedMonitor(testMonitor);
@@ -54,13 +54,13 @@ public class ServiceHealthAggregatorTest {
         RangerTestUtils.sleepUntil(3, () -> serviceHealthAggregator.getRunning().get());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         serviceHealthAggregator.stop();
     }
 
     @Test
-    public void testStaleRun() {
+    void testStaleRun() {
 
         testMonitor.run();
         testMonitor.setThreadSleep(2000);
@@ -69,14 +69,14 @@ public class ServiceHealthAggregatorTest {
 
         /* in the TestMonitor, thread was sleeping for 2 seconds, */
         /* so its state is supposed to be stale (>1 second) and service has to be unhealthy */
-        Assert.assertEquals(HealthcheckStatus.unhealthy, serviceHealthAggregator.getServiceHealth());
+        Assertions.assertEquals(HealthcheckStatus.unhealthy, serviceHealthAggregator.getServiceHealth());
 
         testMonitor.setThreadSleep(5);
         RangerTestUtils.sleepUntil(3, () -> testMonitor.hasValidUpdatedTime(new Date()));
 
         /* in the TestMonitor, thread is sleeping only for 10 milliseconds, */
         /* so its state is supposed to be NOT stale (>1 second) and service has to be healthy */
-        Assert.assertEquals(HealthcheckStatus.healthy, serviceHealthAggregator.getServiceHealth());
+        Assertions.assertEquals(HealthcheckStatus.healthy, serviceHealthAggregator.getServiceHealth());
 
     }
 

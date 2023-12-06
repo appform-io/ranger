@@ -20,6 +20,7 @@ import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.CountMonitor;
 import io.appform.ranger.core.healthservice.monitor.sample.PingCheckMonitor;
 import io.appform.ranger.core.healthservice.monitor.sample.RotationStatusMonitor;
+import lombok.Getter;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
 
     /* name of the monitor */
+    @Getter
     protected String name;
 
     /* reference of the health that this monitor tracks */
@@ -45,6 +47,7 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
     private Date lastStatusUpdateTime;
 
     /* how often should this monitor run */
+    @Getter
     private final TimeEntity runInterval;
 
     /* reference to if this monitor is disabled or not (default: false) */
@@ -102,16 +105,8 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
         disabled.set(false);
     }
 
-    public TimeEntity getRunInterval() {
-        return runInterval;
-    }
-
     public T getHealthStatus() {
         return healthStatus.get();
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override

@@ -31,10 +31,10 @@ import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,12 +43,12 @@ import java.util.function.Predicate;
 
 
 @Slf4j
-public class CustomShardSelectorTest {
+class CustomShardSelectorTest {
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
     private final List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = Lists.newArrayList();
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -58,7 +58,7 @@ public class CustomShardSelectorTest {
         registerService("localhost-3", 9002, 2, 3);
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         if (null != testingCluster) {
@@ -94,7 +94,7 @@ public class CustomShardSelectorTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestShardInfo>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -113,16 +113,16 @@ public class CustomShardSelectorTest {
         serviceFinder.start();
         {
             val node = serviceFinder.get(TestShardInfo.getCriteria(1, 10)).orElse(null);
-            Assert.assertNull(node);
+            Assertions.assertNull(node);
         }
         {
             val node = serviceFinder.get(TestShardInfo.getCriteria(1, 2)).orElse(null);
-            Assert.assertNotNull(node);
-            Assert.assertEquals(new TestShardInfo(1, 2), node.getNodeData());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(new TestShardInfo(1, 2), node.getNodeData());
         }
         {
             val node = serviceFinder.get(TestShardInfo.getCriteria(2, 3)).orElse(null);
-            Assert.assertNotNull(node);
+            Assertions.assertNotNull(node);
         }
         serviceFinder.stop();
     }

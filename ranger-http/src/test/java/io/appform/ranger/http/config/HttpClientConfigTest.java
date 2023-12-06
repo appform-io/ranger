@@ -17,18 +17,18 @@ package io.appform.ranger.http.config;
 
 import io.appform.ranger.http.ResourceHelper;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class HttpClientConfigTest {
+class HttpClientConfigTest {
 
     @Test
-    public void testHttpClientConfig(){
+    void testHttpClientConfig(){
         val resource = ResourceHelper.getResource("fixtures/httpClientConfig.json", HttpClientConfig.class);
-        Assert.assertNotNull(resource);
-        Assert.assertEquals("localhost-1", resource.getHost());
-        Assert.assertEquals(80, resource.getPort());
-        Assert.assertEquals(10, resource.getConnectionTimeoutMs());
-        Assert.assertEquals(10, resource.getOperationTimeoutMs());
+        Assertions.assertNotNull(resource);
+        Assertions.assertEquals("localhost-1", resource.getHost());
+        Assertions.assertEquals(80, resource.getPort());
+        Assertions.assertEquals(10, resource.getConnectionTimeoutMs());
+        Assertions.assertEquals(10, resource.getOperationTimeoutMs());
     }
 }

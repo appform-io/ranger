@@ -24,26 +24,27 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 
-public class ServiceNoProviderTest {
+class ServiceNoProviderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         if (null != testingCluster) {
             testingCluster.close();
@@ -51,7 +52,7 @@ public class ServiceNoProviderTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -70,13 +71,13 @@ public class ServiceNoProviderTest {
                 .build();
         serviceFinder.start();
         val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-        Assert.assertNull(node);
+        Assertions.assertNull(node);
         serviceFinder.stop();
 
     }
 
     @Test
-    public void testBasicDiscoveryRR() {
+    void testBasicDiscoveryRR() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -96,7 +97,7 @@ public class ServiceNoProviderTest {
                 .build();
         serviceFinder.start();
         val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-        Assert.assertNull(node);
+        Assertions.assertNull(node);
         serviceFinder.stop();
     }
 

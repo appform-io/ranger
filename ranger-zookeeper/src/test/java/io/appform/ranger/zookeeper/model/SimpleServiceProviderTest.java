@@ -26,20 +26,20 @@ import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.stream.LongStream;
 
-public class SimpleServiceProviderTest {
+class SimpleServiceProviderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -49,7 +49,7 @@ public class SimpleServiceProviderTest {
         registerService("localhost-3", 9002);
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         if(null != testingCluster) {
             testingCluster.close();
@@ -70,7 +70,7 @@ public class SimpleServiceProviderTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<UnshardedInfo>unshardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -90,13 +90,13 @@ public class SimpleServiceProviderTest {
         serviceFinder.start();
         {
             val node = serviceFinder.get(null).orElse(null);
-            Assert.assertNotNull(node);
+            Assertions.assertNotNull(node);
             System.out.println(node.getHost());
         }
         val frequency = HashMultiset.create();
         val startTime = System.currentTimeMillis();
         LongStream.range(0, 1000000).mapToObj(i -> serviceFinder.get(null).orElse(null)).forEach(node -> {
-            Assert.assertNotNull(node);
+            Assertions.assertNotNull(node);
             frequency.add(node.getHost());
         });
         System.out.println("1 Million lookups and freq counting took (ms):" + (System.currentTimeMillis() -startTime));

@@ -3,8 +3,8 @@ package io.appform.ranger.common.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -36,14 +36,14 @@ public class ShardInfoTest {
     public void testShardInfo(){
         val shardInfo1 = getResource("fixtures/env1.json", ShardInfo.class);
         val shardInfo2 = getResource("fixtures/env2.json", ShardInfo.class);
-        Assert.assertNotNull(shardInfo1);
-        Assert.assertNotNull(shardInfo2);
-        Assert.assertNotEquals(shardInfo1, shardInfo2);
-        Arrays.asList(shardInfo1, shardInfo2).forEach(shardInfo -> Assert.assertEquals("e", shardInfo.getEnvironment()));
-        Assert.assertEquals("r", shardInfo1.getRegion());
-        Assert.assertNull(shardInfo2.getRegion());
-        Assert.assertNotNull(shardInfo1.getTags());
-        Assert.assertNotNull(shardInfo2.getTags());
-        Assert.assertTrue(shardInfo2.getTags().contains("tag1"));
+        Assertions.assertNotNull(shardInfo1);
+        Assertions.assertNotNull(shardInfo2);
+        Assertions.assertNotEquals(shardInfo1, shardInfo2);
+        Arrays.asList(shardInfo1, shardInfo2).forEach(shardInfo -> Assertions.assertEquals("e", shardInfo.getEnvironment()));
+        Assertions.assertEquals("r", shardInfo1.getRegion());
+        Assertions.assertNull(shardInfo2.getRegion());
+        Assertions.assertNotNull(shardInfo1.getTags());
+        Assertions.assertNotNull(shardInfo2.getTags());
+        Assertions.assertTrue(shardInfo2.getTags().contains("tag1"));
     }
 }

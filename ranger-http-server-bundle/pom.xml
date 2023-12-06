@@ -5,14 +5,14 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-RC14</version>
+        <version>1.0-RC15</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-http-server-bundle</artifactId>
 
     <properties>
-        <dropwizard.version>2.0.23</dropwizard.version>
+        <dropwizard.version>2.1.10</dropwizard.version>
     </properties>
 
     <dependencies>
@@ -32,14 +32,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>${dropwizard.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

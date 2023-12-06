@@ -18,21 +18,21 @@ package io.appform.ranger.core.finder.nodeselector;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-public class RoundRobinServiceNodeSelectorTest {
+class RoundRobinServiceNodeSelectorTest {
     @Test
-    public void testRandomNodeSelector(){
+    void testRandomNodeSelector(){
         val roundRobinSelector = new RoundRobinServiceNodeSelector<TestNodeData>();
         val serviceNodes = new ArrayList<ServiceNode<TestNodeData>>();
         serviceNodes.add(ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build());
         serviceNodes.add(ServiceNode.<TestNodeData>builder().host("localhost-2").port(9001).nodeData(TestNodeData.builder().shardId(2).build()).build());
         serviceNodes.add(ServiceNode.<TestNodeData>builder().host("localhost-3").port(9002).nodeData(TestNodeData.builder().shardId(3).build()).build());
-        Assert.assertEquals("localhost-2", roundRobinSelector.select(serviceNodes).getHost());
-        Assert.assertEquals("localhost-3", roundRobinSelector.select(serviceNodes).getHost());
-        Assert.assertEquals("localhost-1", roundRobinSelector.select(serviceNodes).getHost());
+        Assertions.assertEquals("localhost-2", roundRobinSelector.select(serviceNodes).getHost());
+        Assertions.assertEquals("localhost-3", roundRobinSelector.select(serviceNodes).getHost());
+        Assertions.assertEquals("localhost-1", roundRobinSelector.select(serviceNodes).getHost());
     }
 }

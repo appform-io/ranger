@@ -1,6 +1,5 @@
 
 name: ranger-http-server
-initialRotationStatus: false
 
 rangerConfiguration:
   namespace: test

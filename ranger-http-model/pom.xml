@@ -5,18 +5,9 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-RC14</version>
+        <version>1.0-RC15</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-http-model</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-    </dependencies>
-
 </project>

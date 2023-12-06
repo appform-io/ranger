@@ -7,7 +7,7 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-RC14</version>
+    <version>1.0-RC15</version>
     <name>Ranger</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
@@ -27,6 +27,7 @@
         <module>ranger-http-model</module>
         <module>ranger-http-server-bundle</module>
         <module>ranger-zk-server-bundle</module>
+        <module>ranger-discovery-bundle</module>
     </modules>
 
     <distributionManagement>
@@ -82,25 +83,44 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <guava.version>31.0.1-jre</guava.version>
-        <curator.version>5.1.0</curator.version>
-        <jackson.version>2.13.1</jackson.version>
+        <curator.version>5.5.0</curator.version>
         <slf4j.version>1.7.32</slf4j.version>
 
         <maven.compiler.version>3.8.0</maven.compiler.version>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
+        <java.release.version>11</java.release.version>
         <lombok.version>1.18.22</lombok.version>
         <annotations.version>3.0.1u2</annotations.version>
 
-        <junit.version>4.13.2</junit.version>
+        <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <awaitility.version>4.1.1</awaitility.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
 
         <http.client.version>4.9.3</http.client.version>
-        <wiremock.version>2.27.2</wiremock.version>
+        <wiremock.version>3.3.1</wiremock.version>
         <mockito.version>4.2.0</mockito.version>
 
-        <logback.version>1.2.10</logback.version>
+        <dropwizard.version>2.1.10</dropwizard.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${dropwizard.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -124,32 +144,25 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.github.rholder</groupId>
             <artifactId>guava-retrying</artifactId>
             <version>${guava-retrying.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
@@ -167,12 +180,18 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <release>${java.release.version}</release>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.8</version>
                 <executions>
                     <execution>
                         <goals>
@@ -206,7 +225,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.6.3</version>
+                <configuration>
+                    <doclint>all,-missing</doclint>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -264,6 +286,20 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <!-- The following are required for dns cache manipulator.
+        Ref: https://github.com/alibaba/java-dns-cache-manipulator#jvm-settings-for-java-16 -->
+        <profile>
+            <id>add-java-open-options-for-jdk16+</id>
+            <activation>
+                <jdk>[16,)</jdk>
+            </activation>
+            <properties>
+                <argLine>
+                    --add-opens java.base/java.net=ALL-UNNAMED
+                    --add-opens java.base/sun.net=ALL-UNNAMED
+                </argLine>
+            </properties>
         </profile>
     </profiles>
 

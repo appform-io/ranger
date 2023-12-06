@@ -18,24 +18,23 @@ package io.appform.ranger.zookeeper.healthservice.monitor.sample;
 
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.TimeEntity;
-import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.healthservice.monitor.sample.DiskSpaceMonitor;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-public class DiskSpaceMonitorTest {
+class DiskSpaceMonitorTest {
 
     @Test
-    public void testGetCount() {
+    void testGetCount() {
         val diskSpaceMonitor = new DiskSpaceMonitor("/", 1000, new TimeEntity(2, TimeUnit.SECONDS));
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
-        Assert.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
+        Assertions.assertEquals(HealthcheckStatus.healthy, diskSpaceMonitor.monitor());
     }
 }

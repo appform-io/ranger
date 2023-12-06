@@ -17,15 +17,15 @@ package io.appform.ranger.http.model;
 
 import io.appform.ranger.http.ResourceHelper;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ServiceRegistrationResponseTest {
 
     @Test
     public void testServiceRegistrationResponse(){
         val resource = ResourceHelper.getResource("fixtures/serviceResponse.json", ServiceRegistrationResponse.class);
-        Assert.assertNotNull(resource);
-        Assert.assertTrue(resource.valid());
+        Assertions.assertNotNull(resource);
+        Assertions.assertTrue(resource.valid());
     }
 }

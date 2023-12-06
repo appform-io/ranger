@@ -12,14 +12,14 @@ import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
 import java.util.Optional;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class ServiceFinderHubTest {
+class ServiceFinderHubTest {
 
     private final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub = new ServiceFinderHub<>(
             new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
@@ -32,38 +32,38 @@ public class ServiceFinderHubTest {
                             .build());
 
     @Test
-    public void testDynamicServiceAddition() {
+    void testDynamicServiceAddition() {
         serviceFinderHub.start();
         val preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
         val node = preRegisteredServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
-        Assert.assertTrue(node.isPresent());
-        Assert.assertEquals("HOST", node.get().getHost());
-        Assert.assertEquals(0, node.get().getPort());
+        Assertions.assertTrue(node.isPresent());
+        Assertions.assertEquals("HOST", node.get().getHost());
+        Assertions.assertEquals(0, node.get().getPort());
 
         serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
         val dynamicServiceFinder = serviceFinderHub.finder(new Service("NS", "SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
         val dynamicServiceNode = dynamicServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
-        Assert.assertTrue(dynamicServiceNode.isPresent());
-        Assert.assertEquals("HOST", dynamicServiceNode.get().getHost());
-        Assert.assertEquals(0, dynamicServiceNode.get().getPort());
+        Assertions.assertTrue(dynamicServiceNode.isPresent());
+        Assertions.assertEquals("HOST", dynamicServiceNode.get().getHost());
+        Assertions.assertEquals(0, dynamicServiceNode.get().getPort());
     }
 
     @Test
-    public void testDynamicServiceAdditionAsync() throws InterruptedException {
+    void testDynamicServiceAdditionAsync() throws InterruptedException {
         serviceFinderHub.start();
         serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
         val finderOpt = serviceFinderHub.finder(new Service("NS", "SERVICE_NAME"));
-        Assert.assertFalse("Finders will not be availbale immediately", finderOpt.isPresent());
+        Assertions.assertFalse(finderOpt.isPresent(), "Finders will not be availbale immediately");
         Thread.sleep(1000);
         val finderAfterWaitOpt = serviceFinderHub.finder(new Service("NS", "SERVICE_NAME"));
-        Assert.assertTrue("Finders should be availble after some time", finderAfterWaitOpt.isPresent());
+        Assertions.assertTrue(finderAfterWaitOpt.isPresent(), "Finders should be availble after some time");
     }
 
 
     @Test
-    public void testDynamicServiceAdditionWithNonDynamicDataSource() {
+    void testDynamicServiceAdditionWithNonDynamicDataSource() {
 
         val serviceFinderHub = new ServiceFinderHub<>(new StaticDataSource(new HashSet<>()), service -> new TestServiceFinderBuilder()
                 .withNamespace(service.getNamespace())
@@ -75,11 +75,10 @@ public class ServiceFinderHubTest {
         try {
             val future = serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
             future.join();
-            Assert.fail("Exception should have been thrown");
+            Assertions.fail("Exception should have been thrown");
         } catch (Exception exception) {
-            Assert.assertTrue("Unsupported exception should be thrown", exception instanceof UnsupportedOperationException);
+            Assertions.assertTrue(exception instanceof UnsupportedOperationException, "Unsupported exception should be thrown");
         }
-
     }
 
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
