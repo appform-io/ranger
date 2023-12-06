@@ -434,6 +434,106 @@ discovery:
 The bundle also adds a jersey resource that lets you inspect the available instances.
 Use GET /instances to see all instances that have been registered to your service.
 
+### Service Discovery Bundle
+
+If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
+
+#### Dependeny for the bundle
+
+```
+<dependency>
+    <groupId>io.appform.ranger</groupId>
+    <artifactId>ranger-discovery-bundle</artifactId>
+    <version>${ranger.version}</version>
+</dependency>
+```
+
+#### How to initialize the bundle
+
+
+You need to add an instance of type _ServiceDiscoveryConfiguration_ to your Dropwizard configuration file as follows:
+
+```
+public class AppConfiguration extends Configuration {
+    //Your normal config
+    @NotNull
+    @Valid
+    private ServiceDiscoveryConfiguration discovery = new ServiceDiscoveryConfiguration();
+    
+    //Whatever...
+    
+    public ServiceDiscoveryConfiguration getDiscovery() {
+        return discovery;
+    }
+}
+```
+
+Next, you need to use this configuration in the Application while registering the bundle.
+
+```
+public class App extends Application<AppConfig> {
+    private ServiceDiscoveryBundle<AppConfig> bundle;
+    @Override
+    public void initialize(Bootstrap<AppConfig> bootstrap) {
+        bundle = new ServiceDiscoveryBundle<AppConfig>() {
+            @Override
+            protected ServiceDiscoveryConfiguration getRangerConfiguration(AppConfig appConfig) {
+                return appConfig.getDiscovery();
+            }
+
+            @Override
+            protected String getServiceName(AppConfig appConfig) {
+                //Read from some config or hardcode your service name
+                //This will be used by clients to lookup instances for the service
+                return "some-service";
+            }
+
+            @Override
+            protected int getPort(AppConfig appConfig) {
+                return 8080; //Parse config or hardcode
+            }
+            
+            @Override
+            protected NodeInfoResolver createNodeInfoResolver(){
+                return new DefaultNodeInfoResolver();
+            }
+        };
+        
+        bootstrap.addBundle(bundle);
+    }
+
+    @Override
+    public void run(AppConfig configuration, Environment environment) throws Exception {
+        ....
+        //Register health checks
+        bundle.registerHealthcheck(() -> {
+                    //Check whatever
+                    return HealthcheckStatus.healthy;
+                });
+        ...
+    }
+}
+```
+That's it .. your service will register to zookeeper when it starts up.
+
+#### Sample Configuration
+
+```
+server:
+  ...
+  
+discovery:
+  namespace: mycompany
+  environment: production
+  zookeeper: "zk-server1.mycompany.net:2181,zk-server2.mycompany.net:2181"
+  ...
+  
+...
+```
+
+The bundle also adds a jersey resource that lets you inspect the available instances.
+Use GET /instances to see all instances that have been registered to your service.
+
 ### Ranger Server
 
 The earlier ranger's service finder construct operated on zookeeper as the datasource, the server has been introduced to support http data sources and to be
@@ -491,7 +591,6 @@ For bugs, questions and discussions please use the [Github Issues](https://githu
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request.
 
 When submitting code, please make every effort to follow existing conventions and style in order to keep the code as readable as possible.
-
 Original Repo
 -------------
 This repo is a fork of: [Ranger](https://github.com/flipkart-incubator/ranger)
