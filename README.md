@@ -1,11 +1,11 @@
 # Ranger
 
 Ranger is a high level service discovery framework built on Zookeeper. The framework brings the following to the table:
-  - Support of sharding of the service provider nodes
-  - Support for monitoring of service provider nodes
-  - Provides type-safe generic interface for integration with support for custom serializers and deserializers
-  - Provides simple ways to plug in custom shard and node selection
-  - Fault tolerant client side discovery with a combination of watchers and polling on watched nodes
+- Support of sharding of the service provider nodes
+- Support for monitoring of service provider nodes
+- Provides type-safe generic interface for integration with support for custom serializers and deserializers
+- Provides simple ways to plug in custom shard and node selection
+- Fault tolerant client side discovery with a combination of watchers and polling on watched nodes
 
 ## Why?
 
@@ -13,18 +13,18 @@ As request rates increase, load balancers, even the very expensive ones, become 
 
 ## Usage
 Ranger provides two types of discovery out of the box:
-  - Simple unsharded service discovery with service provider node healthchecks
-  - Sharded service discovery with service provider node healthchecks
-We'll take these up, one by one.
+- Simple unsharded service discovery with service provider node healthchecks
+- Sharded service discovery with service provider node healthchecks
+  We'll take these up, one by one.
 
 ###Build instructions
-  - Clone the source:
+- Clone the source:
 
-        git clone github.com/appform-io/ranger
+      git clone github.com/appform-io/ranger
 
-  - Build
+- Build
 
-        mvn install
+      mvn install
 
 ### Maven Dependency
 Use the following maven dependency:
@@ -50,14 +50,14 @@ Service providers register to the Ranger system by building and starting a Servi
 - _Host_ - Hostname for the service.
 - _Port_ - Port on which this service is running.
 - _Serializer_ - A serializer implementation that will be used to serialize and store the shard information on ZooKeeper
-- _Healthcheck_ - The healthcheck function is called every second and the status is updated on Zookeeper. 
+- _Healthcheck_ - The healthcheck function is called every second and the status is updated on Zookeeper.
 - _Monitors_ : The health state of your service is also decided by a list of monitors. Register a list of monitors. These monitors will be monitored at regular intervals and an aggregated status is updated on Zookeeper
-  - _Isolated Monitors_ - Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals. 
+  - _Isolated Monitors_ - Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals.
 
 A node will be marked unhealthy iff:
-  - The service is stopped.
-  - If any isolated monitor's state is _HealthcheckStatus.unhealthy_
-  - If _Healthcheck.check()_ has not been updated for over a minute. This signifies that the process is probably zombified.
+- The service is stopped.
+- If any isolated monitor's state is _HealthcheckStatus.unhealthy_
+- If _Healthcheck.check()_ has not been updated for over a minute. This signifies that the process is probably zombified.
 
 #### Registering a simple unsharded service
 This is very simple. Use the following boilerplate code.
@@ -181,7 +181,7 @@ All monitors (and at least 1) need to be registered while building the _ServiceP
 
 You may register any kind of _Monitor_, which could be monitoring any serivce/system level metric. For example, you could have monitors:
 - that monitor the service's heap, to ensure that it doesn't go beyond a threashold
-- that check for any breach in max jetty threads 
+- that check for any breach in max jetty threads
 - that monitors the systems disk space
 - that does a continuous ping test
 - that monitors the 5XX count from the service.
@@ -293,12 +293,12 @@ serviceFinder.stop()
 
 ### Service Finder Hub
 A service finder hub contains a collection of the above-mentioned service finders. A hub also makes creation of serviceFinders easy, for a service
-that is dependent on multiple other services, don't have to now create multiple serviceFinders, instead create a hub, with the set of services and 
-the service finders get created automatically. 
+that is dependent on multiple other services, don't have to now create multiple serviceFinders, instead create a hub, with the set of services and
+the service finders get created automatically.
 
 Could either be an http hub or a ZK hub. (Can add any hub in the future)
 
-Hub clients for both ZK and http have been provided to initialize the same. A sample http hub client would look like the following.  
+Hub clients for both ZK and http have been provided to initialize the same. A sample http hub client would look like the following.
 
 ```
   RangerHubClient<TestShardInfo> hubClient = UnshardedRangerZKHubClient.<TestShardInfo>builder()
@@ -334,14 +334,113 @@ Stop the hub client once you are done. (Generally this is when process ends)
 ```
 hubClient.stop()
 ```
+### Service Discovery Bundle
+
+If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
+
+#### Dependeny for the bundle
+
+```
+<dependency>
+    <groupId>io.appform.ranger</groupId>
+    <artifactId>ranger-discovery-bundle</artifactId>
+    <version>${ranger.version}</version>
+</dependency>
+```
+
+#### How to initialize the bundle
+
+
+You need to add an instance of type _ServiceDiscoveryConfiguration_ to your Dropwizard configuration file as follows:
+
+```
+public class AppConfiguration extends Configuration {
+    //Your normal config
+    @NotNull
+    @Valid
+    private ServiceDiscoveryConfiguration discovery = new ServiceDiscoveryConfiguration();
+    
+    //Whatever...
+    
+    public ServiceDiscoveryConfiguration getDiscovery() {
+        return discovery;
+    }
+}
+```
+
+Next, you need to use this configuration in the Application while registering the bundle.
+
+```
+public class App extends Application<AppConfig> {
+    private ServiceDiscoveryBundle<AppConfig> bundle;
+    @Override
+    public void initialize(Bootstrap<AppConfig> bootstrap) {
+        bundle = new ServiceDiscoveryBundle<AppConfig>() {
+            @Override
+            protected ServiceDiscoveryConfiguration getRangerConfiguration(AppConfig appConfig) {
+                return appConfig.getDiscovery();
+            }
+
+            @Override
+            protected String getServiceName(AppConfig appConfig) {
+                //Read from some config or hardcode your service name
+                //This will be used by clients to lookup instances for the service
+                return "some-service";
+            }
+
+            @Override
+            protected int getPort(AppConfig appConfig) {
+                return 8080; //Parse config or hardcode
+            }
+            
+            @Override
+            protected NodeInfoResolver createNodeInfoResolver(){
+                return new DefaultNodeInfoResolver();
+            }
+        };
+        
+        bootstrap.addBundle(bundle);
+    }
+
+    @Override
+    public void run(AppConfig configuration, Environment environment) throws Exception {
+        ....
+        //Register health checks
+        bundle.registerHealthcheck(() -> {
+                    //Check whatever
+                    return HealthcheckStatus.healthy;
+                });
+        ...
+    }
+}
+```
+That's it .. your service will register to zookeeper when it starts up.
+
+#### Sample Configuration
+
+```
+server:
+  ...
+  
+discovery:
+  namespace: mycompany
+  environment: production
+  zookeeper: "zk-server1.mycompany.net:2181,zk-server2.mycompany.net:2181"
+  ...
+  
+...
+```
+
+The bundle also adds a jersey resource that lets you inspect the available instances.
+Use GET /instances to see all instances that have been registered to your service.
 
 ### Ranger Server
 
-The earlier ranger's service finder construct operated on zookeeper as the datasource, the server has been introduced to support http data sources and to be 
+The earlier ranger's service finder construct operated on zookeeper as the datasource, the server has been introduced to support http data sources and to be
 able to provide a serviceFinder interface atop multiple data sources. Eg: you could have one server running atop zk, one atop http - and can deploy another http
 server fronting them both. Particularly useful when you have to aggregate amongst multiple service registries. A server bundle is provided to start a quick server (atop dropwizard)
 
-To use the http server bundle along with boostrap use. 
+To use the http server bundle along with boostrap use.
  ```
    bootstrap.add(new RangerServerBundle<ShardInfo, AppConfiguration> {
       @Override
@@ -376,7 +475,7 @@ To use the http server bundle along with boostrap use.
   });                
 ```
 
-It comes with a rangerResource that provides you with interfaces for getting the list of services across hubs and the nodes per service across hubs. 
+It comes with a rangerResource that provides you with interfaces for getting the list of services across hubs and the nodes per service across hubs.
 
 
 Tech
@@ -396,4 +495,5 @@ When submitting code, please make every effort to follow existing conventions an
 Original Repo
 -------------
 This repo is a fork of: [Ranger](https://github.com/flipkart-incubator/ranger)
+
 
