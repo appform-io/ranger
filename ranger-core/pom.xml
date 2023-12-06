@@ -13,7 +13,6 @@
 
     <properties>
         <httpclient.version>4.5.13</httpclient.version>
-        <commons.codec.version>1.16.0</commons.codec.version>
     </properties>
 
     <dependencies>
@@ -21,17 +20,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${commons.codec.version}</version>
         </dependency>
     </dependencies>
 

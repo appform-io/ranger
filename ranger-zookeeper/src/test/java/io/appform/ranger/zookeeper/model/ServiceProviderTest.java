@@ -108,7 +108,7 @@ class ServiceProviderTest {
     }
 
     @Test
-    public void testBasicDiscoveryRR() {
+    void testBasicDiscoveryRR() {
         val serviceFinder
                 = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())

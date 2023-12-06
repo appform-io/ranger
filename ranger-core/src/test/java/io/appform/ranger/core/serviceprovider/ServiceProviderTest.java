@@ -100,31 +100,23 @@ class ServiceProviderTest {
 
     @Test
     void testInvalidServiceProvider() {
-        try {
-            new TestServiceProviderBuilder<>()
-                    .withServiceName("test-service")
-                    .withNamespace("test")
-                    .withHostname("localhost-1")
-                    .withPort(9000)
-                    .build();
-        } catch (NullPointerException exception) {
-            Assertions.assertTrue(true, "NPE has been caught");
-        }
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> new TestServiceProviderBuilder<>()
+                .withServiceName("test-service")
+                .withNamespace("test")
+                .withHostname("localhost-1")
+                .withPort(9000)
+                .build());
     }
 
     @Test
     void testInvalidServiceProviderNoHealthCheck() {
-        try {
-            new TestServiceProviderBuilder<>()
-                    .withServiceName("test-service")
-                    .withNamespace("test")
-                    .withHostname("localhost-1")
-                    .withPort(9000)
-                    .withSerializer(new TestSerializerImpl())
-                    .build();
-        } catch (Exception exception) {
-            Assertions.assertTrue(exception instanceof IllegalArgumentException, "Illegal Argument Exception should be thrown");
-        }
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->  new TestServiceProviderBuilder<>()
+                .withServiceName("test-service")
+                .withNamespace("test")
+                .withHostname("localhost-1")
+                .withPort(9000)
+                .withSerializer(new TestSerializerImpl())
+                .build());
     }
 
     @Test

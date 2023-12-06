@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Map;
 
-public class ServiceProviderHealthcheckTest {
+class ServiceProviderHealthcheckTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
@@ -61,7 +61,7 @@ public class ServiceProviderHealthcheckTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -134,7 +134,7 @@ public class ServiceProviderHealthcheckTest {
             healthcheck.setStatus(HealthcheckStatus.unhealthy);
         }
 
-        public void start() throws Exception {
+        public void start() {
             val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                     .withConnectionString(connectionString)
                     .withNamespace("test")

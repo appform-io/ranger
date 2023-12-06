@@ -45,15 +45,15 @@ import static org.mockito.Mockito.*;
 
 public class RangerServerBundleTest {
 
-    private static final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
-    private static final MetricRegistry metricRegistry = mock(MetricRegistry.class);
-    private static final LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment(metricRegistry);
-    private static final Environment environment = mock(Environment.class);
-    private static final Bootstrap<?> bootstrap = mock(Bootstrap.class);
-    private static final Configuration configuration = mock(Configuration.class);
+    private static final JerseyEnvironment JERSEY_ENVIRONMENT = mock(JerseyEnvironment.class);
+    private static final MetricRegistry METRIC_REGISTRY = mock(MetricRegistry.class);
+    private static final LifecycleEnvironment LIFECYCLE_ENVIRONMENT = new LifecycleEnvironment(METRIC_REGISTRY);
+    private static final Environment ENVIRONMENT = mock(Environment.class);
+    private static final Bootstrap<?> BOOTSTRAP = mock(Bootstrap.class);
+    private static final Configuration CONFIGURATION = mock(Configuration.class);
 
     private static final RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>
-            rangerServerBundle = new RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>() {
+            RANGER_SERVER_BUNDLE = new RangerServerBundle<>() {
 
         @Override
         protected List<RangerHubClient<TestNodeData, ListBasedServiceRegistry<TestNodeData>>> withHubs(Configuration configuration) {
@@ -68,21 +68,21 @@ public class RangerServerBundleTest {
 
     @BeforeAll
     public static void setup() throws Exception {
-        when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
-        when(environment.jersey()).thenReturn(jerseyEnvironment);
-        when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
-        when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(JERSEY_ENVIRONMENT.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
+        when(ENVIRONMENT.jersey()).thenReturn(JERSEY_ENVIRONMENT);
+        when(ENVIRONMENT.lifecycle()).thenReturn(LIFECYCLE_ENVIRONMENT);
+        when(ENVIRONMENT.getObjectMapper()).thenReturn(new ObjectMapper());
         val adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment).addTask(any());
-        when(environment.admin()).thenReturn(adminEnvironment);
+        when(ENVIRONMENT.admin()).thenReturn(adminEnvironment);
 
         val healthCheckRegistry = mock(HealthCheckRegistry.class);
         doNothing().when(healthCheckRegistry).register(anyString(), any());
-        when(environment.healthChecks()).thenReturn(healthCheckRegistry);
+        when(ENVIRONMENT.healthChecks()).thenReturn(healthCheckRegistry);
 
-        rangerServerBundle.initialize(bootstrap);
-        rangerServerBundle.run(configuration, environment);
-        for (val lifeCycle : lifecycleEnvironment.getManagedObjects()) {
+        RANGER_SERVER_BUNDLE.initialize(BOOTSTRAP);
+        RANGER_SERVER_BUNDLE.run(CONFIGURATION, ENVIRONMENT);
+        for (val lifeCycle : LIFECYCLE_ENVIRONMENT.getManagedObjects()) {
             lifeCycle.start();
         }
     }
@@ -90,7 +90,7 @@ public class RangerServerBundleTest {
 
     @Test
     void testRangerBundle() {
-        var hub = rangerServerBundle.getHubs().get(0);
+        var hub = RANGER_SERVER_BUNDLE.getHubs().get(0);
         Assertions.assertTrue(hub instanceof RangerTestHub);
         var node = hub.getNode(service).orElse(null);
         Assertions.assertNotNull(node);
@@ -105,7 +105,7 @@ public class RangerServerBundleTest {
 
     @AfterAll
     public static void tearDown() throws Exception {
-        for (LifeCycle lifeCycle : lifecycleEnvironment.getManagedObjects()) {
+        for (LifeCycle lifeCycle : LIFECYCLE_ENVIRONMENT.getManagedObjects()) {
             lifeCycle.stop();
         }
     }

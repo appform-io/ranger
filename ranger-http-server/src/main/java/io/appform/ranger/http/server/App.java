@@ -29,7 +29,7 @@ public class App extends Application<HttpAppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<HttpAppConfiguration> bootstrap) {
-        bootstrap.addBundle(new HttpServerBundle<HttpAppConfiguration>() {
+        bootstrap.addBundle(new HttpServerBundle<>() {
             @Override
             protected RangerHttpConfiguration getRangerConfiguration(HttpAppConfiguration configuration) {
                 return configuration.getRangerConfiguration();

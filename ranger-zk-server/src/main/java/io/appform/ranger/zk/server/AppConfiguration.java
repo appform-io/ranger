@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.zk.server;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.server.bundle.config.RangerConfiguration;
 import io.dropwizard.Configuration;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppConfiguration extends Configuration {
     @NotEmpty
     @NotNull

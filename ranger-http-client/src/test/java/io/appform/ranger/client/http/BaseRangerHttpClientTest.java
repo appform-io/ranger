@@ -31,7 +31,6 @@ import io.appform.ranger.http.model.ServiceNodesResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -53,7 +52,7 @@ public abstract class BaseRangerHttpClientTest {
             .build();
 
     @BeforeEach
-    public void startTestCluster() throws Exception {
+    public void prepareHttpMocks() throws Exception {
         val testNode = TestNodeData.builder().shardId(1).build();
         val node = ServiceNode.<TestNodeData>builder().host("127.0.0.1").port(80).nodeData(testNode).build();
         node.setHealthcheckStatus(HealthcheckStatus.healthy);
@@ -85,11 +84,6 @@ public abstract class BaseRangerHttpClientTest {
                 .operationTimeoutMs(30_000)
                 .build();
         log.debug("Started http subsystem");
-    }
-
-    @AfterEach
-    public void stopTestCluster() {
-        log.debug("Stopping http subsystem");
     }
 
     protected ServiceNodesResponse<TestNodeData> read(final byte[] data) {
