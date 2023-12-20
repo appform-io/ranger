@@ -21,72 +21,72 @@
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-client</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-core</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-discovery-bundle</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-zookeeper</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-zk-client</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-zk-server-bundle</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-zk-server</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-http-model</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-http</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-http-server-bundle</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-http-client</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-http-server</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-server-common</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.appform.ranger</groupId>
                 <artifactId>ranger-server-bundle</artifactId>
-                <version>1.0-RC16</version>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
