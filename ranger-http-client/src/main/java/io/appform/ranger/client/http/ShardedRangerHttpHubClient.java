@@ -42,6 +42,7 @@ public class ShardedRangerHttpHubClient<T>
                 .shardSelector(shardSelector)
                 .nodeSelector(this.getNodeSelector())
                 .mapper(getMapper())
+                .httpExecutor(getHttpExecutor())
                 .build();
     }
 

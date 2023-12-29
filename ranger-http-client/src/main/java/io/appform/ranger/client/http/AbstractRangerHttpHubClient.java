@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.client.http;
 
+import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
@@ -25,10 +26,19 @@ import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
+import io.appform.ranger.http.utils.HttpClientUtils;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.core5.util.TimeValue;
 
 @Slf4j
 @Getter
@@ -39,10 +49,30 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
   private final HttpClientConfig clientConfig;
   @Builder.Default
   private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
+  private CloseableHttpClient httpClient;
+  private Executor httpExecutor;
+
+  @Override
+  public void start() {
+    Preconditions.checkNotNull(clientConfig, "Http Client Config can't be null");
+    this.httpClient = HttpClientUtils.getCloseableClient(clientConfig);
+    this.httpExecutor = Executor.newInstance(httpClient);
+    super.start();
+  }
+
+  @Override
+  @SneakyThrows
+  public void stop() {
+    log.info("Stopping the http client");
+    if (null != httpClient) {
+      httpClient.close();
+    }
+    super.stop();
+  }
 
   @Override
   protected ServiceDataSource getDefaultDataSource() {
-    return new HttpServiceDataSource<>(clientConfig, getMapper());
+    return new HttpServiceDataSource<>(clientConfig, getMapper(), httpExecutor);
   }
 
   @Override

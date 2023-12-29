@@ -81,7 +81,6 @@ public abstract class BaseRangerHttpClientTest {
                 .host("127.0.0.1")
                 .port(wireMockExtension.getPort())
                 .connectionTimeoutMs(30_000)
-                .operationTimeoutMs(30_000)
                 .build();
         log.debug("Started http subsystem");
     }

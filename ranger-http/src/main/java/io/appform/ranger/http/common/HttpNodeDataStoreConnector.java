@@ -18,39 +18,20 @@ package io.appform.ranger.http.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
-
-import java.util.concurrent.TimeUnit;
+import org.apache.hc.client5.http.fluent.Executor;
 
 /**
  *
  */
 @Slf4j
+@AllArgsConstructor
 public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     protected final HttpClientConfig config;
     protected final ObjectMapper mapper;
-    protected final OkHttpClient httpClient;
-
-    public HttpNodeDataStoreConnector(
-            final HttpClientConfig config,
-            final ObjectMapper mapper) {
-        this.httpClient = new OkHttpClient.Builder()
-                .callTimeout(config.getOperationTimeoutMs() == 0
-                             ? 3000
-                             : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
-                .connectTimeout(config.getConnectionTimeoutMs() == 0
-                                ? 3000
-                                : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
-                .followRedirects(true)
-                .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
-                .build();
-        this.config = config;
-        this.mapper = mapper;
-    }
-
+    protected final Executor httpExecutor;
 
     @Override
     public void start() {

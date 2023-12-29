@@ -25,10 +25,17 @@ import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.HttpServiceFinderBuilders;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.utils.HttpClientUtils;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 
 @Slf4j
 @SuperBuilder
@@ -45,6 +52,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
 
     @Getter
     private SimpleUnshardedServiceFinder<T> serviceFinder;
+    private CloseableHttpClient httpClient;
 
     @Override
     public void start() {
@@ -52,7 +60,9 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
         Preconditions.checkNotNull(mapper, "Mapper can't be null");
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
+        Preconditions.checkNotNull(clientConfig, "Http Client Config can't be null");
 
+        this.httpClient = HttpClientUtils.getCloseableClient(clientConfig);
         this.serviceFinder = HttpServiceFinderBuilders.<T>httpUnshardedServiceFinderBuilider()
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
@@ -61,16 +71,23 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
                 .withNodeRefreshIntervalMs(nodeRefreshIntervalMs)
                 .withDeserializer(deserializer)
                 .withShardSelector(shardSelector)
+                .withHttpExecutor(Executor.newInstance(httpClient))
                 .build();
         this.serviceFinder.start();
         log.info("Started the service finder");
     }
 
     @Override
+    @SneakyThrows
     public void stop() {
         log.info("Stopping the service finder");
-        if(null != serviceFinder){
+        if (null != serviceFinder) {
             this.serviceFinder.stop();
+        }
+
+        log.info("Stopping the http client");
+        if (null != httpClient) {
+            httpClient.close();
         }
     }
 

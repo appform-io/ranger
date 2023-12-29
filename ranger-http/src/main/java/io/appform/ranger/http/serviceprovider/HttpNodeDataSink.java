@@ -17,6 +17,7 @@ package io.appform.ranger.http.serviceprovider;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Service;
@@ -26,26 +27,32 @@ import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceRegistrationResponse;
 import io.appform.ranger.http.serde.HttpRequestDataSerializer;
+import io.appform.ranger.http.utils.HttpClientUtils;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.util.Timeout;
 
-import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSink<T, S> {
 
     private final Service service;
 
-    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper) {
-        super(config, mapper);
+    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper, Executor executor) {
+        super(config, mapper, executor);
         this.service = service;
     }
 
     @Override
+    @SneakyThrows
     public void updateState(S serializer, ServiceNode<T> serviceNode) {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
@@ -53,48 +60,40 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
         val url = String.format("/ranger/nodes/v1/add/%s/%s", service.getNamespace(), service.getServiceName());
         log.debug("Updating state at the url {}", url);
 
-        val httpUrl = new HttpUrl.Builder()
-                .scheme(config.isSecure()
+        val httpUrl = new URIBuilder()
+                .setScheme(config.isSecure()
                         ? "https"
                         : "http")
-                .host(config.getHost())
-                .port(config.getPort() == 0
+                .setHost(config.getHost())
+                .setPort(config.getPort() == 0
                         ? defaultPort()
                         : config.getPort())
-                .encodedPath(url)
+                .setPath(url)
                 .build();
-        val requestBody = RequestBody.create(serializer.serialize(serviceNode));
-        val serviceRegistrationResponse = registerService(httpUrl, requestBody).orElse(null);
-        if(null == serviceRegistrationResponse || !serviceRegistrationResponse.valid()){
-            log.warn("Http call to {} returned a failure response {}", httpUrl, serviceRegistrationResponse);
-            Exceptions.illegalState("Error updating state on the server for node data: " + httpUrl);
-        }
+
+        val request = Request.post(httpUrl)
+                .body(new ByteArrayEntity(serializer.serialize(serviceNode), ContentType.APPLICATION_JSON));
+
+        HttpClientUtils.executeRequest(httpExecutor, request, (Function<byte[], Optional<ServiceRegistrationResponse<T>>>) responseBytes -> {
+            val serviceRegistrationResponse = getServiceRegistrationResponse(responseBytes);
+
+            if (null == serviceRegistrationResponse || !serviceRegistrationResponse.valid()) {
+                log.warn("Http call to {} returned a failure response {}", httpUrl, serviceRegistrationResponse);
+                Exceptions.illegalState("Error updating state on the server for node data: " + httpUrl);
+            }
+
+            return Optional.of(serviceRegistrationResponse);
+        }, new Function<Exception, Optional<ServiceRegistrationResponse<T>>>() {
+            @Override
+            @SneakyThrows
+            public Optional<ServiceRegistrationResponse<T>> apply(Exception exception) {
+                throw exception;
+            }
+        });
     }
 
-    private Optional<ServiceRegistrationResponse<T>> registerService(HttpUrl httpUrl, RequestBody requestBody){
-        val request = new Request.Builder()
-                .url(httpUrl)
-                .post(requestBody)
-                .build();
-        try (val response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                try (val body = response.body()) {
-                    if (null == body) {
-                        log.warn("HTTP call to {} returned empty body", httpUrl);
-                    }
-                    else {
-                        return Optional.of(mapper.readValue(body.bytes(),
-                                                            new TypeReference<ServiceRegistrationResponse<T>>() {}));
-                    }
-                }
-            }
-            else {
-                log.warn("HTTP call to {} has returned: {}", httpUrl, response.code());
-            }
-        }
-        catch (IOException e) {
-            log.error("Error updating state on the server with httpUrl {} with exception {} ",  httpUrl, e);
-        }
-        return Optional.empty();
+    @SneakyThrows
+    private ServiceRegistrationResponse<T> getServiceRegistrationResponse(final byte[] responseBytes) {
+        return mapper.readValue(responseBytes, new TypeReference<>() {});
     }
 }

@@ -23,6 +23,7 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
 import lombok.val;
+import org.apache.hc.client5.http.fluent.Executor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -52,9 +53,8 @@ class HttpServiceDataSourceTest {
                 .host("127.0.0.1")
                 .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)
-                .operationTimeoutMs(30_000)
                 .build();
-        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER);
+        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER, Executor.newInstance());
         val services = httpServiceDataSource.services();
         Assertions.assertNotNull(services);
         Assertions.assertFalse(services.isEmpty());
