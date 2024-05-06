@@ -17,4 +17,11 @@ public class PartitionIdTracker {
             idList[i] = new IdPool();
         }
     }
+
+    public IdPool getPartition(int partitionId) {
+        if (partitionId <= idList.length) {
+            return idList[partitionId];
+        }
+        throw new IndexOutOfBoundsException("Invalid partitionId " + partitionId + " for IdPool of size" + idList.length);
+    }
 }
