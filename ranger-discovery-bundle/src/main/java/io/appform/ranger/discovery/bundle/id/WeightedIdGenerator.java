@@ -21,24 +21,22 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
     private int maxShardWeight;
     private final RangeMap<Integer, PartitionRange> partitionRangeMap;
 
-    public WeightedIdGenerator(int node,
-                               int partitionSize,
+    public WeightedIdGenerator(final int partitionSize,
                                final Function<String, Integer> partitionResolverSupplier,
                                final WeightedIdConfig weightedIdConfig) {
-        super(node, partitionSize, partitionResolverSupplier);
+        super(partitionSize, partitionResolverSupplier);
         partitionRangeMap = createWeightRangeMap(weightedIdConfig);
     }
 
-    public WeightedIdGenerator(int node,
-                               int partitionSize,
+    public WeightedIdGenerator(final int partitionSize,
                                final Function<String, Integer> partitionResolverSupplier,
-                               final IdFormatter idFormatterInstance,
-                               final WeightedIdConfig weightedIdConfig) {
-        super(node, partitionSize, partitionResolverSupplier, idFormatterInstance);
+                               final WeightedIdConfig weightedIdConfig,
+                               final IdFormatter idFormatterInstance) {
+        super(partitionSize, partitionResolverSupplier, idFormatterInstance);
         partitionRangeMap = createWeightRangeMap(weightedIdConfig);
     }
 
-    private RangeMap<Integer, PartitionRange> createWeightRangeMap(WeightedIdConfig weightedIdConfig) {
+    private RangeMap<Integer, PartitionRange> createWeightRangeMap(final WeightedIdConfig weightedIdConfig) {
         RangeMap<Integer, PartitionRange> shardGroups = TreeRangeMap.create();
         int start = 0;
         int end = -1;
@@ -57,7 +55,7 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
         return SECURE_RANDOM.nextInt(partitionRange.getEnd() - partitionRange.getStart() + 1) + partitionRange.getStart();
     }
 
-    private Optional<Integer> getTargetPartitionId(final List<KeyValidationConstraint> inConstraints, boolean skipGlobal) {
+    private Optional<Integer> getTargetPartitionId(final List<KeyValidationConstraint> inConstraints, final boolean skipGlobal) {
         return Optional.ofNullable(
                 RETRIER.get(this::getTargetPartitionId))
                 .filter(key -> validateId(inConstraints, key, skipGlobal));

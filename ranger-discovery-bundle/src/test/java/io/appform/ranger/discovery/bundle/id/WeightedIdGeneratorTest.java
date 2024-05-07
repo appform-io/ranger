@@ -10,13 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,20 +41,20 @@ class WeightedIdGeneratorTest {
         weightedIdConfig = WeightedIdConfig.builder()
                 .partitions(partitionConfigList)
                 .build();
-        weightedIdGenerator = new WeightedIdGenerator(7, partitionCount, partitionResolverSupplier, weightedIdConfig);
+        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, weightedIdConfig);
     }
 
     @Test
     void testGenerateWithBenchmark() throws IOException {
-        val totalTime = TestUtil.runMTTest(5, 10000000, (k) -> weightedIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
-//        testUniqueIds(weightedIdGenerator.getDataStore());
+        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
+        testUniqueIds(weightedIdGenerator.getDataStore());
     }
 
     @Test
     void testGenerateWithConstraints() throws IOException {
         KeyValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
         weightedIdGenerator.registerGlobalConstraints(partitionConstraint);
-        val totalTime = TestUtil.runMTTest(5, 1000000, (k) -> weightedIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
+        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
         testUniqueIds(weightedIdGenerator.getDataStore());
 
         for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : weightedIdGenerator.getDataStore().entrySet()) {
@@ -112,14 +108,14 @@ class WeightedIdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        weightedIdGenerator = new WeightedIdGenerator(23, partitionCount, partitionResolverSupplier, IdFormatters.original(), weightedIdConfig);
+        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, weightedIdConfig, IdFormatters.original());
         String id = weightedIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        weightedIdGenerator = new WeightedIdGenerator(23, partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36(), weightedIdConfig);
+        weightedIdGenerator = new WeightedIdGenerator(partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, weightedIdConfig, IdFormatters.base36());
         String id = weightedIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(18, id.length());
     }
@@ -165,7 +161,7 @@ class WeightedIdGeneratorTest {
         Assertions.assertEquals(idString, id.getId());
         Assertions.assertEquals(972247, id.getExponent());
         Assertions.assertEquals(643, id.getNode());
-        Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
+        Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
                 id.getGeneratedDate());
     }
 
@@ -179,18 +175,4 @@ class WeightedIdGeneratorTest {
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
     }
 
-
-    @SuppressWarnings("SameParameterValue")
-    private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Date.from(
-                Instant.from(
-                        ZonedDateTime.of(
-                                LocalDateTime.of(
-                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                ),
-                                zoneId
-                        )
-                )
-        );
-    }
 }

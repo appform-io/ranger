@@ -29,9 +29,9 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.*;
+import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -176,7 +176,7 @@ class IdGeneratorTest {
         Assertions.assertEquals(idString, id.getId());
         Assertions.assertEquals(247, id.getExponent());
         Assertions.assertEquals(3972, id.getNode());
-        Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
+        Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
                 id.getGeneratedDate());
     }
 
@@ -190,21 +190,5 @@ class IdGeneratorTest {
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
-
-
-    @SuppressWarnings("SameParameterValue")
-    private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Date.from(
-                Instant.from(
-                        ZonedDateTime.of(
-                                LocalDateTime.of(
-                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                ),
-                                zoneId
-                        )
-                )
-        );
-    }
-
 
 }

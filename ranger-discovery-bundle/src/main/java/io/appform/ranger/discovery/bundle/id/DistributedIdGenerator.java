@@ -48,7 +48,7 @@ public class DistributedIdGenerator {
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{12})([0-9]{4})([0-9]{6})");
     private static final List<KeyValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
     private static final Map<String, List<KeyValidationConstraint>> DOMAIN_SPECIFIC_CONSTRAINTS = new HashMap<>();
-    protected int nodeId;
+    protected static final int NODE_ID = IdGenerator.getNodeId();
     @Getter
     private final Map<String, Map<Long, PartitionIdTracker>> dataStore = new ConcurrentHashMap<>();
     protected final IdFormatter idFormatter;
@@ -74,10 +74,8 @@ public class DistributedIdGenerator {
 //        }
 //    }
 
-    public DistributedIdGenerator(final int node,
-                                  final int partitionSize,
+    public DistributedIdGenerator(final int partitionSize,
                                   final Function<String, Integer> partitionResolverSupplier) {
-        nodeId = node;
         partitionCount = partitionSize;
         partitionResolver = partitionResolverSupplier;
         idFormatter = IdFormatters.distributed();
@@ -89,11 +87,9 @@ public class DistributedIdGenerator {
                 TimeUnit.SECONDS);
     }
 
-    public DistributedIdGenerator(final int node,
-                                  final int partitionSize,
+    public DistributedIdGenerator(final int partitionSize,
                                   final Function<String, Integer> partitionResolverSupplier,
                                   final IdFormatter idFormatterInstance) {
-        nodeId = node;
         partitionCount = partitionSize;
         partitionResolver = partitionResolverSupplier;
         idFormatter = idFormatterInstance;
@@ -142,12 +138,12 @@ public class DistributedIdGenerator {
                 prefix,
                 currentTimestamp,
                 targetPartitionId);
-        val id = String.format("%s%s", prefix, idFormatter.format(currentTimestamp, nodeId, idCounter));
+        val id = String.format("%s%s", prefix, idFormatter.format(currentTimestamp, NODE_ID, idCounter));
         return Id.builder()
                 .id(id)
                 .exponent(idCounter)
                 .generatedDate(currentTimestamp.toDate())
-                .node(nodeId)
+                .node(NODE_ID)
                 .build();
     }
 
@@ -160,7 +156,7 @@ public class DistributedIdGenerator {
 //            ToDo: Add Retry Limit
         while (idPool.getIds().size() <= idIdx) {
             val counterValue = partitionIdTracker.getCounter().getAndIncrement();
-            val txnId = String.format("%s%s", prefix, idFormatter.format(timestamp, nodeId, counterValue));
+            val txnId = String.format("%s%s", prefix, idFormatter.format(timestamp, NODE_ID, counterValue));
             val mappedPartitionId = partitionResolver.apply(txnId);
             partitionIdTracker.getPartition(mappedPartitionId).getIds().add(counterValue);
         }

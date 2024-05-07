@@ -9,6 +9,11 @@ import lombok.val;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -60,5 +65,18 @@ public class TestUtil {
         outputNode.put("totalMillis", totalMillis);
         outputNode.put("avgTime", ((double) totalMillis) / numThreads);
         Files.write(outputFilePath, mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(outputNode));
+    }
+
+    public Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
+        return Date.from(
+                Instant.from(
+                        ZonedDateTime.of(
+                                LocalDateTime.of(
+                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
+                                ),
+                                zoneId
+                        )
+                )
+        );
     }
 }

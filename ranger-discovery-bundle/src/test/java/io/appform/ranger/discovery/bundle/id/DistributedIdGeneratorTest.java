@@ -10,12 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,7 +28,7 @@ class DistributedIdGeneratorTest {
 
     @BeforeEach
     void setup() {
-        distributedIdGenerator = new DistributedIdGenerator(23, partitionCount, partitionResolverSupplier);
+        distributedIdGenerator = new DistributedIdGenerator(partitionCount, partitionResolverSupplier);
     }
 
     @Test
@@ -116,14 +112,14 @@ class DistributedIdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        distributedIdGenerator = new DistributedIdGenerator(23, partitionCount, partitionResolverSupplier, IdFormatters.original());
+        distributedIdGenerator = new DistributedIdGenerator(partitionCount, partitionResolverSupplier, IdFormatters.original());
         String id = distributedIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        distributedIdGenerator = new DistributedIdGenerator(23, partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36());
+        distributedIdGenerator = new DistributedIdGenerator(partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36());
         String id = distributedIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(18, id.length());
     }
@@ -169,7 +165,7 @@ class DistributedIdGeneratorTest {
         Assertions.assertEquals(idString, id.getId());
         Assertions.assertEquals(972247, id.getExponent());
         Assertions.assertEquals(643, id.getNode());
-        Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
+        Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
                 id.getGeneratedDate());
     }
 
@@ -183,17 +179,4 @@ class DistributedIdGeneratorTest {
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Date.from(
-                Instant.from(
-                        ZonedDateTime.of(
-                                LocalDateTime.of(
-                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                ),
-                                zoneId
-                        )
-                )
-        );
-    }
 }

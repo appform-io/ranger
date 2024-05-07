@@ -25,7 +25,7 @@ public class DistributedIdGeneratorPerfTest extends BenchmarkTest {
 
         @Setup(Level.Trial)
         public void setUp() throws IOException {
-            distributedIdGenerator = new DistributedIdGenerator(23, 1024, partitionResolverSupplier);
+            distributedIdGenerator = new DistributedIdGenerator(1024, partitionResolverSupplier);
         }
     }
 
