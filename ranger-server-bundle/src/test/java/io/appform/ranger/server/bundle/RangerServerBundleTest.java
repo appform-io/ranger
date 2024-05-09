@@ -23,6 +23,7 @@ import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.stubs.RangerTestHub;
 import io.appform.ranger.client.utils.RangerHubTestUtils;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
+import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.dropwizard.Configuration;
@@ -33,6 +34,7 @@ import io.dropwizard.setup.AdminEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.val;
+import lombok.var;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.junit.jupiter.api.*;
 
@@ -53,7 +55,8 @@ public class RangerServerBundleTest {
     private static final Configuration CONFIGURATION = mock(Configuration.class);
 
     private static final RangerServerBundle<TestNodeData, ListBasedServiceRegistry<TestNodeData>, Configuration>
-            RANGER_SERVER_BUNDLE = new RangerServerBundle<>() {
+            RANGER_SERVER_BUNDLE = new RangerServerBundle<TestNodeData,
+        ListBasedServiceRegistry<TestNodeData>, Configuration>() {
 
         @Override
         protected List<RangerHubClient<TestNodeData, ListBasedServiceRegistry<TestNodeData>>> withHubs(Configuration configuration) {

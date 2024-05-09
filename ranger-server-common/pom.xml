@@ -5,10 +5,14 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-RC16</version>
+        <version>1.0-JAVA8-RC16</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-server-common</artifactId>
+    
+    <properties>
+        <java.release.version>8</java.release.version>
+    </properties>
 
 </project>

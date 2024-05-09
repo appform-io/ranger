@@ -38,7 +38,7 @@ import java.util.concurrent.*;
 @Slf4j
 @SuppressWarnings("unused")
 public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
-    
+
     private final HttpRequest httpRequest;
     private final String host;
     private final ExecutorService executorService;

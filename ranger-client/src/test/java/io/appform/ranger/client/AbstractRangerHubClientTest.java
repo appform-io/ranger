@@ -20,6 +20,7 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import lombok.var;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

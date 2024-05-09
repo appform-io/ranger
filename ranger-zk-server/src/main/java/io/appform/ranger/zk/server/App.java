@@ -29,7 +29,7 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
-        bootstrap.addBundle(new ZKServerBundle<>() {
+        bootstrap.addBundle(new ZKServerBundle<AppConfiguration>() {
             @Override
             protected RangerConfiguration getRangerConfiguration(AppConfiguration configuration) {
                 return configuration.getRangerConfiguration();

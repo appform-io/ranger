@@ -18,6 +18,7 @@ package io.appform.ranger.client;
 import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
+import lombok.var;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

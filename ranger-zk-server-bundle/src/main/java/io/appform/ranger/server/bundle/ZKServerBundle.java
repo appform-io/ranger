@@ -17,6 +17,7 @@ package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
@@ -61,7 +62,7 @@ public abstract class ZKServerBundle<U extends Configuration> extends RangerServ
     @Override
     protected List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> withHubs(U configuration) {
         val rangerConfiguration = getRangerConfiguration(configuration);
-        return List.of(UnshardedRangerZKHubClient.<ShardInfo>builder()
+        return ImmutableList.of(UnshardedRangerZKHubClient.<ShardInfo>builder()
                 .namespace(rangerConfiguration.getNamespace())
                 .connectionString(rangerConfiguration.getZookeeper())
                 .curatorFramework(curatorFramework)
@@ -81,12 +82,12 @@ public abstract class ZKServerBundle<U extends Configuration> extends RangerServ
     }
 
     protected List<Signal<ShardInfo>> withLifecycleSignals(U configuration) {
-        return List.of(
+        return ImmutableList.of(
                 new CuratorLifecycle(curatorFramework)
         );
     }
 
     protected List<HealthCheck> withHealthChecks(U configuration) {
-        return List.of(new RangerHealthCheck(curatorFramework));
+        return ImmutableList.of(new RangerHealthCheck(curatorFramework));
     }
 }

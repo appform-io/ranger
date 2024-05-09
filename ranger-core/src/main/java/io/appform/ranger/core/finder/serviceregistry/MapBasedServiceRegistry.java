@@ -16,6 +16,7 @@
 package io.appform.ranger.core.finder.serviceregistry;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import io.appform.ranger.core.model.Service;
@@ -45,7 +46,7 @@ public class MapBasedServiceRegistry<T> extends ServiceRegistry<T> {
     @Override
     public List<ServiceNode<T>> nodeList() {
         val nodeList = nodes.get();
-        return null == nodeList ? List.of() : new ArrayList<>(nodeList.values());
+        return null == nodeList ? ImmutableList.of() : new ArrayList<>(nodeList.values());
     }
 
     @Override

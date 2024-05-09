@@ -33,7 +33,7 @@ public class JavaHashCodeBasedKeyPartitioner implements KeyPartitioner {
 
     @Override
     public int partition(Id id) {
-        var hashCode = id.getId().hashCode();
+        int hashCode = id.getId().hashCode();
         hashCode *= hashCode < 0 ? -1 : 1;
         return hashCode % maxPartitions;
     }
