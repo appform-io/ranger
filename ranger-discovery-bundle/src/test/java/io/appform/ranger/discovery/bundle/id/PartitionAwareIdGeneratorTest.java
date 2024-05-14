@@ -1,6 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
-import io.appform.ranger.discovery.bundle.id.constraints.KeyValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.constraints.PartitionValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -17,34 +17,34 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Test for {@link DistributedIdGenerator}
+ * Test for {@link PartitionAwareIdGenerator}
  */
 @Slf4j
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
-class DistributedIdGeneratorTest {
+class PartitionAwareIdGeneratorTest {
     final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length()-6)) % partitionCount;
-    private DistributedIdGenerator distributedIdGenerator;
+    private PartitionAwareIdGenerator partitionAwareIdGenerator;
 
     @BeforeEach
     void setup() {
-        distributedIdGenerator = new DistributedIdGenerator(partitionCount, partitionResolverSupplier);
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, partitionResolverSupplier);
     }
 
     @Test
     void testGenerateWithBenchmark() throws IOException {
-        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> distributedIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
-        testUniqueIdsInDataStore(distributedIdGenerator.getDataStore());
+        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> partitionAwareIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
+        testUniqueIdsInDataStore(partitionAwareIdGenerator.getIdStore());
     }
 
     @Test
     void testGenerateWithConstraints() throws IOException {
-        KeyValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
-        distributedIdGenerator.registerGlobalConstraints(partitionConstraint);
-        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> distributedIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
-        testUniqueIdsInDataStore(distributedIdGenerator.getDataStore());
+        PartitionValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
+        partitionAwareIdGenerator.registerGlobalConstraints(partitionConstraint);
+        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> partitionAwareIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
+        testUniqueIdsInDataStore(partitionAwareIdGenerator.getIdStore());
 
-        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : distributedIdGenerator.getDataStore().entrySet()) {
+        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : partitionAwareIdGenerator.getIdStore().entrySet()) {
             val prefix = entry.getKey();
             val prefixIds = entry.getValue();
             HashSet<Integer> uniqueIds = new HashSet<>();
@@ -53,7 +53,7 @@ class DistributedIdGeneratorTest {
                 val partitionIdTracker = prefixEntry.getValue();
                 for (int idx=0; idx < partitionIdTracker.getPartitionSize(); idx += 1) {
                     if (!partitionConstraint.isValid(idx)) {
-                        Assertions.assertEquals(0, partitionIdTracker.getIdList()[idx].getPointer().get());
+                        Assertions.assertEquals(0, partitionIdTracker.getIdPoolList()[idx].getPointer().get());
                     }
                 }
             }
@@ -69,10 +69,10 @@ class DistributedIdGeneratorTest {
                 val key = prefixEntry.getKey();
                 val partitionIdTracker = prefixEntry.getValue();
                 HashSet<Integer> uniqueIds = new HashSet<>();
-                for (val idPool: partitionIdTracker.getIdList()) {
+                for (val idPool: partitionIdTracker.getIdPoolList()) {
                     boolean allIdsUniqueInList = true;
                     HashSet<Integer> uniqueIdsInList = new HashSet<>();
-                    for (val id: idPool.getIds()) {
+                    for (val id: idPool.getIdList()) {
                         if (uniqueIdsInList.contains(id)) {
                             allIdsUniqueInList = false;
                             allIdsUnique = false;
@@ -98,7 +98,7 @@ class DistributedIdGeneratorTest {
         HashSet<String> allIDs = new HashSet<>();
         boolean allIdsUnique = true;
         for (int i=0; i < 10000; i+=1) {
-            val txnId = distributedIdGenerator.generate("P").getId();
+            val txnId = partitionAwareIdGenerator.generate("P").getId();
             if (allIDs.contains(txnId)) {
                 log.warn(txnId);
                 log.warn(String.valueOf(allIDs));
@@ -112,21 +112,21 @@ class DistributedIdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        distributedIdGenerator = new DistributedIdGenerator(partitionCount, partitionResolverSupplier, IdFormatters.original());
-        String id = distributedIdGenerator.generate("TEST").getId();
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, partitionResolverSupplier, IdFormatters.original());
+        String id = partitionAwareIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        distributedIdGenerator = new DistributedIdGenerator(partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36());
-        String id = distributedIdGenerator.generate("TEST").getId();
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36());
+        String id = partitionAwareIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(18, id.length());
     }
 
     @Test
     void testConstraintFailure() {
-        Assertions.assertFalse(distributedIdGenerator.generateWithConstraints(
+        Assertions.assertFalse(partitionAwareIdGenerator.generateWithConstraints(
                 "TST",
                 Collections.singletonList((id -> false)),
                 true).isPresent());
@@ -135,32 +135,32 @@ class DistributedIdGeneratorTest {
     @Test
     void testParseFailure() {
         //Null or Empty String
-        Assertions.assertFalse(distributedIdGenerator.parse(null).isPresent());
-        Assertions.assertFalse(distributedIdGenerator.parse("").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse(null).isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("").isPresent());
 
         //Invalid length
-        Assertions.assertFalse(distributedIdGenerator.parse("TEST").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("TEST").isPresent());
 
         //Invalid chars
-        Assertions.assertFalse(distributedIdGenerator.parse("XCL983dfb1ee0a847cd9e7321fcabc2f223").isPresent());
-        Assertions.assertFalse(distributedIdGenerator.parse("XCL98-3df-b1e:e0a847cd9e7321fcabc2f223").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("XCL983dfb1ee0a847cd9e7321fcabc2f223").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("XCL98-3df-b1e:e0a847cd9e7321fcabc2f223").isPresent());
 
         //Invalid month
-        Assertions.assertFalse(distributedIdGenerator.parse("ABC2032250959030643972247").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("ABC2032250959030643972247").isPresent());
         //Invalid date
-        Assertions.assertFalse(distributedIdGenerator.parse("ABC2011450959030643972247").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("ABC2011450959030643972247").isPresent());
         //Invalid hour
-        Assertions.assertFalse(distributedIdGenerator.parse("ABC2011259659030643972247").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("ABC2011259659030643972247").isPresent());
         //Invalid minute
-        Assertions.assertFalse(distributedIdGenerator.parse("ABC2011250972030643972247").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("ABC2011250972030643972247").isPresent());
         //Invalid sec
-        Assertions.assertFalse(distributedIdGenerator.parse("ABC2011250959720643972247").isPresent());
+        Assertions.assertFalse(partitionAwareIdGenerator.parse("ABC2011250959720643972247").isPresent());
     }
 
     @Test
     void testParseSuccess() {
         val idString = "ABC2011250959030643972247";
-        val id = distributedIdGenerator.parse(idString).orElse(null);
+        val id = partitionAwareIdGenerator.parse(idString).orElse(null);
         Assertions.assertNotNull(id);
         Assertions.assertEquals(idString, id.getId());
         Assertions.assertEquals(972247, id.getExponent());
@@ -171,8 +171,8 @@ class DistributedIdGeneratorTest {
 
     @Test
     void testParseSuccessAfterGeneration() {
-        val generatedId = distributedIdGenerator.generate("TEST123");
-        val parsedId = distributedIdGenerator.parse(generatedId.getId()).orElse(null);
+        val generatedId = partitionAwareIdGenerator.generate("TEST123");
+        val parsedId = partitionAwareIdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());

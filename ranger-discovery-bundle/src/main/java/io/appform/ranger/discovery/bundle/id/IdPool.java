@@ -8,10 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 public class IdPool {
-    private final List<Integer> ids = new CopyOnWriteArrayList<>();
+    // List of IDs for the specific IdPool
+    private final List<Integer> idList = new CopyOnWriteArrayList<>();
+
+    // Pointer to track the index of the next usable ID
     private final AtomicInteger pointer = new AtomicInteger();
 
     public int getId(int index) {
-        return ids.get(index);
+        return idList.get(index);
     }
 }

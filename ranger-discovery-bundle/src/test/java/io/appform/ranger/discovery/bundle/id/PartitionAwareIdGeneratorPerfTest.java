@@ -16,22 +16,22 @@ import java.util.function.Function;
  * Test performance between different constructs
  */
 @Slf4j
-public class DistributedIdGeneratorPerfTest extends BenchmarkTest {
+public class PartitionAwareIdGeneratorPerfTest extends BenchmarkTest {
 
     @State(Scope.Benchmark)
     public static class BenchmarkState {
-        private DistributedIdGenerator distributedIdGenerator;
+        private PartitionAwareIdGenerator partitionAwareIdGenerator;
         final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length()-6)) % 1024;
 
         @Setup(Level.Trial)
         public void setUp() throws IOException {
-            distributedIdGenerator = new DistributedIdGenerator(1024, partitionResolverSupplier);
+            partitionAwareIdGenerator = new PartitionAwareIdGenerator(1024, partitionResolverSupplier);
         }
     }
 
     @SneakyThrows
     @Benchmark
     public void testGenerate(Blackhole blackhole, BenchmarkState state) {
-        state.distributedIdGenerator.generate("P");
+        state.partitionAwareIdGenerator.generate("P");
     }
 }

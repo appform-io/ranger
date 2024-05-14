@@ -1,6 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
-import io.appform.ranger.discovery.bundle.id.constraints.KeyValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.constraints.PartitionValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -47,17 +47,17 @@ class WeightedIdGeneratorTest {
     @Test
     void testGenerateWithBenchmark() throws IOException {
         val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
-        testUniqueIds(weightedIdGenerator.getDataStore());
+        testUniqueIds(weightedIdGenerator.getIdStore());
     }
 
     @Test
     void testGenerateWithConstraints() throws IOException {
-        KeyValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
+        PartitionValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
         weightedIdGenerator.registerGlobalConstraints(partitionConstraint);
         val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
-        testUniqueIds(weightedIdGenerator.getDataStore());
+        testUniqueIds(weightedIdGenerator.getIdStore());
 
-        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : weightedIdGenerator.getDataStore().entrySet()) {
+        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : weightedIdGenerator.getIdStore().entrySet()) {
             val prefix = entry.getKey();
             val prefixIds = entry.getValue();
             HashSet<Integer> uniqueIds = new HashSet<>();
@@ -66,7 +66,7 @@ class WeightedIdGeneratorTest {
                 val partitionIdTracker = prefixEntry.getValue();
                 for (int idx=0; idx < partitionIdTracker.getPartitionSize(); idx += 1) {
                     if (!partitionConstraint.isValid(idx)) {
-                        Assertions.assertEquals(0, partitionIdTracker.getIdList()[idx].getPointer().get());
+                        Assertions.assertEquals(0, partitionIdTracker.getIdPoolList()[idx].getPointer().get());
                     }
                 }
             }
@@ -82,10 +82,10 @@ class WeightedIdGeneratorTest {
                 val key = prefixEntry.getKey();
                 val partitionIdTracker = prefixEntry.getValue();
                 HashSet<Integer> uniqueIds = new HashSet<>();
-                for (val idPool: partitionIdTracker.getIdList()) {
+                for (val idPool: partitionIdTracker.getIdPoolList()) {
                     boolean allIdsUniqueInList = true;
                     HashSet<Integer> uniqueIdsInList = new HashSet<>();
-                    for (val id: idPool.getIds()) {
+                    for (val id: idPool.getIdList()) {
                         if (uniqueIdsInList.contains(id)) {
                             allIdsUniqueInList = false;
                             allIdsUnique = false;

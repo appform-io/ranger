@@ -30,7 +30,7 @@ public class WeightedIdConfig {
         for (int i = 0; i < sortedPartitions.size() - 1; i++) {
             WeightedPartition currentPartition = sortedPartitions.get(i);
             WeightedPartition nextPartition = sortedPartitions.get(i + 1);
-            if (currentPartition.getPartitionRange().getEnd() >= nextPartition.getPartitionRange().getStart()) {
+            if (currentPartition.getPartitionRange().getEnd() + 1 != nextPartition.getPartitionRange().getStart()) {
                 return false;
             }
         }
