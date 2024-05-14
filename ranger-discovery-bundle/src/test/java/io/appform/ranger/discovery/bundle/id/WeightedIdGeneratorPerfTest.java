@@ -39,7 +39,11 @@ public class WeightedIdGeneratorPerfTest extends BenchmarkTest {
             val weightedIdConfig = WeightedIdConfig.builder()
                     .partitions(partitionConfigList)
                     .build();
-            weightedIdGenerator = new WeightedIdGenerator(1024, partitionResolverSupplier, weightedIdConfig);
+            weightedIdGenerator = new WeightedIdGenerator(
+                    1024, partitionResolverSupplier,
+                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
+                    weightedIdConfig
+            );
         }
     }
 

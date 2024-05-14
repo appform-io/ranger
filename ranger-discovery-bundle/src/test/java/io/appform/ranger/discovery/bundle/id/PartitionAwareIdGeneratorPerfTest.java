@@ -25,7 +25,10 @@ public class PartitionAwareIdGeneratorPerfTest extends BenchmarkTest {
 
         @Setup(Level.Trial)
         public void setUp() throws IOException {
-            partitionAwareIdGenerator = new PartitionAwareIdGenerator(1024, partitionResolverSupplier);
+            partitionAwareIdGenerator = new PartitionAwareIdGenerator(
+                    1024, partitionResolverSupplier,
+                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build()
+            );
         }
     }
 

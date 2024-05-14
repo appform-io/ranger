@@ -23,7 +23,7 @@ public class IdFormatters {
 
     private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
     private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
-    private static final IdFormatter distributedIdFormatter = new DistributedIdFormatter();
+    private static final IdFormatter partitionAwareIdFormatter = new PartitionAwareIdFormatter();
 
     public static IdFormatter original() {
         return originalIdFormatter;
@@ -33,8 +33,8 @@ public class IdFormatters {
         return base36IdFormatter;
     }
 
-    public static IdFormatter distributed() {
-        return distributedIdFormatter;
+    public static IdFormatter partitionAware() {
+        return partitionAwareIdFormatter;
     }
 
 }

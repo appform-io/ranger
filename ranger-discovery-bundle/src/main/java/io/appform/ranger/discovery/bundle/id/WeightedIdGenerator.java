@@ -23,16 +23,18 @@ public class WeightedIdGenerator extends PartitionAwareIdGenerator {
 
     public WeightedIdGenerator(final int partitionSize,
                                final Function<String, Integer> partitionResolverSupplier,
+                               final IdGeneratorRetryConfig retryConfig,
                                final WeightedIdConfig weightedIdConfig) {
-        super(partitionSize, partitionResolverSupplier);
+        super(partitionSize, partitionResolverSupplier, retryConfig);
         partitionRangeMap = createWeightRangeMap(weightedIdConfig);
     }
 
     public WeightedIdGenerator(final int partitionSize,
                                final Function<String, Integer> partitionResolverSupplier,
+                               final IdGeneratorRetryConfig retryConfig,
                                final WeightedIdConfig weightedIdConfig,
                                final IdFormatter idFormatterInstance) {
-        super(partitionSize, partitionResolverSupplier, idFormatterInstance);
+        super(partitionSize, partitionResolverSupplier, retryConfig, idFormatterInstance);
         partitionRangeMap = createWeightRangeMap(weightedIdConfig);
     }
 
@@ -58,7 +60,7 @@ public class WeightedIdGenerator extends PartitionAwareIdGenerator {
     @Override
     private Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints, final boolean skipGlobal) {
         return Optional.ofNullable(
-                RETRIER.get(this::getTargetPartitionId))
+                retrier.get(this::getTargetPartitionId))
                 .filter(key -> validateId(inConstraints, key, skipGlobal));
     }
 }

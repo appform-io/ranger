@@ -23,12 +23,15 @@ import java.util.function.Function;
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 class PartitionAwareIdGeneratorTest {
     final int partitionCount = 1024;
-    final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length()-6)) % partitionCount;
+    final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
     private PartitionAwareIdGenerator partitionAwareIdGenerator;
 
     @BeforeEach
     void setup() {
-        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, partitionResolverSupplier);
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(
+                partitionCount, partitionResolverSupplier,
+                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build()
+        );
     }
 
     @Test
@@ -51,7 +54,7 @@ class PartitionAwareIdGeneratorTest {
             for (Map.Entry<Long, PartitionIdTracker> prefixEntry : prefixIds.entrySet()) {
                 val key = prefixEntry.getKey();
                 val partitionIdTracker = prefixEntry.getValue();
-                for (int idx=0; idx < partitionIdTracker.getPartitionSize(); idx += 1) {
+                for (int idx = 0; idx < partitionIdTracker.getPartitionSize(); idx += 1) {
                     if (!partitionConstraint.isValid(idx)) {
                         Assertions.assertEquals(0, partitionIdTracker.getIdPoolList()[idx].getPointer().get());
                     }
@@ -69,10 +72,10 @@ class PartitionAwareIdGeneratorTest {
                 val key = prefixEntry.getKey();
                 val partitionIdTracker = prefixEntry.getValue();
                 HashSet<Integer> uniqueIds = new HashSet<>();
-                for (val idPool: partitionIdTracker.getIdPoolList()) {
+                for (val idPool : partitionIdTracker.getIdPoolList()) {
                     boolean allIdsUniqueInList = true;
                     HashSet<Integer> uniqueIdsInList = new HashSet<>();
-                    for (val id: idPool.getIdList()) {
+                    for (val id : idPool.getIdList()) {
                         if (uniqueIdsInList.contains(id)) {
                             allIdsUniqueInList = false;
                             allIdsUnique = false;
@@ -97,7 +100,7 @@ class PartitionAwareIdGeneratorTest {
     void testUniqueIds() {
         HashSet<String> allIDs = new HashSet<>();
         boolean allIdsUnique = true;
-        for (int i=0; i < 10000; i+=1) {
+        for (int i = 0; i < 10000; i += 1) {
             val txnId = partitionAwareIdGenerator.generate("P").getId();
             if (allIDs.contains(txnId)) {
                 log.warn(txnId);
@@ -112,14 +115,23 @@ class PartitionAwareIdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, partitionResolverSupplier, IdFormatters.original());
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(
+                partitionCount, partitionResolverSupplier,
+                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
+                IdFormatters.original()
+        );
         String id = partitionAwareIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        partitionAwareIdGenerator = new PartitionAwareIdGenerator(partitionCount, (txnId) -> new BigInteger(txnId.substring(txnId.length()-6), 36).abs().intValue() % partitionCount, IdFormatters.base36());
+        partitionAwareIdGenerator = new PartitionAwareIdGenerator(
+                partitionCount,
+                (txnId) -> new BigInteger(txnId.substring(txnId.length() - 6), 36).abs().intValue() % partitionCount,
+                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
+                IdFormatters.base36()
+        );
         String id = partitionAwareIdGenerator.generate("TEST").getId();
         Assertions.assertEquals(18, id.length());
     }

@@ -39,12 +39,7 @@ public class PartitionAwareIdGenerator {
     private static final int MINIMUM_ID_LENGTH = 22;
     protected static final SecureRandom SECURE_RANDOM = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmss");
-    private final RetryPolicy<Integer> RETRY_POLICY = RetryPolicy.<Integer>builder()
-            .withMaxAttempts(readRetryCount())
-            .handleIf(throwable -> true)
-            .handleResultIf(Objects::isNull)
-            .build();
-    protected final FailsafeExecutor<Integer> RETRIER = Failsafe.with(Collections.singletonList(RETRY_POLICY));
+    protected final FailsafeExecutor<Integer> retrier;
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{12})([0-9]{4})([0-9]{6})");
     private static final List<PartitionValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
     private static final Map<String, List<PartitionValidationConstraint>> DOMAIN_SPECIFIC_CONSTRAINTS = new HashMap<>();
@@ -53,9 +48,10 @@ public class PartitionAwareIdGenerator {
     private final Map<String, Map<Long, PartitionIdTracker>> idStore = new ConcurrentHashMap<>();
     protected final IdFormatter idFormatter;
     protected final Function<String, Integer> partitionResolver;
+    protected final IdGeneratorRetryConfig retryConfig;
     protected final int partitionCount;
 
-/*  dataStore Structure
+/*  idStore Structure
     {
         prefix: {
             timestamp: {
@@ -75,11 +71,21 @@ public class PartitionAwareIdGenerator {
     }
  */
 
-    public PartitionAwareIdGenerator(final int partitionSize,
-                                     final Function<String, Integer> partitionResolverSupplier) {
-        partitionCount = partitionSize;
-        partitionResolver = partitionResolverSupplier;
-        idFormatter = IdFormatters.distributed();
+    public PartitionAwareIdGenerator(final int partitionCount,
+                                     final Function<String, Integer> partitionResolverSupplier,
+                                     final IdGeneratorRetryConfig retryConfig,
+                                     final IdFormatter idFormatterInstance) {
+        this.partitionCount = partitionCount;
+        this.retryConfig = retryConfig;
+        this.partitionResolver = partitionResolverSupplier;
+        this.idFormatter = idFormatterInstance;
+        RetryPolicy<Integer> retryPolicy = RetryPolicy.<Integer>builder()
+                .withMaxAttempts(retryConfig.getPartitionRetryCount())
+                .handleIf(throwable -> true)
+                .handleResultIf(Objects::isNull)
+                .build();
+        retrier = Failsafe.with(Collections.singletonList(retryPolicy));
+
         val executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleWithFixedDelay(
                 this::deleteExpiredKeys,
@@ -88,12 +94,10 @@ public class PartitionAwareIdGenerator {
                 TimeUnit.SECONDS);
     }
 
-    public PartitionAwareIdGenerator(final int partitionSize,
+    public PartitionAwareIdGenerator(final int partitionCount,
                                      final Function<String, Integer> partitionResolverSupplier,
-                                     final IdFormatter idFormatterInstance) {
-        partitionCount = partitionSize;
-        partitionResolver = partitionResolverSupplier;
-        idFormatter = idFormatterInstance;
+                                     final IdGeneratorRetryConfig retryConfig) {
+        this(partitionCount, partitionResolverSupplier, retryConfig, IdFormatters.partitionAware());
     }
 
     public synchronized void registerGlobalConstraints(final PartitionValidationConstraint... constraints) {
@@ -154,12 +158,13 @@ public class PartitionAwareIdGenerator {
                                          final int targetPartitionId) {
         val idPool = partitionIdTracker.getPartition(targetPartitionId);
         int idIdx = idPool.getPointer().getAndIncrement();
-//            ToDo: Add Retry Limit
-        while (idPool.getIdList().size() <= idIdx) {
+        int retry = 0;
+        while (idPool.getIdList().size() <= idIdx && retry < retryConfig.getIdGenerationRetryCount()) {
             val counterValue = partitionIdTracker.getNextIdCounter().getAndIncrement();
             val txnId = String.format("%s%s", prefix, idFormatter.format(timestamp, NODE_ID, counterValue));
             val mappedPartitionId = partitionResolver.apply(txnId);
             partitionIdTracker.getPartition(mappedPartitionId).getIdList().add(counterValue);
+            retry += 1;
         }
         return idPool.getId(idIdx);
     }
@@ -221,8 +226,7 @@ public class PartitionAwareIdGenerator {
                         .build());
             }
             return Optional.empty();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();
         }
@@ -234,7 +238,7 @@ public class PartitionAwareIdGenerator {
 
     private Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints, final boolean skipGlobal) {
         return Optional.ofNullable(
-                RETRIER.get(() -> SECURE_RANDOM.nextInt(partitionCount)))
+                retrier.get(() -> SECURE_RANDOM.nextInt(partitionCount)))
                 .filter(key -> validateId(inConstraints, key, skipGlobal));
     }
 
@@ -244,42 +248,26 @@ public class PartitionAwareIdGenerator {
         //First evaluate global constraints
         val failedGlobalConstraint
                 = skipGlobal
-                  ? null
-                  : GLOBAL_CONSTRAINTS.stream()
-                          .filter(constraint -> !constraint.isValid(partitionId))
-                          .findFirst()
-                          .orElse(null);
+                ? null
+                : GLOBAL_CONSTRAINTS.stream()
+                .filter(constraint -> !constraint.isValid(partitionId))
+                .findFirst()
+                .orElse(null);
         if (null != failedGlobalConstraint) {
             return false;
         }
         //Evaluate param constraints
         val failedLocalConstraint
                 = null == inConstraints
-                  ? null
-                  : inConstraints.stream()
-                          .filter(constraint -> !constraint.isValid(partitionId))
-                          .findFirst()
-                          .orElse(null);
+                ? null
+                : inConstraints.stream()
+                .filter(constraint -> !constraint.isValid(partitionId))
+                .findFirst()
+                .orElse(null);
         return null == failedLocalConstraint;
     }
 
-    protected int readRetryCount() {
-        try {
-//            Make it config
-            val count = Integer.parseInt(System.getenv().getOrDefault("NUM_ID_GENERATION_RETRIES", "512"));
-            if (count <= 0) {
-                throw new IllegalArgumentException(
-                        "Negative number of retries does not make sense. Please set a proper value for " +
-                                "NUM_ID_GENERATION_RETRIES");
-            }
-            return count;
-        }
-        catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
-        }
-    }
-
-    private void deleteExpiredKeys() {
+    private synchronized void deleteExpiredKeys() {
         val timeThreshold = DateTime.now().getMillis() / 1000 - Constants.DELETION_THRESHOLD_IN_SECONDS;
         for (val entry : idStore.entrySet()) {
             entry.getValue().entrySet().removeIf(partitionIdTrackerEntry -> partitionIdTrackerEntry.getKey() < timeThreshold);
