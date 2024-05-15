@@ -17,10 +17,12 @@ package io.appform.ranger.http.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
+import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.appform.ranger.http.server.bundle.healthcheck.RangerHttpHealthCheck;
 import io.appform.ranger.server.bundle.RangerServerBundle;
@@ -52,7 +54,8 @@ public abstract class HttpServerBundle<U extends Configuration> extends RangerSe
                 .nodeRefreshTimeMs(rangerConfiguration.getNodeRefreshTimeMs())
                 .deserializer(data -> {
                     try {
-                        return getMapper().readValue(data, new TypeReference<>() {
+                        return getMapper().readValue(data,
+                            new TypeReference<ServiceNodesResponse<ShardInfo>>() {
                         });
                     } catch (IOException e) {
                         log.warn("Error parsing node data with value {}", new String(data));
@@ -63,6 +66,6 @@ public abstract class HttpServerBundle<U extends Configuration> extends RangerSe
     }
 
     protected List<HealthCheck> withHealthChecks(U configuration) {
-        return List.of(new RangerHttpHealthCheck());
+        return ImmutableList.of(new RangerHttpHealthCheck());
     }
 }
