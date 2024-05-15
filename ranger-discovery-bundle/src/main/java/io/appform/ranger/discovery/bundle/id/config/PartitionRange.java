@@ -1,4 +1,4 @@
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.dropwizard.validation.ValidationMethod;

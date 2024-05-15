@@ -1,8 +1,11 @@
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.weighted;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
+import io.appform.ranger.discovery.bundle.id.config.IdGeneratorRetryConfig;
+import io.appform.ranger.discovery.bundle.id.config.PartitionRange;
+import io.appform.ranger.discovery.bundle.id.config.WeightedIdConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.PartitionValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +20,7 @@ import java.util.function.Function;
  * Weighted Id Generation
  */
 @Slf4j
-public class WeightedIdGenerator extends PartitionAwareIdGenerator {
+public class WeightedIdGenerator extends DistributedIdGenerator {
     private int maxShardWeight;
     private final RangeMap<Integer, PartitionRange> partitionRangeMap;
 
@@ -51,14 +54,14 @@ public class WeightedIdGenerator extends PartitionAwareIdGenerator {
     }
 
     @Override
-    private int getTargetPartitionId() {
+    protected int getTargetPartitionId() {
         val randomNum = SECURE_RANDOM.nextInt(maxShardWeight);
         val partitionRange = Objects.requireNonNull(partitionRangeMap.getEntry(randomNum)).getValue();
         return SECURE_RANDOM.nextInt(partitionRange.getEnd() - partitionRange.getStart() + 1) + partitionRange.getStart();
     }
 
     @Override
-    private Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints, final boolean skipGlobal) {
+    protected Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints, final boolean skipGlobal) {
         return Optional.ofNullable(
                 retrier.get(this::getTargetPartitionId))
                 .filter(key -> validateId(inConstraints, key, skipGlobal));

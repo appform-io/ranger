@@ -1,4 +1,4 @@
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.weighted;
 
 import lombok.Getter;
 

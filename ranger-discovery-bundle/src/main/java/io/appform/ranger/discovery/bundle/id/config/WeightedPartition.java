@@ -1,4 +1,4 @@
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +19,6 @@ public class WeightedPartition {
     private PartitionRange partitionRange;
 
     @NotNull
-    @Min(0)
+    @Min(1)
     private int weight;
 }

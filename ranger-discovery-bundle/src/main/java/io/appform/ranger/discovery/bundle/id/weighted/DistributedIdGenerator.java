@@ -1,10 +1,14 @@
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.weighted;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
+import io.appform.ranger.discovery.bundle.id.Constants;
+import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.config.IdGeneratorRetryConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.PartitionValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
@@ -34,7 +38,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("unused")
 @Slf4j
-public class PartitionAwareIdGenerator {
+abstract class DistributedIdGenerator {
 
     private static final int MINIMUM_ID_LENGTH = 22;
     protected static final SecureRandom SECURE_RANDOM = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
@@ -51,7 +55,7 @@ public class PartitionAwareIdGenerator {
     protected final IdGeneratorRetryConfig retryConfig;
     protected final int partitionCount;
 
-/*  idStore Structure
+    /*  idStore Structure
     {
         prefix: {
             timestamp: {
@@ -69,9 +73,9 @@ public class PartitionAwareIdGenerator {
             }
         }
     }
- */
+    */
 
-    public PartitionAwareIdGenerator(final int partitionCount,
+    protected DistributedIdGenerator(final int partitionCount,
                                      final Function<String, Integer> partitionResolverSupplier,
                                      final IdGeneratorRetryConfig retryConfig,
                                      final IdFormatter idFormatterInstance) {
@@ -94,7 +98,7 @@ public class PartitionAwareIdGenerator {
                 TimeUnit.SECONDS);
     }
 
-    public PartitionAwareIdGenerator(final int partitionCount,
+    protected DistributedIdGenerator(final int partitionCount,
                                      final Function<String, Integer> partitionResolverSupplier,
                                      final IdGeneratorRetryConfig retryConfig) {
         this(partitionCount, partitionResolverSupplier, retryConfig, IdFormatters.partitionAware());
@@ -232,15 +236,10 @@ public class PartitionAwareIdGenerator {
         }
     }
 
-    private int getTargetPartitionId() {
-        return SECURE_RANDOM.nextInt(partitionCount);
-    }
+    protected abstract int getTargetPartitionId();
 
-    private Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints, final boolean skipGlobal) {
-        return Optional.ofNullable(
-                retrier.get(() -> SECURE_RANDOM.nextInt(partitionCount)))
-                .filter(key -> validateId(inConstraints, key, skipGlobal));
-    }
+    protected abstract Optional<Integer> getTargetPartitionId(final List<PartitionValidationConstraint> inConstraints,
+                                                              final boolean skipGlobal);
 
     protected boolean validateId(final List<PartitionValidationConstraint> inConstraints,
                                  final int partitionId,
