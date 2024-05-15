@@ -133,12 +133,12 @@ abstract class DistributedIdGenerator {
      * @param prefix String prefix for ID to be generated
      * @return Generated Id
      */
-    public Id generate(final String prefix) {
+    public Optional<Id> generate(final String prefix) {
         val targetPartitionId = getTargetPartitionId();
         return generateForPartition(prefix, targetPartitionId);
     }
 
-    public Id generateForPartition(final String prefix, final int targetPartitionId) {
+    public Optional<Id> generateForPartition(final String prefix, final int targetPartitionId) {
         val prefixIdMap = idStore.computeIfAbsent(prefix, k -> new ConcurrentHashMap<>());
         val currentTimestamp = new DateTime();
         val timeKey = currentTimestamp.getMillis() / 1000;
@@ -147,19 +147,24 @@ abstract class DistributedIdGenerator {
                 prefix,
                 currentTimestamp,
                 targetPartitionId);
-        val id = String.format("%s%s", prefix, idFormatter.format(currentTimestamp, NODE_ID, idCounter));
-        return Id.builder()
-                .id(id)
-                .exponent(idCounter)
-                .generatedDate(currentTimestamp.toDate())
-                .node(NODE_ID)
-                .build();
+        if (idCounter.isPresent()) {
+            val id = String.format("%s%s", prefix, idFormatter.format(currentTimestamp, NODE_ID, idCounter.get()));
+            return Optional.of(
+                    Id.builder()
+                            .id(id)
+                            .exponent(idCounter.get())
+                            .generatedDate(currentTimestamp.toDate())
+                            .node(NODE_ID)
+                            .build());
+        } else {
+            return Optional.empty();
+        }
     }
 
-    private int generateForAllPartitions(final PartitionIdTracker partitionIdTracker,
-                                         final String prefix,
-                                         final DateTime timestamp,
-                                         final int targetPartitionId) {
+    private Optional<Integer> generateForAllPartitions(final PartitionIdTracker partitionIdTracker,
+                                                       final String prefix,
+                                                       final DateTime timestamp,
+                                                       final int targetPartitionId) {
         val idPool = partitionIdTracker.getPartition(targetPartitionId);
         int idIdx = idPool.getPointer().getAndIncrement();
         int retry = 0;
@@ -170,7 +175,12 @@ abstract class DistributedIdGenerator {
             partitionIdTracker.getPartition(mappedPartitionId).getIdList().add(counterValue);
             retry += 1;
         }
-        return idPool.getId(idIdx);
+        if (idIdx < idPool.getIdList().size()) {
+            return Optional.of(idPool.getId(idIdx));
+        } else {
+            log.warn("Retry Limit reached - {} - {} - {}", retry, idIdx, targetPartitionId);
+            return Optional.empty();
+        }
     }
 
     /**
@@ -198,14 +208,14 @@ abstract class DistributedIdGenerator {
      */
     public Optional<Id> generateWithConstraints(final String prefix, final String domain, final boolean skipGlobal) {
         val targetPartitionId = getTargetPartitionId(DOMAIN_SPECIFIC_CONSTRAINTS.getOrDefault(domain, Collections.emptyList()), skipGlobal);
-        return targetPartitionId.map(id -> generateForPartition(prefix, id));
+        return targetPartitionId.map(id -> generateForPartition(prefix, id).get());
     }
 
     public Optional<Id> generateWithConstraints(final String prefix,
                                                 final List<PartitionValidationConstraint> inConstraints,
                                                 final boolean skipGlobal) {
         val targetPartitionId = getTargetPartitionId(inConstraints, skipGlobal);
-        return targetPartitionId.map(id -> generateForPartition(prefix, id));
+        return targetPartitionId.map(id -> generateForPartition(prefix, id).get());
     }
 
     /**

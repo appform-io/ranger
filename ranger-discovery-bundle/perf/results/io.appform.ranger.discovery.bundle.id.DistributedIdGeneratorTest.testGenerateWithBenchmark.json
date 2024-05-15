@@ -1,7 +1,0 @@
-{
-  "name" : "io.appform.ranger.discovery.bundle.id.DistributedIdGeneratorTest.testGenerateWithBenchmark",
-  "iterations" : 100000,
-  "threads" : 5,
-  "totalMillis" : 3823,
-  "avgTime" : 764.6
-}

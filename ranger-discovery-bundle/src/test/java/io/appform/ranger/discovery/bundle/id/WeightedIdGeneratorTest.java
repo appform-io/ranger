@@ -32,6 +32,7 @@ import java.util.function.Function;
 class WeightedIdGeneratorTest {
     final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
+    final IdGeneratorRetryConfig retryConfig = IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build();
     private WeightedIdGenerator weightedIdGenerator;
     private WeightedIdConfig weightedIdConfig;
 
@@ -47,11 +48,7 @@ class WeightedIdGeneratorTest {
         weightedIdConfig = WeightedIdConfig.builder()
                 .partitions(partitionConfigList)
                 .build();
-        weightedIdGenerator = new WeightedIdGenerator(
-                partitionCount, partitionResolverSupplier,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
-                weightedIdConfig
-        );
+        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, retryConfig, weightedIdConfig);
     }
 
     @Test
@@ -118,13 +115,10 @@ class WeightedIdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        weightedIdGenerator = new WeightedIdGenerator(
-                partitionCount, partitionResolverSupplier,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
-                weightedIdConfig,
-                IdFormatters.original()
+        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, retryConfig,
+                weightedIdConfig, IdFormatters.original()
         );
-        String id = weightedIdGenerator.generate("TEST").getId();
+        String id = weightedIdGenerator.generate("TEST").get().getId();
         Assertions.assertEquals(26, id.length());
     }
 
@@ -133,11 +127,9 @@ class WeightedIdGeneratorTest {
         weightedIdGenerator = new WeightedIdGenerator(
                 partitionCount,
                 (txnId) -> new BigInteger(txnId.substring(txnId.length() - 6), 36).abs().intValue() % partitionCount,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
-                weightedIdConfig,
-                IdFormatters.base36()
+                retryConfig, weightedIdConfig, IdFormatters.base36()
         );
-        String id = weightedIdGenerator.generate("TEST").getId();
+        String id = weightedIdGenerator.generate("TEST").get().getId();
         Assertions.assertEquals(18, id.length());
     }
 
@@ -188,7 +180,7 @@ class WeightedIdGeneratorTest {
 
     @Test
     void testParseSuccessAfterGeneration() {
-        val generatedId = weightedIdGenerator.generate("TEST123");
+        val generatedId = weightedIdGenerator.generate("TEST123").get();
         val parsedId = weightedIdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());

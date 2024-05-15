@@ -45,7 +45,7 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
         RangeMap<Integer, PartitionRange> partitionGroups = TreeRangeMap.create();
         int end = -1;
         for (val shard : weightedIdConfig.getPartitions()) {
-            int start = end+1;
+            int start = end + 1;
             end += shard.getWeight();
             partitionGroups.put(Range.closed(start, end), shard.getPartitionRange());
         }

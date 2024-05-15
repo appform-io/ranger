@@ -46,7 +46,7 @@ public class WeightedIdGeneratorPerfTest extends BenchmarkTest {
                     .build();
             weightedIdGenerator = new WeightedIdGenerator(
                     1024, partitionResolverSupplier,
-                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
+                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build(),
                     weightedIdConfig
             );
         }

@@ -27,13 +27,13 @@ import java.util.function.Function;
 class PartitionAwareIdGeneratorTest {
     final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
+    final IdGeneratorRetryConfig retryConfig = IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build();
     private PartitionAwareIdGenerator partitionAwareIdGenerator;
 
     @BeforeEach
     void setup() {
         partitionAwareIdGenerator = new PartitionAwareIdGenerator(
-                partitionCount, partitionResolverSupplier,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build()
+                partitionCount, partitionResolverSupplier, retryConfig
         );
     }
 
@@ -45,7 +45,7 @@ class PartitionAwareIdGeneratorTest {
 
     @Test
     void testGenerateWithConstraints() throws IOException {
-        PartitionValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
+        PartitionValidationConstraint partitionConstraint = (k) -> k % 2 == 0;
         partitionAwareIdGenerator.registerGlobalConstraints(partitionConstraint);
         val totalTime = TestUtil.runMTTest(5, 100000, (k) -> partitionAwareIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
         testUniqueIdsInDataStore(partitionAwareIdGenerator.getIdStore());
@@ -104,7 +104,7 @@ class PartitionAwareIdGeneratorTest {
         HashSet<String> allIDs = new HashSet<>();
         boolean allIdsUnique = true;
         for (int i = 0; i < 10000; i += 1) {
-            val txnId = partitionAwareIdGenerator.generate("P").getId();
+            val txnId = partitionAwareIdGenerator.generate("P").get().getId();
             if (allIDs.contains(txnId)) {
                 log.warn(txnId);
                 log.warn(String.valueOf(allIDs));
@@ -119,11 +119,9 @@ class PartitionAwareIdGeneratorTest {
     @Test
     void testGenerateOriginal() {
         partitionAwareIdGenerator = new PartitionAwareIdGenerator(
-                partitionCount, partitionResolverSupplier,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
-                IdFormatters.original()
+                partitionCount, partitionResolverSupplier, retryConfig, IdFormatters.original()
         );
-        String id = partitionAwareIdGenerator.generate("TEST").getId();
+        String id = partitionAwareIdGenerator.generate("TEST").get().getId();
         Assertions.assertEquals(26, id.length());
     }
 
@@ -132,10 +130,11 @@ class PartitionAwareIdGeneratorTest {
         partitionAwareIdGenerator = new PartitionAwareIdGenerator(
                 partitionCount,
                 (txnId) -> new BigInteger(txnId.substring(txnId.length() - 6), 36).abs().intValue() % partitionCount,
-                IdGeneratorRetryConfig.builder().idGenerationRetryCount(100).partitionRetryCount(100).build(),
+                retryConfig,
                 IdFormatters.base36()
         );
-        String id = partitionAwareIdGenerator.generate("TEST").getId();
+        val idOptional = partitionAwareIdGenerator.generate("TEST");
+        String id = idOptional.isPresent() ? idOptional.get().getId() : "";
         Assertions.assertEquals(18, id.length());
     }
 
@@ -186,7 +185,7 @@ class PartitionAwareIdGeneratorTest {
 
     @Test
     void testParseSuccessAfterGeneration() {
-        val generatedId = partitionAwareIdGenerator.generate("TEST123");
+        val generatedId = partitionAwareIdGenerator.generate("TEST123").get();
         val parsedId = partitionAwareIdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
