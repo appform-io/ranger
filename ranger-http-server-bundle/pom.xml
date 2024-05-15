@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ranger</artifactId>
+        <artifactId>ranger-jre8</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-JAVA8-RC16</version>
+        <version>1.0-JAVA8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ranger-http-server-bundle</artifactId>
+    <artifactId>ranger-http-server-bundle-jre8</artifactId>
 
     <properties>
         <dropwizard.version>2.1.10</dropwizard.version>
@@ -19,17 +19,17 @@
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-http-client</artifactId>
+            <artifactId>ranger-http-client-jre8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-server-bundle</artifactId>
+            <artifactId>ranger-server-bundle-jre8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-server-common</artifactId>
+            <artifactId>ranger-server-common-jre8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

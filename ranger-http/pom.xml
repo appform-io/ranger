@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ranger</artifactId>
+        <artifactId>ranger-jre8</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-JAVA8-RC16</version>
+        <version>1.0-JAVA8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ranger-http</artifactId>
+    <artifactId>ranger-http-jre8</artifactId>
     
     <properties>
         <java.release.version>8</java.release.version>
@@ -18,12 +18,12 @@
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-core</artifactId>
+            <artifactId>ranger-core-jre8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-http-model</artifactId>
+            <artifactId>ranger-http-model-jre8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-core</artifactId>
+            <artifactId>ranger-core-jre8</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>
