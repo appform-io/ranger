@@ -1,0 +1,7 @@
+{
+  "name" : "io.appform.ranger.discovery.bundle.id.PartitionAwareIdGeneratorTest.testGenerateWithBenchmark",
+  "iterations" : 100000,
+  "threads" : 5,
+  "totalMillis" : 6411,
+  "avgTime" : 1282.2
+}

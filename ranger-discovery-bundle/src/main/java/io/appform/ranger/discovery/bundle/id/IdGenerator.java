@@ -26,7 +26,7 @@ import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
-import lombok.Value;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.DateTime;
@@ -67,6 +67,7 @@ public class IdGenerator {
 
     private static final List<IdValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
     private static final Map<String, List<IdValidationConstraint>> DOMAIN_SPECIFIC_CONSTRAINTS = new HashMap<>();
+    @Getter
     private static int nodeId;
 
     public static void initialize(int node) {
@@ -126,11 +127,11 @@ public class IdGenerator {
     public static Id generate(final String prefix,
                               final IdFormatter idFormatter) {
         val idInfo = random();
-        val dateTime = new DateTime(idInfo.time);
-        val id = String.format("%s%s", prefix, idFormatter.format(dateTime, nodeId, idInfo.exponent));
+        val dateTime = new DateTime(idInfo.getTime());
+        val id = String.format("%s%s", prefix, idFormatter.format(dateTime, nodeId, idInfo.getExponent()));
         return Id.builder()
                 .id(id)
-                .exponent(idInfo.exponent)
+                .exponent(idInfo.getExponent())
                 .generatedDate(dateTime.toDate())
                 .node(nodeId)
                 .build();
@@ -287,28 +288,5 @@ public class IdGenerator {
         catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
-    }
-
-    private enum IdValidationState {
-        VALID,
-        INVALID_RETRYABLE,
-        INVALID_NON_RETRYABLE
-    }
-
-    @Value
-    private static class IdInfo {
-        int exponent;
-        long time;
-
-        public IdInfo(int exponent, long time) {
-            this.exponent = exponent;
-            this.time = time;
-        }
-    }
-
-    @Value
-    private static class GenerationResult {
-        Id id;
-        IdValidationState state;
     }
 }
