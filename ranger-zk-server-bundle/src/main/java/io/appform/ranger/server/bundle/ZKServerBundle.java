@@ -27,7 +27,7 @@ import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.server.bundle.config.RangerConfiguration;
 import io.appform.ranger.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.server.bundle.lifecycle.CuratorLifecycle;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

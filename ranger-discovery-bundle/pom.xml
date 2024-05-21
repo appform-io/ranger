@@ -14,6 +14,7 @@
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
         <failsafe.version>3.2.4</failsafe.version>
+        <joda-time.version>2.12.7</joda-time.version>
     </properties>
 
     <dependencies>
@@ -27,6 +28,11 @@
             <groupId>dev.failsafe</groupId>
             <artifactId>failsafe</artifactId>
             <version>${failsafe.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>

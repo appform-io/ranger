@@ -17,7 +17,7 @@ package io.appform.ranger.zk.server;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.server.bundle.config.RangerConfiguration;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

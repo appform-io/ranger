@@ -7,7 +7,7 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-RC16</version>
+    <version>1.0-dw3-RC17</version>
     <name>Ranger</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
@@ -100,7 +100,7 @@
         <wiremock.version>3.3.1</wiremock.version>
         <mockito.version>4.2.0</mockito.version>
 
-        <dropwizard.version>2.1.10</dropwizard.version>
+        <dropwizard.version>3.0.7</dropwizard.version>
     </properties>
 
     <dependencyManagement>

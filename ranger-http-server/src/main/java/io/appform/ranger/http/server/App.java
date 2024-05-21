@@ -17,9 +17,9 @@ package io.appform.ranger.http.server;
 
 import io.appform.ranger.http.server.bundle.HttpServerBundle;
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 
 public class App extends Application<HttpAppConfiguration> {
 

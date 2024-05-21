@@ -17,9 +17,9 @@ package io.appform.ranger.zk.server;
 
 import io.appform.ranger.server.bundle.ZKServerBundle;
 import io.appform.ranger.server.bundle.config.RangerConfiguration;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 
 public class App extends Application<AppConfiguration> {
 

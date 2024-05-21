@@ -24,7 +24,7 @@ import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.http.server.bundle.config.RangerHttpConfiguration;
 import io.appform.ranger.http.server.bundle.healthcheck.RangerHttpHealthCheck;
 import io.appform.ranger.server.bundle.RangerServerBundle;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
