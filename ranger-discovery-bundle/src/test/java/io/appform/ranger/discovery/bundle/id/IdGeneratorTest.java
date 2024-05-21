@@ -26,12 +26,14 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -81,6 +83,11 @@ class IdGeneratorTest {
         }
     }
 
+    @AfterEach
+    void cleanup() {
+        IdGenerator.cleanUp();
+    }
+
     @Test
     void testGenerate() {
         IdGenerator.initialize(23);
@@ -111,6 +118,34 @@ class IdGeneratorTest {
         IdGenerator.initialize(23);
         String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
         Assertions.assertEquals(18, id.length());
+    }
+
+    @Test
+    void testGenerateWithConstraints() {
+        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.emptyList()));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
+
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(26, id.get().getId().length());
+
+        // Unregistered Domain
+        id = IdGenerator.generateWithConstraints("TEST", "TEST1");
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(26, id.get().getId().length());
+    }
+
+    @Test
+    void testGenerateWithConstraintsFailedWithLocalConstraint() {
+        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.singletonList(id -> false)));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
+        Assertions.assertFalse(id.isPresent());
+    }
+
+    @Test
+    void testGenerateWithConstraintsFailedWithGlobalConstraint() {
+        IdGenerator.initialize(23,  Collections.singletonList(id -> false), Map.of("TEST", Collections.singletonList(id -> false)));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST", false);
+        Assertions.assertFalse(id.isPresent());
     }
 
 
@@ -177,7 +212,7 @@ class IdGeneratorTest {
         Assertions.assertEquals(247, id.getExponent());
         Assertions.assertEquals(3972, id.getNode());
         Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
-                id.getGeneratedDate());
+                                id.getGeneratedDate());
     }
 
     @Test
@@ -199,11 +234,11 @@ class IdGeneratorTest {
                         ZonedDateTime.of(
                                 LocalDateTime.of(
                                         year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                ),
+                                                ),
                                 zoneId
-                        )
-                )
-        );
+                                        )
+                            )
+                        );
     }
 
 
