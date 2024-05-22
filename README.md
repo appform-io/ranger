@@ -32,7 +32,7 @@ Use the following maven dependency:
 <dependency>
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
-    <versio>1.0-RC12</version>
+    <versio>1.0-dw3-RC17</version>
 </dependency>
 ```
 
@@ -188,7 +188,7 @@ You may register any kind of _Monitor_, which could be monitoring any serivce/sy
 
 If any of the above are breached, the service will automatically be marked as unhealthy.
 
-- _Isolated Monitors_ - Any extention of _IsolatedHealthMonitor_ may be used to register an isolated monitor. Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals.
+- _Isolated Monitors_ - Any extension of _IsolatedHealthMonitor_ may be used to register an isolated monitor. Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals.
   - _PingCheckMonitor_ - This monitor can be used to ping a url at regular intervals. It could be a self localhost ping too. You can also add minimum failure counts, to ensure that there are no fluctuations
     ```
         .withIsolatedHealthMonitor(new PingCheckMonitor(new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3, "google.com", 80));  // put in the url here
@@ -338,107 +338,7 @@ hubClient.stop()
 
 If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
 
-#### Dependeny for the bundle
-
-```
-<dependency>
-    <groupId>io.appform.ranger</groupId>
-    <artifactId>ranger-discovery-bundle</artifactId>
-    <version>${ranger.version}</version>
-</dependency>
-```
-
-#### How to initialize the bundle
-
-
-You need to add an instance of type _ServiceDiscoveryConfiguration_ to your Dropwizard configuration file as follows:
-
-```
-public class AppConfiguration extends Configuration {
-    //Your normal config
-    @NotNull
-    @Valid
-    private ServiceDiscoveryConfiguration discovery = new ServiceDiscoveryConfiguration();
-    
-    //Whatever...
-    
-    public ServiceDiscoveryConfiguration getDiscovery() {
-        return discovery;
-    }
-}
-```
-
-Next, you need to use this configuration in the Application while registering the bundle.
-
-```
-public class App extends Application<AppConfig> {
-    private ServiceDiscoveryBundle<AppConfig> bundle;
-    @Override
-    public void initialize(Bootstrap<AppConfig> bootstrap) {
-        bundle = new ServiceDiscoveryBundle<AppConfig>() {
-            @Override
-            protected ServiceDiscoveryConfiguration getRangerConfiguration(AppConfig appConfig) {
-                return appConfig.getDiscovery();
-            }
-
-            @Override
-            protected String getServiceName(AppConfig appConfig) {
-                //Read from some config or hardcode your service name
-                //This will be used by clients to lookup instances for the service
-                return "some-service";
-            }
-
-            @Override
-            protected int getPort(AppConfig appConfig) {
-                return 8080; //Parse config or hardcode
-            }
-            
-            @Override
-            protected NodeInfoResolver createNodeInfoResolver(){
-                return new DefaultNodeInfoResolver();
-            }
-        };
-        
-        bootstrap.addBundle(bundle);
-    }
-
-    @Override
-    public void run(AppConfig configuration, Environment environment) throws Exception {
-        ....
-        //Register health checks
-        bundle.registerHealthcheck(() -> {
-                    //Check whatever
-                    return HealthcheckStatus.healthy;
-                });
-        ...
-    }
-}
-```
-That's it .. your service will register to zookeeper when it starts up.
-
-#### Sample Configuration
-
-```
-server:
-  ...
-  
-discovery:
-  namespace: mycompany
-  environment: production
-  zookeeper: "zk-server1.mycompany.net:2181,zk-server2.mycompany.net:2181"
-  ...
-  
-...
-```
-
-The bundle also adds a jersey resource that lets you inspect the available instances.
-Use GET /instances to see all instances that have been registered to your service.
-
-### Service Discovery Bundle
-
-If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
-
-#### Dependeny for the bundle
+#### Dependency for the bundle
 
 ```
 <dependency>
