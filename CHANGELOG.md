@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0-dw3-RC17]
+DW 3.x support
+
+## [1.0-RC17]
+- Domain specific collision checker in id generator
+
 ## [1.0-RC16]
 - Fixed hierarchical environment aware shard selector  : If a service  is deployed with environment :  env.x.y.z then it should be able to discover other services present in environment -  [env , env.x , env.x.y, env.x.y.z ]
 
