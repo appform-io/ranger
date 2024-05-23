@@ -26,9 +26,11 @@
         <module>ranger-server-bundle</module>
         <module>ranger-zk-server</module>
         <module>ranger-http-server</module>
+        <module>ranger-drove-server</module>
         <module>ranger-http-model</module>
         <module>ranger-http-server-bundle</module>
         <module>ranger-zk-server-bundle</module>
+        <module>ranger-drove-server-bundle</module>
         <module>ranger-discovery-bundle</module>
     </modules>
 

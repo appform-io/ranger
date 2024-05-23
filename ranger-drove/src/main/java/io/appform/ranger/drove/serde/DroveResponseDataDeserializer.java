@@ -19,13 +19,16 @@ import com.phonepe.drove.models.api.ExposedAppInfo;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.Deserializer;
 import io.appform.ranger.core.model.ServiceNode;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
  */
+@Slf4j
 public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T> {
     public final List<ServiceNode<T>> deserialize(List<ExposedAppInfo> appInfo) {
         val currTime = System.currentTimeMillis();
@@ -33,12 +36,20 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
                 .flatMap(appEndpoints ->
                                  appEndpoints.getHosts()
                                          .stream()
-                                         .map(endpoint -> new ServiceNode<>(endpoint.getHost(),
-                                                                            endpoint.getPort(),
-                                                                            translate(appEndpoints, endpoint),
-                                                                            HealthcheckStatus.healthy,
-                                                                            currTime,
-                                                                            endpoint.getPortType().name())))
+                                         .map(endpoint -> {
+                                             val info = translate(appEndpoints, endpoint);
+                                             if(null == info) {
+                                                 log.debug("Could not create data for service node: {}", endpoint);
+                                                 return null;
+                                             }
+                                             return new ServiceNode<>(endpoint.getHost(),
+                                                                      endpoint.getPort(),
+                                                                      info,
+                                                                      HealthcheckStatus.healthy,
+                                                                      currTime,
+                                                                      endpoint.getPortType().name());
+                                         }))
+                .filter(Objects::nonNull)
                 .toList();
     }
 
