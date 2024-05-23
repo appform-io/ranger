@@ -17,9 +17,11 @@
         <module>ranger-core</module>
         <module>ranger-zookeeper</module>
         <module>ranger-http</module>
+        <module>ranger-drove</module>
         <module>ranger-client</module>
         <module>ranger-zk-client</module>
         <module>ranger-http-client</module>
+        <module>ranger-drove-client</module>
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
         <module>ranger-zk-server</module>
@@ -88,7 +90,7 @@
 
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <java.version>17</java.version>
-        <java.release.version>11</java.release.version>
+        <java.release.version>17</java.release.version>
         <lombok.version>1.18.22</lombok.version>
         <annotations.version>3.0.1u2</annotations.version>
 
@@ -222,22 +224,22 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
-                <configuration>
-                    <doclint>all,-missing</doclint>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--                <version>3.6.3</version>-->
+<!--                <configuration>-->
+<!--                    <doclint>all,-missing</doclint>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>attach-javadocs</id>-->
+<!--                        <goals>-->
+<!--                            <goal>jar</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
