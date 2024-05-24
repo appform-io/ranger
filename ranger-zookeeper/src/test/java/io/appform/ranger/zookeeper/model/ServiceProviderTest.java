@@ -32,23 +32,23 @@ import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.LongStream;
 
 @Slf4j
-public class ServiceProviderTest {
+class ServiceProviderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
     private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -59,7 +59,7 @@ public class ServiceProviderTest {
         registerService("localhost-4", 9003, 2);
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         if (null != testingCluster) {
@@ -68,7 +68,7 @@ public class ServiceProviderTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -86,29 +86,29 @@ public class ServiceProviderTest {
         serviceFinder.start();
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-            Assert.assertNotNull(node);
-            Assert.assertEquals(1, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(1, node.getNodeData().getShardId());
         }
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-            Assert.assertNotNull(node);
-            Assert.assertEquals(1, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(1, node.getNodeData().getShardId());
         }
         val startTime = System.currentTimeMillis();
         LongStream.range(0, 1000000).mapToObj(i -> serviceFinder.get(RangerTestUtils.getCriteria(2)).orElse(null)).forEach(node -> {
-            Assert.assertNotNull(node);
-            Assert.assertEquals(2, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(2, node.getNodeData().getShardId());
         });
         log.info("PERF::RandomSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99)).orElse(null);
-            Assert.assertNull(node);
+            Assertions.assertNull(node);
         }
         serviceFinder.stop();
     }
 
     @Test
-    public void testBasicDiscoveryRR() {
+    void testBasicDiscoveryRR() {
         val serviceFinder
                 = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
@@ -129,30 +129,30 @@ public class ServiceProviderTest {
         serviceFinder.start();
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1));
-            Assert.assertTrue(node.isPresent());
-            Assert.assertEquals(1, node.get().getNodeData().getShardId());
+            Assertions.assertTrue(node.isPresent());
+            Assertions.assertEquals(1, node.get().getNodeData().getShardId());
         }
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1));
-            Assert.assertTrue(node.isPresent());
-            Assert.assertEquals(1, node.get().getNodeData().getShardId());
+            Assertions.assertTrue(node.isPresent());
+            Assertions.assertEquals(1, node.get().getNodeData().getShardId());
         }
         long startTime = System.currentTimeMillis();
         LongStream.range(0, 1000000).mapToObj(i -> serviceFinder.get(RangerTestUtils.getCriteria(2))).forEach(node -> {
-            Assert.assertTrue(node.isPresent());
-            Assert.assertEquals(2, node.get().getNodeData().getShardId());
+            Assertions.assertTrue(node.isPresent());
+            Assertions.assertEquals(2, node.get().getNodeData().getShardId());
         });
         log.info("PERF::RoundRobinSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99));
-            Assert.assertFalse(node.isPresent());
+            Assertions.assertFalse(node.isPresent());
         }
         serviceFinder.stop();
         //while (true);
     }
 
     @Test
-    public void testVisibility() {
+    void testVisibility() {
         val serviceFinder = ServiceFinderBuilders.
                 <TestNodeData>shardedFinderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
@@ -175,7 +175,7 @@ public class ServiceProviderTest {
         log.info("Testing ServiceFinder.getAll()");
         all.stream().map(serviceNode -> "node = " + serviceNode.getHost() + ":" + serviceNode.getPort() + "  " + serviceNode.getHealthcheckStatus() + " " + serviceNode
                 .getLastUpdatedTimeStamp()).forEach(log::info);
-        Assert.assertEquals(3, all.size());
+        Assertions.assertEquals(3, all.size());
         serviceFinder.stop();
     }
 

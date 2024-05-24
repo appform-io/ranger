@@ -33,6 +33,7 @@ import org.apache.zookeeper.KeeperException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 
 /**
  *
@@ -47,20 +48,20 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
     }
 
     @Override
-    public List<ServiceNode<T>> refresh(D deserializer) {
+    public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
         return checkForUpdateOnZookeeper(deserializer);
     }
 
-    private List<ServiceNode<T>> checkForUpdateOnZookeeper(D deserializer) {
+    private Optional<List<ServiceNode<T>>> checkForUpdateOnZookeeper(D deserializer) {
         if (!isStarted()) {
             log.warn("Data source is not yet started for service: {}. No nodes will be returned.",
                      service.getServiceName());
-            return Collections.emptyList();
+            return Optional.empty();
         }
         if (isStopped()) {
             log.warn("Data source is  stopped already for service: {}. No nodes will be returned.",
                      service.getServiceName());
-            return Collections.emptyList();
+            return Optional.empty();
         }
         Preconditions.checkNotNull(deserializer, "Deserializer has not been set for node data");
         try {
@@ -69,7 +70,7 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             if (!isActive()) {
                 log.warn("ZK connection is not active. Ignoring refresh request for service: {}",
                          service.getServiceName());
-                return Collections.emptyList();
+                return Optional.empty();
             }
             val parentPath = PathBuilder.servicePath(service);
             log.debug("Looking for node list of [{}]", serviceName);
@@ -86,12 +87,18 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
                     nodes.add(node);
                 }
             }
-            return nodes;
+            return Optional.of(nodes);
+        }
+        catch (NoNodeException e) {
+            log.error(
+                    "No ZK container node found for service: {}. Will return empty list for now. Please doublecheck service name",
+                    service.getServiceName());
+            return Optional.of(Collections.emptyList());
         }
         catch (Exception e) {
             log.error("Error getting service data from zookeeper: ", e);
         }
-        return Collections.emptyList();
+        return Optional.empty();
     }
 
     private Optional<byte[]> readChild(String parentPath, String child) throws Exception {

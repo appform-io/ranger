@@ -33,24 +33,24 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.test.TestingCluster;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.LongStream;
 
 @Slf4j
-public class ServiceProviderExtCuratorTest {
+class ServiceProviderExtCuratorTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
     private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
     private CuratorFramework curatorFramework;
 
-    @Before
+    @BeforeEach
     public void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
@@ -65,7 +65,7 @@ public class ServiceProviderExtCuratorTest {
         registerService("localhost-3", 9002, 2);
     }
 
-    @After
+    @AfterEach
     public void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         curatorFramework.close();
@@ -75,7 +75,7 @@ public class ServiceProviderExtCuratorTest {
     }
 
     @Test
-    public void testBasicDiscovery() {
+    void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
                 .withCuratorFramework(curatorFramework)
                 .withNamespace("test")
@@ -94,23 +94,23 @@ public class ServiceProviderExtCuratorTest {
         serviceFinder.start();
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-            Assert.assertNotNull(node);
-            Assert.assertEquals(1, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(1, node.getNodeData().getShardId());
         }
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(1)).orElse(null);
-            Assert.assertNotNull(node);
-            Assert.assertEquals(1, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(1, node.getNodeData().getShardId());
         }
         val startTime = System.currentTimeMillis();
         LongStream.range(0, 1000000).mapToObj(i -> serviceFinder.get(RangerTestUtils.getCriteria(2)).orElse(null)).forEach(node -> {
-            Assert.assertNotNull(node);
-            Assert.assertEquals(2, node.getNodeData().getShardId());
+            Assertions.assertNotNull(node);
+            Assertions.assertEquals(2, node.getNodeData().getShardId());
         });
         log.info("PERF::RandomSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99)).orElse(null);
-            Assert.assertNull(node);
+            Assertions.assertNull(node);
         }
         serviceFinder.stop();
     }

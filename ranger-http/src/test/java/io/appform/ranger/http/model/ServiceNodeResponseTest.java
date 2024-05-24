@@ -21,8 +21,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ServiceNodeResponseTest {
 
@@ -37,11 +37,11 @@ public class ServiceNodeResponseTest {
     @Test
     public void testServiceNodesResponse(){
         val serviceNodesResponse = ResourceHelper.getResource("fixtures/serviceNodesResponse.json", ServiceNodesResponse.class);
-        Assert.assertNotNull(serviceNodesResponse);
-        Assert.assertFalse(serviceNodesResponse.getData().isEmpty());
-        Assert.assertNotNull(((ServiceNode<?>) serviceNodesResponse.getData().get(0)).getNodeData());
-        Assert.assertNotNull(((ServiceNode<?>) serviceNodesResponse.getData().get(1)).getNodeData());
-        Assert.assertEquals("localhost-1", ((ServiceNode<?>) serviceNodesResponse.getData().get(0)).getHost());
-        Assert.assertEquals("localhost-2", ((ServiceNode<?>) serviceNodesResponse.getData().get(1)).getHost());
+        Assertions.assertNotNull(serviceNodesResponse);
+        Assertions.assertFalse(serviceNodesResponse.getData().isEmpty());
+        Assertions.assertNotNull(((ServiceNode<?>) serviceNodesResponse.getData().get(0)).getNodeData());
+        Assertions.assertNotNull(((ServiceNode<?>) serviceNodesResponse.getData().get(1)).getNodeData());
+        Assertions.assertEquals("localhost-1", ((ServiceNode<?>) serviceNodesResponse.getData().get(0)).getHost());
+        Assertions.assertEquals("localhost-2", ((ServiceNode<?>) serviceNodesResponse.getData().get(1)).getHost());
     }
 }

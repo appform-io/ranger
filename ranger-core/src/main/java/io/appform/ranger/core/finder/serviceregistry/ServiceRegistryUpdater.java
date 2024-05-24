@@ -25,7 +25,6 @@ import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -67,7 +66,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         log.info("Started updater for [{}]. Triggering initial update.", serviceName);
         checkForUpdate(null);
         log.info("Waiting for initial update to complete for: {}", serviceName);
-        var stopwatch = Stopwatch.createStarted();
+        val stopwatch = Stopwatch.createStarted();
         try {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> null == r || !r)
@@ -132,9 +131,9 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                         serviceRegistry.getService().getServiceName());
             return;
         }
-        val nodeList = nodeDataSource.refresh(deserializer);
+        val nodeList = nodeDataSource.refresh(deserializer).orElse(null);
         if (null != nodeList) {
-            log.debug("Updating nodelist of size: {} for [{}]", nodeList.size(),
+            log.debug("Updating nodeList of size: {} for [{}]", nodeList.size(),
                          serviceRegistry.getService().getServiceName());
             serviceRegistry.updateNodes(nodeList);
         }

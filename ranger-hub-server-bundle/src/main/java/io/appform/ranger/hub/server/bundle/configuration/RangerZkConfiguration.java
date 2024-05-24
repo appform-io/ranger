@@ -15,13 +15,16 @@
  */
 package io.appform.ranger.hub.server.bundle.configuration;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import lombok.Getter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
+
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RangerZkConfiguration extends RangerConfiguration {
 
   @NotEmpty

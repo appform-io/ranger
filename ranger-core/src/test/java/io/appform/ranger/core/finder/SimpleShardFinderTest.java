@@ -23,14 +23,14 @@ import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.core.utils.RegistryTestUtils;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class SimpleShardFinderTest {
+class SimpleShardFinderTest {
 
     static class TestSimpleShardSelector<T> implements ShardSelector<T, MapBasedServiceRegistry<T>> {
 
@@ -41,7 +41,7 @@ public class SimpleShardFinderTest {
     }
 
     @Test
-    public void testSimpleShardedFinder() {
+    void testSimpleShardedFinder() {
         val serviceRegistry = RegistryTestUtils.getServiceRegistry();
         val shardSelector = new TestSimpleShardSelector<TestNodeData>();
         val roundRobinServiceNodeSelector = new RoundRobinServiceNodeSelector<TestNodeData>();
@@ -49,6 +49,6 @@ public class SimpleShardFinderTest {
                 serviceRegistry, shardSelector, roundRobinServiceNodeSelector);
         val testNodeDataServiceNode = simpleShardedFinder.get(
                 RangerTestUtils.getCriteria(2));
-        Assert.assertFalse(testNodeDataServiceNode.isPresent());
+        Assertions.assertFalse(testNodeDataServiceNode.isPresent());
     }
 }

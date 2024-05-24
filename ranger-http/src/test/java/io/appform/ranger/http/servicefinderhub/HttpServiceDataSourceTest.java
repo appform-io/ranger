@@ -16,30 +16,26 @@
 package io.appform.ranger.http.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.google.common.collect.Sets;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class HttpServiceDataSourceTest {
+@WireMockTest
+class HttpServiceDataSourceTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @Rule
-    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
-
     @Test
-    public void testServiceDataSource() throws IOException {
+    void testServiceDataSource(WireMockRuntimeInfo wireMockRuntimeInfo) throws IOException {
         val responseObj = ServiceDataSourceResponse.builder()
                 .data(Sets.newHashSet(
                         RangerTestUtils.getService("test-n", "test-s"),
@@ -48,24 +44,24 @@ public class HttpServiceDataSourceTest {
                 ))
                 .build();
         val response = MAPPER.writeValueAsBytes(responseObj);
-        server.stubFor(get(urlEqualTo("/ranger/services/v1"))
+        stubFor(get(urlEqualTo("/ranger/services/v1"))
                 .willReturn(aResponse()
                         .withBody(response)
                         .withStatus(200)));
         val clientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
-                .port(server.port())
+                .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
         val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER);
         val services = httpServiceDataSource.services();
-        Assert.assertNotNull(services);
-        Assert.assertFalse(services.isEmpty());
-        Assert.assertEquals(3, services.size());
-        Assert.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
-        Assert.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
-        Assert.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
+        Assertions.assertNotNull(services);
+        Assertions.assertFalse(services.isEmpty());
+        Assertions.assertEquals(3, services.size());
+        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
+        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
+        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
     }
 
 }

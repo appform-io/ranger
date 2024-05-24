@@ -17,13 +17,13 @@ package io.appform.ranger.client.zk;
 
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
+class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
 
     @Test
-    public void testBaseClient(){
+    void testBaseClient(){
         val client  = SimpleRangerZKClient.<TestNodeData>builder()
                 .curatorFramework(getCuratorFramework())
                 .deserializer(this::read)
@@ -33,8 +33,8 @@ public class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
                 .mapper(getObjectMapper())
                 .build();
         client.start();
-        Assert.assertNotNull( client.getNode().orElse(null));
-        Assert.assertNotNull(client.getNode(c -> c.getShardId() == 1).orElse(null));
-        Assert.assertNull(client.getNode(c -> c.getShardId() == 2).orElse(null));
+        Assertions.assertNotNull( client.getNode().orElse(null));
+        Assertions.assertNotNull(client.getNode(c -> c.getShardId() == 1).orElse(null));
+        Assertions.assertNull(client.getNode(c -> c.getShardId() == 2).orElse(null));
     }
 }

@@ -17,7 +17,8 @@ package io.appform.ranger.http.serviceprovider;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.PortSchemes;
 import io.appform.ranger.core.model.ServiceNode;
@@ -26,14 +27,13 @@ import io.appform.ranger.http.response.model.GenericResponse;
 import lombok.Builder;
 import lombok.Data;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class HttpShardedServiceProviderBuilderTest {
+@WireMockTest
+class HttpShardedServiceProviderBuilderTest {
 
     @Data
     private static final class TestNodeData {
@@ -47,14 +47,11 @@ public class HttpShardedServiceProviderBuilderTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Rule
-    public WireMockRule server = new WireMockRule(wireMockConfig().dynamicPort());
-
     @Test
-    public void testProvider() throws Exception {
+    void testProvider(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
         val farmNodeData = TestNodeData.builder().farmId("farm1").build();
         val testNode = ServiceNode.<TestNodeData>builder().host("127.0.0.1").port(80).nodeData(farmNodeData).build();
-        Assert.assertEquals(PortSchemes.HTTP, testNode.getPortScheme());
+        Assertions.assertEquals(PortSchemes.HTTP, testNode.getPortScheme());
         val response = MAPPER.writeValueAsBytes(
                 GenericResponse.builder()
                         .data(ServiceNode.<TestNodeData>builder()
@@ -64,14 +61,14 @@ public class HttpShardedServiceProviderBuilderTest {
                         )
                         .build());
         byte[] requestBytes = MAPPER.writeValueAsBytes(testNode);
-        server.stubFor(post(urlEqualTo("/ranger/nodes/v1/add/testns/test"))
+        stubFor(post(urlEqualTo("/ranger/nodes/v1/add/testns/test"))
                 .withRequestBody(binaryEqualTo(requestBytes))
                 .willReturn(aResponse()
                         .withBody(response)
                         .withStatus(200)));
         val clientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
-                .port(server.port())
+                .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
@@ -88,7 +85,7 @@ public class HttpShardedServiceProviderBuilderTest {
                 .withSerializer(node -> requestBytes)
                 .build();
         serviceProvider.start();
-        Assert.assertNotNull(serviceProvider);
+        Assertions.assertNotNull(serviceProvider);
     }
 
 }

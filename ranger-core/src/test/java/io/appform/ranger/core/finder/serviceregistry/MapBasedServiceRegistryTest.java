@@ -20,20 +20,20 @@ import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.core.utils.RegistryTestUtils;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class MapBasedServiceRegistryTest {
+class MapBasedServiceRegistryTest {
 
     @Test
-    public void testMapBasedServiceRegistryWithMatchingShardSelector(){
+    void testMapBasedServiceRegistryWithMatchingShardSelector(){
         val serviceRegistry = RegistryTestUtils.getServiceRegistry();
-        Assert.assertTrue(null != serviceRegistry.nodes() && !serviceRegistry.nodes().isEmpty());
+        Assertions.assertTrue(null != serviceRegistry.nodes() && !serviceRegistry.nodes().isEmpty());
         val matchingShardSelector = new MatchingShardSelector<TestNodeData>();
         val nodes = matchingShardSelector.nodes(
                 RangerTestUtils.getCriteria(1), serviceRegistry);
-        Assert.assertFalse(nodes.isEmpty());
-        Assert.assertEquals("localhost-1", nodes.get(0).getHost());
+        Assertions.assertFalse(nodes.isEmpty());
+        Assertions.assertEquals("localhost-1", nodes.get(0).getHost());
     }
 
 }

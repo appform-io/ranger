@@ -22,6 +22,7 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
+import java.util.Optional;
 import lombok.Builder;
 
 import java.util.Collections;
@@ -44,13 +45,13 @@ public class TestSimpleUnshardedServiceFinder <T>
     static class TestDataSource implements NodeDataSource<TestNodeData, Deserializer<TestNodeData>>{
 
         @Override
-        public List<ServiceNode<TestNodeData>> refresh(Deserializer<TestNodeData> deserializer) {
-            return Collections.singletonList(
+        public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
+            return Optional.of(Collections.singletonList(
                     ServiceNode.<TestNodeData>builder()
                             .host("localhost")
                             .port(9200)
                             .nodeData(TestNodeData.builder().shardId(1).build())
-                            .build()
+                            .build())
             );
         }
 
