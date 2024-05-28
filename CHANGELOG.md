@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0-RC18]
+- Version bump to release lexicographically higher version than 1.0-dw3-RC17
+
 ## [1.0-RC17]
 - Domain specific collision checker in id generator
 
