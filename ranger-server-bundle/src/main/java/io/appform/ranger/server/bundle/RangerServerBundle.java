@@ -37,6 +37,7 @@ import lombok.val;
 
 import java.util.List;
 
+@Getter
 @Slf4j
 public abstract class RangerServerBundle<
         T,
@@ -51,9 +52,7 @@ public abstract class RangerServerBundle<
 
         You could also define your custom aggregation by using the {@link RangerHubClient}
      */
-    @Getter
     private List<RangerHubClient<T, R>> hubs;
-    @Getter
     private ObjectMapper mapper;
 
     protected void preBundle(U configuration){

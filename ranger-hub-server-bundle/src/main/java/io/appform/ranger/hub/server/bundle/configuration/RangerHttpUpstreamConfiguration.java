@@ -15,25 +15,34 @@
  */
 package io.appform.ranger.hub.server.bundle.configuration;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-@Getter
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RangerZkConfiguration extends RangerConfiguration {
+public class RangerHttpUpstreamConfiguration extends RangerUpstreamConfiguration {
 
   @NotEmpty
   @Valid
-  private List<String> zookeepers;
+  private List<HttpClientConfig> httpClientConfigs;
 
-  private boolean disablePushUpdaters;
+  public RangerHttpUpstreamConfiguration() {
+    super(BackendType.HTTP);
+  }
 
-  protected RangerZkConfiguration() {
-    super(BackendType.ZK);
+  @Override
+  public <T> T accept(RangerConfigurationVisitor<T> visitor) {
+    return visitor.visit(this);
   }
 }

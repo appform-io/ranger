@@ -5,8 +5,20 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-RC12</version>
+        <version>1.0-RC17</version>
     </parent>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-hub-server-bundle</artifactId>
@@ -35,11 +47,6 @@
       <groupId>io.appform.ranger</groupId>
       <artifactId>ranger-server-common</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>io.dropwizard</groupId>

@@ -19,32 +19,30 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = RangerHttpConfiguration.class, name = "HTTP"),
-    @JsonSubTypes.Type(value = RangerZkConfiguration.class, name = "ZK")
+    @JsonSubTypes.Type(value = RangerHttpUpstreamConfiguration.class, name = "HTTP"),
+    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK")
 })
 @Getter
-public abstract class RangerConfiguration {
+public abstract class RangerUpstreamConfiguration {
 
   @NotNull
   private BackendType type;
 
-  @NotEmpty
-  private String namespace;
-
   @Min(RangerClientConstants.MINIMUM_REFRESH_TIME)
   private int nodeRefreshTimeMs = RangerClientConstants.MINIMUM_REFRESH_TIME;
 
-  protected RangerConfiguration(BackendType type) {
+  protected RangerUpstreamConfiguration(BackendType type) {
     this.type = type;
   }
 
+  public abstract <T> T accept(final RangerConfigurationVisitor<T> visitor);
 }

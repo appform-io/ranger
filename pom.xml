@@ -24,6 +24,7 @@
         <module>ranger-server-bundle</module>
         <module>ranger-http-model</module>
         <module>ranger-hub-server-bundle</module>
+        <module>ranger-server</module>
     </modules>
 
     <distributionManagement>
