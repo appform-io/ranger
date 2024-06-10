@@ -44,10 +44,10 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
     private RangeMap<Integer, PartitionRange> createWeightRangeMap(final WeightedIdConfig weightedIdConfig) {
         RangeMap<Integer, PartitionRange> partitionGroups = TreeRangeMap.create();
         int end = -1;
-        for (val shard : weightedIdConfig.getPartitions()) {
+        for (val partition : weightedIdConfig.getPartitions()) {
             int start = end + 1;
-            end += shard.getWeight();
-            partitionGroups.put(Range.closed(start, end), shard.getPartitionRange());
+            end += partition.getWeight();
+            partitionGroups.put(Range.closed(start, end), partition.getPartitionRange());
         }
         maxShardWeight = end;
         return partitionGroups;
@@ -55,9 +55,11 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
 
     @Override
     protected int getTargetPartitionId() {
+//      ToDo: Check for randomness of all partitions being picked equally. Check for test case for same.
         val randomNum = SECURE_RANDOM.nextInt(maxShardWeight);
         val partitionRange = Objects.requireNonNull(partitionRangeMap.getEntry(randomNum)).getValue();
         return SECURE_RANDOM.nextInt(partitionRange.getEnd() - partitionRange.getStart() + 1) + partitionRange.getStart();
+//      ToDo: Check if every DS is threadsafe.
     }
 
     @Override

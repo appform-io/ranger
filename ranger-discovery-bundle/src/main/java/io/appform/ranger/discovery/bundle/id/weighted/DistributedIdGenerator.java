@@ -74,6 +74,7 @@ abstract class DistributedIdGenerator {
         }
     }
     */
+//     ToDo: Reuse timestamp keys by using them as index arrays and having an additional pointer per IdList to point to the index for next write.
 
     protected DistributedIdGenerator(final int partitionCount,
                                      final Function<String, Integer> partitionResolverSupplier,
@@ -141,6 +142,7 @@ abstract class DistributedIdGenerator {
     public Optional<Id> generateForPartition(final String prefix, final int targetPartitionId) {
         val prefixIdMap = idStore.computeIfAbsent(prefix, k -> new ConcurrentHashMap<>());
         val currentTimestamp = new DateTime();
+//      ToDo: Use clock instead of datetime
         val timeKey = currentTimestamp.getMillis() / 1000;
         val idCounter = generateForAllPartitions(
                 prefixIdMap.computeIfAbsent(timeKey, key -> new PartitionIdTracker(partitionCount)),
@@ -152,6 +154,7 @@ abstract class DistributedIdGenerator {
             return Optional.of(
                     Id.builder()
                             .id(id)
+//                            ToDo: Check if exponent is needed and its usage.
                             .exponent(idCounter.get())
                             .generatedDate(currentTimestamp.toDate())
                             .node(NODE_ID)
@@ -167,17 +170,20 @@ abstract class DistributedIdGenerator {
                                                        final int targetPartitionId) {
         val idPool = partitionIdTracker.getPartition(targetPartitionId);
         int idIdx = idPool.getPointer().getAndIncrement();
+//      ToDo: revisit retry logic
         int retry = 0;
         while (idPool.getIdList().size() <= idIdx && retry < retryConfig.getIdGenerationRetryCount()) {
             val counterValue = partitionIdTracker.getNextIdCounter().getAndIncrement();
             val txnId = String.format("%s%s", prefix, idFormatter.format(timestamp, NODE_ID, counterValue));
             val mappedPartitionId = partitionResolver.apply(txnId);
+//          ToDo: Move id addition operation to partitionidtracker
             partitionIdTracker.getPartition(mappedPartitionId).getIdList().add(counterValue);
             retry += 1;
         }
         if (idIdx < idPool.getIdList().size()) {
             return Optional.of(idPool.getId(idIdx));
         } else {
+//          ToDo: Add metrics for retry count limit exceeded per prefix.
             log.warn("Retry Limit reached - {} - {} - {}", retry, idIdx, targetPartitionId);
             return Optional.empty();
         }
