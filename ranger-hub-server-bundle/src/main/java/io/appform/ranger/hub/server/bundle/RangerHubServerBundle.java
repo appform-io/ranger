@@ -32,9 +32,8 @@ import io.appform.ranger.hub.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.hub.server.bundle.lifecycle.CuratorLifecycle;
 import io.appform.ranger.server.bundle.RangerServerBundle;
 import io.dropwizard.Configuration;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
@@ -78,14 +77,11 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                 .collect(Collectors.toList());
     }
 
+    @AllArgsConstructor
     private class HubCreatorVisitor
             implements RangerConfigurationVisitor<List<RangerHubClient<ShardInfo,
             ListBasedServiceRegistry<ShardInfo>>>> {
         private final String namespace;
-
-        public HubCreatorVisitor(String namespace) {
-            this.namespace = namespace;
-        }
 
         private RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>> addCuratorAndGetZkHubClient(
                 String zookeeper, RangerZkUpstreamConfiguration zkConfiguration) {
