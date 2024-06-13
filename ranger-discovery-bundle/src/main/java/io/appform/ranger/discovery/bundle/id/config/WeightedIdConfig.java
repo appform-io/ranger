@@ -35,6 +35,5 @@ public class WeightedIdConfig {
             }
         }
         return true;
-//      ToDo: Add check for inclusion of all partitions
     }
 }

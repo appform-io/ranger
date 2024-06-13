@@ -1,5 +1,7 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import com.codahale.metrics.MetricRegistry;
+import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorRetryConfig;
 import io.appform.ranger.discovery.bundle.id.weighted.PartitionAwareIdGenerator;
 import lombok.SneakyThrows;
@@ -13,6 +15,8 @@ import org.openjdk.jmh.infra.Blackhole;
 
 import java.io.IOException;
 import java.util.function.Function;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test performance between different constructs
@@ -28,8 +32,12 @@ public class PartitionAwareIdGeneratorPerfTest extends BenchmarkTest {
         @Setup(Level.Trial)
         public void setUp() throws IOException {
             partitionAwareIdGenerator = new PartitionAwareIdGenerator(
-                    1024, partitionResolverSupplier,
-                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build()
+                    IdGeneratorConfig.builder()
+                            .partitionCount(1024)
+                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build())
+                            .build(),
+                    partitionResolverSupplier,
+                    mock(MetricRegistry.class)
             );
         }
     }

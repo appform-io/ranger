@@ -2,6 +2,6 @@
   "name" : "io.appform.ranger.discovery.bundle.id.PartitionAwareIdGeneratorTest.testGenerateWithConstraints",
   "iterations" : 100000,
   "threads" : 5,
-  "totalMillis" : 5189,
-  "avgTime" : 1037.8
+  "totalMillis" : 7745,
+  "avgTime" : 1549.0
 }

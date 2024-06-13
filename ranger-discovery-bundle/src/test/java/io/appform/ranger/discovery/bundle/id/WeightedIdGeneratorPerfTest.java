@@ -1,5 +1,7 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import com.codahale.metrics.MetricRegistry;
+import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorRetryConfig;
 import io.appform.ranger.discovery.bundle.id.config.WeightedIdConfig;
 import io.appform.ranger.discovery.bundle.id.config.PartitionRange;
@@ -19,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test performance between different constructs
@@ -45,9 +49,13 @@ public class WeightedIdGeneratorPerfTest extends BenchmarkTest {
                     .partitions(partitionConfigList)
                     .build();
             weightedIdGenerator = new WeightedIdGenerator(
-                    1024, partitionResolverSupplier,
-                    IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build(),
-                    weightedIdConfig
+                    IdGeneratorConfig.builder()
+                            .partitionCount(1024)
+                            .weightedIdConfig(weightedIdConfig)
+                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build())
+                            .build(),
+                    partitionResolverSupplier,
+                    mock(MetricRegistry.class)
             );
         }
     }

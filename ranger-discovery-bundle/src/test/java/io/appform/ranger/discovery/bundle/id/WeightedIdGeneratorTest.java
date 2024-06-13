@@ -1,10 +1,12 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorRetryConfig;
 import io.appform.ranger.discovery.bundle.id.config.WeightedIdConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.PartitionValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.weighted.PartitionIdTracker;
 import io.appform.ranger.discovery.bundle.id.config.PartitionRange;
 import io.appform.ranger.discovery.bundle.id.weighted.WeightedIdGenerator;
 import io.appform.ranger.discovery.bundle.id.config.WeightedPartition;
@@ -19,10 +21,15 @@ import java.math.BigInteger;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test for {@link WeightedIdGenerator}
@@ -32,104 +39,141 @@ import java.util.function.Function;
 class WeightedIdGeneratorTest {
     final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
-    final IdGeneratorRetryConfig retryConfig = IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build();
     private WeightedIdGenerator weightedIdGenerator;
-    private WeightedIdConfig weightedIdConfig;
+    private IdGeneratorConfig idGeneratorConfig;
 
     @BeforeEach
     void setup() {
+        val metricRegistry = mock(MetricRegistry.class);
+        val meter = mock(Meter.class);
+        doReturn(meter).when(metricRegistry).meter(anyString());
+        doNothing().when(meter).mark();
         List<WeightedPartition> partitionConfigList = new ArrayList<>();
         partitionConfigList.add(WeightedPartition.builder()
-                .partitionRange(PartitionRange.builder().start(0).end(511).build())
+                .partitionRange(PartitionRange.builder().start(0).end(31).build())
                 .weight(400).build());
         partitionConfigList.add(WeightedPartition.builder()
-                .partitionRange(PartitionRange.builder().start(512).end(1023).build())
+                .partitionRange(PartitionRange.builder().start(32).end(63).build())
                 .weight(600).build());
-        weightedIdConfig = WeightedIdConfig.builder()
+        val weightedIdConfig = WeightedIdConfig.builder()
                 .partitions(partitionConfigList)
                 .build();
-        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, retryConfig, weightedIdConfig);
+        idGeneratorConfig =
+                IdGeneratorConfig.builder()
+                        .partitionCount(partitionCount)
+                        .weightedIdConfig(weightedIdConfig)
+                        .idPoolSize(100)
+                        .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build())
+                        .build();
+        weightedIdGenerator = new WeightedIdGenerator(idGeneratorConfig, partitionResolverSupplier, metricRegistry);
     }
 
     @Test
     void testGenerateWithBenchmark() throws IOException {
-        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generate("P"), this.getClass().getName() + ".testGenerateWithBenchmark");
-        testUniqueIds(weightedIdGenerator.getIdStore());
+        val allIdsList = Collections.synchronizedList(new ArrayList<String>());
+        val totalTime = TestUtil.runMTTest(
+                5,
+                100000,
+                (k) -> {
+                    val id = weightedIdGenerator.generate("P");
+                    id.ifPresent(value -> allIdsList.add(value.getId()));
+                },
+                this.getClass().getName() + ".testGenerateWithBenchmark");
+        checkUniqueIds(allIdsList);
+        checkDistribution(allIdsList);
+    }
+
+    @Test
+    void testGenerateAccuracy() throws IOException {
+        val allIdsList = Collections.synchronizedList(new ArrayList<String>());
+        val numThreads = 1;
+        val iterationCount = 100000;
+        val totalIdCount = numThreads * iterationCount;
+        val totalTime = TestUtil.runMTTest(
+                numThreads,
+                iterationCount,
+                (k) -> {
+                    val id = weightedIdGenerator.generate("P");
+                    id.ifPresent(value -> allIdsList.add(value.getId()));
+                },
+                this.getClass().getName() + ".testGenerateWithBenchmark");
+        checkUniqueIds(allIdsList);
+        checkDistribution(allIdsList);
     }
 
     @Test
     void testGenerateWithConstraints() throws IOException {
+        val allIdsList = Collections.synchronizedList(new ArrayList<String>());
         PartitionValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
         weightedIdGenerator.registerGlobalConstraints(partitionConstraint);
-        val totalTime = TestUtil.runMTTest(5, 100000, (k) -> weightedIdGenerator.generateWithConstraints("P", (String) null, false), this.getClass().getName() + ".testGenerateWithConstraints");
-        testUniqueIds(weightedIdGenerator.getIdStore());
+        val totalTime = TestUtil.runMTTest(
+                5,
+                100000,
+                (k) -> {
+                    val id = weightedIdGenerator.generateWithConstraints("P", (String) null, false);
+                    id.ifPresent(value -> allIdsList.add(value.getId()));
+                },
+                this.getClass().getName() + ".testGenerateWithConstraints");
+        checkUniqueIds(allIdsList);
 
-        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : weightedIdGenerator.getIdStore().entrySet()) {
-            val prefix = entry.getKey();
-            val prefixIds = entry.getValue();
-            HashSet<Integer> uniqueIds = new HashSet<>();
-            for (Map.Entry<Long, PartitionIdTracker> prefixEntry : prefixIds.entrySet()) {
-                val key = prefixEntry.getKey();
-                val partitionIdTracker = prefixEntry.getValue();
-                for (int idx = 0; idx < partitionIdTracker.getPartitionSize(); idx += 1) {
-                    if (!partitionConstraint.isValid(idx)) {
-                        Assertions.assertEquals(0, partitionIdTracker.getIdPoolList()[idx].getPointer().get());
-                    }
+        val idCountMap = new HashMap<Integer, Integer>();
+        for (val id: allIdsList) {
+            val partitionId = partitionResolverSupplier.apply(id);
+            idCountMap.put(partitionId, idCountMap.getOrDefault(partitionId, 0) + 1);
+        }
+
+        for (WeightedPartition partition: idGeneratorConfig.getWeightedIdConfig().getPartitions()) {
+            for (int partitionId = partition.getPartitionRange().getStart(); partitionId <= partition.getPartitionRange().getEnd(); partitionId++) {
+                if (!partitionConstraint.isValid(partitionId)) {
+                    Assertions.assertEquals(0, idCountMap.getOrDefault(partitionId, 0));
                 }
             }
         }
     }
 
-    void testUniqueIds(Map<String, Map<Long, PartitionIdTracker>> dataStore) {
-        boolean allIdsUnique = true;
-        for (Map.Entry<String, Map<Long, PartitionIdTracker>> entry : dataStore.entrySet()) {
-            val prefix = entry.getKey();
-            val prefixIds = entry.getValue();
-            for (Map.Entry<Long, PartitionIdTracker> prefixEntry : prefixIds.entrySet()) {
-                val key = prefixEntry.getKey();
-                val partitionIdTracker = prefixEntry.getValue();
-                HashSet<Integer> uniqueIds = new HashSet<>();
-                for (val idPool : partitionIdTracker.getIdPoolList()) {
-                    boolean allIdsUniqueInList = true;
-                    HashSet<Integer> uniqueIdsInList = new HashSet<>();
-                    for (val id : idPool.getIdList()) {
-                        if (uniqueIdsInList.contains(id)) {
-                            allIdsUniqueInList = false;
-                            allIdsUnique = false;
-                        } else {
-                            uniqueIdsInList.add(id);
-                        }
+    void checkUniqueIds(List<String> allIdsList) {
+        HashSet<String> uniqueIds = new HashSet<>(allIdsList);
+        Assertions.assertEquals(allIdsList.size(), uniqueIds.size());
+    }
 
-                        if (uniqueIds.contains(id)) {
-                            allIdsUnique = false;
-                        } else {
-                            uniqueIds.add(id);
-                        }
-                    }
-                    Assertions.assertTrue(allIdsUniqueInList);
-                }
-            }
+    void checkDistribution(List<String> allIdsList) {
+        val idCountMap = new HashMap<Integer, Integer>();
+        for (val id: allIdsList) {
+            val partitionId = partitionResolverSupplier.apply(id);
+            idCountMap.put(partitionId, idCountMap.getOrDefault(partitionId, 0) + 1);
         }
-        Assertions.assertTrue(allIdsUnique);
+
+        for (WeightedPartition partition: idGeneratorConfig.getWeightedIdConfig().getPartitions()) {
+            val expectedIdCount = ((double) partition.getWeight() / weightedIdGenerator.getMaxShardWeight()) *  ((double) allIdsList.size() / (partition.getPartitionRange().getEnd()-partition.getPartitionRange().getStart()+1));
+            int c = 0;
+            for (int partitionId = partition.getPartitionRange().getStart(); partitionId <= partition.getPartitionRange().getEnd(); partitionId++) {
+                log.debug("For {} -- Expected: {} -- Actual: {} -- Perc: {}", partitionId, expectedIdCount, idCountMap.get(partitionId), (double) idCountMap.get(partitionId) * 100 / allIdsList.size());
+                Assertions.assertTrue(expectedIdCount * 0.8 <= idCountMap.get(partitionId));
+                Assertions.assertTrue(idCountMap.get(partitionId) <= expectedIdCount * 1.2);
+                c += idCountMap.get(partitionId);
+            }
+            log.warn("Partition ID Count: {} - Perc: {}", c, (double) c *100 / allIdsList.size());
+        }
     }
 
     @Test
     void testGenerateOriginal() {
-        weightedIdGenerator = new WeightedIdGenerator(partitionCount, partitionResolverSupplier, retryConfig,
-                weightedIdConfig, IdFormatters.original()
-        );
-        String id = weightedIdGenerator.generate("TEST").get().getId();
+        weightedIdGenerator = new WeightedIdGenerator(idGeneratorConfig, partitionResolverSupplier, IdFormatters.original(), mock(MetricRegistry.class));
+        val idOptional = weightedIdGenerator.generate("TEST");
+        String id = idOptional.isPresent() ? idOptional.get().getId() : "";
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
         weightedIdGenerator = new WeightedIdGenerator(
-                partitionCount,
+                idGeneratorConfig,
                 (txnId) -> new BigInteger(txnId.substring(txnId.length() - 6), 36).abs().intValue() % partitionCount,
-                retryConfig, weightedIdConfig, IdFormatters.base36()
+                IdFormatters.base36(),
+                mock(MetricRegistry.class)
         );
-        String id = weightedIdGenerator.generate("TEST").get().getId();
+        val idOptional = weightedIdGenerator.generate("TEST");
+        String id = idOptional.isPresent() ? idOptional.get().getId() : "";
         Assertions.assertEquals(18, id.length());
     }
 
@@ -180,7 +224,9 @@ class WeightedIdGeneratorTest {
 
     @Test
     void testParseSuccessAfterGeneration() {
-        val generatedId = weightedIdGenerator.generate("TEST123").get();
+        val generatedIdOptional = weightedIdGenerator.generate("TEST123");
+        val generatedId = generatedIdOptional.orElse(null);
+        Assertions.assertNotNull(generatedId);
         val parsedId = weightedIdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());

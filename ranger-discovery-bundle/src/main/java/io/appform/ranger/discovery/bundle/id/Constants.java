@@ -25,6 +25,8 @@ import lombok.experimental.UtilityClass;
 public class Constants {
     public static final int MAX_ID_PER_MS = 1000;
     public static final int MAX_NUM_NODES = 10000;
+    public static final int MAX_DATA_STORAGE_TIME_LIMIT_IN_SECONDS = 300;
+    public static final int MAX_IDS_PER_SECOND = 1_000_000;
     public static final int ID_DELETION_DELAY_IN_SECONDS = 60;
     public static final int DELETION_THRESHOLD_IN_SECONDS = 60;
 }

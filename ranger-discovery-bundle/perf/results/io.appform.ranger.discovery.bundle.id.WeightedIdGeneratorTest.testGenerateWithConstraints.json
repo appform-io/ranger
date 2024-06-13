@@ -2,6 +2,6 @@
   "name" : "io.appform.ranger.discovery.bundle.id.WeightedIdGeneratorTest.testGenerateWithConstraints",
   "iterations" : 100000,
   "threads" : 5,
-  "totalMillis" : 4820,
-  "avgTime" : 964.0
+  "totalMillis" : 105139,
+  "avgTime" : 21027.8
 }
