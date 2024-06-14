@@ -34,7 +34,8 @@ public class PartitionAwareIdGeneratorPerfTest extends BenchmarkTest {
             partitionAwareIdGenerator = new PartitionAwareIdGenerator(
                     IdGeneratorConfig.builder()
                             .partitionCount(1024)
-                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build())
+                            .idPoolSize(100)
+                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build())
                             .build(),
                     partitionResolverSupplier,
                     mock(MetricRegistry.class)

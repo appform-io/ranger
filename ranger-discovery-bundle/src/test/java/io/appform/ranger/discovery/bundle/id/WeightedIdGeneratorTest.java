@@ -37,7 +37,9 @@ import static org.mockito.Mockito.mock;
 @Slf4j
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 class WeightedIdGeneratorTest {
-    final int partitionCount = 1024;
+    final int numThreads = 5;
+    final int iterationCount = 100000;
+    final int partitionCount = 64;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
     private WeightedIdGenerator weightedIdGenerator;
     private IdGeneratorConfig idGeneratorConfig;
@@ -72,13 +74,14 @@ class WeightedIdGeneratorTest {
     void testGenerateWithBenchmark() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<String>());
         val totalTime = TestUtil.runMTTest(
-                5,
-                100000,
+                numThreads,
+                iterationCount,
                 (k) -> {
                     val id = weightedIdGenerator.generate("P");
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
                 this.getClass().getName() + ".testGenerateWithBenchmark");
+        Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
         checkUniqueIds(allIdsList);
         checkDistribution(allIdsList);
     }
@@ -87,7 +90,6 @@ class WeightedIdGeneratorTest {
     void testGenerateAccuracy() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<String>());
         val numThreads = 1;
-        val iterationCount = 100000;
         val totalIdCount = numThreads * iterationCount;
         val totalTime = TestUtil.runMTTest(
                 numThreads,
@@ -97,6 +99,7 @@ class WeightedIdGeneratorTest {
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
                 this.getClass().getName() + ".testGenerateWithBenchmark");
+        Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
         checkUniqueIds(allIdsList);
         checkDistribution(allIdsList);
     }
@@ -107,8 +110,8 @@ class WeightedIdGeneratorTest {
         PartitionValidationConstraint partitionConstraint = (k) -> k % 10 == 0;
         weightedIdGenerator.registerGlobalConstraints(partitionConstraint);
         val totalTime = TestUtil.runMTTest(
-                5,
-                100000,
+                numThreads,
+                iterationCount,
                 (k) -> {
                     val id = weightedIdGenerator.generateWithConstraints("P", (String) null, false);
                     id.ifPresent(value -> allIdsList.add(value.getId()));
@@ -116,18 +119,10 @@ class WeightedIdGeneratorTest {
                 this.getClass().getName() + ".testGenerateWithConstraints");
         checkUniqueIds(allIdsList);
 
-        val idCountMap = new HashMap<Integer, Integer>();
+//        Assert No ID was generated for Invalid partitions
         for (val id: allIdsList) {
             val partitionId = partitionResolverSupplier.apply(id);
-            idCountMap.put(partitionId, idCountMap.getOrDefault(partitionId, 0) + 1);
-        }
-
-        for (WeightedPartition partition: idGeneratorConfig.getWeightedIdConfig().getPartitions()) {
-            for (int partitionId = partition.getPartitionRange().getStart(); partitionId <= partition.getPartitionRange().getEnd(); partitionId++) {
-                if (!partitionConstraint.isValid(partitionId)) {
-                    Assertions.assertEquals(0, idCountMap.getOrDefault(partitionId, 0));
-                }
-            }
+            Assertions.assertTrue(partitionConstraint.isValid(partitionId));
         }
     }
 
@@ -145,14 +140,13 @@ class WeightedIdGeneratorTest {
 
         for (WeightedPartition partition: idGeneratorConfig.getWeightedIdConfig().getPartitions()) {
             val expectedIdCount = ((double) partition.getWeight() / weightedIdGenerator.getMaxShardWeight()) *  ((double) allIdsList.size() / (partition.getPartitionRange().getEnd()-partition.getPartitionRange().getStart()+1));
-            int c = 0;
+            int idCountForPartition = 0;
             for (int partitionId = partition.getPartitionRange().getStart(); partitionId <= partition.getPartitionRange().getEnd(); partitionId++) {
-                log.debug("For {} -- Expected: {} -- Actual: {} -- Perc: {}", partitionId, expectedIdCount, idCountMap.get(partitionId), (double) idCountMap.get(partitionId) * 100 / allIdsList.size());
                 Assertions.assertTrue(expectedIdCount * 0.8 <= idCountMap.get(partitionId));
                 Assertions.assertTrue(idCountMap.get(partitionId) <= expectedIdCount * 1.2);
-                c += idCountMap.get(partitionId);
+                idCountForPartition += idCountMap.get(partitionId);
             }
-            log.warn("Partition ID Count: {} - Perc: {}", c, (double) c *100 / allIdsList.size());
+            log.debug("Partition ID Count: {} - Percentage: {}", idCountForPartition, (double) idCountForPartition * 100 / allIdsList.size());
         }
     }
 
