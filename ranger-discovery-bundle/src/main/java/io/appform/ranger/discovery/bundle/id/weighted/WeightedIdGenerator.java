@@ -1,6 +1,7 @@
 package io.appform.ranger.discovery.bundle.id.weighted;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
@@ -30,8 +31,8 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
     public WeightedIdGenerator(final IdGeneratorConfig idGeneratorConfig,
                                final Function<String, Integer> partitionResolverSupplier,
                                final MetricRegistry metricRegistry) {
-//        Preconditions.checkNotNull()
         super(idGeneratorConfig, partitionResolverSupplier, metricRegistry);
+        Preconditions.checkNotNull(idGeneratorConfig.getWeightedIdConfig());
         partitionRangeMap = createWeightRangeMap(idGeneratorConfig.getWeightedIdConfig());
     }
 
@@ -40,6 +41,7 @@ public class WeightedIdGenerator extends DistributedIdGenerator {
                                final IdFormatter idFormatterInstance,
                                final MetricRegistry metricRegistry) {
         super(idGeneratorConfig, partitionResolverSupplier, idFormatterInstance, metricRegistry);
+        Preconditions.checkNotNull(idGeneratorConfig.getWeightedIdConfig());
         partitionRangeMap = createWeightRangeMap(idGeneratorConfig.getWeightedIdConfig());
     }
 

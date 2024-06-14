@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
@@ -30,7 +31,6 @@ import static org.mockito.Mockito.mock;
 /**
  * Test for {@link PartitionAwareIdGenerator}
  */
-@Slf4j
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 class PartitionAwareIdGeneratorTest {
     final int numThreads = 5;
@@ -55,7 +55,6 @@ class PartitionAwareIdGeneratorTest {
                 idGeneratorConfig, partitionResolverSupplier, metricRegistry
         );
     }
-//    ToDo: Add test for partition distribution spread.
 
     @Test
     void testGenerateWithBenchmark() throws IOException {
@@ -70,6 +69,7 @@ class PartitionAwareIdGeneratorTest {
                 this.getClass().getName() + ".testGenerateWithBenchmark");
         Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
         checkUniqueIds(allIdsList);
+        checkDistribution(allIdsList);
     }
 
     @Test
@@ -101,6 +101,19 @@ class PartitionAwareIdGeneratorTest {
         Assertions.assertEquals(allIdsList.size(), uniqueIds.size());
     }
 
+    void checkDistribution(List<String> allIdsList) {
+        val idCountMap = new HashMap<Integer, Integer>();
+        for (val id: allIdsList) {
+            val partitionId = partitionResolverSupplier.apply(id);
+            idCountMap.put(partitionId, idCountMap.getOrDefault(partitionId, 0) + 1);
+        }
+        val expectedIdCount = (double) allIdsList.size() / idGeneratorConfig.getPartitionCount();
+        for (int partitionId=0; partitionId < idGeneratorConfig.getPartitionCount(); partitionId++) {
+            Assertions.assertTrue(expectedIdCount * 0.8 <= idCountMap.get(partitionId));
+            Assertions.assertTrue(idCountMap.get(partitionId) <= expectedIdCount * 1.2);
+        }
+    }
+
     @Test
     void testUniqueIds() {
         HashSet<String> allIDs = new HashSet<>();
@@ -109,8 +122,6 @@ class PartitionAwareIdGeneratorTest {
             val txnIdOptional = partitionAwareIdGenerator.generate("P");
             val txnId = txnIdOptional.map(Id::getId).orElse(null);
             if (allIDs.contains(txnId)) {
-                log.warn(txnId);
-                log.warn(String.valueOf(allIDs));
                 allIdsUnique = false;
             } else {
                 allIDs.add(txnId);

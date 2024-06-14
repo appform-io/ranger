@@ -27,6 +27,7 @@ import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.DateTime;
@@ -127,11 +128,11 @@ public class IdGenerator {
     public static Id generate(final String prefix,
                               final IdFormatter idFormatter) {
         val idInfo = random();
-        val dateTime = new DateTime(idInfo.getTime());
-        val id = String.format("%s%s", prefix, idFormatter.format(dateTime, nodeId, idInfo.getExponent()));
+        val dateTime = new DateTime(idInfo.time);
+        val id = String.format("%s%s", prefix, idFormatter.format(dateTime, nodeId, idInfo.exponent));
         return Id.builder()
                 .id(id)
-                .exponent(idInfo.getExponent())
+                .exponent(idInfo.exponent)
                 .generatedDate(dateTime.toDate())
                 .node(nodeId)
                 .build();
@@ -288,5 +289,28 @@ public class IdGenerator {
         catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
+    }
+
+    private enum IdValidationState {
+        VALID,
+        INVALID_RETRYABLE,
+        INVALID_NON_RETRYABLE
+    }
+
+    @Value
+    private static class IdInfo {
+        int exponent;
+        long time;
+
+        public IdInfo(int exponent, long time) {
+            this.exponent = exponent;
+            this.time = time;
+        }
+    }
+
+    @Value
+    private static class GenerationResult {
+        Id id;
+        IdValidationState state;
     }
 }

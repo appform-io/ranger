@@ -52,7 +52,8 @@ public class WeightedIdGeneratorPerfTest extends BenchmarkTest {
                     IdGeneratorConfig.builder()
                             .partitionCount(1024)
                             .weightedIdConfig(weightedIdConfig)
-                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(1024).partitionRetryCount(1024).build())
+                            .idPoolSize(100)
+                            .retryConfig(IdGeneratorRetryConfig.builder().idGenerationRetryCount(4096).partitionRetryCount(4096).build())
                             .build(),
                     partitionResolverSupplier,
                     mock(MetricRegistry.class)

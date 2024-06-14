@@ -2,6 +2,7 @@ package io.appform.ranger.discovery.bundle.id.weighted;
 
 import lombok.val;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
@@ -23,26 +24,32 @@ public class IdPool {
         idList = new AtomicIntegerArray(capacity);
     }
 
-    public boolean isIdPresentAtIndex(int index) {
-        return lastUsableIdx.get() > index;
-    }
-
-    public int getId(int index) {
+    private int getId(int index) {
         val arrayIdx = index % capacity;
         return idList.get(arrayIdx);
     }
 
-    public void setId(int id) {
+    public synchronized void setId(int id) {
 //        Don't set new IDs if the idPool is already full of unused IDs.
-        if (lastUsableIdx.get() >= nextUsableIdx.get() + capacity) {
+        if (lastUsableIdx.get() >= nextUsableIdx.get() + capacity - 1) {
             return;
         }
-        val arrayIdx = lastUsableIdx.get() % capacity;
+        val arrayIdx = lastUsableIdx.getAndIncrement() % capacity;
         idList.set(arrayIdx, id);
-        lastUsableIdx.incrementAndGet();
     }
 
-    public int getUsableIdIndex() {
-        return nextUsableIdx.getAndIncrement();
+    public synchronized Optional<Integer> getNextId() {
+        if (nextUsableIdx.get() < lastUsableIdx.get()) {
+            val id = getId(nextUsableIdx.get());
+            nextUsableIdx.getAndIncrement();
+            return Optional.of(id);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void reset() {
+        lastUsableIdx.set(0);
+        nextUsableIdx.set(0);
     }
 }
