@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.server.bundle.resources;
 
-import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.Service;
@@ -33,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,7 +44,7 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
     private final List<RangerHubClient<T, R>> rangerHubs;
 
     @Inject
-    public RangerResource(List<RangerHubClient<T, R>> rangerHubs){
+    public RangerResource(List<RangerHubClient<T, R>> rangerHubs) {
         this.rangerHubs = rangerHubs;
     }
 
@@ -53,22 +53,31 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
     @Timed
     public GenericResponse<Set<Service>> getServices() {
         return GenericResponse.<Set<Service>>builder()
-                .data(rangerHubs.stream().map(RangerHubClient::getRegisteredServices)
-                        .flatMap(Collection::stream).collect(Collectors.toSet()))
+                .data(rangerHubs.stream()
+                              .map(RangerHubClient::getRegisteredServices)
+                              .flatMap(Collection::stream)
+                              .collect(Collectors.toSet()))
                 .build();
     }
 
     @GET
     @Path("/nodes/v1/{namespace}/{serviceName}")
     @Timed
-    public GenericResponse<List<ServiceNode<T>>> getNodes(
+    public GenericResponse<Collection<ServiceNode<T>>> getNodes(
             @NotNull @NotEmpty @PathParam("namespace") final String namespace,
-            @NotNull @NotEmpty @PathParam("serviceName") final String serviceName
-    ){
+            @NotNull @NotEmpty @PathParam("serviceName") final String serviceName) {
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();
-        return GenericResponse.<List<ServiceNode<T>>>builder()
-                .data(rangerHubs.stream().map(hub -> hub.getAllNodes(service))
-                        .flatMap(List::stream).collect(Collectors.toList()))
+        return GenericResponse.<Collection<ServiceNode<T>>>builder()
+                .data(rangerHubs.stream()
+                              .map(hub -> hub.getAllNodes(service))
+                              .flatMap(List::stream)
+                              .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),
+                                                        Function.identity(),
+                                                        (oldV, newV) ->
+                                                                oldV.getLastUpdatedTimeStamp() > newV.getLastUpdatedTimeStamp()
+                                                                ? oldV
+                                                                : newV))
+                              .values())
                 .build();
     }
 }

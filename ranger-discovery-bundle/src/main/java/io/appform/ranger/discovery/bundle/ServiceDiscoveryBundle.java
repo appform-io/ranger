@@ -246,7 +246,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                                 .readValue(data, new TypeReference<ServiceNode<ShardInfo>>() {
                                 });
                     } catch (IOException e) {
-                        log.warn("Error parsing node data with value {}", new String(data));
+                        log.warn("Error parsing node data with value {} for service: {}", new String(data), serviceName);
                     }
                     return null;
                 })
