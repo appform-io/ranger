@@ -23,6 +23,8 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
+import java.util.Collections;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -138,8 +140,17 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             serviceRegistry.updateNodes(nodeList);
         }
         else {
-            log.warn("Empty list returned from node data source. We are in a weird state. Keeping old list for {}",
-                     serviceRegistry.getService().getServiceName());
+            // if existing node list is null or empty, just refresh it with empty list again
+            // to set the atomic boolean flag : refreshed as true
+            if(Objects.isNull(serviceRegistry.nodeList()) || serviceRegistry.nodeList().isEmpty()){
+                log.debug("Empty list returned from node data source. Old list for {} was empty and refreshing it again with empty list",
+                    serviceRegistry.getService().getServiceName());
+                serviceRegistry.updateNodes(Collections.emptyList());
+            } else {
+                // if existing node list is not null or not empty, retain it as it is
+                log.warn("Empty list returned from node data source. We are in a weird state. Keeping old list for {}",
+                    serviceRegistry.getService().getServiceName());
+            }
         }
     }
 
