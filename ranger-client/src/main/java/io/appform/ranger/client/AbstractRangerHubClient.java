@@ -18,6 +18,7 @@ package io.appform.ranger.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.client.utils.CriteriaUtils;
+import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
@@ -31,7 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -160,7 +160,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      * @return CompletableFuture which waits for hub to be ready for discovering the new service
      */
     @Override
-    public CompletableFuture<?> addService(Service service) {
+    public ServiceFinder<T, R> addService(Service service) {
         if(hub == null) {
             throw new IllegalStateException("Hub not started yet. Call .start()");
         }

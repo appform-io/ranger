@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.client;
 
+import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
@@ -33,7 +34,7 @@ public interface RangerHubClient<T, R extends ServiceRegistry<T>> {
 
     Collection<Service> getRegisteredServices();
 
-    CompletableFuture addService(Service service);
+    ServiceFinder<T, R> addService(Service service);
 
     Optional<ServiceNode<T>> getNode(final Service service);
 
