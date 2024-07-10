@@ -98,20 +98,22 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         return Optional.ofNullable(finders.get().get(service));
     }
 
-    public ServiceFinder<T, R> buildFinder(final Service service) {
+    public CompletableFuture<ServiceFinder<T, R>> buildFinder(final Service service) {
         val finder = finders.get().get(service);
-        if (null != finder) {
-            return finder;
+        if (finder != null) {
+            return CompletableFuture.completedFuture(finder);
         }
         serviceDataSource.add(service);
-        try {
-            updateAvailable();
-            waitTillServiceIsReady(service);
-            return finders.get().get(service);
-        } catch(Exception e) {
-            log.warn("Exception whiling building finder", e);
-            throw e;
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                updateAvailable();
+                waitTillServiceIsReady(service);
+                return finders.get().get(service);
+            } catch(Exception e) {
+                log.warn("Exception whiling building finder", e);
+                throw e;
+            }
+        });
     }
 
     public void start() {

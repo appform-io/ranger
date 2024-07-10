@@ -34,7 +34,7 @@ public interface RangerHubClient<T, R extends ServiceRegistry<T>> {
 
     Collection<Service> getRegisteredServices();
 
-    ServiceFinder<T, R> addService(Service service);
+    CompletableFuture<?> addService(Service service);
 
     Optional<ServiceNode<T>> getNode(final Service service);
 

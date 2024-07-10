@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 @SuperBuilder
-public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T, R> {
+public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T,R> {
 
     private final String namespace;
     private final ObjectMapper mapper;
@@ -96,7 +97,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T,R> shardSelector) {
+            final ShardSelector<T, R> shardSelector) {
         return getNode(service, criteria, shardSelector, null);
     }
 
@@ -104,7 +105,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T,R> shardSelector,
+            final ShardSelector<T, R> shardSelector,
             final ServiceNodeSelector<T> nodeSelector) {
         return this.getHub()
                 .finder(service)
@@ -160,7 +161,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      * @return CompletableFuture which waits for hub to be ready for discovering the new service
      */
     @Override
-    public ServiceFinder<T, R> addService(Service service) {
+    public CompletableFuture<?> addService(Service service) {
         if(hub == null) {
             throw new IllegalStateException("Hub not started yet. Call .start()");
         }

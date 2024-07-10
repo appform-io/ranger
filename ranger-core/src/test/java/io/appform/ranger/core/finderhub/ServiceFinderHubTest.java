@@ -44,7 +44,7 @@ class ServiceFinderHubTest {
         Assertions.assertEquals("HOST", node.get().getHost());
         Assertions.assertEquals(0, node.get().getPort());
 
-        val dynamicServiceFinder = serviceFinderHub.buildFinder(new Service("NS", "SERVICE"));
+        val dynamicServiceFinder = serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
         val dynamicServiceNode = dynamicServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
         Assertions.assertTrue(dynamicServiceNode.isPresent());
         Assertions.assertEquals("HOST", dynamicServiceNode.get().getHost());
@@ -85,7 +85,7 @@ class ServiceFinderHubTest {
                 .build());
         serviceFinderHub.start();
         try {
-            serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME"));
+            serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME")).join();
             Assertions.fail("Exception should have been thrown");
         } catch (Exception exception) {
             Assertions.assertTrue(exception instanceof UnsupportedOperationException, "Unsupported exception should be thrown");
