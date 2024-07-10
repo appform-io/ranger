@@ -37,6 +37,8 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private final List<Consumer<Void>> extraStartSignalConsumers = new ArrayList<>();
     private final List<Consumer<Void>> extraStopSignalConsumers = new ArrayList<>();
     private final List<Signal<Void>> extraRefreshSignals = new ArrayList<>();
+    private long serviceRefreshDurationMs = 10_000;
+    private long hubRefreshDurationMs = 30_000;
 
     public ServiceFinderHubBuilder<T, R> withServiceDataSource(ServiceDataSource serviceDataSource) {
         this.serviceDataSource = serviceDataSource;
@@ -68,12 +70,23 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         return this;
     }
 
+    public ServiceFinderHubBuilder<T, R> withServiceRefreshDuration(long serviceRefreshDurationMs) {
+        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
+        return this;
+    }
+
+    public ServiceFinderHubBuilder<T, R> withHubRefreshDuration(long hubRefreshDurationMs) {
+        this.hubRefreshDurationMs = hubRefreshDurationMs;
+        return this;
+    }
+
     public ServiceFinderHub<T, R> build() {
         preBuild();
         Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
-        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory);
+        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory,
+                serviceRefreshDurationMs, hubRefreshDurationMs);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                                                                           () -> null,
                                                                           Collections.emptyList(),
