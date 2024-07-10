@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 class WeightedIdGeneratorTest {
     final int numThreads = 5;
     final int iterationCount = 100000;
-    final int partitionCount = 64;
+    final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
     private WeightedIdGenerator weightedIdGenerator;
     private IdGeneratorConfig idGeneratorConfig;
@@ -52,10 +52,10 @@ class WeightedIdGeneratorTest {
         doNothing().when(meter).mark();
         List<WeightedPartition> partitionConfigList = new ArrayList<>();
         partitionConfigList.add(WeightedPartition.builder()
-                .partitionRange(PartitionRange.builder().start(0).end(31).build())
+                .partitionRange(PartitionRange.builder().start(0).end(511).build())
                 .weight(400).build());
         partitionConfigList.add(WeightedPartition.builder()
-                .partitionRange(PartitionRange.builder().start(32).end(63).build())
+                .partitionRange(PartitionRange.builder().start(512).end(1023).build())
                 .weight(600).build());
         val weightedIdConfig = WeightedIdConfig.builder()
                 .partitions(partitionConfigList)
@@ -80,16 +80,16 @@ class WeightedIdGeneratorTest {
                     val id = weightedIdGenerator.generate("P");
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
+                true,
                 this.getClass().getName() + ".testGenerateWithBenchmark");
         Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
         checkUniqueIds(allIdsList);
-        checkDistribution(allIdsList);
     }
 
     @Test
     void testGenerateAccuracy() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<String>());
-        val numThreads = 1;
+        val iterationCount = 400000;
         val totalIdCount = numThreads * iterationCount;
         val totalTime = TestUtil.runMTTest(
                 numThreads,
@@ -98,8 +98,8 @@ class WeightedIdGeneratorTest {
                     val id = weightedIdGenerator.generate("P");
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
-                this.getClass().getName() + ".testGenerateWithBenchmark");
-        Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
+                false,
+                this.getClass().getName() + ".testGenerateAccuracy");
         checkUniqueIds(allIdsList);
         checkDistribution(allIdsList);
     }
@@ -116,10 +116,11 @@ class WeightedIdGeneratorTest {
                     val id = weightedIdGenerator.generateWithConstraints("P", (String) null, false);
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
+                false,
                 this.getClass().getName() + ".testGenerateWithConstraints");
         checkUniqueIds(allIdsList);
 
-//        Assert No ID was generated for Invalid partitions
+//        Assert no ID was generated for Invalid partitions
         for (val id: allIdsList) {
             val partitionId = partitionResolverSupplier.apply(id);
             Assertions.assertTrue(partitionConstraint.isValid(partitionId));
@@ -142,8 +143,9 @@ class WeightedIdGeneratorTest {
             val expectedIdCount = ((double) partition.getWeight() / weightedIdGenerator.getMaxShardWeight()) *  ((double) allIdsList.size() / (partition.getPartitionRange().getEnd()-partition.getPartitionRange().getStart()+1));
             int idCountForPartition = 0;
             for (int partitionId = partition.getPartitionRange().getStart(); partitionId <= partition.getPartitionRange().getEnd(); partitionId++) {
-                Assertions.assertTrue(expectedIdCount * 0.8 <= idCountMap.get(partitionId));
-                Assertions.assertTrue(idCountMap.get(partitionId) <= expectedIdCount * 1.2);
+                log.warn("{} - {} - {}", expectedIdCount * 0.9, idCountMap.get(partitionId), expectedIdCount * 1.1);
+                Assertions.assertTrue(expectedIdCount * 0.9 <= idCountMap.get(partitionId));
+                Assertions.assertTrue(idCountMap.get(partitionId) <= expectedIdCount * 1.1);
                 idCountForPartition += idCountMap.get(partitionId);
             }
             log.debug("Partition ID Count: {} - Percentage: {}", idCountForPartition, (double) idCountForPartition * 100 / allIdsList.size());

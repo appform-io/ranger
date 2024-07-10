@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 public class TestUtil {
     private static final String OUTPUT_PATH = "perf/results/%s.json";
 
-    public double runMTTest(int numThreads, int iterationCount, final Consumer<Integer> supplier, String outputFileName) throws IOException {
+    public double runMTTest(int numThreads, int iterationCount, final Consumer<Integer> supplier, final boolean save_output, final String outputFileName) throws IOException {
         final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
         final List<Future<Long>> futures = IntStream.range(0, numThreads)
                 .mapToObj(i -> executorService.submit(() -> {
@@ -50,7 +50,9 @@ public class TestUtil {
                     }
                 })
                 .sum();
-        writeToFile(numThreads, iterationCount, total, outputFileName);
+        if (save_output){
+            writeToFile(numThreads, iterationCount, total, outputFileName);
+        }
         log.warn("Finished Execution for {} iterations in avg time: {}", iterationCount, ((double) total) / numThreads);
         return total;
     }

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,14 +21,15 @@ import static io.appform.ranger.discovery.bundle.id.Constants.MAX_DATA_STORAGE_T
 @AllArgsConstructor
 @NoArgsConstructor
 public class IdGeneratorConfig {
-    @NotEmpty
+    @NotNull
+    @Valid
     private IdGeneratorRetryConfig retryConfig;
 
     @Valid
     private WeightedIdConfig weightedIdConfig;
 
     @NotNull
-    @Min(1)
+    @Min(2)
     private int idPoolSize;
 
     @NotNull
@@ -46,9 +46,7 @@ public class IdGeneratorConfig {
         if (weightedIdConfig != null) {
             List<WeightedPartition> sortedPartitions = new ArrayList<>(weightedIdConfig.getPartitions());
             sortedPartitions.sort(Comparator.comparingInt(k -> k.getPartitionRange().getStart()));
-            if (sortedPartitions.get(sortedPartitions.size()-1).getPartitionRange().getEnd() - sortedPartitions.get(sortedPartitions.size()-1).getPartitionRange().getStart() != partitionCount) {
-                return false;
-            }
+            return sortedPartitions.get(sortedPartitions.size() - 1).getPartitionRange().getEnd() - sortedPartitions.get(0).getPartitionRange().getStart() + 1 == partitionCount;
         }
         return true;
     }

@@ -66,6 +66,7 @@ class PartitionAwareIdGeneratorTest {
                     val id = partitionAwareIdGenerator.generate("P");
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
+                true,
                 this.getClass().getName() + ".testGenerateWithBenchmark");
         Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
         checkUniqueIds(allIdsList);
@@ -84,6 +85,7 @@ class PartitionAwareIdGeneratorTest {
                     val id = partitionAwareIdGenerator.generateWithConstraints("P", (String) null, false);
                     id.ifPresent(value -> allIdsList.add(value.getId()));
                 },
+                false,
                 this.getClass().getName() + ".testGenerateWithConstraints");
 
         Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
