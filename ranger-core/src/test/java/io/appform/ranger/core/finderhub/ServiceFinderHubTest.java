@@ -16,7 +16,6 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
