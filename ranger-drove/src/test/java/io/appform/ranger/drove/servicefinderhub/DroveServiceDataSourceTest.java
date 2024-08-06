@@ -18,18 +18,16 @@ package io.appform.ranger.drove.servicefinderhub;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.phonepe.drove.client.DroveClientConfig;
 import com.phonepe.drove.models.api.ApiResponse;
 import com.phonepe.drove.models.api.AppSummary;
 import com.phonepe.drove.models.application.ApplicationState;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.units.TestNodeData;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +86,8 @@ class DroveServiceDataSourceTest {
                                new Date())));
         val payload = MAPPER.writeValueAsString(response);
         stubFor(get("/apis/v1/applications").willReturn(okJson(payload)));
-        val clientConfig = DroveConfig.builder()
-                .cluster(new DroveClientConfig(List.of("http://localhost:" + wireMockRuntimeInfo.getHttpPort()),
-                                               Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1)))
+        val clientConfig = DroveUpstreamConfig.builder()
+                .endpoints(List.of("http://localhost:" + wireMockRuntimeInfo.getHttpPort()))
                 .build();
         val finder = new DroveServiceDataSource<TestNodeData>(clientConfig, MAPPER, "test");
         finder.start();

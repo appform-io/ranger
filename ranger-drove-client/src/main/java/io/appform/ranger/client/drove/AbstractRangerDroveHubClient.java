@@ -21,7 +21,7 @@ import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceDataSource;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceFinderHubBuilder;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<T>, D extends DroveResponseDataDeserializer<T>>
     extends AbstractRangerHubClient<T, R, D> {
 
-  private final DroveConfig clientConfig;
+  private final DroveUpstreamConfig clientConfig;
 
   @Builder.Default
   private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();

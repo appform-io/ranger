@@ -57,7 +57,7 @@ class DroveShardedServiceProviderBuilderTest {
                 .willReturn(aResponse()
                         .withBody(response)
                         .withStatus(200)));
-        val clientConfig = DroveConfig.builder()
+        val clientConfig = DroveUpstreamConfig.builder()
                 .host("127.0.0.1")
                 .port(wireMockRuntimeInfo.getHttpPort())
                 .connectionTimeoutMs(30_000)

@@ -27,7 +27,7 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -45,7 +45,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
 
     public DroveNodeDataSource(
             Service service,
-            final DroveConfig config,
+            final DroveUpstreamConfig config,
             ObjectMapper mapper,
             DroveClient droveClient) {
         super(config, mapper, droveClient);
@@ -54,7 +54,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
 
     public DroveNodeDataSource(
             Service service,
-            final DroveConfig config,
+            final DroveUpstreamConfig config,
             ObjectMapper mapper) {
         super(config, mapper);
         this.service = service;

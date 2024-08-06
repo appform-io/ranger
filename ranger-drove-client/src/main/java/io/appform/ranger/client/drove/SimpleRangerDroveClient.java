@@ -23,7 +23,7 @@ import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.drove.DroveServiceFinderBuilders;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +38,7 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     private final String namespace;
     private final ObjectMapper mapper;
     private final int nodeRefreshIntervalMs;
-    private final DroveConfig clientConfig;
+    private final DroveUpstreamConfig clientConfig;
     private final DroveResponseDataDeserializer<T> deserializer;
     @Builder.Default
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();

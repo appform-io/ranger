@@ -35,6 +35,6 @@ public class MatchingShardSelector<T> implements ShardSelector<T, MapBasedServic
                 .stream()
                 .filter(e -> criteria.test(e.getKey()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

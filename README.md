@@ -560,7 +560,7 @@ To use the http server bundle along with boostrap use.
                       }
                       return null;
                   })
-                  .build()).collect(Collectors.toList());
+                  .build()).toList();
       }
 
       @Override

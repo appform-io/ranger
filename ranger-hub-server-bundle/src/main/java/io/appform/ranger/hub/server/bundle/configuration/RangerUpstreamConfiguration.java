@@ -29,7 +29,8 @@ import javax.validation.constraints.NotNull;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = RangerHttpUpstreamConfiguration.class, name = "HTTP"),
-    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK")
+    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK"),
+    @JsonSubTypes.Type(value = RangerDroveUpstreamConfiguration.class, name = "DROVE"),
 })
 @Getter
 public abstract class RangerUpstreamConfiguration {

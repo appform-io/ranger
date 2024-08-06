@@ -21,7 +21,7 @@ import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 
 /**
@@ -31,7 +31,7 @@ import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFinderBuilder<T,
         DroveShardedServiceFinderBuilder<T>, DroveResponseDataDeserializer<T>> {
 
-    private DroveConfig clientConfig;
+    private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
     private DroveClient droveClient = null;
 
@@ -40,7 +40,7 @@ public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFin
         return this;
     }
 
-    public DroveShardedServiceFinderBuilder<T> withClientConfig(final DroveConfig clientConfig) {
+    public DroveShardedServiceFinderBuilder<T> withClientConfig(final DroveUpstreamConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
     }

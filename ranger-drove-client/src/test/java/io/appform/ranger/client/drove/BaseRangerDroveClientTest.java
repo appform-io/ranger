@@ -17,20 +17,18 @@ package io.appform.ranger.client.drove;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.phonepe.drove.client.DroveClientConfig;
 import com.phonepe.drove.models.api.ApiResponse;
 import com.phonepe.drove.models.api.AppSummary;
 import com.phonepe.drove.models.api.ExposedAppInfo;
 import com.phonepe.drove.models.application.ApplicationState;
 import com.phonepe.drove.models.application.PortType;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +41,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public abstract class BaseRangerDroveClientTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private DroveConfig clientConfig;
+    private DroveUpstreamConfig clientConfig;
 
     @RegisterExtension
     static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
@@ -113,9 +111,8 @@ wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                new Date())));
         wireMockExtension.stubFor(get("/apis/v1/applications").willReturn(okJson(objectMapper.writeValueAsString(response))));
 
-        clientConfig = DroveConfig.builder()
-                .cluster(new DroveClientConfig(List.of("http://localhost:" + wireMockExtension.getPort()),
-                                               Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1)))
+        clientConfig = DroveUpstreamConfig.builder()
+                .endpoints(List.of("http://localhost:" + wireMockExtension.getPort()))
                 .build();
         log.debug("Started http subsystem");
     }

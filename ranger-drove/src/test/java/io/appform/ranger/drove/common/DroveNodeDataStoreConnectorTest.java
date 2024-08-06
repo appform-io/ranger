@@ -18,14 +18,12 @@ package io.appform.ranger.drove.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.phonepe.drove.client.DroveClientConfig;
 import io.appform.ranger.core.units.TestNodeData;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.val;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -38,9 +36,8 @@ class DroveNodeDataStoreConnectorTest {
     void testDroveNodeDataStoreConnector(WireMockRuntimeInfo wm){
         stubFor(get("/apis/v1/ping").willReturn(ok()));
 
-        val clientConfig = DroveConfig.builder()
-                .cluster(new DroveClientConfig(List.of("http://localhost:" + wm.getHttpPort()),
-                                                   Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1)))
+        val clientConfig = DroveUpstreamConfig.builder()
+                .endpoints(List.of("http://localhost:" + wm.getHttpPort()))
                 .build();
         val mapper = new ObjectMapper();
         val connector = new DroveNodeDataStoreConnector<TestNodeData>(clientConfig, mapper);

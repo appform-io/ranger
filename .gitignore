@@ -7,3 +7,4 @@ target
 out
 dep
 .java-version
+stage.yml

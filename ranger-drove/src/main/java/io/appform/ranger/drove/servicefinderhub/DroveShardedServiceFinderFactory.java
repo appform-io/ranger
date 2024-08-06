@@ -22,7 +22,7 @@ import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinder.DroveShardedServiceFinderBuilder;
 import lombok.Builder;
@@ -30,7 +30,7 @@ import lombok.val;
 
 public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
 
-    private final DroveConfig clientConfig;
+    private final DroveUpstreamConfig clientConfig;
     private final ObjectMapper mapper;
     private final DroveResponseDataDeserializer<T> deserializer;
     private final ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector;
@@ -39,7 +39,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
 
     @Builder
     public DroveShardedServiceFinderFactory(
-            DroveConfig droveConfig,
+            DroveUpstreamConfig droveConfig,
             ObjectMapper mapper,
             DroveResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,

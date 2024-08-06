@@ -26,7 +26,7 @@ import com.phonepe.drove.models.application.ApplicationState;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.http.HttpStatus;
@@ -40,7 +40,7 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
     private final String namespace;
 
     public DroveServiceDataSource(
-            DroveConfig config,
+            DroveUpstreamConfig config,
             ObjectMapper mapper,
             String namespace,
             final DroveClient droveClient) {
@@ -48,7 +48,7 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
         this.namespace = namespace;
     }
 
-    public DroveServiceDataSource(DroveConfig config, ObjectMapper mapper, String namespace) {
+    public DroveServiceDataSource(DroveUpstreamConfig config, ObjectMapper mapper, String namespace) {
         super(config, mapper);
         this.namespace = namespace;
     }

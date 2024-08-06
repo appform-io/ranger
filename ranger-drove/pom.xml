@@ -5,10 +5,10 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.0-RC17</version>
+        <version>1.1-RC1</version>
     </parent>
     <properties>
-        <drove.version>1.27-SNAPSHOT</drove.version>
+        <drove.version>1.28-SNAPSHOT</drove.version>
     </properties>
     <modelVersion>4.0.0</modelVersion>
 

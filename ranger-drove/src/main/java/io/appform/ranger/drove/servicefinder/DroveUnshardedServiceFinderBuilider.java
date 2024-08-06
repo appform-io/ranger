@@ -21,13 +21,13 @@ import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
-import io.appform.ranger.drove.config.DroveConfig;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 
 public class DroveUnshardedServiceFinderBuilider<T>
         extends SimpleUnshardedServiceFinderBuilder<T, DroveUnshardedServiceFinderBuilider<T>, DroveResponseDataDeserializer<T>> {
 
-    private DroveConfig clientConfig;
+    private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
     private DroveClient droveClient;
 
@@ -36,7 +36,7 @@ public class DroveUnshardedServiceFinderBuilider<T>
         return this;
     }
 
-    public DroveUnshardedServiceFinderBuilider<T> withClientConfig(final DroveConfig clientConfig) {
+    public DroveUnshardedServiceFinderBuilider<T> withClientConfig(final DroveUpstreamConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
     }

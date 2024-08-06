@@ -45,7 +45,7 @@ Ranger server bundle is a common dropwizard bundle atop which we could implement
                                 rangerConfiguration.getNodeRefreshTimeMs(),
                                 clientConfig,
                                 environment.getObjectMapper()
-                )).collect(Collectors.toList());
+                )).toList();
             }
 
             @Override

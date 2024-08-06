@@ -38,7 +38,7 @@ public class FinderUtils {
             long healthcheckZombieCheckThresholdTime) {
         return serviceNodes.stream()
                 .filter(serviceNode -> isValidNode(service, healthcheckZombieCheckThresholdTime, serviceNode))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static <T> boolean isValidNode(
