@@ -22,6 +22,10 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.utils.RangerHttpUtils;
+import okhttp3.OkHttpClient;
+
+import java.util.Objects;
 
 /**
  *
@@ -30,6 +34,7 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
 
     private HttpClientConfig clientConfig;
     private ObjectMapper mapper;
+    private OkHttpClient httpClient;
 
     public HttpShardedServiceFinderBuilder<T> withClientConfig(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -41,6 +46,11 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
         return this;
     }
 
+    public HttpShardedServiceFinderBuilder<T> withHttpClient(final OkHttpClient httpClient){
+        this.httpClient = httpClient;
+        return this;
+    }
+
     @Override
     public SimpleShardedServiceFinder<T> build() {
         return buildFinder();
@@ -48,7 +58,9 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
 
     @Override
     protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
-        return new HttpNodeDataSource<>(service, clientConfig, mapper);
+        return new HttpNodeDataSource<>(service, clientConfig, mapper,
+                                        Objects.requireNonNullElseGet(httpClient,
+                                                                      () -> RangerHttpUtils.httpClient(clientConfig)));
     }
 
 }

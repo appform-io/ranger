@@ -19,10 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -36,17 +33,9 @@ public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> 
 
     public HttpNodeDataStoreConnector(
             final HttpClientConfig config,
-            final ObjectMapper mapper) {
-        this.httpClient = new OkHttpClient.Builder()
-                .callTimeout(config.getOperationTimeoutMs() == 0
-                             ? 3000
-                             : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
-                .connectTimeout(config.getConnectionTimeoutMs() == 0
-                                ? 3000
-                                : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
-                .followRedirects(true)
-                .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
-                .build();
+            final ObjectMapper mapper,
+            final OkHttpClient httpClient) {
+        this.httpClient = httpClient;
         this.config = config;
         this.mapper = mapper;
     }

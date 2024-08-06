@@ -25,6 +25,7 @@ import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -42,7 +43,7 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
 
   @Override
   protected ServiceDataSource getDefaultDataSource() {
-    return new HttpServiceDataSource<>(clientConfig, getMapper());
+    return new HttpServiceDataSource<>(clientConfig, getMapper(), RangerHttpUtils.httpClient(clientConfig));
   }
 
   @Override

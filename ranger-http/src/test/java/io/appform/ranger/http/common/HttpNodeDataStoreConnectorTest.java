@@ -17,6 +17,7 @@ package io.appform.ranger.http.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.http.config.HttpClientConfig;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,8 @@ class HttpNodeDataStoreConnectorTest {
                 .host("localhost-1")
                 .port(80)
                 .build();
-        val httpNodeDataStoreConnector = new HttpNodeDataStoreConnector<>(httpClientConfig, objectMapper);
+        val httpNodeDataStoreConnector = new HttpNodeDataStoreConnector<>(httpClientConfig, objectMapper,
+                                                                          RangerHttpUtils.httpClient(httpClientConfig));
         Assertions.assertNotNull(httpNodeDataStoreConnector);
         Assertions.assertTrue(httpNodeDataStoreConnector.isActive());
     }
