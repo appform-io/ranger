@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.client.drove;
 
+import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
@@ -37,13 +38,14 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
     extends AbstractRangerHubClient<T, R, D> {
 
   private final DroveUpstreamConfig clientConfig;
+  private final DroveClient droveClient;
 
   @Builder.Default
   private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
   @Override
   protected ServiceDataSource getDefaultDataSource() {
-    return new DroveServiceDataSource<>(clientConfig, getMapper(), getNamespace());
+    return new DroveServiceDataSource<>(clientConfig, getMapper(), getNamespace(), droveClient);
   }
 
   @Override

@@ -24,6 +24,7 @@ import com.phonepe.drove.models.application.ApplicationState;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,10 @@ class DroveServiceDataSourceTest {
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wireMockRuntimeInfo.getHttpPort()))
                 .build();
-        val finder = new DroveServiceDataSource<TestNodeData>(clientConfig, MAPPER, "test");
+        val finder = new DroveServiceDataSource<TestNodeData>(clientConfig,
+                                                              MAPPER,
+                                                              "test",
+                                                              RangerDroveUtils.buildDroveClient(clientConfig));
         finder.start();
         val services = finder.services();
         assertFalse(services.isEmpty());

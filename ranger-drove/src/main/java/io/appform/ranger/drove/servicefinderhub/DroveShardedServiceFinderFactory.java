@@ -16,6 +16,7 @@
 package io.appform.ranger.drove.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
@@ -31,6 +32,7 @@ import lombok.val;
 public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
 
     private final DroveUpstreamConfig clientConfig;
+    private final DroveClient droveClient;
     private final ObjectMapper mapper;
     private final DroveResponseDataDeserializer<T> deserializer;
     private final ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector;
@@ -40,6 +42,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
     @Builder
     public DroveShardedServiceFinderFactory(
             DroveUpstreamConfig droveConfig,
+            DroveClient droveClient,
             ObjectMapper mapper,
             DroveResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,
@@ -47,6 +50,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
             int nodeRefreshIntervalMs)
     {
         this.clientConfig = droveConfig;
+        this.droveClient = droveClient;
         this.mapper = mapper;
         this.deserializer = deserializer;
         this.shardSelector = shardSelector;
@@ -58,6 +62,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
     public ServiceFinder<T, MapBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new DroveShardedServiceFinderBuilder<T>()
                 .withClientConfig(clientConfig)
+                .withDroveClient(droveClient)
                 .withObjectMapper(mapper)
                 .withDeserializer(deserializer)
                 .withNamespace(service.getNamespace())

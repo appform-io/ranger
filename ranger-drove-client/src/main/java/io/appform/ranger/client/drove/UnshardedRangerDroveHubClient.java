@@ -37,6 +37,7 @@ public class UnshardedRangerDroveHubClient<T>
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
         return DroveUnshardedServiceFinderFactory.<T>builder()
                 .droveConfig(this.getClientConfig())
+                .droveClient(this.getDroveClient())
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
                 .shardSelector(shardSelector)

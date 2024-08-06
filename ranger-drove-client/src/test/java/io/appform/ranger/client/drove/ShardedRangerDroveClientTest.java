@@ -19,6 +19,7 @@ import com.phonepe.drove.models.api.ExposedAppInfo;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,10 @@ class ShardedRangerDroveClientTest extends BaseRangerDroveClientTest {
 
     @Test
     void testShardedHttpHubClient() {
+        val clientConfig = getClientConfig();
         val client = ShardedRangerDroveHubClient.<TestNodeData>builder()
-                .clientConfig(getClientConfig())
+                .clientConfig(clientConfig)
+                .droveClient(RangerDroveUtils.buildDroveClient(clientConfig))
                 .namespace("test")
                 .deserializer(new DroveResponseDataDeserializer<>() {
                     @Override

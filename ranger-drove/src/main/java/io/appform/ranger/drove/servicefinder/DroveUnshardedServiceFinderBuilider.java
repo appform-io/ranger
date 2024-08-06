@@ -23,9 +23,13 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
+
+import java.util.Objects;
 
 public class DroveUnshardedServiceFinderBuilider<T>
-        extends SimpleUnshardedServiceFinderBuilder<T, DroveUnshardedServiceFinderBuilider<T>, DroveResponseDataDeserializer<T>> {
+        extends SimpleUnshardedServiceFinderBuilder<T, DroveUnshardedServiceFinderBuilider<T>,
+        DroveResponseDataDeserializer<T>> {
 
     private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
@@ -53,9 +57,10 @@ public class DroveUnshardedServiceFinderBuilider<T>
 
     @Override
     protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
-        return null == droveClient
-            ? new DroveNodeDataSource<>(service, clientConfig, mapper)
-               : new DroveNodeDataSource<>(service, clientConfig, mapper, droveClient);
+        return new DroveNodeDataSource<>(service, clientConfig, mapper,
+                                         Objects.requireNonNullElseGet(droveClient,
+                                                                       () -> RangerDroveUtils.buildDroveClient(
+                                                                               clientConfig)));
     }
 
 }

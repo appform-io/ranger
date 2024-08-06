@@ -48,11 +48,6 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
         this.namespace = namespace;
     }
 
-    public DroveServiceDataSource(DroveUpstreamConfig config, ObjectMapper mapper, String namespace) {
-        super(config, mapper);
-        this.namespace = namespace;
-    }
-
     @Override
     public Collection<Service> services() {
         Preconditions.checkNotNull(config, "client config has not been set for node data");

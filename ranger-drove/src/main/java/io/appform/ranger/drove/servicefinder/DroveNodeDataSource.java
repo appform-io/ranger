@@ -52,14 +52,6 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
         this.service = service;
     }
 
-    public DroveNodeDataSource(
-            Service service,
-            final DroveUpstreamConfig config,
-            ObjectMapper mapper) {
-        super(config, mapper);
-        this.service = service;
-    }
-
     @Override
     public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
@@ -83,7 +75,6 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
                                         return List.of();
                                     }
                                     return deserializer.deserialize(apiResponse.getData());
-
                                 }
                             });
         return Optional.of(FinderUtils.filterValidNodes(

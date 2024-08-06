@@ -23,6 +23,9 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
+
+import java.util.Objects;
 
 /**
  *
@@ -57,9 +60,10 @@ public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFin
 
     @Override
     protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
-        return null == droveClient
-               ? new DroveNodeDataSource<>(service, clientConfig, mapper)
-               : new DroveNodeDataSource<>(service, clientConfig, mapper, droveClient);
+        return new DroveNodeDataSource<>(service, clientConfig, mapper,
+                                         Objects.requireNonNullElseGet(droveClient,
+                                                                       () -> RangerDroveUtils.buildDroveClient(
+                                                                               clientConfig)));
     }
 
 }

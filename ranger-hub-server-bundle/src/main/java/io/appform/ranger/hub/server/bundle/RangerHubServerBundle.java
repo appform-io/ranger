@@ -30,6 +30,7 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.hub.server.bundle.configuration.*;
@@ -145,10 +146,12 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                                                         DroveUpstreamConfig.DEFAULT_ENVIRONMENT_TAG_NAME);
             val regionTagName = Objects.requireNonNullElse(droveConfig.getRegionTagName(),
                                                            DroveUpstreamConfig.DEFAULT_REGION_TAG_NAME);
+            val droveClient = RangerDroveUtils.buildDroveClient(droveConfig);
             return UnshardedRangerDroveHubClient.<ShardInfo>builder()
                     .namespace(namespace)
                     .mapper(getMapper())
                     .clientConfig(droveConfig)
+                    .droveClient(droveClient)
                     .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
                     .deserializer(new DroveResponseDataDeserializer<>() {
                         @Override

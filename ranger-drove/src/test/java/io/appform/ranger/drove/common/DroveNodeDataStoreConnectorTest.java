@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
 import lombok.val;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
@@ -31,16 +32,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @WireMockTest
 class DroveNodeDataStoreConnectorTest {
-    
+
     @Test
-    void testDroveNodeDataStoreConnector(WireMockRuntimeInfo wm){
+    void testDroveNodeDataStoreConnector(WireMockRuntimeInfo wm) {
         stubFor(get("/apis/v1/ping").willReturn(ok()));
 
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wm.getHttpPort()))
                 .build();
         val mapper = new ObjectMapper();
-        val connector = new DroveNodeDataStoreConnector<TestNodeData>(clientConfig, mapper);
+        val connector = new DroveNodeDataStoreConnector<TestNodeData>(clientConfig,
+                                                                      mapper,
+                                                                      RangerDroveUtils.buildDroveClient(clientConfig));
         Awaitility.await()
                 .until(connector::isActive);
         assertTrue(connector.isActive());
