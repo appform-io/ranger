@@ -34,6 +34,7 @@ import org.apache.http.HttpStatus;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> implements ServiceDataSource {
@@ -52,6 +53,9 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
     public Collection<Service> services() {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
+        val skipTagName = Objects.requireNonNullElse(
+                config.getSkipTagName(),
+                DroveUpstreamConfig.DEFAULT_SKIP_TAG_NAME);
         val url = "/apis/v1/applications";
         return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
                                    new DroveClient.ResponseHandler<>() {
@@ -73,6 +77,11 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
                                                            .stream()
                                                            .filter(summary -> summary.getState()
                                                                    .equals(ApplicationState.RUNNING))
+                                                           .filter(summary -> summary.getTags() == null
+                                                                   || !summary.getTags()
+                                                                   .getOrDefault(skipTagName,
+                                                                                 "false")
+                                                                   .equals("true"))
                                                            .map(AppSummary::getName)
                                                            .distinct()
                                                            .map(appName -> new Service(namespace, appName))

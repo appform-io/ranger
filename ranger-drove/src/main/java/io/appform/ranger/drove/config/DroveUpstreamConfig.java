@@ -31,9 +31,9 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class DroveUpstreamConfig {
-    public static final String DEFAULT_ENVIRONMENT_TAG_NAME = "environment";
-    public static final String DEFAULT_REGION_TAG_NAME = "region";
-    public static final String DEFAULT_SKIP_TAG_NAME = "hidden";
+    public static final String DEFAULT_ENVIRONMENT_TAG_NAME = "ranger.environment";
+    public static final String DEFAULT_REGION_TAG_NAME = "ranger.region";
+    public static final String DEFAULT_SKIP_TAG_NAME = "ranger.hidden";
     public static final Duration DEFAULT_CHECK_INTERVAL = Duration.seconds(10);
     public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.seconds(5);
     public static final Duration DEFAULT_OPERATION_TIMEOUT = Duration.seconds(5);
