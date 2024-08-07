@@ -17,6 +17,7 @@ package io.appform.ranger.client.http;
 
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,11 @@ class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
 
     @Test
     void testSimpleHttpRangerClient(){
+        val httpClientConfig = getHttpClientConfig();
         val client = SimpleRangerHttpClient.<TestNodeData>builder()
-                .clientConfig(getHttpClientConfig())
+                .clientConfig(httpClientConfig)
                 .mapper(getObjectMapper())
+                .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
                 .deserializer(this::read)
                 .namespace("test-n")
                 .serviceName("test-s")

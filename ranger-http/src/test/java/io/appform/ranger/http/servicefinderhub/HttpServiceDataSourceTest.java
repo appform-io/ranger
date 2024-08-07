@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class HttpServiceDataSourceTest {
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
-        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER);
+        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER, RangerHttpUtils.httpClient(clientConfig));
         val services = httpServiceDataSource.services();
         Assertions.assertNotNull(services);
         Assertions.assertFalse(services.isEmpty());

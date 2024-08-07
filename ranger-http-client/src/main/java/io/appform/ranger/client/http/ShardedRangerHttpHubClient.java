@@ -37,6 +37,7 @@ public class ShardedRangerHttpHubClient<T>
     protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> getFinderFactory() {
         return HttpShardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(this.getClientConfig())
+                .httpClient(this.getHttpClient())
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
                 .shardSelector(shardSelector)

@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.http.config;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -25,6 +26,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@AllArgsConstructor
 public class HttpClientConfig {
     String host;
     int port;
