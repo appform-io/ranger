@@ -1,5 +1,6 @@
 package io.appform.ranger.drove.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.client.DroveClientConfig;
 import com.phonepe.drove.client.decorators.AuthHeaderDecorator;
@@ -31,6 +32,7 @@ import java.util.Objects;
 @Slf4j
 @UtilityClass
 public class RangerDroveUtils {
+
     @SneakyThrows
     public static CloseableHttpClient createHttpClient(final DroveUpstreamConfig config) {
         val connectionTimeout
@@ -70,7 +72,9 @@ public class RangerDroveUtils {
                 .build();
     }
 
-    public static DroveClient buildDroveClient(DroveUpstreamConfig config) {
+    public static <T> DroveCommunicator<T> buildDroveClient(
+            String namespace,
+            DroveUpstreamConfig config, ObjectMapper mapper) {
         log.info("Building drove client for: {}", config.getEndpoints());
         val droveConfig = new DroveClientConfig(config.getEndpoints(),
                                                 Objects.requireNonNullElse(config.getCheckInterval(),
@@ -82,9 +86,15 @@ public class RangerDroveUtils {
                                                 Objects.requireNonNullElse(config.getOperationTimeout(),
                                                                            DroveUpstreamConfig.DEFAULT_OPERATION_TIMEOUT)
                                                         .toJavaDuration());
-        return new DroveClient(droveConfig,
-                               List.of(new BasicAuthDecorator(config.getUsername(), config.getPassword()),
-                                       new AuthHeaderDecorator(config.getAuthHeader())),
-                               new DroveHttpComponentsTransport(droveConfig, createHttpClient(config)));
+        final var droveClient = new DroveClient(droveConfig,
+                                                List.of(new BasicAuthDecorator(config.getUsername(),
+                                                                               config.getPassword()),
+                                                        new AuthHeaderDecorator(config.getAuthHeader())),
+                                                new DroveHttpComponentsTransport(droveConfig,
+                                                                                 createHttpClient(config)));
+        val apiCommunicator = new DroveApiCommunicator<T>(config, droveClient, mapper);
+        return config.isSkipCaching()
+            ? apiCommunicator
+            : new DroveCachingCommunicator<>(apiCommunicator, namespace, config, droveClient, mapper);
     }
 }

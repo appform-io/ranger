@@ -29,22 +29,23 @@ class ShardedRangerDroveClientTest extends BaseRangerDroveClientTest {
     @Test
     void testShardedHttpHubClient() {
         val clientConfig = getClientConfig();
+        val namespace = "test";
         val client = ShardedRangerDroveHubClient.<TestNodeData>builder()
                 .clientConfig(clientConfig)
-                .droveClient(RangerDroveUtils.buildDroveClient(clientConfig))
-                .namespace("test")
+                .droveCommunicator(RangerDroveUtils.buildDroveClient(namespace, clientConfig, getObjectMapper()))
+                .namespace(namespace)
                 .deserializer(new DroveResponseDataDeserializer<>() {
                     @Override
                     public TestNodeData translate(ExposedAppInfo appInfo, ExposedAppInfo.ExposedHost host) {
                         return TestNodeData.builder().shardId(1).build();
                     }
                 })
-                .namespace("test")
+                .namespace(namespace)
                 .mapper(getObjectMapper())
                 .nodeRefreshTimeMs(1000)
                 .build();
         client.start();
-        val service = RangerTestUtils.getService("test", "TEST_APP");
+        val service = RangerTestUtils.getService(namespace, "TEST_APP");
         Assertions.assertNotNull(client.getNode(service).orElse(null));
         Assertions.assertNotNull(client.getNode(service, nodeData -> nodeData.getShardId() == 1).orElse(null));
         Assertions.assertNull(client.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));

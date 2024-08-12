@@ -52,6 +52,7 @@ class DroveServiceDataSourceTest {
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date()),
@@ -62,6 +63,7 @@ class DroveServiceDataSourceTest {
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date()),
@@ -72,6 +74,7 @@ class DroveServiceDataSourceTest {
                                0,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.MONITORING,
                                new Date(),
                                new Date()),
@@ -82,6 +85,7 @@ class DroveServiceDataSourceTest {
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date())));
@@ -90,16 +94,18 @@ class DroveServiceDataSourceTest {
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wireMockRuntimeInfo.getHttpPort()))
                 .build();
-        val finder = new DroveServiceDataSource<TestNodeData>(clientConfig,
-                                                              MAPPER,
-                                                              "test",
-                                                              RangerDroveUtils.buildDroveClient(clientConfig));
+        val namespace = "test";
+        val finder = new DroveServiceDataSource<TestNodeData>(
+                clientConfig,
+                MAPPER,
+                namespace,
+                RangerDroveUtils.buildDroveClient(namespace, clientConfig, MAPPER));
         finder.start();
         val services = finder.services();
         assertFalse(services.isEmpty());
         assertEquals(2, services.size());
-        assertTrue(services.contains(new Service("test", "TEST_APP")));
-        assertTrue(services.contains(new Service("test", "OTHER_APP")));
+        assertTrue(services.contains(new Service(namespace, "TEST_APP")));
+        assertTrue(services.contains(new Service(namespace, "OTHER_APP")));
     }
 
 }

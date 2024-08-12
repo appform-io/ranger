@@ -54,6 +54,17 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.phonepe.drove</groupId>
+            <artifactId>drove-events-client</artifactId>
+            <version>${drove.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.phonepe.platform</groupId>
+                    <artifactId>release-scripts</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock</artifactId>
             <version>${wiremock.version}</version>

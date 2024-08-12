@@ -41,9 +41,8 @@ class DroveNodeDataStoreConnectorTest {
                 .endpoints(List.of("http://localhost:" + wm.getHttpPort()))
                 .build();
         val mapper = new ObjectMapper();
-        val connector = new DroveNodeDataStoreConnector<TestNodeData>(clientConfig,
-                                                                      mapper,
-                                                                      RangerDroveUtils.buildDroveClient(clientConfig));
+        val connector = new DroveNodeDataStoreConnector<TestNodeData>(
+                clientConfig, mapper, RangerDroveUtils.buildDroveClient("test", clientConfig, mapper));
         Awaitility.await()
                 .until(connector::isActive);
         assertTrue(connector.isActive());

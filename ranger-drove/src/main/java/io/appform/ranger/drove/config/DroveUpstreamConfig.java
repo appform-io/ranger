@@ -31,12 +31,14 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class DroveUpstreamConfig {
+    public static final String DEFAULT_DISCOVERY_TAG_NAME = "ranger.name";
     public static final String DEFAULT_ENVIRONMENT_TAG_NAME = "ranger.environment";
     public static final String DEFAULT_REGION_TAG_NAME = "ranger.region";
     public static final String DEFAULT_SKIP_TAG_NAME = "ranger.hidden";
     public static final Duration DEFAULT_CHECK_INTERVAL = Duration.seconds(10);
     public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.seconds(5);
     public static final Duration DEFAULT_OPERATION_TIMEOUT = Duration.seconds(5);
+    public static final Duration DEFAULT_EVENT_POLLING_INTERVAL = Duration.seconds(5);
 
     @Valid
     @NotEmpty
@@ -47,16 +49,21 @@ public class DroveUpstreamConfig {
     Duration connectionTimeout;
     Duration operationTimeout;
 
+    Duration eventPollingInterval;
+
     boolean insecure;
 
     String authHeader;
     String username;
     String password;
 
+    String discoveryTagName;
     String environmentTagName;
     String regionTagName;
     String skipTagName;
 
     String defaultEnvironment;
     String defaultRegion;
+
+    boolean skipCaching;
 }

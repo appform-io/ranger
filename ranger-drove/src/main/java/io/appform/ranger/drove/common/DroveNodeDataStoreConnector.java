@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,12 +31,12 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
 
     protected final DroveUpstreamConfig config;
     protected final ObjectMapper mapper;
-    protected final DroveClient droveClient;
+    protected final DroveCommunicator<T> droveClient;
 
     public DroveNodeDataStoreConnector(
             final DroveUpstreamConfig config,
             final ObjectMapper mapper,
-            final DroveClient droveClient) {
+            final DroveCommunicator<T> droveClient) {
         this.config = config;
         this.mapper = mapper;
         this.droveClient = droveClient;

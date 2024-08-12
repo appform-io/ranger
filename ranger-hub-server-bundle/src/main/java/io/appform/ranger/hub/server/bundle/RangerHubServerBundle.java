@@ -66,7 +66,8 @@ public abstract class RangerHubServerBundle<U extends Configuration>
         val upstreams = Objects.<List<RangerUpstreamConfiguration>>requireNonNullElse(
                 serverConfig.getUpstreams(), Collections.emptyList());
         return upstreams.stream()
-                .map(rangerUpstreamConfiguration -> rangerUpstreamConfiguration.accept(new HubCreatorVisitor(serverConfig.getNamespace())))
+                .map(rangerUpstreamConfiguration -> rangerUpstreamConfiguration.accept(new HubCreatorVisitor(
+                        serverConfig.getNamespace())))
                 .flatMap(Collection::stream)
                 .toList();
     }
@@ -146,12 +147,12 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                                                         DroveUpstreamConfig.DEFAULT_ENVIRONMENT_TAG_NAME);
             val regionTagName = Objects.requireNonNullElse(droveConfig.getRegionTagName(),
                                                            DroveUpstreamConfig.DEFAULT_REGION_TAG_NAME);
-            val droveClient = RangerDroveUtils.buildDroveClient(droveConfig);
+            val droveCommunicator = RangerDroveUtils.<ShardInfo>buildDroveClient(namespace, droveConfig, getMapper());
             return UnshardedRangerDroveHubClient.<ShardInfo>builder()
                     .namespace(namespace)
                     .mapper(getMapper())
                     .clientConfig(droveConfig)
-                    .droveClient(droveClient)
+                    .droveCommunicator(droveCommunicator)
                     .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
                     .deserializer(new DroveResponseDataDeserializer<>() {
                         @Override
@@ -200,7 +201,8 @@ public abstract class RangerHubServerBundle<U extends Configuration>
             return rangerDroveConfiguration.getDroveClusters()
                     .stream()
                     .map(zk -> getDroveClient(zk, rangerDroveConfiguration))
-                    .toList();        }
+                    .toList();
+        }
     }
 
     private static void logUnparseableData(byte[] data) {

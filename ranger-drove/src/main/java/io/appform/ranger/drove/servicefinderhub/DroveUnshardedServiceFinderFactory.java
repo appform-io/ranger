@@ -16,7 +16,6 @@
 package io.appform.ranger.drove.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
@@ -26,13 +25,14 @@ import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilider;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.Builder;
 import lombok.val;
 
 public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFactory<T, ListBasedServiceRegistry<T>> {
 
     private final DroveUpstreamConfig clientConfig;
-    private final DroveClient droveClient;
+    private final DroveCommunicator<T> droveCommunicator;
     private final ObjectMapper mapper;
     private final DroveResponseDataDeserializer<T> deserializer;
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector;
@@ -42,7 +42,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
     @Builder
     public DroveUnshardedServiceFinderFactory(
             DroveUpstreamConfig droveConfig,
-            DroveClient droveClient,
+            DroveCommunicator<T> droveCommunicator,
             ObjectMapper mapper,
             DroveResponseDataDeserializer<T> deserializer,
             ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector,
@@ -50,7 +50,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
             int nodeRefreshIntervalMs)
     {
         this.clientConfig = droveConfig;
-        this.droveClient = droveClient;
+        this.droveCommunicator = droveCommunicator;
         this.mapper = mapper;
         this.deserializer = deserializer;
         this.shardSelector = shardSelector;
@@ -62,7 +62,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
     public ServiceFinder<T, ListBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new DroveUnshardedServiceFinderBuilider<T>()
                 .withClientConfig(clientConfig)
-                .withDroveClient(droveClient)
+                .withDroveCommunicator(droveCommunicator)
                 .withObjectMapper(mapper)
                 .withDeserializer(deserializer)
                 .withNamespace(service.getNamespace())

@@ -15,13 +15,8 @@
  */
 package io.appform.ranger.drove.servicefinder;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.phonepe.drove.client.DroveClient;
-import com.phonepe.drove.models.api.ApiErrorCode;
-import com.phonepe.drove.models.api.ApiResponse;
-import com.phonepe.drove.models.api.ExposedAppInfo;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -29,6 +24,7 @@ import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -47,7 +43,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
             Service service,
             final DroveUpstreamConfig config,
             ObjectMapper mapper,
-            DroveClient droveClient) {
+            DroveCommunicator<T> droveClient) {
         super(config, mapper, droveClient);
         this.service = service;
     }
@@ -59,24 +55,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
         val url = String.format("/apis/v1/endpoints/app/%s", service.getServiceName());
 
         log.debug("Refreshing the node list from url {}", url);
-        val nodes = droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
-                            new DroveClient.ResponseHandler<List<ServiceNode<T>>>() {
-                                @Override
-                                public List<ServiceNode<T>> defaultValue() {
-                                    return List.of();
-                                }
-
-                                @Override
-                                public List<ServiceNode<T>> handle(DroveClient.Response response) throws Exception {
-                                    val apiResponse = mapper.readValue(response.body(),
-                                                     new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {});
-                                    if (apiResponse.getStatus().equals(ApiErrorCode.FAILED)) {
-                                        log.error("Could not read data from drove. Error: {}", apiResponse.getMessage());
-                                        return List.of();
-                                    }
-                                    return deserializer.deserialize(apiResponse.getData());
-                                }
-                            });
+        val nodes = deserializer.deserialize(droveClient.listNodes(service));
         return Optional.of(FinderUtils.filterValidNodes(
                 service,
                 nodes,

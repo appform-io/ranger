@@ -37,7 +37,7 @@ public class ShardedRangerDroveHubClient<T>
     protected ServiceFinderFactory<T, MapBasedServiceRegistry<T>> getFinderFactory() {
         return DroveShardedServiceFinderFactory.<T>builder()
                 .droveConfig(this.getClientConfig())
-                .droveClient(this.getDroveClient())
+                .droveClient(this.getDroveCommunicator())
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
                 .shardSelector(shardSelector)

@@ -16,7 +16,6 @@
 package io.appform.ranger.client.drove;
 
 import com.phonepe.drove.models.api.ExposedAppInfo;
-import io.appform.ranger.client.http.SimpleRangerDroveClient;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;

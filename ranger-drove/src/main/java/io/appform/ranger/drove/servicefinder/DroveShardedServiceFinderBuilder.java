@@ -16,13 +16,13 @@
 package io.appform.ranger.drove.servicefinder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
 
 import java.util.Objects;
@@ -36,9 +36,9 @@ public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFin
 
     private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
-    private DroveClient droveClient = null;
+    private DroveCommunicator<T> droveClient = null;
 
-    public DroveShardedServiceFinderBuilder<T> withDroveClient(final DroveClient droveClient) {
+    public DroveShardedServiceFinderBuilder<T> withDroveClient(final DroveCommunicator<T> droveClient) {
         this.droveClient = droveClient;
         return this;
     }
@@ -63,7 +63,7 @@ public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFin
         return new DroveNodeDataSource<>(service, clientConfig, mapper,
                                          Objects.requireNonNullElseGet(droveClient,
                                                                        () -> RangerDroveUtils.buildDroveClient(
-                                                                               clientConfig)));
+                                                                               namespace, clientConfig, mapper)));
     }
 
 }

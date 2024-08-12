@@ -29,10 +29,11 @@ class UnshardedRangerDroveClientTest extends BaseRangerDroveClientTest {
     @Test
     void testUnshardedRangerHubClient(){
         val clientConfig = getClientConfig();
+        val namespace = "test";
         val client = UnshardedRangerDroveHubClient.<TestNodeData>builder()
                 .clientConfig(clientConfig)
-                .droveClient(RangerDroveUtils.buildDroveClient(clientConfig))
-                .namespace("test")
+                .droveCommunicator(RangerDroveUtils.buildDroveClient(namespace, clientConfig, getObjectMapper()))
+                .namespace(namespace)
                 .deserializer(new DroveResponseDataDeserializer<>() {
                     @Override
                     public TestNodeData translate(ExposedAppInfo appInfo, ExposedAppInfo.ExposedHost host) {
@@ -43,7 +44,7 @@ class UnshardedRangerDroveClientTest extends BaseRangerDroveClientTest {
                 .nodeRefreshTimeMs(1000)
                 .build();
         client.start();
-        val service = RangerTestUtils.getService("test", "TEST_APP");
+        val service = RangerTestUtils.getService(namespace, "TEST_APP");
         Assertions.assertNotNull(client.getNode(service).orElse(null));
         Assertions.assertNotNull(client.getNode(service, nodeData -> nodeData.getShardId() == 1).orElse(null));
         Assertions.assertNull(client.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));

@@ -15,36 +15,26 @@
  */
 package io.appform.ranger.drove.servicefinderhub;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.phonepe.drove.client.DroveClient;
-import com.phonepe.drove.models.api.ApiErrorCode;
-import com.phonepe.drove.models.api.ApiResponse;
-import com.phonepe.drove.models.api.AppSummary;
-import com.phonepe.drove.models.application.ApplicationState;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.apache.http.HttpStatus;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> implements ServiceDataSource {
     private final String namespace;
 
     public DroveServiceDataSource(
-            DroveUpstreamConfig config,
-            ObjectMapper mapper,
-            String namespace,
-            final DroveClient droveClient) {
+            final DroveUpstreamConfig config,
+            final ObjectMapper mapper,
+            final String namespace,
+            final DroveCommunicator<T> droveClient) {
         super(config, mapper, droveClient);
         this.namespace = namespace;
     }
@@ -53,46 +43,9 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
     public Collection<Service> services() {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
-        val skipTagName = Objects.requireNonNullElse(
-                config.getSkipTagName(),
-                DroveUpstreamConfig.DEFAULT_SKIP_TAG_NAME);
-        val url = "/apis/v1/applications";
-        return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
-                                   new DroveClient.ResponseHandler<>() {
-                                       @Override
-                                       public Collection<Service> defaultValue() {
-                                           return List.of();
-                                       }
-
-                                       @Override
-                                       public Collection<Service> handle(DroveClient.Response response) throws Exception {
-                                           if (response.statusCode() == HttpStatus.SC_OK) {
-                                               val apiResponse = mapper.readValue(
-                                                       response.body(),
-                                                       new TypeReference<ApiResponse<Map<String, AppSummary>>>() {
-                                                       });
-                                               if (apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
-                                                   return apiResponse.getData()
-                                                           .values()
-                                                           .stream()
-                                                           .filter(summary -> summary.getState()
-                                                                   .equals(ApplicationState.RUNNING))
-                                                           .filter(summary -> summary.getTags() == null
-                                                                   || !summary.getTags()
-                                                                   .getOrDefault(skipTagName,
-                                                                                 "false")
-                                                                   .equals("true"))
-                                                           .map(AppSummary::getName)
-                                                           .distinct()
-                                                           .map(appName -> new Service(namespace, appName))
-                                                           .toList();
-                                               }
-                                               else {
-                                                   log.error("Error calling drove: " + apiResponse.getMessage());
-                                               }
-                                           }
-                                           return List.of();
-                                       }
-                                   });
+        return droveClient.services()
+                .stream()
+                .map(serviceName -> new Service(namespace, serviceName))
+                .toList();
     }
 }

@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Service {
+public class Service implements Comparable<Service> {
     String namespace;
     String serviceName;
 
@@ -36,5 +36,12 @@ public class Service {
     @Override
     public String toString() {
         return name();
+    }
+
+    @Override
+    public int compareTo(Service service) {
+        return namespace.equals(service.getNamespace())
+                ? serviceName.compareTo(service.getServiceName())
+                : namespace.compareTo(service.getNamespace());
     }
 }

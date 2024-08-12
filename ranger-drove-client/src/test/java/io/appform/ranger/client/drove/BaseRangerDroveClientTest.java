@@ -62,7 +62,7 @@ public abstract class BaseRangerDroveClientTest {
                                                                                       32456,
                                                                                       PortType.HTTP)))))))
                                                               .withStatus(200)));
-wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
+        wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                           .willReturn(aResponse()
                                                               .withBody(objectMapper.writeValueAsBytes(
                                                                       ApiResponse.success(List.of())))
@@ -76,6 +76,7 @@ wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date()),
@@ -86,6 +87,7 @@ wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date()),
@@ -96,6 +98,7 @@ wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                0,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.MONITORING,
                                new Date(),
                                new Date()),
@@ -106,10 +109,12 @@ wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
                                4,
                                4,
                                1024,
+                               Map.of(),
                                ApplicationState.RUNNING,
                                new Date(),
                                new Date())));
-        wireMockExtension.stubFor(get("/apis/v1/applications").willReturn(okJson(objectMapper.writeValueAsString(response))));
+        wireMockExtension.stubFor(get("/apis/v1/applications").willReturn(okJson(objectMapper.writeValueAsString(
+                response))));
 
         clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wireMockExtension.getPort()))

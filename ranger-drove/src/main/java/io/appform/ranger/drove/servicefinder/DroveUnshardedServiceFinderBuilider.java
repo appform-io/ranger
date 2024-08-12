@@ -16,13 +16,13 @@
 package io.appform.ranger.drove.servicefinder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.DroveCommunicator;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
 
 import java.util.Objects;
@@ -33,10 +33,10 @@ public class DroveUnshardedServiceFinderBuilider<T>
 
     private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
-    private DroveClient droveClient;
+    private DroveCommunicator<T> droveCommunicator;
 
-    public DroveUnshardedServiceFinderBuilider<T> withDroveClient(final DroveClient droveClient) {
-        this.droveClient = droveClient;
+    public DroveUnshardedServiceFinderBuilider<T> withDroveCommunicator(final DroveCommunicator<T> droveClient) {
+        this.droveCommunicator = droveClient;
         return this;
     }
 
@@ -57,10 +57,12 @@ public class DroveUnshardedServiceFinderBuilider<T>
 
     @Override
     protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
-        return new DroveNodeDataSource<>(service, clientConfig, mapper,
-                                         Objects.requireNonNullElseGet(droveClient,
-                                                                       () -> RangerDroveUtils.buildDroveClient(
-                                                                               clientConfig)));
+        return new DroveNodeDataSource<>(
+                service,
+                clientConfig,
+                mapper,
+                Objects.requireNonNullElseGet(droveCommunicator,
+                                              () -> RangerDroveUtils.buildDroveClient(namespace, clientConfig, mapper)));
     }
 
 }
