@@ -22,12 +22,8 @@ import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
-import io.appform.ranger.core.model.Deserializer;
-import io.appform.ranger.core.model.Service;
-import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.ServiceNodeSelector;
-import io.appform.ranger.core.model.ServiceRegistry;
-import io.appform.ranger.core.model.ShardSelector;
+import io.appform.ranger.core.model.*;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +47,8 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private int nodeRefreshTimeMs;
     private ServiceFinderHub<T, R> hub;
     private ServiceDataSource serviceDataSource;
+    private long serviceRefreshDurationMs;
+    private long hubRefreshDurationMs;
 
     @Override
     public void start() {
@@ -58,12 +56,27 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
 
-        if (this.nodeRefreshTimeMs < RangerClientConstants.MINIMUM_REFRESH_TIME) {
+        if (this.nodeRefreshTimeMs < HubConstants.MINIMUM_REFRESH_TIME_MS) {
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
                      this.nodeRefreshTimeMs,
-                     RangerClientConstants.MINIMUM_REFRESH_TIME);
+                    HubConstants.MINIMUM_REFRESH_TIME_MS);
         }
-        this.nodeRefreshTimeMs = Math.max(RangerClientConstants.MINIMUM_REFRESH_TIME, this.nodeRefreshTimeMs);
+        this.nodeRefreshTimeMs = Math.max(HubConstants.MINIMUM_REFRESH_TIME_MS, this.nodeRefreshTimeMs);
+
+        if (this.serviceRefreshDurationMs <= 0) {
+            log.warn("Service Refresh interval too low: {} ms. Has been upgraded to {} ms ",
+                    this.serviceRefreshDurationMs,
+                    HubConstants.SERVICE_REFRESH_DURATION_MS);
+            this.serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_DURATION_MS;
+        }
+
+        if (this.hubRefreshDurationMs <= 0) {
+            log.warn("Service Refresh interval too low: {} ms. Has been upgraded to {} ms ",
+                    this.hubRefreshDurationMs,
+                    HubConstants.HUB_REFRESH_DURATION_MS);
+            this.hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
+        }
+
         if(null == this.serviceDataSource){
             this.serviceDataSource = getDefaultDataSource();
         }

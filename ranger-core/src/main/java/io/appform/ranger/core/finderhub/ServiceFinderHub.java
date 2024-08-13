@@ -20,6 +20,7 @@ import com.github.rholder.retry.StopStrategies;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 import io.appform.ranger.core.finder.ServiceFinder;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
@@ -76,7 +77,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceFinderFactory<T, R> finderFactory
     ) {
         this(serviceDataSource, finderFactory,
-                10_000, 30_000);
+                HubConstants.SERVICE_REFRESH_DURATION_MS, HubConstants.HUB_REFRESH_DURATION_MS);
     }
 
     public ServiceFinderHub(

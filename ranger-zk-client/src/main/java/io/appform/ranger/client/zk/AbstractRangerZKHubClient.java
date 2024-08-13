@@ -46,6 +46,8 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .withServiceDataSource(getServiceDataSource())
                 .withServiceFinderFactory(getFinderFactory())
+                .withHubRefreshDuration(getHubRefreshDurationMs())
+                .withServiceRefreshDuration(getServiceRefreshDurationMs())
                 .build();
     }
 

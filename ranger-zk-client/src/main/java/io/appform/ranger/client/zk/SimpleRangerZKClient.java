@@ -18,10 +18,10 @@ package io.appform.ranger.client.zk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
-import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
@@ -60,11 +60,11 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
 
         int effectiveRefreshTime = nodeRefreshIntervalMs;
 
-        if (effectiveRefreshTime < RangerClientConstants.MINIMUM_REFRESH_TIME) {
-            effectiveRefreshTime = RangerClientConstants.MINIMUM_REFRESH_TIME;
+        if (effectiveRefreshTime < HubConstants.MINIMUM_REFRESH_TIME_MS) {
+            effectiveRefreshTime = HubConstants.MINIMUM_REFRESH_TIME_MS;
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
                      nodeRefreshIntervalMs,
-                     RangerClientConstants.MINIMUM_REFRESH_TIME);
+                    HubConstants.MINIMUM_REFRESH_TIME_MS);
         }
 
         if (null == curatorFramework) {
@@ -72,7 +72,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
             curatorFramework = CuratorFrameworkFactory.builder()
                     .connectString(connectionString)
                     .namespace(namespace)
-                    .retryPolicy(new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME))
+                    .retryPolicy(new RetryForever(HubConstants.CONNECTION_RETRY_TIME_MS))
                     .build();
         }
 
