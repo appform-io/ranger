@@ -37,6 +37,7 @@ public class UnshardedRangerHttpHubClient<T>
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
         return HttpUnshardedServiceFinderFactory.<T>builder()
                 .httpClientConfig(this.getClientConfig())
+                .httpClient(this.getHttpClient())
                 .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
                 .deserializer(getDeserializer())
                 .shardSelector(shardSelector)

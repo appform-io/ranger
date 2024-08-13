@@ -27,10 +27,12 @@ import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinder.HttpShardedServiceFinderBuilder;
 import lombok.Builder;
 import lombok.val;
+import okhttp3.OkHttpClient;
 
 public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
 
     private final HttpClientConfig clientConfig;
+    private final OkHttpClient httpClient;
     private final ObjectMapper mapper;
     private final HTTPResponseDataDeserializer<T> deserializer;
     private final ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector;
@@ -39,7 +41,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
 
     @Builder
     public HttpShardedServiceFinderFactory(
-            HttpClientConfig httpClientConfig,
+            HttpClientConfig httpClientConfig, OkHttpClient httpClient,
             ObjectMapper mapper,
             HTTPResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,
@@ -47,6 +49,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
             int nodeRefreshIntervalMs)
     {
         this.clientConfig = httpClientConfig;
+        this.httpClient = httpClient;
         this.mapper = mapper;
         this.deserializer = deserializer;
         this.shardSelector = shardSelector;
@@ -58,6 +61,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
     public ServiceFinder<T, MapBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new HttpShardedServiceFinderBuilder<T>()
                 .withClientConfig(clientConfig)
+                .withHttpClient(httpClient)
                 .withObjectMapper(mapper)
                 .withDeserializer(deserializer)
                 .withNamespace(service.getNamespace())

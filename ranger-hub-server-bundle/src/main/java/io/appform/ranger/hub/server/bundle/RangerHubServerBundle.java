@@ -27,13 +27,16 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceNodesResponse;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import io.appform.ranger.hub.server.bundle.configuration.*;
 import io.appform.ranger.hub.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.hub.server.bundle.lifecycle.CuratorLifecycle;
 import io.appform.ranger.server.bundle.RangerServerBundle;
 import io.dropwizard.Configuration;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
@@ -117,6 +120,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .namespace(namespace)
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
+                    .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {

@@ -24,15 +24,15 @@ import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -43,10 +43,11 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
     private final Service service;
 
     public HttpNodeDataSource(
-            Service service,
+            final Service service,
             final HttpClientConfig config,
-            ObjectMapper mapper) {
-        super(config, mapper);
+            final ObjectMapper mapper,
+            final OkHttpClient httpClient) {
+        super(config, mapper, httpClient);
         this.service = service;
     }
 

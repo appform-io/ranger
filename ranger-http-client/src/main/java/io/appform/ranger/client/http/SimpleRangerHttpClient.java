@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 
 @Slf4j
 @SuperBuilder
@@ -39,6 +40,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
     private final ObjectMapper mapper;
     private final int nodeRefreshIntervalMs;
     private final HttpClientConfig clientConfig;
+    private final OkHttpClient httpClient;
     private final HTTPResponseDataDeserializer<T> deserializer;
     @Builder.Default
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
@@ -58,6 +60,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
                 .withServiceName(serviceName)
                 .withNamespace(namespace)
                 .withObjectMapper(mapper)
+                .withHttpClient(httpClient)
                 .withNodeRefreshIntervalMs(nodeRefreshIntervalMs)
                 .withDeserializer(deserializer)
                 .withShardSelector(shardSelector)

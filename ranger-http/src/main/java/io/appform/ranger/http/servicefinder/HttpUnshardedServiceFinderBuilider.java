@@ -22,12 +22,17 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.utils.RangerHttpUtils;
+import okhttp3.OkHttpClient;
+
+import java.util.Objects;
 
 public class HttpUnshardedServiceFinderBuilider<T>
         extends SimpleUnshardedServiceFinderBuilder<T, HttpUnshardedServiceFinderBuilider<T>, HTTPResponseDataDeserializer<T>> {
 
     private HttpClientConfig clientConfig;
     private ObjectMapper mapper;
+    private OkHttpClient httpClient;
 
     public HttpUnshardedServiceFinderBuilider<T> withClientConfig(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -39,6 +44,11 @@ public class HttpUnshardedServiceFinderBuilider<T>
         return this;
     }
 
+    public HttpUnshardedServiceFinderBuilider<T> withHttpClient(final OkHttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
     @Override
     public SimpleUnshardedServiceFinder<T> build() {
         return buildFinder();
@@ -46,7 +56,9 @@ public class HttpUnshardedServiceFinderBuilider<T>
 
     @Override
     protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
-        return new HttpNodeDataSource<>(service, clientConfig, mapper);
+        return new HttpNodeDataSource<>(service, clientConfig, mapper,
+                                        Objects.requireNonNullElseGet(httpClient,
+                                                                      () -> RangerHttpUtils.httpClient(clientConfig)));
     }
 
 }
