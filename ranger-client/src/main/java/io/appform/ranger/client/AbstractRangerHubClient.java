@@ -71,7 +71,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
 
         if (this.hubRefreshDurationMs <= 0) {
-            log.warn("Service Refresh interval too low: {} ms. Has been upgraded to {} ms ",
+            log.warn("Hub Refresh interval too low: {} ms. Has been upgraded to {} ms ",
                     this.hubRefreshDurationMs,
                     HubConstants.HUB_REFRESH_DURATION_MS);
             this.hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
