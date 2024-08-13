@@ -18,7 +18,6 @@ package io.appform.ranger.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.client.utils.CriteriaUtils;
-import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
@@ -110,7 +109,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T, R> shardSelector) {
+            final ShardSelector<T,R> shardSelector) {
         return getNode(service, criteria, shardSelector, null);
     }
 
@@ -118,7 +117,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T, R> shardSelector,
+            final ShardSelector<T,R> shardSelector,
             final ServiceNodeSelector<T> nodeSelector) {
         return this.getHub()
                 .finder(service)
