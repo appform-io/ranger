@@ -2,7 +2,9 @@ package io.appform.ranger.drove.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.models.api.ApiErrorCode;
 import com.phonepe.drove.models.api.ApiResponse;
@@ -19,20 +21,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  *
  */
 @Slf4j
 public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
+    private final String namespace;
     private final DroveUpstreamConfig config;
     private final DroveClient droveClient;
     private final ObjectMapper mapper;
 
     public DroveApiCommunicator(
-            DroveUpstreamConfig config,
+            String namespace, DroveUpstreamConfig config,
             DroveClient droveClient,
             ObjectMapper mapper) {
+        this.namespace = namespace;
         this.config = config;
         this.droveClient = droveClient;
         this.mapper = mapper;
@@ -51,9 +57,6 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
     @Override
     public List<String> services() {
         log.debug("Loading services list");
-        val appNameTag= Objects.requireNonNullElse(
-                config.getDiscoveryTagName(),
-                DroveUpstreamConfig.DEFAULT_DISCOVERY_TAG_NAME);
         val skipTagName = Objects.requireNonNullElse(
                 config.getSkipTagName(),
                 DroveUpstreamConfig.DEFAULT_SKIP_TAG_NAME);
@@ -83,14 +86,7 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
                                                 || !summary.getTags()
                                                 .getOrDefault(skipTagName, "false")
                                                 .equals("true"))
-                                        .map(appSummary -> {
-                                            val providedName = Objects.requireNonNullElseGet(appSummary.getTags(),
-                                                                                             Map::<String, String>of)
-                                                    .get(appNameTag);
-                                            return Strings.isNullOrEmpty(providedName)
-                                                    ? appSummary.getName()
-                                                   : providedName;
-                                        })
+                                        .map(AppSummary::getName)
                                         .distinct()
                                         .toList();
                             }
@@ -108,7 +104,7 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
         log.info("Loading nodes list for service: {}/{}", service.getNamespace(), service.getServiceName());
         val url = String.format("/apis/v1/endpoints/app/%s", service.getServiceName());
 
-        log.debug("Refreshing the node list from url {}", url);
+        logUrl(url);
         return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
                                    new DroveClient.ResponseHandler<>() {
                                        @Override
@@ -129,6 +125,47 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
                                            return Objects.requireNonNullElse(apiResponse.getData(), List.of());
                                        }
                                    });
+    }
+
+    @Override
+    public Map<Service, List<ExposedAppInfo>> listNodes(Iterable<? extends Service> services) {
+        log.info("Loading nodes list for services: {}", Lists.newArrayList(services));
+        val url = String.format("/apis/v1/endpoints?%s", Joiner.on("&")
+                .join(StreamSupport.stream(services.spliterator(), false)
+                              .map(service -> "app=" + service.getServiceName())
+                              .toList()));
+
+        logUrl(url);
+        return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
+                                   new DroveClient.ResponseHandler<>() {
+                                       @Override
+                                       public Map<Service, List<ExposedAppInfo>> defaultValue() {
+                                           return Map.of();
+                                       }
+
+                                       @Override
+                                       public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) throws Exception {
+                                           val apiResponse = mapper.readValue(response.body(),
+                                                                              new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
+                                                                              });
+                                           if (apiResponse.getStatus().equals(ApiErrorCode.FAILED)) {
+                                               log.error("Could not read data from drove. Error: {}",
+                                                         apiResponse.getMessage());
+                                               return Map.of();
+                                           }
+                                           val data = Objects.requireNonNullElse(apiResponse.getData(),
+                                                                                 List.<ExposedAppInfo>of());
+                                           return data.stream()
+                                                   .filter(appInfo -> Strings.isNullOrEmpty(appInfo.getAppName()))
+                                                   .collect(Collectors.groupingBy(
+                                                           appInfo -> new Service(namespace, appInfo.getAppName()),
+                                                           Collectors.toList()));
+                                       }
+                                   });
+    }
+
+    private static void logUrl(String url) {
+        log.debug("Refreshing the node list from url {}", url);
     }
 
 }

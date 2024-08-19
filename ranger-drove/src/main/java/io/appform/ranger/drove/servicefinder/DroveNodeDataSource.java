@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -55,7 +56,8 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
         val url = String.format("/apis/v1/endpoints/app/%s", service.getServiceName());
 
         log.debug("Refreshing the node list from url {}", url);
-        val nodes = deserializer.deserialize(droveClient.listNodes(service));
+        val nodes = deserializer.deserialize(
+                Objects.requireNonNull(droveClient.listNodes(service), "Unexpected empty response from server"));
         return Optional.of(FinderUtils.filterValidNodes(
                 service,
                 nodes,

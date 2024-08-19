@@ -55,7 +55,8 @@ class DroveShardedServiceFinderBuilderTest {
     @Test
     void testFinder(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
         val payload = MAPPER.writeValueAsBytes(
-                ApiResponse.success(List.of(new ExposedAppInfo("test-0.1",
+                ApiResponse.success(List.of(new ExposedAppInfo("test",
+                                                               "test-0.1",
                                                                "test.appform.io",
                                                                Map.of(),
                                                                List.of(new ExposedAppInfo.ExposedHost(

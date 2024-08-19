@@ -23,4 +23,4 @@ jobs:
           cache: maven
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn -B clean package --file pom.xml
+        run: mvn  -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml -B clean package --file pom.xml

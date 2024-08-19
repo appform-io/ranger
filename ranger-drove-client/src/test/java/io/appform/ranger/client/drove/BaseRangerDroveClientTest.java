@@ -54,6 +54,7 @@ public abstract class BaseRangerDroveClientTest {
                                           .willReturn(aResponse()
                                                               .withBody(objectMapper.writeValueAsBytes(
                                                                       ApiResponse.success(List.of(new ExposedAppInfo(
+                                                                              "test",
                                                                               "test-0.1",
                                                                               "test.appform.io",
                                                                               Map.of(),

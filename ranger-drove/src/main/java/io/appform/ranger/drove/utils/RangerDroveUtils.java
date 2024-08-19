@@ -92,7 +92,7 @@ public class RangerDroveUtils {
                                                         new AuthHeaderDecorator(config.getAuthHeader())),
                                                 new DroveHttpComponentsTransport(droveConfig,
                                                                                  createHttpClient(config)));
-        val apiCommunicator = new DroveApiCommunicator<T>(config, droveClient, mapper);
+        val apiCommunicator = new DroveApiCommunicator<T>(namespace, config, droveClient, mapper);
         return config.isSkipCaching()
             ? apiCommunicator
             : new DroveCachingCommunicator<>(apiCommunicator, namespace, config, droveClient, mapper);
