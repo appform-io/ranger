@@ -32,7 +32,7 @@ import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
-import io.appform.ranger.http.model.ServiceNodesResponse;
+import io.appform.ranger.http.utils.RangerHttpUtils;
 import io.appform.ranger.hub.server.bundle.configuration.*;
 import io.appform.ranger.hub.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.hub.server.bundle.lifecycle.CuratorLifecycle;
@@ -126,12 +126,11 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .namespace(namespace)
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
+                    .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {
-                            return getMapper().readValue(data,
-                                                         new TypeReference<ServiceNodesResponse<ShardInfo>>() {
-                                                         });
+                            return getMapper().readValue(data, new TypeReference<>() {});
                         }
                         catch (IOException e) {
                             logUnparseableData(data);

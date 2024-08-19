@@ -7,7 +7,18 @@
         <groupId>io.appform.ranger</groupId>
         <version>1.1-RC1</version>
     </parent>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-hub-server-bundle</artifactId>
@@ -27,7 +38,7 @@
       <artifactId>ranger-zk-client</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
+      <dependency>
       <groupId>io.appform.ranger</groupId>
       <artifactId>ranger-drove-client</artifactId>
       <version>${project.version}</version>
@@ -49,16 +60,27 @@
       <scope>provided</scope>
     </dependency>
       <dependency>
-          <groupId>io.appform.ranger</groupId>
-          <artifactId>ranger-drove</artifactId>
-          <version>1.0-RC17</version>
-          <scope>compile</scope>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-core</artifactId>
+          <version>${mockito.version}</version>
+          <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>io.appform.ranger</groupId>
-          <artifactId>ranger-drove</artifactId>
-          <version>1.1-RC1</version>
-          <scope>compile</scope>
+          <groupId>org.wiremock</groupId>
+          <artifactId>wiremock-standalone</artifactId>
+          <version>${wiremock.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>io.dropwizard</groupId>
+          <artifactId>dropwizard-testing</artifactId>
+          <scope>test</scope>
+          <exclusions>
+              <exclusion>
+                  <groupId>junit</groupId>
+                  <artifactId>junit</artifactId>
+              </exclusion>
+          </exclusions>
       </dependency>
   </dependencies>
 

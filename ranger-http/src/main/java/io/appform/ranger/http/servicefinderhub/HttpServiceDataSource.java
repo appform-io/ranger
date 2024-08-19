@@ -25,6 +25,7 @@ import io.appform.ranger.http.model.ServiceDataSourceResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 import java.io.IOException;
@@ -34,8 +35,8 @@ import java.util.Collections;
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    public HttpServiceDataSource(HttpClientConfig config, ObjectMapper mapper) {
-        super(config, mapper);
+    public HttpServiceDataSource(HttpClientConfig config, ObjectMapper mapper, OkHttpClient httpClient) {
+        super(config, mapper, httpClient);
     }
 
     @Override

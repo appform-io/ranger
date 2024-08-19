@@ -29,6 +29,7 @@ import io.appform.ranger.http.serde.HttpRequestDataSerializer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -40,8 +41,8 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
 
     private final Service service;
 
-    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper) {
-        super(config, mapper);
+    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper, OkHttpClient httpClient) {
+        super(config, mapper, httpClient);
         this.service = service;
     }
 
