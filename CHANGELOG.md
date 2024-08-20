@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1-RC2]
+
+- Pertaining to PR : https://github.com/appform-io/ranger/pull/22/, building of a ServiceFinderHub and a ServiceFinder are bounded.
+
 ## [1.0-RC18]
 - Version bump to release lexicographically higher version than 1.0-dw3-RC17
 
