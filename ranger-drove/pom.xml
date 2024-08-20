@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>com.phonepe.drove</groupId>
-            <artifactId>drove-client-httpcomponent-transport</artifactId>
+            <artifactId>drove-events-client</artifactId>
             <version>${drove.version}</version>
             <exclusions>
                 <exclusion>
@@ -67,15 +67,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.phonepe.drove</groupId>
-            <artifactId>drove-events-client</artifactId>
-            <version>${drove.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.phonepe.platform</groupId>
-                    <artifactId>release-scripts</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${http.client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>

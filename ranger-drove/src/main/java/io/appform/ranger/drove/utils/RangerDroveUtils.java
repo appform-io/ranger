@@ -5,26 +5,21 @@ import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.client.DroveClientConfig;
 import com.phonepe.drove.client.decorators.AuthHeaderDecorator;
 import com.phonepe.drove.client.decorators.BasicAuthDecorator;
-import com.phonepe.drove.client.transport.httpcomponent.DroveHttpComponentsTransport;
+import io.appform.ranger.drove.common.DroveOkHttpTransport;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.hc.client5.http.config.ConnectionConfig;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
-import org.apache.hc.client5.http.ssl.TrustAllStrategy;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.util.TimeValue;
-import org.apache.hc.core5.util.Timeout;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -33,42 +28,45 @@ import java.util.Objects;
 @UtilityClass
 public class RangerDroveUtils {
 
+
+
     @SneakyThrows
-    public static CloseableHttpClient createHttpClient(final DroveUpstreamConfig config) {
+    public static OkHttpClient createOkHttpClient(final DroveUpstreamConfig config) {
         val connectionTimeout
                 = Objects.requireNonNullElse(config.getConnectionTimeout(),
                                              DroveUpstreamConfig.DEFAULT_CONNECTION_TIMEOUT)
                 .toJavaDuration();
-        val cmBuilder = PoolingHttpClientConnectionManagerBuilder.create();
-        if (config.isInsecure()) {
-            log.warn("Creating insecure http client for drove endpoint: {}", config.getEndpoints());
-            cmBuilder.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
-                                                  .setSslContext(
-                                                          SSLContextBuilder.create()
-                                                                  .loadTrustMaterial(TrustAllStrategy.INSTANCE)
-                                                                  .build())
-                                                  .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                                  .build());
+        val operationTimeout = Objects.requireNonNullElse(config.getOperationTimeout(),
+                                   DroveUpstreamConfig.DEFAULT_OPERATION_TIMEOUT).toJavaDuration();
+        val okHttpBuilder = new OkHttpClient.Builder();
+        if(config.isInsecure()) {
+            val trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                        }
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return new java.security.cert.X509Certificate[]{};
+                        }
+                    }
+            };
+            val sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            okHttpBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
+            okHttpBuilder.hostnameVerifier((hostname, session) -> true);
+            log.warn("SSL verification turned off for drove transport");
         }
-        val connectionManager = cmBuilder.build();
-        connectionManager.setDefaultMaxPerRoute(Integer.MAX_VALUE);
-        connectionManager.setMaxTotal(Integer.MAX_VALUE);
-        connectionManager.setDefaultConnectionConfig(ConnectionConfig.custom()
-                                                             .setConnectTimeout(Timeout.of(connectionTimeout))
-                                                             .setSocketTimeout(Timeout.of(connectionTimeout))
-                                                             .setValidateAfterInactivity(TimeValue.ofSeconds(10))
-                                                             .setTimeToLive(TimeValue.ofHours(1))
-                                                             .build());
-        val rc = RequestConfig.custom()
-                .setConnectionRequestTimeout(Timeout.of(connectionTimeout))
-                .setResponseTimeout(Timeout.of(Objects.requireNonNullElse(config.getOperationTimeout(),
-                                                                          DroveUpstreamConfig.DEFAULT_OPERATION_TIMEOUT)
-                                                       .toJavaDuration()))
-                .build();
-        return HttpClients.custom()
-                .disableRedirectHandling()
-                .setConnectionManager(connectionManager)
-                .setDefaultRequestConfig(rc)
+        return okHttpBuilder
+                .callTimeout(operationTimeout)
+                .connectTimeout(connectionTimeout)
+                .followRedirects(false)
+                .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
                 .build();
     }
 
@@ -90,11 +88,12 @@ public class RangerDroveUtils {
                                                 List.of(new BasicAuthDecorator(config.getUsername(),
                                                                                config.getPassword()),
                                                         new AuthHeaderDecorator(config.getAuthHeader())),
-                                                new DroveHttpComponentsTransport(droveConfig,
-                                                                                 createHttpClient(config)));
+                                                new DroveOkHttpTransport(createOkHttpClient(config)));
+//                                                new DroveHttpComponentsTransport(droveConfig,
+//                                                                                 createHttpClient(config)));
         val apiCommunicator = new DroveApiCommunicator<T>(namespace, config, droveClient, mapper);
         return config.isSkipCaching()
-            ? apiCommunicator
-            : new DroveCachingCommunicator<>(apiCommunicator, namespace, config, droveClient, mapper);
+               ? apiCommunicator
+               : new DroveCachingCommunicator<>(apiCommunicator, namespace, config, droveClient, mapper);
     }
 }
