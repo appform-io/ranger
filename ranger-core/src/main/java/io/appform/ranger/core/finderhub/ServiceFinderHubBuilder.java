@@ -16,6 +16,7 @@
 package io.appform.ranger.core.finderhub;
 
 import com.google.common.base.Preconditions;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
@@ -33,10 +34,12 @@ import java.util.function.Consumer;
 public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private ServiceDataSource serviceDataSource;
     private ServiceFinderFactory<T, R> serviceFinderFactory;
-    private long refreshFrequencyMs = 10_000;
+    private long refreshFrequencyMs = HubConstants.REFRESH_FREQUENCY_MS;
     private final List<Consumer<Void>> extraStartSignalConsumers = new ArrayList<>();
     private final List<Consumer<Void>> extraStopSignalConsumers = new ArrayList<>();
     private final List<Signal<Void>> extraRefreshSignals = new ArrayList<>();
+    private long serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_DURATION_MS;
+    private long hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
 
     public ServiceFinderHubBuilder<T, R> withServiceDataSource(ServiceDataSource serviceDataSource) {
         this.serviceDataSource = serviceDataSource;
@@ -68,12 +71,23 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         return this;
     }
 
+    public ServiceFinderHubBuilder<T, R> withServiceRefreshDuration(long serviceRefreshDurationMs) {
+        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
+        return this;
+    }
+
+    public ServiceFinderHubBuilder<T, R> withHubRefreshDuration(long hubRefreshDurationMs) {
+        this.hubRefreshDurationMs = hubRefreshDurationMs;
+        return this;
+    }
+
     public ServiceFinderHub<T, R> build() {
         preBuild();
         Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
-        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory);
+        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory,
+                serviceRefreshDurationMs, hubRefreshDurationMs);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                                                                           () -> null,
                                                                           Collections.emptyList(),

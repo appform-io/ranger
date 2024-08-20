@@ -16,8 +16,11 @@
 package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Supplier;
 import io.appform.ranger.core.finder.ServiceFinder;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
@@ -66,11 +69,26 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final AtomicBoolean alreadyUpdating = new AtomicBoolean(false);
     private Future<?> monitorFuture = null;
 
+    private final long serviceRefreshDurationMs;
+    private final long hubRefreshDurationMs;
+
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
-            ServiceFinderFactory<T, R> finderFactory) {
+            ServiceFinderFactory<T, R> finderFactory
+    ) {
+        this(serviceDataSource, finderFactory,
+                HubConstants.SERVICE_REFRESH_DURATION_MS, HubConstants.HUB_REFRESH_DURATION_MS);
+    }
+
+    public ServiceFinderHub(
+            ServiceDataSource serviceDataSource,
+            ServiceFinderFactory<T, R> finderFactory,
+            long serviceRefreshDurationMs,
+            long hubRefreshDurationMs) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
+        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
+        this.hubRefreshDurationMs = hubRefreshDurationMs;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
                 () -> null,
                 Collections.emptyList(),
@@ -190,13 +208,31 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
-        serviceDataSource.services().forEach(this::waitTillServiceIsReady);
+        val hubRefresher = CompletableFuture.allOf(
+                serviceDataSource.services()
+                        .stream()
+                        .map(service -> CompletableFuture.supplyAsync((Supplier<Void>) () -> {
+                            waitTillServiceIsReady(service);
+                            return null;
+                        })).toArray(CompletableFuture[]::new)
+        );
+        try {
+            hubRefresher.get(hubRefreshDurationMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            Exceptions
+                    .illegalState("Couldn't perform hub refresh at this time. Refresh exceeded the start up time specified");
+        } catch (Exception e) {
+            Exceptions
+                    .illegalState("Couldn't perform hub refresh at this time", e);
+        }
     }
 
     private void waitTillServiceIsReady(Service service) {
         try {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
+                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshDurationMs, TimeUnit.MILLISECONDS))
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)

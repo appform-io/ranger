@@ -54,6 +54,8 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
         .withServiceDataSource(getServiceDataSource())
         .withServiceFinderFactory(getFinderFactory())
         .withRefreshFrequencyMs(getNodeRefreshTimeMs())
+        .withHubRefreshDuration(getHubRefreshDurationMs())
+        .withServiceRefreshDuration(getServiceRefreshDurationMs())
         .build();
   }
 }

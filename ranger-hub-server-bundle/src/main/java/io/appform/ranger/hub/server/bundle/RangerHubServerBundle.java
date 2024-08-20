@@ -19,13 +19,13 @@ import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Strings;
 import com.phonepe.drove.models.api.ExposedAppInfo;
-import io.appform.ranger.client.RangerClientConstants;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.client.drove.UnshardedRangerDroveHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
@@ -97,7 +97,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
             val curatorFramework = CuratorFrameworkFactory.builder()
                     .connectString(zookeeper)
                     .namespace(namespace)
-                    .retryPolicy(new RetryForever(RangerClientConstants.CONNECTION_RETRY_TIME))
+                    .retryPolicy(new RetryForever(HubConstants.CONNECTION_RETRY_TIME_MS))
                     .build();
             curatorFrameworks.add(curatorFramework);
             return UnshardedRangerZKHubClient.<ShardInfo>builder()
