@@ -28,6 +28,7 @@ import lombok.val;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
@@ -83,6 +84,11 @@ class IdGeneratorTest {
         }
     }
 
+    @BeforeEach
+    void setup() {
+        IdGenerator.initialize(23);
+    }
+
     @AfterEach
     void cleanup() {
         IdGenerator.cleanUp();
@@ -90,7 +96,6 @@ class IdGeneratorTest {
 
     @Test
     void testGenerate() {
-        IdGenerator.initialize(23);
         val numRunners = 20;
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).collect(Collectors.toList());
         val executorService = Executors.newFixedThreadPool(numRunners);
@@ -108,21 +113,19 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        IdGenerator.initialize(23);
         String id = IdGenerator.generate("TEST", IdFormatters.original()).getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        IdGenerator.initialize(23);
         String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
         Assertions.assertEquals(18, id.length());
     }
 
     @Test
     void testGenerateWithConstraints() {
-        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.emptyList()));
+        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.singletonList(id -> true)));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
 
         Assertions.assertTrue(id.isPresent());
@@ -151,7 +154,6 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraintsNoConstraint() {
-        IdGenerator.initialize(23);
         int numRunners = 20;
 
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).collect(Collectors.toList());
@@ -171,7 +173,6 @@ class IdGeneratorTest {
 
     @Test
     void testConstraintFailure() {
-        IdGenerator.initialize(23);
         Assertions.assertFalse(IdGenerator.generateWithConstraints(
                 "TST",
                 ImmutableList.of(id -> false),
