@@ -1,4 +1,20 @@
-package io.appform.ranger.drove.utils;
+/*
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.appform.ranger.drove.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.CacheLoader;
@@ -31,24 +47,26 @@ import java.util.*;
  * This is an optimization to reduce upstream service calls
  */
 @Slf4j
-public class DroveCachingCommunicator<T> implements DroveCommunicator<T> {
-    private final DroveCommunicator<T> root;
+public class DroveCachingCommunicator implements DroveCommunicator {
+    private final DroveCommunicator root;
     private final DroveRemoteEventListener listener;
     //Zombie check is 60 secs .. so this provides about 10 secs
     // for nodes to be refreshed
     private final LoadingCache<Service, List<ExposedAppInfo>> cache;
 
     public DroveCachingCommunicator(
-            DroveCommunicator<T> root,
+            DroveCommunicator root,
             String namespace,
             DroveUpstreamConfig config,
             DroveClient droveClient,
             ObjectMapper mapper) {
         this.root = root;
+        val offsetStore = new DroveEventPollingOffsetInMemoryStore();
+        offsetStore.setLastOffset(System.currentTimeMillis()); //Only interested in new events
         this.listener = DroveRemoteEventListener.builder()
                 .droveClient(droveClient)
                 .mapper(mapper)
-                .offsetStore(new DroveEventPollingOffsetInMemoryStore())
+                .offsetStore(offsetStore)
                 .pollInterval(Objects.requireNonNullElse(config.getEventPollingInterval(),
                                                          DroveUpstreamConfig.DEFAULT_EVENT_POLLING_INTERVAL)
                                       .toJavaDuration())
@@ -65,18 +83,18 @@ public class DroveCachingCommunicator<T> implements DroveCommunicator<T> {
 
                     @Override
                     public @NonNull Map<Service, List<ExposedAppInfo>> loadAll(
-                            @NonNull Iterable<? extends Service>
-                                    services) {
-                        return root.listNodes(services);
+                            @NonNull Iterable<? extends Service> services) {
+                        return root.listNodes(services); //This will throw in the case of comm failure, which is correct
                     }
                 });
         val relevantEvents = EnumSet.of(DroveEventType.APP_STATE_CHANGE, DroveEventType.INSTANCE_STATE_CHANGE);
-        listener.onEventReceived().connect(events -> handleEvents(namespace, events, relevantEvents));
         Lists.partition(Objects.requireNonNullElse(services(), List.<String>of())
                                 .stream()
                                 .map(name -> new Service(namespace, name))
                                 .toList(), 10)
                 .forEach(cache::getAll);
+        log.info("Batch loading completed");
+        listener.onEventReceived().connect(events -> handleEvents(namespace, events, relevantEvents));
         listener.start();
     }
 
@@ -95,11 +113,6 @@ public class DroveCachingCommunicator<T> implements DroveCommunicator<T> {
     @Override
     public List<String> services() {
         return root.services();
-    }
-
-    @Override
-    public List<ExposedAppInfo> listNodes(final Service service) {
-        return Objects.requireNonNullElse(cache.get(service), List.of());
     }
 
     @Override
@@ -128,6 +141,7 @@ public class DroveCachingCommunicator<T> implements DroveCommunicator<T> {
                         return new Service(namespace, appName.toString());
                     }
                 }))
+                .filter(Objects::nonNull)
                 .map(Service.class::cast)
                 .forEach(service -> {
                     log.info("Refreshing data for app due to cluster event: {}", service);

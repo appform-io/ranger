@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
-import io.appform.ranger.drove.utils.DroveCommunicator;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
             final DroveUpstreamConfig config,
             final ObjectMapper mapper,
             final String namespace,
-            final DroveCommunicator<T> droveClient) {
+            final DroveCommunicator droveClient) {
         super(config, mapper, droveClient);
         this.namespace = namespace;
     }

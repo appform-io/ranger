@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,10 +21,11 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.util.FinderUtils;
+import io.appform.ranger.drove.common.DroveCommunicationException;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
-import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -44,7 +45,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
             Service service,
             final DroveUpstreamConfig config,
             ObjectMapper mapper,
-            DroveCommunicator<T> droveClient) {
+            DroveCommunicator droveClient) {
         super(config, mapper, droveClient);
         this.service = service;
     }
@@ -53,19 +54,24 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
     public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
         Preconditions.checkNotNull(config, "client config has not been set for node data");
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
-        val url = String.format("/apis/v1/endpoints/app/%s", service.getServiceName());
+        try {
+            val exposedAppInfos = droveClient.listNodes(service);
+            val nodes = deserializer.deserialize(
+                    Objects.requireNonNull(exposedAppInfos, "Unexpected empty response from server"));
+            return Optional.of(FinderUtils.filterValidNodes(
+                    service,
+                    nodes,
+                    healthcheckZombieCheckThresholdTime(service)));
+        }
+        catch (DroveCommunicationException e) {
+            log.error("Drove communication error", e);
+            return Optional.empty(); //In case of refresh failure, maintain old list
+        }
 
-        log.debug("Refreshing the node list from url {}", url);
-        val nodes = deserializer.deserialize(
-                Objects.requireNonNull(droveClient.listNodes(service), "Unexpected empty response from server"));
-        return Optional.of(FinderUtils.filterValidNodes(
-                service,
-                nodes,
-                healthcheckZombieCheckThresholdTime(service)));
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        return droveClient.leader().isPresent();
     }
 }

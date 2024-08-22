@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
-import io.appform.ranger.drove.utils.DroveCommunicator;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
 
 import java.util.Objects;
@@ -33,9 +33,9 @@ public class DroveUnshardedServiceFinderBuilider<T>
 
     private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
-    private DroveCommunicator<T> droveCommunicator;
+    private DroveCommunicator droveCommunicator;
 
-    public DroveUnshardedServiceFinderBuilider<T> withDroveCommunicator(final DroveCommunicator<T> droveClient) {
+    public DroveUnshardedServiceFinderBuilider<T> withDroveCommunicator(final DroveCommunicator droveClient) {
         this.droveCommunicator = droveClient;
         return this;
     }

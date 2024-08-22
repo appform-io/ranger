@@ -106,6 +106,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .curatorFramework(curatorFramework)
                     .disablePushUpdaters(zkConfiguration.isDisablePushUpdaters())
                     .mapper(getMapper())
+                    .serviceRefreshDurationMs(zkConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {
@@ -127,6 +128,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
                     .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
+                    .serviceRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {
@@ -152,6 +154,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .clientConfig(droveConfig)
                     .droveCommunicator(droveCommunicator)
+                    .serviceRefreshDurationMs(droveUpstreamConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
                     .deserializer(new DroveResponseDataDeserializer<>() {
                         @Override

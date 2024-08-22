@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.appform.ranger.drove.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -5,6 +21,9 @@ import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.client.DroveClientConfig;
 import com.phonepe.drove.client.decorators.AuthHeaderDecorator;
 import com.phonepe.drove.client.decorators.BasicAuthDecorator;
+import io.appform.ranger.drove.common.DroveApiCommunicator;
+import io.appform.ranger.drove.common.DroveCachingCommunicator;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.common.DroveOkHttpTransport;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.SneakyThrows;
@@ -13,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -70,20 +90,11 @@ public class RangerDroveUtils {
                 .build();
     }
 
-    public static <T> DroveCommunicator<T> buildDroveClient(
+    public static <T> DroveCommunicator buildDroveClient(
             String namespace,
             DroveUpstreamConfig config, ObjectMapper mapper) {
         log.info("Building drove client for: {}", config.getEndpoints());
-        val droveConfig = new DroveClientConfig(config.getEndpoints(),
-                                                Objects.requireNonNullElse(config.getCheckInterval(),
-                                                                           DroveUpstreamConfig.DEFAULT_CHECK_INTERVAL)
-                                                        .toJavaDuration(),
-                                                Objects.requireNonNullElse(config.getConnectionTimeout(),
-                                                                           DroveUpstreamConfig.DEFAULT_CONNECTION_TIMEOUT)
-                                                        .toJavaDuration(),
-                                                Objects.requireNonNullElse(config.getOperationTimeout(),
-                                                                           DroveUpstreamConfig.DEFAULT_OPERATION_TIMEOUT)
-                                                        .toJavaDuration());
+        final var droveConfig = convertToDCConfig(config);
         final var droveClient = new DroveClient(droveConfig,
                                                 List.of(new BasicAuthDecorator(config.getUsername(),
                                                                                config.getPassword()),
@@ -91,9 +102,23 @@ public class RangerDroveUtils {
                                                 new DroveOkHttpTransport(createOkHttpClient(config)));
 //                                                new DroveHttpComponentsTransport(droveConfig,
 //                                                                                 createHttpClient(config)));
-        val apiCommunicator = new DroveApiCommunicator<T>(namespace, config, droveClient, mapper);
+        val apiCommunicator = new DroveApiCommunicator(namespace, config, droveClient, mapper);
         return config.isSkipCaching()
                ? apiCommunicator
-               : new DroveCachingCommunicator<>(apiCommunicator, namespace, config, droveClient, mapper);
+               : new DroveCachingCommunicator(apiCommunicator, namespace, config, droveClient, mapper);
+    }
+
+    @NotNull
+    public static DroveClientConfig convertToDCConfig(DroveUpstreamConfig config) {
+        return new DroveClientConfig(config.getEndpoints(),
+                                     Objects.requireNonNullElse(config.getCheckInterval(),
+                                                                           DroveUpstreamConfig.DEFAULT_CHECK_INTERVAL)
+                                                        .toJavaDuration(),
+                                     Objects.requireNonNullElse(config.getConnectionTimeout(),
+                                                                           DroveUpstreamConfig.DEFAULT_CONNECTION_TIMEOUT)
+                                                        .toJavaDuration(),
+                                     Objects.requireNonNullElse(config.getOperationTimeout(),
+                                                                           DroveUpstreamConfig.DEFAULT_OPERATION_TIMEOUT)
+                                                        .toJavaDuration());
     }
 }

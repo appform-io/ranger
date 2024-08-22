@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceDataSource;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceFinderHubBuilder;
-import io.appform.ranger.drove.utils.DroveCommunicator;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -38,7 +38,7 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
     extends AbstractRangerHubClient<T, R, D> {
 
   private final DroveUpstreamConfig clientConfig;
-  private final DroveCommunicator<T> droveCommunicator;
+  private final DroveCommunicator droveCommunicator;
 
   @Builder.Default
   private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();

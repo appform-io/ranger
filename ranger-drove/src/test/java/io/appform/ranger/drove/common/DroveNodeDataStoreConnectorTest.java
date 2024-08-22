@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ class DroveNodeDataStoreConnectorTest {
 
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wm.getHttpPort()))
+                .skipCaching(true)
                 .build();
         val mapper = new ObjectMapper();
         val connector = new DroveNodeDataStoreConnector<TestNodeData>(

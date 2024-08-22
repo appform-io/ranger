@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,8 @@
 package io.appform.ranger.drove.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.phonepe.drove.client.DroveClient;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
-import io.appform.ranger.drove.utils.DroveCommunicator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,12 +29,12 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
 
     protected final DroveUpstreamConfig config;
     protected final ObjectMapper mapper;
-    protected final DroveCommunicator<T> droveClient;
+    protected final DroveCommunicator droveClient;
 
     public DroveNodeDataStoreConnector(
             final DroveUpstreamConfig config,
             final ObjectMapper mapper,
-            final DroveCommunicator<T> droveClient) {
+            final DroveCommunicator droveClient) {
         this.config = config;
         this.mapper = mapper;
         this.droveClient = droveClient;

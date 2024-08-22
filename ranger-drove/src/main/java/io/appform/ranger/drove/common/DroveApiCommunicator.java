@@ -1,4 +1,20 @@
-package io.appform.ranger.drove.utils;
+/*
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.appform.ranger.drove.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +44,7 @@ import java.util.stream.StreamSupport;
  *
  */
 @Slf4j
-public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
+public class DroveApiCommunicator implements DroveCommunicator {
     private final String namespace;
     private final DroveUpstreamConfig config;
     private final DroveClient droveClient;
@@ -66,68 +82,40 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
                 new DroveClient.ResponseHandler<>() {
                     @Override
                     public List<String> defaultValue() {
-                        return List.of();
+                        throw new IllegalStateException("Default value should not be used here");
                     }
 
                     @Override
                     public List<String> handle(DroveClient.Response response) throws Exception {
-                        if (response.statusCode() == HttpStatus.SC_OK) {
-                            val apiResponse = mapper.readValue(
-                                    response.body(),
-                                    new TypeReference<ApiResponse<Map<String, AppSummary>>>() {
-                                    });
-                            if (apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
-                                return apiResponse.getData()
-                                        .values()
-                                        .stream()
-                                        .filter(summary -> summary.getState()
-                                                .equals(ApplicationState.RUNNING))
-                                        .filter(summary -> summary.getTags() == null
-                                                || !summary.getTags()
-                                                .getOrDefault(skipTagName, "false")
-                                                .equals("true"))
-                                        .map(AppSummary::getName)
-                                        .distinct()
-                                        .toList();
-                            }
-                            else {
-                                log.error("Error calling drove: " + apiResponse.getMessage());
-                            }
+                        if (response.statusCode() != HttpStatus.SC_OK) {
+                            throw new DroveCommunicationException("Error communicating to drove: " + response);
                         }
-                        return List.of();
+                        val apiResponse = mapper.readValue(
+                                response.body(),
+                                new TypeReference<ApiResponse<Map<String, AppSummary>>>() {
+                                });
+                        if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
+                            log.error("Error calling drove: " + apiResponse.getMessage());
+                            throwDroveCommError(response);
+                        }
+                        return apiResponse.getData()
+                                .values()
+                                .stream()
+                                .filter(summary -> summary.getState()
+                                        .equals(ApplicationState.RUNNING))
+                                .filter(summary -> summary.getTags() == null
+                                        || !summary.getTags()
+                                        .getOrDefault(skipTagName, "false")
+                                        .equals("true"))
+                                .map(AppSummary::getName)
+                                .distinct()
+                                .toList();
                     }
                 });
     }
 
     @Override
-    public List<ExposedAppInfo> listNodes(final Service service) {
-        log.info("Loading nodes list for service: {}/{}", service.getNamespace(), service.getServiceName());
-        val url = String.format("/apis/v1/endpoints/app/%s", service.getServiceName());
-
-        logUrl(url);
-        return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
-                                   new DroveClient.ResponseHandler<>() {
-                                       @Override
-                                       public List<ExposedAppInfo> defaultValue() {
-                                           return List.of();
-                                       }
-
-                                       @Override
-                                       public List<ExposedAppInfo> handle(DroveClient.Response response) throws Exception {
-                                           val apiResponse = mapper.readValue(response.body(),
-                                                                              new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
-                                                                              });
-                                           if (apiResponse.getStatus().equals(ApiErrorCode.FAILED)) {
-                                               log.error("Could not read data from drove. Error: {}",
-                                                         apiResponse.getMessage());
-                                               return List.of();
-                                           }
-                                           return Objects.requireNonNullElse(apiResponse.getData(), List.of());
-                                       }
-                                   });
-    }
-
-    @Override
+    @SuppressWarnings("java:S1168")
     public Map<Service, List<ExposedAppInfo>> listNodes(Iterable<? extends Service> services) {
         log.info("Loading nodes list for services: {}", Lists.newArrayList(services));
         val url = String.format("/apis/v1/endpoints?%s", Joiner.on("&")
@@ -140,28 +128,34 @@ public class DroveApiCommunicator<T> implements DroveCommunicator<T> {
                                    new DroveClient.ResponseHandler<>() {
                                        @Override
                                        public Map<Service, List<ExposedAppInfo>> defaultValue() {
-                                           return Map.of();
+                                           throw new IllegalStateException("Default value should not be used here");
                                        }
 
                                        @Override
                                        public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) throws Exception {
+                                           if (response.statusCode() != HttpStatus.SC_OK) {
+                                               throwDroveCommError(response);
+                                           }
                                            val apiResponse = mapper.readValue(response.body(),
                                                                               new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
                                                                               });
-                                           if (apiResponse.getStatus().equals(ApiErrorCode.FAILED)) {
-                                               log.error("Could not read data from drove. Error: {}",
-                                                         apiResponse.getMessage());
-                                               return Map.of();
+                                           if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
+                                               throwDroveCommError(response);
                                            }
                                            val data = Objects.requireNonNullElse(apiResponse.getData(),
                                                                                  List.<ExposedAppInfo>of());
                                            return data.stream()
-                                                   .filter(appInfo -> Strings.isNullOrEmpty(appInfo.getAppName()))
+                                                   .filter(appInfo -> !Strings.isNullOrEmpty(appInfo.getAppName()))
                                                    .collect(Collectors.groupingBy(
                                                            appInfo -> new Service(namespace, appInfo.getAppName()),
                                                            Collectors.toList()));
                                        }
                                    });
+    }
+
+    private static void throwDroveCommError(DroveClient.Response response) {
+        log.error("Error calling drove: [{}] {}", response.statusCode(), response.body());
+        throw new DroveCommunicationException("Error status: " + response.statusCode() + " body: " + response.body());
     }
 
     private static void logUrl(String url) {

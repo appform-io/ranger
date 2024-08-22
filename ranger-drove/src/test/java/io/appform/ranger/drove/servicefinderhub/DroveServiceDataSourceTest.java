@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,18 +94,24 @@ class DroveServiceDataSourceTest {
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wireMockRuntimeInfo.getHttpPort()))
                 .build();
+        stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
+                        .willReturn(okJson(MAPPER.writeValueAsString(ApiResponse.success(List.of())))));
+
         val namespace = "test";
-        val finder = new DroveServiceDataSource<TestNodeData>(
-                clientConfig,
-                MAPPER,
-                namespace,
-                RangerDroveUtils.buildDroveClient(namespace, clientConfig, MAPPER));
-        finder.start();
-        val services = finder.services();
-        assertFalse(services.isEmpty());
-        assertEquals(2, services.size());
-        assertTrue(services.contains(new Service(namespace, "TEST_APP")));
-        assertTrue(services.contains(new Service(namespace, "OTHER_APP")));
+        try(val droveClient = RangerDroveUtils.buildDroveClient(namespace, clientConfig, MAPPER)) {
+            val finder = new DroveServiceDataSource<TestNodeData>(
+                    clientConfig,
+                    MAPPER,
+                    namespace,
+                    droveClient);
+            finder.start();
+            val services = finder.services();
+            assertFalse(services.isEmpty());
+            assertEquals(2, services.size());
+            assertTrue(services.contains(new Service(namespace, "TEST_APP")));
+            assertTrue(services.contains(new Service(namespace, "OTHER_APP")));
+            finder.stop();
+        }
     }
 
 }

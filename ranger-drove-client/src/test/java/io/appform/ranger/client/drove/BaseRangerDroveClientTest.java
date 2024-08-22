@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
- * <p>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -50,11 +51,11 @@ public abstract class BaseRangerDroveClientTest {
 
     @BeforeEach
     public void prepareHttpMocks() throws Exception {
-        wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/TEST_APP"))
+        wireMockExtension.stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
                                           .willReturn(aResponse()
                                                               .withBody(objectMapper.writeValueAsBytes(
                                                                       ApiResponse.success(List.of(new ExposedAppInfo(
-                                                                              "test",
+                                                                              "TEST_APP",
                                                                               "test-0.1",
                                                                               "test.appform.io",
                                                                               Map.of(),
@@ -62,11 +63,6 @@ public abstract class BaseRangerDroveClientTest {
                                                                                       "executor001.internal",
                                                                                       32456,
                                                                                       PortType.HTTP)))))))
-                                                              .withStatus(200)));
-        wireMockExtension.stubFor(get(urlEqualTo("/apis/v1/endpoints/app/OTHER_APP"))
-                                          .willReturn(aResponse()
-                                                              .withBody(objectMapper.writeValueAsBytes(
-                                                                      ApiResponse.success(List.of())))
                                                               .withStatus(200)));
 
         val response = ApiResponse.success(Map.of(
@@ -120,6 +116,11 @@ public abstract class BaseRangerDroveClientTest {
         clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wireMockExtension.getPort()))
                 .build();
-        log.debug("Started http subsystem");
+        log.debug("Started http subsystem. Wiremock port: {}", wireMockExtension.getPort());
+    }
+
+    @AfterAll
+    public static void shutdown() {
+        wireMockExtension.shutdownServer();
     }
 }
