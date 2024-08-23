@@ -22,4 +22,6 @@ public interface RangerConfigurationVisitor<T> {
     T visit(RangerHttpUpstreamConfiguration rangerHttpConfiguration);
 
     T visit(RangerZkUpstreamConfiguration rangerZkConfiguration);
+
+    T visit(RangerDroveUpstreamConfiguration rangerDroveUpstreamConfiguration);
 }

@@ -62,7 +62,7 @@ public class HierarchicalEnvironmentAwareShardSelector implements ShardSelector<
                     .stream()
                     .filter(e -> e.getKey().getEnvironment().equals(env.environment) && evalPredicate.test(e.getKey()))
                     .map(Map.Entry::getValue)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!eligibleNodes.isEmpty()) {
                 log.debug("Effective environment for discovery of {} is {}", serviceName, env.environment);
                 return eligibleNodes;

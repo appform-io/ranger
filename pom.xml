@@ -17,12 +17,15 @@
         <module>ranger-core</module>
         <module>ranger-zookeeper</module>
         <module>ranger-http</module>
+        <module>ranger-drove</module>
         <module>ranger-client</module>
         <module>ranger-zk-client</module>
         <module>ranger-http-client</module>
+        <module>ranger-drove-client</module>
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
         <module>ranger-http-model</module>
+        <module>ranger-discovery-bundle</module>
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
     </modules>
@@ -98,6 +101,7 @@
         <mockito.version>4.2.0</mockito.version>
 
         <dropwizard.version>2.1.10</dropwizard.version>
+        <logback.version>1.2.12</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -181,9 +185,32 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.3.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>me.fabriciorby</groupId>
+                        <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                        <version>1.3.0</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                        <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetInfoReporter
+                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                        <printStacktraceOnError>true</printStacktraceOnError>
+                        <printStacktraceOnFailure>true</printStacktraceOnFailure>
+                        <printStdoutOnError>true</printStdoutOnError>
+                        <printStdoutOnFailure>true</printStdoutOnFailure>
+                        <printStdoutOnSuccess>false</printStdoutOnSuccess>
+                        <printStderrOnError>true</printStderrOnError>
+                        <printStderrOnFailure>true</printStderrOnFailure>
+                        <printStderrOnSuccess>false</printStderrOnSuccess>
+                    </statelessTestsetInfoReporter>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

@@ -17,7 +17,6 @@ package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
@@ -76,7 +75,7 @@ public abstract class RangerServerBundle<
      */
     @SuppressWarnings("unused")
     protected List<Signal<T>> withLifecycleSignals(U configuration){
-        return ImmutableList.of();
+        return List.of();
     }
 
     protected abstract List<RangerHubClient<T, R>> withHubs(U configuration);

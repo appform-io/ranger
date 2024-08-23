@@ -30,6 +30,6 @@ public class ListShardSelector<T> implements ShardSelector<T, ListBasedServiceRe
         return null == criteria ? serviceRegistry.nodeList() : serviceRegistry.nodeList()
                 .stream()
                 .filter(node -> criteria.test(node.getNodeData()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

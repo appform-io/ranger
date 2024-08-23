@@ -17,7 +17,10 @@ package io.appform.ranger.hub.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Strings;
+import com.phonepe.drove.models.api.ExposedAppInfo;
 import io.appform.ranger.client.RangerHubClient;
+import io.appform.ranger.client.drove.UnshardedRangerDroveHubClient;
 import io.appform.ranger.client.http.UnshardedRangerHttpHubClient;
 import io.appform.ranger.client.zk.UnshardedRangerZKHubClient;
 import io.appform.ranger.common.server.ShardInfo;
@@ -25,8 +28,10 @@ import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.Signal;
+import io.appform.ranger.drove.config.DroveUpstreamConfig;
+import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
+import io.appform.ranger.drove.utils.RangerDroveUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
-import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.http.utils.RangerHttpUtils;
 import io.appform.ranger.hub.server.bundle.configuration.*;
 import io.appform.ranger.hub.server.bundle.healthcheck.RangerHealthCheck;
@@ -61,23 +66,24 @@ public abstract class RangerHubServerBundle<U extends Configuration>
         val upstreams = Objects.<List<RangerUpstreamConfiguration>>requireNonNullElse(
                 serverConfig.getUpstreams(), Collections.emptyList());
         return upstreams.stream()
-                .map(rangerUpstreamConfiguration -> rangerUpstreamConfiguration.accept(new HubCreatorVisitor(serverConfig.getNamespace())))
+                .map(rangerUpstreamConfiguration -> rangerUpstreamConfiguration.accept(new HubCreatorVisitor(
+                        serverConfig.getNamespace())))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     protected List<Signal<ShardInfo>> withLifecycleSignals(U configuration) {
         return curatorFrameworks.stream()
                 .map(curatorFramework -> (Signal<ShardInfo>) new CuratorLifecycle(curatorFramework))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     protected List<HealthCheck> withHealthChecks(U configuration) {
         return curatorFrameworks.stream()
                 .map(curatorFramework -> (HealthCheck) new RangerHealthCheck(curatorFramework))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @AllArgsConstructor
@@ -100,6 +106,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .curatorFramework(curatorFramework)
                     .disablePushUpdaters(zkConfiguration.isDisablePushUpdaters())
                     .mapper(getMapper())
+                    .serviceRefreshDurationMs(zkConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {
@@ -107,7 +114,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                             });
                         }
                         catch (IOException e) {
-                            log.warn("Error parsing service data with value {}", new String(data));
+                            logUnparseableData(data);
                         }
                         return null;
                     })
@@ -121,17 +128,55 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
                     .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
+                    .serviceRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
                     .deserializer(data -> {
                         try {
-                            return getMapper().readValue(data,
-                                                         new TypeReference<ServiceNodesResponse<ShardInfo>>() {
-                                                         });
+                            return getMapper().readValue(data, new TypeReference<>() {});
                         }
                         catch (IOException e) {
-                            log.warn("Error parsing service data with value {}", new String(data));
+                            logUnparseableData(data);
                         }
                         return null;
+                    })
+                    .build();
+        }
+
+        private RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>> getDroveClient(
+                final DroveUpstreamConfig droveConfig, RangerDroveUpstreamConfiguration droveUpstreamConfiguration) {
+            val envTagName = Objects.requireNonNullElse(droveConfig.getEnvironmentTagName(),
+                                                        DroveUpstreamConfig.DEFAULT_ENVIRONMENT_TAG_NAME);
+            val regionTagName = Objects.requireNonNullElse(droveConfig.getRegionTagName(),
+                                                           DroveUpstreamConfig.DEFAULT_REGION_TAG_NAME);
+            val droveCommunicator = RangerDroveUtils.<ShardInfo>buildDroveClient(namespace, droveConfig, getMapper());
+            return UnshardedRangerDroveHubClient.<ShardInfo>builder()
+                    .namespace(namespace)
+                    .mapper(getMapper())
+                    .clientConfig(droveConfig)
+                    .droveCommunicator(droveCommunicator)
+                    .serviceRefreshDurationMs(droveUpstreamConfiguration.getServiceRefreshDurationMs())
+                    .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
+                    .deserializer(new DroveResponseDataDeserializer<>() {
+                        @Override
+                        protected ShardInfo translate(ExposedAppInfo appInfo, ExposedAppInfo.ExposedHost host) {
+                            val tags = Objects.<Map<String, String>>requireNonNullElse(
+                                    appInfo.getTags(), Collections.emptyMap());
+                            var env = tags.get(envTagName);
+                            env = Strings.isNullOrEmpty(env) ? droveConfig.getDefaultEnvironment() : env;
+                            var region = tags.get(regionTagName);
+                            region = Strings.isNullOrEmpty(region) ? droveConfig.getDefaultRegion() : region;
+                            if (Strings.isNullOrEmpty(env) || Strings.isNullOrEmpty(region)) {
+                                return null;
+                            }
+                            return ShardInfo.builder()
+                                    .environment(env)
+                                    .region(region)
+                                    .tags(tags.entrySet()
+                                                  .stream()
+                                                  .map(entry -> entry.getKey() + "|" + entry.getValue())
+                                                  .collect(Collectors.toUnmodifiableSet()))
+                                    .build();
+                        }
                     })
                     .build();
         }
@@ -139,17 +184,31 @@ public abstract class RangerHubServerBundle<U extends Configuration>
         @Override
         public List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> visit(
                 RangerHttpUpstreamConfiguration rangerHttpConfiguration) {
-            return rangerHttpConfiguration.getHttpClientConfigs().stream()
+            return rangerHttpConfiguration.getHttpClientConfigs()
+                    .stream()
                     .map(http -> getHttpHubClient(http, rangerHttpConfiguration))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         @Override
         public List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> visit(RangerZkUpstreamConfiguration rangerZkConfiguration) {
             return rangerZkConfiguration.getZookeepers().stream()
                     .map(zk -> addCuratorAndGetZkHubClient(zk, rangerZkConfiguration))
-                    .collect(Collectors.toList());
+                    .toList();
         }
+
+        @Override
+        public List<RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>>> visit(
+                RangerDroveUpstreamConfiguration rangerDroveConfiguration) {
+            return rangerDroveConfiguration.getDroveClusters()
+                    .stream()
+                    .map(zk -> getDroveClient(zk, rangerDroveConfiguration))
+                    .toList();
+        }
+    }
+
+    private static void logUnparseableData(byte[] data) {
+        log.warn("Error parsing service data with value {}", new String(data));
     }
 
 }

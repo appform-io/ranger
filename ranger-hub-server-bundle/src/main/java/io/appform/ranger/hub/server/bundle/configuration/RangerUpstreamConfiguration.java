@@ -29,7 +29,8 @@ import javax.validation.constraints.NotNull;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = RangerHttpUpstreamConfiguration.class, name = "HTTP"),
-    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK")
+    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK"),
+    @JsonSubTypes.Type(value = RangerDroveUpstreamConfiguration.class, name = "DROVE"),
 })
 @Getter
 public abstract class RangerUpstreamConfiguration {
@@ -39,6 +40,9 @@ public abstract class RangerUpstreamConfiguration {
 
   @Min(HubConstants.MINIMUM_REFRESH_TIME_MS)
   private int nodeRefreshTimeMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
+
+  @Min(HubConstants.MINIMUM_REFRESH_TIME_MS)
+  private int serviceRefreshDurationMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
 
   protected RangerUpstreamConfiguration(BackendType type) {
     this.type = type;

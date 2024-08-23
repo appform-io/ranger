@@ -92,7 +92,7 @@ class IdGeneratorTest {
     void testGenerate() {
         IdGenerator.initialize(23);
         val numRunners = 20;
-        val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).collect(Collectors.toList());
+        val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()
@@ -154,7 +154,7 @@ class IdGeneratorTest {
         IdGenerator.initialize(23);
         int numRunners = 20;
 
-        val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).collect(Collectors.toList());
+        val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()

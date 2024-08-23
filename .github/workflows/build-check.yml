@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main , drove_new ]
   pull_request:
     branches: [ main ]
 
@@ -23,4 +23,7 @@ jobs:
           cache: maven
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn -B clean package --file pom.xml
+        env:
+          USER_NAME: ${{ secrets.PPE_USER_NAME }}
+          ACCESS_TOKEN: ${{ secrets.PPE_ACCESS_TOKEN }}
+        run: mvn  -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml -B clean package --file pom.xml

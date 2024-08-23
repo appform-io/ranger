@@ -16,25 +16,7 @@
 package io.appform.ranger.hub.server.bundle.models;
 
 public enum BackendType {
-  ZK() {
-    @Override
-    public <U, R> U accept(BackendTypeVisitor<U, R> visitor, R input) {
-      return visitor.visitZK(input);
-    }
-  },
-  HTTP() {
-    @Override
-    public <U, R> U accept(BackendTypeVisitor<U, R> visitor, R input) {
-      return visitor.visitHTTP(input);
-    }
-  };
-
-  public abstract <U, R> U accept(BackendTypeVisitor<U, R> visitor, R input);
-
-  public interface BackendTypeVisitor<U, R> {
-
-    U visitZK(R input);
-
-    U visitHTTP(R input);
-  }
+  ZK,
+  HTTP,
+  DROVE,
 }
