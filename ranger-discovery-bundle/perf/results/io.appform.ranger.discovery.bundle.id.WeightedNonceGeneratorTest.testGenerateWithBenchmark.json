@@ -1,0 +1,7 @@
+{
+  "name" : "io.appform.ranger.discovery.bundle.id.WeightedNonceGeneratorTest.testGenerateWithBenchmark",
+  "iterations" : 100000,
+  "threads" : 5,
+  "totalMillis" : 5020,
+  "avgTime" : 1004.0
+}
