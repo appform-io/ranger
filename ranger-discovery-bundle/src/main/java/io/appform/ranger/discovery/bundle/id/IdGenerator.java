@@ -166,7 +166,7 @@ public class IdGenerator {
             String prefix,
             final List<IdValidationConstraint> inConstraints,
             boolean skipGlobal) {
-        return generate(IdGenerationRequest.builder()
+        return generate(IdGenerationRequest.<IdValidationConstraint>builder()
                                 .prefix(prefix)
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)

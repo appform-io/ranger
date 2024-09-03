@@ -1,10 +1,13 @@
 package io.appform.ranger.discovery.bundle.id;
 
-import lombok.Value;
+import lombok.Builder;
+import lombok.Getter;
 
-@Value
+@Getter
+@Builder
 public class GenerationResult {
     IdInfo idInfo;
     IdValidationState state;
     String domain;
+    String namespace;
 }

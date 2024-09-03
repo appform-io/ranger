@@ -78,14 +78,14 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                 .getCollisionChecker()
                 : Domain.DEFAULT.getCollisionChecker();
         return Optional.ofNullable(RETRYER.get(
-                        () -> {
+                () -> {
                             IdInfo idInfo = random(collisionChecker);
                             val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
-                            return new GenerationResult(idInfo,
-                                    validateId(request.getConstraints(),
-                                            id,
-                                            request.isSkipGlobal()),
-                                    request.getDomain());
+                            return GenerationResult.builder()
+                                    .idInfo(idInfo)
+                                    .state(validateId(request.getConstraints(), id, request.isSkipGlobal()))
+                                    .domain(null)
+                                    .build();
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
@@ -97,10 +97,19 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                         () -> {
                             val idInfo = generate(namespace);
                             val id = getIdFromIdInfo(idInfo, namespace, getIdFormatter());
-                            return new GenerationResult(idInfo, validateId(inConstraints, id, skipGlobal), null);
+                            return GenerationResult.builder()
+                                    .idInfo(idInfo)
+                                    .state(validateId(inConstraints, id, skipGlobal))
+                                    .domain(null)
+                                    .build();
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
+    }
+
+    @Override
+    public IdInfo generateForPartition(final String namespace, int targetPartitionId) {
+        return generate(namespace);
     }
 
     private IdInfo random(final CollisionChecker collisionChecker) {
@@ -156,18 +165,6 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                     : IdValidationState.INVALID_RETRYABLE;
         }
         return IdValidationState.VALID;
-    }
-
-    @Override
-    public Id getIdFromIdInfo(IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = getDateTimeFromTime(idInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), idInfo.getExponent()));
-        return Id.builder()
-                .id(id)
-                .exponent(idInfo.getExponent())
-                .generatedDate(dateTime.toDate())
-                .node(getNodeId())
-                .build();
     }
 
     @Override
