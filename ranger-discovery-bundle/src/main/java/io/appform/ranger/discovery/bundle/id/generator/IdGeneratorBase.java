@@ -51,7 +51,7 @@ public class IdGeneratorBase {
         nonceGenerator.cleanUp();
     }
 
-    public void registerDomain(Domain domain) {
+    public void registerDomain(final Domain domain) {
         nonceGenerator.registerDomain(domain);
     }
 
@@ -115,7 +115,7 @@ public class IdGeneratorBase {
         return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace, idFormatter));
     }
 
-    public Optional<Id> generateWithConstraints(IdGenerationRequest request) {
+    public Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
         val idInfo = nonceGenerator.generateWithConstraints(request);
         return idInfo.map(info -> (nonceGenerator.getIdFromIdInfo(info, request.getPrefix(), request.getIdFormatter())));
     }

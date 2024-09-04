@@ -8,7 +8,6 @@ import io.appform.ranger.discovery.bundle.id.CollisionChecker;
 import io.appform.ranger.discovery.bundle.id.Constants;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
@@ -78,15 +77,15 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                 .getCollisionChecker()
                 : Domain.DEFAULT.getCollisionChecker();
         return Optional.ofNullable(RETRYER.get(
-                        () -> {
-                            IdInfo idInfo = random(collisionChecker);
-                            val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
-                            return new GenerationResult(idInfo,
-                                    validateId(request.getConstraints(),
-                                            id,
-                                            request.isSkipGlobal()),
-                                    request.getDomain());
-                        }))
+                () -> {
+                    IdInfo idInfo = random(collisionChecker);
+                    val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
+                    return GenerationResult.builder()
+                            .idInfo(idInfo)
+                            .state(validateId(request.getConstraints(), id, request.isSkipGlobal()))
+                            .domain(null)
+                            .build();
+                }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
     }
@@ -97,7 +96,11 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                         () -> {
                             val idInfo = generate(namespace);
                             val id = getIdFromIdInfo(idInfo, namespace, getIdFormatter());
-                            return new GenerationResult(idInfo, validateId(inConstraints, id, skipGlobal), null);
+                            return GenerationResult.builder()
+                                    .idInfo(idInfo)
+                                    .state(validateId(inConstraints, id, skipGlobal))
+                                    .domain(null)
+                                    .build();
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
@@ -126,48 +129,6 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
-    }
-
-    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, boolean skipGlobal) {
-        //First evaluate global constraints
-        val failedGlobalConstraint
-                = skipGlobal
-                ? null
-                : getGLOBAL_CONSTRAINTS().stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedGlobalConstraint) {
-            return failedGlobalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        //Evaluate local + domain constraints
-        val failedLocalConstraint
-                = null == inConstraints
-                ? null
-                : inConstraints.stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedLocalConstraint) {
-            return failedLocalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        return IdValidationState.VALID;
-    }
-
-    @Override
-    public Id getIdFromIdInfo(IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = getDateTimeFromTime(idInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), idInfo.getExponent()));
-        return Id.builder()
-                .id(id)
-                .exponent(idInfo.getExponent())
-                .generatedDate(dateTime.toDate())
-                .node(getNodeId())
-                .build();
     }
 
     @Override
