@@ -38,7 +38,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                         val idInfo = res.getIdInfo();
                         val collisionChecker = Strings.isNullOrEmpty(res.getDomain())
                                 ? Domain.DEFAULT.getCollisionChecker()
-                                : REGISTERED_DOMAINS.get(res.getDomain()).getCollisionChecker();
+                                : getREGISTERED_DOMAINS().get(res.getDomain()).getCollisionChecker();
                         collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
                     }
                 })
@@ -58,7 +58,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
 
     @Override
     public Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        return generateWithConstraints(namespace, REGISTERED_DOMAINS.getOrDefault(domain, Domain.DEFAULT), skipGlobal);
+        return generateWithConstraints(namespace, getREGISTERED_DOMAINS().getOrDefault(domain, Domain.DEFAULT), skipGlobal);
     }
 
     public Optional<IdInfo> generateWithConstraints(final String namespace, final Domain domain, final boolean skipGlobal) {
@@ -73,7 +73,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
 
     public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
         val collisionChecker = !Strings.isNullOrEmpty(request.getDomain())
-                ? REGISTERED_DOMAINS.getOrDefault(request.getDomain(), Domain.DEFAULT)
+                ? getREGISTERED_DOMAINS().getOrDefault(request.getDomain(), Domain.DEFAULT)
                 .getCollisionChecker()
                 : Domain.DEFAULT.getCollisionChecker();
         return Optional.ofNullable(RETRYER.get(

@@ -43,6 +43,7 @@ public class IdGenerator {
     private static IdGeneratorBase baseGenerator;
 
     public static void initialize(int node) {
+        IdGeneratorBase.initialize(node);
         baseGenerator = new IdGeneratorBase(IdFormatters.original(), MINIMUM_ID_LENGTH, DATE_TIME_FORMATTER, PATTERN);
     }
 

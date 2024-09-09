@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 public abstract class NonceGeneratorBase {
 
     private final SecureRandom SECURE_RANDOM = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
-    protected List<IdValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
-    protected final Map<String, Domain> REGISTERED_DOMAINS = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
+    private final List<IdValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
+    private final Map<String, Domain> REGISTERED_DOMAINS = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final int nodeId;
     private final IdFormatter idFormatter;
 
