@@ -40,11 +40,10 @@ public class IdGenerator {
     private static final int MINIMUM_ID_LENGTH = 22;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
-    private static IdGeneratorBase baseGenerator;
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(IdFormatters.original(), MINIMUM_ID_LENGTH, DATE_TIME_FORMATTER, PATTERN);;
 
     public static void initialize(int node) {
         IdGeneratorBase.initialize(node);
-        baseGenerator = new IdGeneratorBase(IdFormatters.original(), MINIMUM_ID_LENGTH, DATE_TIME_FORMATTER, PATTERN);
     }
 
     public static synchronized void cleanUp() {
