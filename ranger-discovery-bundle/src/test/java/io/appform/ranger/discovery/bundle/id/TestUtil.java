@@ -53,7 +53,7 @@ public class TestUtil {
         if (save_output){
             writeToFile(numThreads, iterationCount, total, outputFileName);
         }
-        log.warn("Finished Execution for {} iterations in avg time: {}", iterationCount, ((double) total) / numThreads);
+        log.info("Finished Execution for {} iterations in avg time: {}", iterationCount, ((double) total) / numThreads);
         return total;
     }
 

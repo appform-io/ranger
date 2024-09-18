@@ -18,12 +18,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -35,21 +35,20 @@ import static org.mockito.Mockito.mock;
 /**
  * Test for {@link DistributedIdGenerator}
  */
-@SuppressWarnings({"unused", "FieldMayBeFinal"})
 @Slf4j
 class PartitionAwareNonceGeneratorTest {
     final int numThreads = 5;
-    final int iterationCount = 100000;
+    final int iterationCountPerThread = 100000;
     final int partitionCount = 1024;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
-    protected IdGeneratorConfig idGeneratorConfig =
+    private final IdGeneratorConfig idGeneratorConfig =
             IdGeneratorConfig.builder()
                     .partitionCount(partitionCount)
                     .defaultNamespaceConfig(DefaultNamespaceConfig.builder().idPoolSizePerPartition(100).build())
                     .build();
-    protected DistributedIdGenerator distributedIdGenerator;
-    private MetricRegistry metricRegistry = mock(MetricRegistry.class);
-    protected NonceGeneratorType nonceGeneratorType;
+    private DistributedIdGenerator distributedIdGenerator;
+    private NonceGeneratorType nonceGeneratorType;
+    private final MetricRegistry metricRegistry = mock(MetricRegistry.class);
 
     @BeforeEach
     void setup() {
@@ -66,16 +65,16 @@ class PartitionAwareNonceGeneratorTest {
     @Test
     void testGenerateWithBenchmark() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
-        val totalTime = TestUtil.runMTTest(
+        TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = distributedIdGenerator.generate("P");
                     allIdsList.add(id);
                 },
                 true,
                 this.getClass().getName() + ".testGenerateWithBenchmark");
-        Assertions.assertEquals(numThreads * iterationCount, allIdsList.size());
+        Assertions.assertEquals(numThreads * iterationCountPerThread, allIdsList.size());
         checkUniqueIds(allIdsList);
         checkDistribution(allIdsList, partitionResolverSupplier, idGeneratorConfig);
     }
@@ -86,7 +85,7 @@ class PartitionAwareNonceGeneratorTest {
         IdValidationConstraint partitionConstraint = (k) -> k.getExponent() % 4 == 0;
         val iterationCount = 50000;
         distributedIdGenerator.registerGlobalConstraints((k) -> k.getExponent() % 4 == 0);
-        val totalTime = TestUtil.runMTTest(
+        TestUtil.runMTTest(
                 numThreads,
                 iterationCount,
                 (k) -> {
@@ -98,7 +97,7 @@ class PartitionAwareNonceGeneratorTest {
         checkUniqueIds(allIdsList);
 
 //        Assert No ID was generated for Invalid partitions
-        for (val id: allIdsList) {
+        for (val id : allIdsList) {
             Assertions.assertTrue(partitionConstraint.isValid(id));
         }
     }
@@ -107,8 +106,7 @@ class PartitionAwareNonceGeneratorTest {
     void testGenerateAccuracy() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
         val iterationCount = 500000;
-        val totalIdCount = numThreads * iterationCount;
-        val totalTime = TestUtil.runMTTest(
+        TestUtil.runMTTest(
                 numThreads,
                 iterationCount,
                 (k) -> {
@@ -123,28 +121,16 @@ class PartitionAwareNonceGeneratorTest {
 
     void checkUniqueIds(List<Id> allIdsList) {
         List<String> allIdStringList = new ArrayList<>(List.of());
-        for (Id id: allIdsList) {
+        for (Id id : allIdsList) {
             allIdStringList.add(id.getId());
         }
         HashSet<String> uniqueIds = new HashSet<>(allIdStringList);
-        Map<String, Integer> frequencyMap = new HashMap<>();
-
-        // Count occurrences of each integer
-        for (String num : allIdStringList) {
-            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
-        }
-        // Print integers with count >= 2
-        for (Map.Entry<String, Integer> entry : frequencyMap.entrySet()) {
-            if (entry.getValue() >= 2) {
-                System.out.println("Integer: " + entry.getKey() + ", Count: " + entry.getValue());
-            }
-        }
         Assertions.assertEquals(allIdsList.size(), uniqueIds.size());
     }
 
     protected HashMap<Integer, Integer> getIdCountMap(List<Id> allIdsList, Function<String, Integer> partitionResolver) {
         val idCountMap = new HashMap<Integer, Integer>();
-        for (val id: allIdsList) {
+        for (val id : allIdsList) {
             val partitionId = partitionResolver.apply(id.getId());
             idCountMap.put(partitionId, idCountMap.getOrDefault(partitionId, 0) + 1);
         }
@@ -154,7 +140,7 @@ class PartitionAwareNonceGeneratorTest {
     protected void checkDistribution(List<Id> allIdsList, Function<String, Integer> partitionResolver, IdGeneratorConfig config) {
         val idCountMap = getIdCountMap(allIdsList, partitionResolver);
         val expectedIdCount = (double) allIdsList.size() / config.getPartitionCount();
-        for (int partitionId=0; partitionId < config.getPartitionCount(); partitionId++) {
+        for (int partitionId = 0; partitionId < config.getPartitionCount(); partitionId++) {
             Assertions.assertTrue(expectedIdCount * 0.8 <= idCountMap.get(partitionId),
                     String.format("Partition %s generated %s ids, expected was more than: %s",
                             partitionId, idCountMap.get(partitionId), expectedIdCount * 0.8));
@@ -168,7 +154,7 @@ class PartitionAwareNonceGeneratorTest {
     void testUniqueIds() {
         HashSet<String> allIDs = new HashSet<>();
         boolean allIdsUnique = true;
-        for (int i = 0; i < iterationCount; i += 1) {
+        for (int i = 0; i < iterationCountPerThread; i += 1) {
             val txnId = distributedIdGenerator.generate("P").getId();
             if (allIDs.contains(txnId)) {
                 allIdsUnique = false;
@@ -182,10 +168,9 @@ class PartitionAwareNonceGeneratorTest {
     @Test
     void testFirstAndLastPartitionInclusion() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
-        val totalIdCount = numThreads * iterationCount;
-        val totalTime = TestUtil.runMTTest(
+        TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = distributedIdGenerator.generate("P");
                     allIdsList.add(id);
@@ -195,7 +180,7 @@ class PartitionAwareNonceGeneratorTest {
 
         val idCountMap = getIdCountMap(allIdsList, partitionResolverSupplier);
         Assertions.assertTrue(idCountMap.get(0) > 0);
-        Assertions.assertTrue(idCountMap.get(partitionCount-1) > 0);
+        Assertions.assertTrue(idCountMap.get(partitionCount - 1) > 0);
     }
 
     @Test
@@ -206,7 +191,7 @@ class PartitionAwareNonceGeneratorTest {
         val distributedIdGenerator = new DistributedIdGenerator(idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, metricRegistry, clock);
         TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = distributedIdGenerator.generate("P");
                     allIdsList.add(id);
@@ -215,13 +200,13 @@ class PartitionAwareNonceGeneratorTest {
         doReturn(Instant.parse("2000-01-01T00:01:00Z")).when(clock).instant();
         TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = distributedIdGenerator.generate("P");
                     allIdsList.add(id);
                 },
                 false, null);
-        Assertions.assertEquals(2 * numThreads * iterationCount, allIdsList.size());
+        Assertions.assertEquals(2 * numThreads * iterationCountPerThread, allIdsList.size());
         checkUniqueIds(allIdsList);
     }
 
@@ -234,19 +219,19 @@ class PartitionAwareNonceGeneratorTest {
         };
         val localdistributedIdGenerator = new DistributedIdGenerator(idGeneratorConfig, partitionResolverSupplierWithCount, nonceGeneratorType, metricRegistry, Clock.systemDefaultZone());
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
-        val totalTime = TestUtil.runMTTest(
+        TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = localdistributedIdGenerator.generate("P");
                     allIdsList.add(id);
                 },
                 false,
                 null);
-        val expectedIdCount = numThreads * iterationCount;
+        val expectedIdCount = numThreads * iterationCountPerThread;
         Assertions.assertEquals(expectedIdCount, allIdsList.size());
         checkUniqueIds(allIdsList);
-        log.warn("partitionResolverSupplier was called {} times - expected count was: {}", partitionResolverCount.get(), expectedIdCount);
+        log.debug("partitionResolverSupplier was called {} times - expected count was: {}", partitionResolverCount.get(), expectedIdCount);
     }
 
     @Test
@@ -306,26 +291,26 @@ class PartitionAwareNonceGeneratorTest {
         Assertions.assertFalse(distributedIdGenerator.parse("ABC2011250959720643972247").isPresent());
     }
 
-//    @Test
-//    void testParseSuccess() {
-//        val idString = "ABC2011250959030643972247";
-//        val id = distributedIdGenerator.parse(idString).orElse(null);
-//        Assertions.assertNotNull(id);
-//        Assertions.assertEquals(idString, id.getId());
-//        Assertions.assertEquals(972247, id.getExponent());
-//        Assertions.assertEquals(643, id.getNode());
-//        Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
-//                id.getGeneratedDate());
-//    }
-//
-//    @Test
-//    void testParseSuccessAfterGeneration() {
-//        val generatedId = distributedIdGenerator.generate("TEST123");
-//        val parsedId = distributedIdGenerator.parse(generatedId.getId()).orElse(null);
-//        Assertions.assertNotNull(parsedId);
-//        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
-//        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
-//        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
-//    }
+    @Test
+    void testParseSuccess() {
+        val idString = "ABC2011250959030643972247";
+        val id = distributedIdGenerator.parse(idString).orElse(null);
+        Assertions.assertNotNull(id);
+        Assertions.assertEquals(idString, id.getId());
+        Assertions.assertEquals(972247, id.getExponent());
+        Assertions.assertEquals(643, id.getNode());
+        Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
+                id.getGeneratedDate());
+    }
+
+    @Test
+    void testParseSuccessAfterGeneration() {
+        val generatedId = distributedIdGenerator.generate("TEST123");
+        val parsedId = distributedIdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
+        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
+        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+    }
 
 }
