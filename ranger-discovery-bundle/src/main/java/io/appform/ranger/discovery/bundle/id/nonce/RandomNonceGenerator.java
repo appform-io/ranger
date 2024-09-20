@@ -25,8 +25,8 @@ import java.util.Optional;
 public class RandomNonceGenerator extends NonceGeneratorBase {
     private final FailsafeExecutor<GenerationResult> RETRYER;
 
-    public RandomNonceGenerator(final int nodeId, final IdFormatter idFormatter) {
-        super(nodeId, idFormatter);
+    public RandomNonceGenerator(final IdFormatter idFormatter) {
+        super(idFormatter);
         RetryPolicy<GenerationResult> RETRY_POLICY = RetryPolicy.<GenerationResult>builder()
                 .withMaxAttempts(readRetryCount())
                 .handleIf(throwable -> true)

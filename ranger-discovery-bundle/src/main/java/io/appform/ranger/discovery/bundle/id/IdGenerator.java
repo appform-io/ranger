@@ -22,6 +22,7 @@ import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
+import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,11 @@ public class IdGenerator {
     private static final int MINIMUM_ID_LENGTH = 22;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
-    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(IdFormatters.original(), MINIMUM_ID_LENGTH, DATE_TIME_FORMATTER, PATTERN);;
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(
+            MINIMUM_ID_LENGTH,
+            DATE_TIME_FORMATTER,
+            PATTERN,
+            new RandomNonceGenerator(IdFormatters.original()));
 
     public static void initialize(int node) {
         IdGeneratorBase.initialize(node);

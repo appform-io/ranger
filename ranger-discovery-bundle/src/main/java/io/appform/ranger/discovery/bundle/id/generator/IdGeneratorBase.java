@@ -8,8 +8,8 @@ import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorBase;
-import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,22 +26,21 @@ import java.util.regex.Pattern;
 public class IdGeneratorBase {
 
     private final int MINIMUM_ID_LENGTH;
-    protected final DateTimeFormatter DATE_TIME_FORMATTER;
     private final Pattern PATTERN;
+    @Getter
     private static int NODE_ID;
-    private final IdFormatter idFormatter;
+    protected final DateTimeFormatter DATE_TIME_FORMATTER;
     protected final NonceGeneratorBase nonceGenerator;
 
     public static void initialize(int node) {
         NODE_ID = node;
     }
 
-    public IdGeneratorBase(final IdFormatter idFormatter,
-                           final int minimumIdLength,
+    public IdGeneratorBase(final int minimumIdLength,
                            final DateTimeFormatter dateTimeFormatter,
-                           final Pattern pattern) {
-        this.idFormatter = idFormatter;
-        this.nonceGenerator = new RandomNonceGenerator(NODE_ID, idFormatter);
+                           final Pattern pattern,
+                           final NonceGeneratorBase nonceGenerator) {
+        this.nonceGenerator = nonceGenerator;
         this.MINIMUM_ID_LENGTH = minimumIdLength;
         this.DATE_TIME_FORMATTER = dateTimeFormatter;
         this.PATTERN = pattern;
@@ -85,7 +84,7 @@ public class IdGeneratorBase {
      */
     public Id generate(final String namespace) {
         val idInfo = nonceGenerator.generate(namespace);
-        return nonceGenerator.getIdFromIdInfo(idInfo, namespace, idFormatter);
+        return nonceGenerator.getIdFromIdInfo(idInfo, namespace);
     }
 
     public Id generate(final String namespace, final IdFormatter idFormatter) {
@@ -105,14 +104,14 @@ public class IdGeneratorBase {
      */
     public Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
         Optional<IdInfo> idInfoOptional = nonceGenerator.generateWithConstraints(namespace, domain, skipGlobal);
-        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace, idFormatter));
+        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
     }
 
     public Optional<Id> generateWithConstraints(final String namespace,
                                                 final List<IdValidationConstraint> inConstraints,
                                                 final boolean skipGlobal) {
         Optional<IdInfo> idInfoOptional = nonceGenerator.generateWithConstraints(namespace, inConstraints, skipGlobal);
-        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace, idFormatter));
+        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
     }
 
     public Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
