@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Santanu Sinha <santanu.sinha@gmail.com>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package io.appform.ranger.discovery.bundle.selectors;
@@ -62,7 +61,7 @@ public class HierarchicalEnvironmentAwareShardSelector implements ShardSelector<
                     .stream()
                     .filter(e -> e.getKey().getEnvironment().equals(env.environment) && evalPredicate.test(e.getKey()))
                     .map(Map.Entry::getValue)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!eligibleNodes.isEmpty()) {
                 log.debug("Effective environment for discovery of {} is {}", serviceName, env.environment);
                 return eligibleNodes;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,6 @@ public class MatchingShardSelector<T> implements ShardSelector<T, MapBasedServic
                 .stream()
                 .filter(e -> criteria.test(e.getKey()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
