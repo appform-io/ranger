@@ -53,7 +53,6 @@ class PartitionAwareNonceGeneratorTest {
     @BeforeEach
     void setup() {
         nonceGeneratorType = NonceGeneratorType.DISTRIBUTED;
-        val metricRegistry = mock(MetricRegistry.class);
         val meter = mock(Meter.class);
         doReturn(meter).when(metricRegistry).meter(anyString());
         doNothing().when(meter).mark();
@@ -237,7 +236,7 @@ class PartitionAwareNonceGeneratorTest {
     @Test
     void testGenerateOriginal() {
         distributedIdGenerator = new DistributedIdGenerator(
-                idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, mock(MetricRegistry.class), Clock.systemDefaultZone()
+                idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, metricRegistry, Clock.systemDefaultZone()
         );
         val idOptional = distributedIdGenerator.generate("TEST");
         String id = idOptional.getId();
@@ -250,9 +249,7 @@ class PartitionAwareNonceGeneratorTest {
                 idGeneratorConfig,
                 (txnId) -> new BigInteger(txnId.substring(txnId.length() - 6), 36).abs().intValue() % partitionCount,
                 nonceGeneratorType,
-                IdFormatters.base36(),
-                mock(MetricRegistry.class),
-                Clock.systemDefaultZone()
+                metricRegistry, Clock.systemDefaultZone(), IdFormatters.base36()
         );
         String id = distributedIdGeneratorLocal.generate("TEST").getId();
         Assertions.assertEquals(18, id.length());

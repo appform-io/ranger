@@ -1,5 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -13,8 +14,8 @@ class CircularQueue {
     private static final String QUEUE_FULL_METRIC_STRING = "idGenerator.queueFull.forPrefix.";
     private static final String UNUSED_INDICES_METRIC_STRING = "idGenerator.unusedIds.forPrefix.";
 
-//    private final Meter queueFullMeter;
-//    private final Meter unusedDataMeter;
+    private final Meter queueFullMeter;
+    private final Meter unusedDataMeter;
 
     /** List of data for the specific queue */
     private final AtomicIntegerArray queue;
@@ -32,14 +33,14 @@ class CircularQueue {
     public CircularQueue(int size, final MetricRegistry metricRegistry, final String namespace) {
         this.size = size;
         this.queue = new AtomicIntegerArray(size);
-//        this.queueFullMeter = metricRegistry.meter(QUEUE_FULL_METRIC_STRING + namespace);
-//        this.unusedDataMeter = metricRegistry.meter(UNUSED_INDICES_METRIC_STRING + namespace);
+        this.queueFullMeter = metricRegistry.meter(QUEUE_FULL_METRIC_STRING + namespace);
+        this.unusedDataMeter = metricRegistry.meter(UNUSED_INDICES_METRIC_STRING + namespace);
     }
 
     public synchronized void setId(int id) {
         // Don't store new data if the queue is already full of unused data.
         if (lastIdx.get() >= firstIdx.get() + size - 1) {
-//            queueFullMeter.mark();
+            queueFullMeter.mark();
             return;
         }
         val arrayIdx = lastIdx.get() % size;
@@ -63,7 +64,7 @@ class CircularQueue {
 
     public void reset() {
         val unusedIds = lastIdx.get() - firstIdx.get();
-//        unusedDataMeter.mark(unusedIds);
+        unusedDataMeter.mark(unusedIds);
         lastIdx.set(0);
         firstIdx.set(0);
     }

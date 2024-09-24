@@ -1,5 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class PartitionIdTracker {
     @Getter
     private Instant instant;
 
-//    private final Meter generatedIdCountMeter;
+    private final Meter generatedIdCountMeter;
 
     public PartitionIdTracker(final int partitionSize,
                               final int idPoolSize,
@@ -37,7 +38,7 @@ public class PartitionIdTracker {
         for (int i=0; i<partitionSize; i+= 1){
             idPoolList[i] = new IdPool(idPoolSize, metricRegistry, namespace);
         }
-//        this.generatedIdCountMeter = metricRegistry.meter("generatedIdCount.forPrefix." + namespace);
+        this.generatedIdCountMeter = metricRegistry.meter("generatedIdCount.forPrefix." + namespace);
     }
 
     /** Method to get the IdPool for a specific partition */
@@ -68,7 +69,7 @@ public class PartitionIdTracker {
         for (val idPool: idPoolList) {
             idPool.reset();
         }
-//        generatedIdCountMeter.mark(nextIdCounter.get());
+        generatedIdCountMeter.mark(nextIdCounter.get());
         nextIdCounter.set(0);
         this.instant = instant;
     }

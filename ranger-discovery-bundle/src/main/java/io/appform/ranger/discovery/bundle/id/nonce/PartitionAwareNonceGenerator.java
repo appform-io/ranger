@@ -1,13 +1,11 @@
 package io.appform.ranger.discovery.bundle.id.nonce;
 
 import com.codahale.metrics.MetricRegistry;
-import com.google.common.base.Strings;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.IdUtils;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
@@ -17,6 +15,7 @@ import io.appform.ranger.discovery.bundle.id.config.NamespaceConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -68,13 +67,12 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
     }
     */
 
-    public PartitionAwareNonceGenerator(final int nodeId,
-                                           final IdGeneratorConfig idGeneratorConfig,
+    public PartitionAwareNonceGenerator(final IdGeneratorConfig idGeneratorConfig,
                                            final Function<String, Integer> partitionResolverSupplier,
                                            final IdFormatter idFormatter,
                                            final MetricRegistry metricRegistry,
                                            final Clock clock) {
-        super(nodeId, idFormatter);
+        super(idFormatter);
         this.idGeneratorConfig = idGeneratorConfig;
         this.partitionResolver = partitionResolverSupplier;
         this.metricRegistry = metricRegistry;
@@ -94,12 +92,11 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
         RETRYER = Failsafe.with(Collections.singletonList(retryPolicy));
     }
 
-    protected PartitionAwareNonceGenerator(final int nodeId,
-                                           final IdGeneratorConfig idGeneratorConfig,
+    protected PartitionAwareNonceGenerator(final IdGeneratorConfig idGeneratorConfig,
                                            final Function<String, Integer> partitionResolverSupplier,
                                            final MetricRegistry metricRegistry,
                                            final Clock clock) {
-        this(nodeId, idGeneratorConfig, partitionResolverSupplier, IdFormatters.secondPrecision(), metricRegistry, clock);
+        this(idGeneratorConfig, partitionResolverSupplier, IdFormatters.secondPrecision(), metricRegistry, clock);
     }
 
     @Override
@@ -117,7 +114,7 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
                 namespace,
                 targetPartitionId);
         val dateTime = getDateTimeFromTime(partitionTracker.getInstant().getEpochSecond());
-        val id = String.format("%s%s", namespace, getIdFormatter().format(dateTime, getNodeId(), idCounter));
+        val id = String.format("%s%s", namespace, getIdFormatter().format(dateTime, IdGeneratorBase.getNODE_ID(), idCounter));
         return new IdInfo(idCounter, partitionTracker.getInstant().getEpochSecond());
     }
 
@@ -129,7 +126,7 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
         while (idOptional.isEmpty()) {
             val idInfo = partitionIdTracker.getIdInfo();
             val dateTime = IdUtils.getDateTimeFromSeconds(idInfo.getTime());
-            val txnId = String.format("%s%s", namespace, getIdFormatter().format(dateTime, getNodeId(), idInfo.getExponent()));
+            val txnId = String.format("%s%s", namespace, getIdFormatter().format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
             val mappedPartitionId = partitionResolver.apply(txnId);
             partitionIdTracker.addId(mappedPartitionId, idInfo);
             idOptional = idPool.getNextId();
@@ -152,7 +149,7 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
         return generateWithConstraints(IdGenerationRequest.builder()
                 .prefix(namespace)
                 .domain(domain)
-                .constraints(REGISTERED_DOMAINS.getOrDefault(domain, Domain.DEFAULT).getConstraints())
+                .constraints(getREGISTERED_DOMAINS().getOrDefault(domain, Domain.DEFAULT).getConstraints())
                 .skipGlobal(skipGlobal)
                 .build());
     }
@@ -189,36 +186,6 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
 
     protected int getTargetPartitionId() {
         return getSECURE_RANDOM().nextInt(idGeneratorConfig.getPartitionCount());
-    }
-
-    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, boolean skipGlobal) {
-        //First evaluate global constraints
-        val failedGlobalConstraint
-                = skipGlobal
-                ? null
-                : getGLOBAL_CONSTRAINTS().stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedGlobalConstraint) {
-            return failedGlobalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        //Evaluate local + domain constraints
-        val failedLocalConstraint
-                = null == inConstraints
-                ? null
-                : inConstraints.stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedLocalConstraint) {
-            return failedLocalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        return IdValidationState.VALID;
     }
 
     private int getIdPoolSize(String namespace) {

@@ -2,6 +2,7 @@ package io.appform.ranger.discovery.bundle.id.generator;
 
 import com.codahale.metrics.MetricRegistry;
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.IdUtils;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
@@ -23,10 +24,13 @@ public class DistributedIdGenerator extends IdGeneratorBase {
     public DistributedIdGenerator(final IdGeneratorConfig idGeneratorConfig,
                                   final Function<String, Integer> partitionResolverSupplier,
                                   final NonceGeneratorType nonceGeneratorType,
-                                  final IdFormatter idFormatter,
                                   final MetricRegistry metricRegistry,
-                                  final Clock clock) {
-        super(idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, idFormatter, metricRegistry, clock, MINIMUM_ID_LENGTH, DATE_TIME_FORMATTER, PATTERN);
+                                  final Clock clock,
+                                  final IdFormatter idFormatter) {
+        super(MINIMUM_ID_LENGTH,
+                DATE_TIME_FORMATTER,
+                PATTERN,
+                IdUtils.getNonceGenerator(nonceGeneratorType, idGeneratorConfig, partitionResolverSupplier, idFormatter, metricRegistry, clock));
     }
 
     public DistributedIdGenerator(final IdGeneratorConfig idGeneratorConfig,
@@ -34,12 +38,12 @@ public class DistributedIdGenerator extends IdGeneratorBase {
                                   final NonceGeneratorType nonceGeneratorType,
                                   final MetricRegistry metricRegistry,
                                   final Clock clock) {
-        this(idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, IdFormatters.secondPrecision(), metricRegistry, clock);
+        this(idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, metricRegistry, clock, IdFormatters.secondPrecision());
     }
 
     public Id generateForPartition(final String namespace, final int targetPartitionId) {
         val idInfo = nonceGenerator.generateForPartition(namespace, targetPartitionId);
-        return nonceGenerator.getIdFromIdInfo(idInfo, namespace, getIdFormatter());
+        return nonceGenerator.getIdFromIdInfo(idInfo, namespace);
     }
 
 }

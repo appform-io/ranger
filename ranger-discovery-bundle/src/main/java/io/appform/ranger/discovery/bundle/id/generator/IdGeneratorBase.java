@@ -1,12 +1,10 @@
 package io.appform.ranger.discovery.bundle.id.generator;
 
-import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
-import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorBase;
@@ -16,10 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
@@ -45,22 +41,6 @@ public class IdGeneratorBase {
                            final Pattern pattern,
                            final NonceGeneratorBase nonceGenerator) {
         this.nonceGenerator = nonceGenerator;
-        this.MINIMUM_ID_LENGTH = minimumIdLength;
-        this.DATE_TIME_FORMATTER = dateTimeFormatter;
-        this.PATTERN = pattern;
-    }
-
-    protected IdGeneratorBase(final IdGeneratorConfig idGeneratorConfig,
-                              final Function<String, Integer> partitionResolverSupplier,
-                              final NonceGeneratorType nonceGeneratorType,
-                              final IdFormatter idFormatter,
-                              final MetricRegistry metricRegistry,
-                              final Clock clock,
-                              final int minimumIdLength,
-                              final DateTimeFormatter dateTimeFormatter,
-                              final Pattern pattern) {
-        this.idFormatter = idFormatter;
-        this.nonceGenerator = getNonceGenerator(nonceGeneratorType, idGeneratorConfig, partitionResolverSupplier, metricRegistry, clock);
         this.MINIMUM_ID_LENGTH = minimumIdLength;
         this.DATE_TIME_FORMATTER = dateTimeFormatter;
         this.PATTERN = pattern;
@@ -167,15 +147,4 @@ public class IdGeneratorBase {
         }
     }
 
-    private NonceGeneratorBase getNonceGenerator(final NonceGeneratorType nonceGeneratorType,
-                                                    final IdGeneratorConfig idGeneratorConfig,
-                                                    final Function<String, Integer> partitionResolverSupplier,
-                                                    final MetricRegistry metricRegistry,
-                                                    final Clock clock) {
-        switch (nonceGeneratorType) {
-            case DISTRIBUTED: return new PartitionAwareNonceGenerator(NODE_ID, idGeneratorConfig, partitionResolverSupplier, idFormatter, metricRegistry, clock);
-            case RANDOM:
-            default: return new RandomNonceGenerator(NODE_ID, idFormatter);
-        }
-    }
 }
