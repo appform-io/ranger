@@ -4,9 +4,11 @@ import com.google.common.base.Preconditions;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
+import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.val;
@@ -25,13 +27,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class NonceGeneratorBase {
 
     private final SecureRandom SECURE_RANDOM = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
-    protected List<IdValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
-    protected final Map<String, Domain> REGISTERED_DOMAINS = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
-    private final int nodeId;
+    private final List<IdValidationConstraint> GLOBAL_CONSTRAINTS = new ArrayList<>();
+    private final Map<String, Domain> REGISTERED_DOMAINS = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final IdFormatter idFormatter;
 
-    protected NonceGeneratorBase(final int nodeId, final IdFormatter idFormatter) {
-        this.nodeId = nodeId;
+    protected NonceGeneratorBase(final IdFormatter idFormatter) {
         this.idFormatter = idFormatter;
     }
 
@@ -40,7 +40,7 @@ public abstract class NonceGeneratorBase {
         REGISTERED_DOMAINS.clear();
     }
 
-    public void registerDomain(Domain domain) {
+    public void registerDomain(final Domain domain) {
         REGISTERED_DOMAINS.put(domain.getDomain(), domain);
     }
 
@@ -61,15 +61,49 @@ public abstract class NonceGeneratorBase {
                 .build());
     }
 
+    protected IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
+        // First evaluate global constraints
+        val failedGlobalConstraint
+                = skipGlobal
+                ? null
+                : getGLOBAL_CONSTRAINTS().stream()
+                .filter(constraint -> !constraint.isValid(id))
+                .findFirst()
+                .orElse(null);
+        if (null != failedGlobalConstraint) {
+            return failedGlobalConstraint.failFast()
+                    ? IdValidationState.INVALID_NON_RETRYABLE
+                    : IdValidationState.INVALID_RETRYABLE;
+        }
+        // Evaluate param constraints
+        val failedLocalConstraint
+                = null == inConstraints
+                ? null
+                : inConstraints.stream()
+                .filter(constraint -> !constraint.isValid(id))
+                .findFirst()
+                .orElse(null);
+        if (null != failedLocalConstraint) {
+            return failedLocalConstraint.failFast()
+                    ? IdValidationState.INVALID_NON_RETRYABLE
+                    : IdValidationState.INVALID_RETRYABLE;
+        }
+        return IdValidationState.VALID;
+    }
+
     public Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
         val dateTime = getDateTimeFromTime(idInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), idInfo.getExponent()));
+        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
         return Id.builder()
                 .id(id)
                 .exponent(idInfo.getExponent())
                 .generatedDate(dateTime.toDate())
-                .node(getNodeId())
+                .node(IdGeneratorBase.getNODE_ID())
                 .build();
+    }
+
+    public Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
+        return getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
     /**

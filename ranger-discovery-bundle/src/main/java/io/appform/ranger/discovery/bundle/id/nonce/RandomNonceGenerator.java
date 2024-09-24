@@ -8,7 +8,6 @@ import io.appform.ranger.discovery.bundle.id.CollisionChecker;
 import io.appform.ranger.discovery.bundle.id.Constants;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
@@ -26,8 +25,8 @@ import java.util.Optional;
 public class RandomNonceGenerator extends NonceGeneratorBase {
     private final FailsafeExecutor<GenerationResult> RETRYER;
 
-    public RandomNonceGenerator(final int nodeId, final IdFormatter idFormatter) {
-        super(nodeId, idFormatter);
+    public RandomNonceGenerator(final IdFormatter idFormatter) {
+        super(idFormatter);
         RetryPolicy<GenerationResult> RETRY_POLICY = RetryPolicy.<GenerationResult>builder()
                 .withMaxAttempts(readRetryCount())
                 .handleIf(throwable -> true)
@@ -39,7 +38,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                         val idInfo = res.getIdInfo();
                         val collisionChecker = Strings.isNullOrEmpty(res.getDomain())
                                 ? Domain.DEFAULT.getCollisionChecker()
-                                : REGISTERED_DOMAINS.get(res.getDomain()).getCollisionChecker();
+                                : getREGISTERED_DOMAINS().get(res.getDomain()).getCollisionChecker();
                         collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
                     }
                 })
@@ -59,7 +58,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
 
     @Override
     public Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        return generateWithConstraints(namespace, REGISTERED_DOMAINS.getOrDefault(domain, Domain.DEFAULT), skipGlobal);
+        return generateWithConstraints(namespace, getREGISTERED_DOMAINS().getOrDefault(domain, Domain.DEFAULT), skipGlobal);
     }
 
     public Optional<IdInfo> generateWithConstraints(final String namespace, final Domain domain, final boolean skipGlobal) {
@@ -74,19 +73,19 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
 
     public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
         val collisionChecker = !Strings.isNullOrEmpty(request.getDomain())
-                ? REGISTERED_DOMAINS.getOrDefault(request.getDomain(), Domain.DEFAULT)
+                ? getREGISTERED_DOMAINS().getOrDefault(request.getDomain(), Domain.DEFAULT)
                 .getCollisionChecker()
                 : Domain.DEFAULT.getCollisionChecker();
         return Optional.ofNullable(RETRYER.get(
                 () -> {
-                            IdInfo idInfo = random(collisionChecker);
-                            val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
-                            return GenerationResult.builder()
-                                    .idInfo(idInfo)
-                                    .state(validateId(request.getConstraints(), id, request.isSkipGlobal()))
-                                    .domain(null)
-                                    .build();
-                        }))
+                    IdInfo idInfo = random(collisionChecker);
+                    val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
+                    return GenerationResult.builder()
+                            .idInfo(idInfo)
+                            .state(validateId(request.getConstraints(), id, request.isSkipGlobal()))
+                            .domain(null)
+                            .build();
+                }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
     }
@@ -135,36 +134,6 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
-    }
-
-    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, boolean skipGlobal) {
-        //First evaluate global constraints
-        val failedGlobalConstraint
-                = skipGlobal
-                ? null
-                : getGLOBAL_CONSTRAINTS().stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedGlobalConstraint) {
-            return failedGlobalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        //Evaluate local + domain constraints
-        val failedLocalConstraint
-                = null == inConstraints
-                ? null
-                : inConstraints.stream()
-                .filter(constraint -> !constraint.isValid(id))
-                .findFirst()
-                .orElse(null);
-        if (null != failedLocalConstraint) {
-            return failedLocalConstraint.failFast()
-                    ? IdValidationState.INVALID_NON_RETRYABLE
-                    : IdValidationState.INVALID_RETRYABLE;
-        }
-        return IdValidationState.VALID;
     }
 
     @Override

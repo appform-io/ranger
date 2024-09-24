@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package io.appform.ranger.server.bundle;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
@@ -76,7 +75,7 @@ public abstract class RangerServerBundle<
      */
     @SuppressWarnings("unused")
     protected List<Signal<T>> withLifecycleSignals(U configuration){
-        return ImmutableList.of();
+        return List.of();
     }
 
     protected abstract List<RangerHubClient<T, R>> withHubs(U configuration);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,4 +22,6 @@ public interface RangerConfigurationVisitor<T> {
     T visit(RangerHttpUpstreamConfiguration rangerHttpConfiguration);
 
     T visit(RangerZkUpstreamConfiguration rangerZkConfiguration);
+
+    T visit(RangerDroveUpstreamConfiguration rangerDroveUpstreamConfiguration);
 }

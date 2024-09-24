@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Santanu Sinha <santanu.sinha@gmail.com>
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package io.appform.ranger.discovery.bundle.id;
@@ -97,7 +96,7 @@ class IdGeneratorTest {
     @Test
     void testGenerate() {
         val numRunners = 20;
-        val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).collect(Collectors.toList());
+        val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()
@@ -156,7 +155,7 @@ class IdGeneratorTest {
     void testGenerateWithConstraintsNoConstraint() {
         int numRunners = 20;
 
-        val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).collect(Collectors.toList());
+        val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()
