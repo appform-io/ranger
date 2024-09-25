@@ -16,11 +16,9 @@
 package io.appform.ranger.hub.server.bundle.healthcheck;
 
 import com.codahale.metrics.health.HealthCheck;
-import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 
-@Singleton
 @Slf4j
 public class RangerHealthCheck extends HealthCheck {
 
