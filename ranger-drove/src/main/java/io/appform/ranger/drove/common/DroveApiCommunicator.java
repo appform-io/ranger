@@ -117,7 +117,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
     @Override
     @SuppressWarnings("java:S1168")
     public Map<Service, List<ExposedAppInfo>> listNodes(Iterable<? extends Service> services) {
-        log.info("Loading nodes list for services: {}", Lists.newArrayList(services));
+        log.debug("Loading nodes list for services: {}", Lists.newArrayList(services));
         val url = String.format("/apis/v1/endpoints?%s", Joiner.on("&")
                 .join(StreamSupport.stream(services.spliterator(), false)
                               .map(service -> "app=" + service.getServiceName())
