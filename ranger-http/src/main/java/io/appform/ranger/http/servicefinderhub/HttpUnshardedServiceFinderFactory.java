@@ -24,16 +24,16 @@ import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilider;
 import lombok.Builder;
 import lombok.val;
-import okhttp3.OkHttpClient;
 
 public class HttpUnshardedServiceFinderFactory<T> implements ServiceFinderFactory<T, ListBasedServiceRegistry<T>> {
 
     private final HttpClientConfig clientConfig;
     private final ObjectMapper mapper;
-    private final OkHttpClient httpClient;
+    private final HttpCommunicator<T> httpClient;
     private final HTTPResponseDataDeserializer<T> deserializer;
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector;
     private final ServiceNodeSelector<T> nodeSelector;
@@ -42,12 +42,12 @@ public class HttpUnshardedServiceFinderFactory<T> implements ServiceFinderFactor
     @Builder
     public HttpUnshardedServiceFinderFactory(
             HttpClientConfig httpClientConfig,
-            ObjectMapper mapper, OkHttpClient httpClient,
+            ObjectMapper mapper,
+            HttpCommunicator<T> httpClient,
             HTTPResponseDataDeserializer<T> deserializer,
             ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector,
             ServiceNodeSelector<T> nodeSelector,
-            int nodeRefreshIntervalMs)
-    {
+            int nodeRefreshIntervalMs) {
         this.clientConfig = httpClientConfig;
         this.mapper = mapper;
         this.httpClient = httpClient;

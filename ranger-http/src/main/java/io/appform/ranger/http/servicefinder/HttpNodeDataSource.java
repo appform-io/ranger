@@ -15,24 +15,21 @@
  */
 package io.appform.ranger.http.servicefinder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -41,67 +38,27 @@ import java.util.Optional;
 public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSource<T, D> {
 
     private final Service service;
+    private final AtomicBoolean upstreamAvailable = new AtomicBoolean(true);
+    private final ScheduledExecutorService resetter = Executors.newSingleThreadScheduledExecutor();
 
     public HttpNodeDataSource(
             final Service service,
             final HttpClientConfig config,
-            final ObjectMapper mapper,
-            final OkHttpClient httpClient) {
-        super(config, mapper, httpClient);
+            final HttpCommunicator<T> httpCommunicator) {
+        super(config, httpCommunicator);
+        Objects.requireNonNull(config, "client config has not been set for node data");
+        Objects.requireNonNull(httpCommunicator, "http communicator has not been set for node data");
         this.service = service;
+        resetter.scheduleWithFixedDelay(() -> upstreamAvailable.set(true), 0, 60, TimeUnit.SECONDS);
     }
 
     @Override
     public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
-        Preconditions.checkNotNull(config, "client config has not been set for node data");
-        Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
-        val url = String.format("/ranger/nodes/v1/%s/%s", service.getNamespace(), service.getServiceName());
-
-        log.debug("Refreshing the node list from url {}", url);
-        val httpUrl = new HttpUrl.Builder()
-                .scheme(config.isSecure()
-                        ? "https"
-                        : "http")
-                .host(config.getHost())
-                .port(config.getPort() == 0
-                        ? defaultPort()
-                        : config.getPort())
-                .encodedPath(url)
-                .build();
-        val request = new Request.Builder()
-                .url(httpUrl)
-                .get()
-                .build();
-
-        try (val response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                try (val body = response.body()) {
-                    if (null == body) {
-                        log.warn("HTTP call to {} returned empty body", httpUrl);
-                    } else {
-                        val bytes = body.bytes();
-                        val serviceNodesResponse = deserializer.deserialize(bytes);
-                        if(serviceNodesResponse.valid()){
-                            return Optional.of(FinderUtils.filterValidNodes(
-                                               service,
-                                               serviceNodesResponse.getData(),
-                                               healthcheckZombieCheckThresholdTime(service)));
-                        } else{
-                            log.warn("Http call to {} returned a failure response with response {}", httpUrl, serviceNodesResponse);
-                        }
-                    }
-                }
-            } else {
-                log.warn("HTTP call to {} returned: {}", httpUrl, response.code());
-            }
-        } catch (IOException e) {
-            log.error("Error getting service data from the http endPoint: ", e);
-        }
-        return Optional.empty();
+        return Optional.of(httpCommunicator.listNodes(service, deserializer));
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        return upstreamAvailable.get();
     }
 }

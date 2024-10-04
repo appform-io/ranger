@@ -111,6 +111,11 @@ public class DroveCachingCommunicator implements DroveCommunicator {
     }
 
     @Override
+    public boolean healthy() {
+        return root.healthy();
+    }
+
+    @Override
     public List<String> services() {
         return root.services();
     }

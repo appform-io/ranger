@@ -30,6 +30,8 @@ import java.util.Set;
 public interface DroveCommunicator extends AutoCloseable {
     Optional<String> leader();
 
+    boolean healthy();
+
     List<String> services();
 
     default List<ExposedAppInfo> listNodes(final Service service) {

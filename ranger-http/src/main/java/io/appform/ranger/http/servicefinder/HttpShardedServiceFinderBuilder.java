@@ -23,7 +23,6 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.utils.RangerHttpUtils;
-import okhttp3.OkHttpClient;
 
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
 
     private HttpClientConfig clientConfig;
     private ObjectMapper mapper;
-    private OkHttpClient httpClient;
+    private HttpCommunicator<T> httpCommunicator;
 
     public HttpShardedServiceFinderBuilder<T> withClientConfig(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -46,8 +45,8 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
         return this;
     }
 
-    public HttpShardedServiceFinderBuilder<T> withHttpClient(final OkHttpClient httpClient){
-        this.httpClient = httpClient;
+    public HttpShardedServiceFinderBuilder<T> withHttpCommunicator(final HttpCommunicator<T> httpCommunicator){
+        this.httpCommunicator = httpCommunicator;
         return this;
     }
 
@@ -58,9 +57,9 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
 
     @Override
     protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
-        return new HttpNodeDataSource<>(service, clientConfig, mapper,
-                                        Objects.requireNonNullElseGet(httpClient,
-                                                                      () -> RangerHttpUtils.httpClient(clientConfig)));
+        return new HttpNodeDataSource<>(service, clientConfig,
+                                        Objects.requireNonNullElseGet(httpCommunicator,
+                                                                      () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 
 }

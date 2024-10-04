@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.drove.common;
+package io.appform.ranger.http.servicefinder;
 
-import io.appform.ranger.core.exceptions.CommunicationException;
+import io.appform.ranger.core.model.Service;
+import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import okhttp3.OkHttpClient;
+
+import java.util.List;
+import java.util.Set;
 
 /**
- * Thrown in case there is an issue communicating with the drove upstream.
+ * Interface for communicator to upstream
  */
-public class DroveCommunicationException extends CommunicationException {
-    public DroveCommunicationException(final String message) {
-        super(message);
-    }
+public interface HttpCommunicator<T> extends AutoCloseable {
+    boolean healthy();
+
+    Set<Service> services();
+
+    List<ServiceNode<T>> listNodes(final Service service,
+                                   HTTPResponseDataDeserializer<T> deserializer);
+
+    OkHttpClient getHttpClient();
 }

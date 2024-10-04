@@ -15,6 +15,8 @@
  */
 package io.appform.ranger.core.model;
 
+import io.appform.ranger.core.exceptions.CommunicationException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +26,9 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public interface NodeDataSource<T, D extends Deserializer<T>> extends NodeDataStoreConnector<T> {
 
-    Optional<List<ServiceNode<T>>> refresh(D deserializer);
+    Optional<List<ServiceNode<T>>> refresh(D deserializer) throws CommunicationException;
 
     default long healthcheckZombieCheckThresholdTime(Service service) {
-        return System.currentTimeMillis() - 60000; //1 Minute
+        return isActive() ? (System.currentTimeMillis() - 60000) : 0; //1 Minute
     }
 }

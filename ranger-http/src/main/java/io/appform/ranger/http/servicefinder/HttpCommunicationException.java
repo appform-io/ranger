@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.drove.common;
+package io.appform.ranger.http.servicefinder;
 
 import io.appform.ranger.core.exceptions.CommunicationException;
 
 /**
- * Thrown in case there is an issue communicating with the drove upstream.
+ * Thrown in case there is an issue communicating with the HTTP upstream.
+
  */
-public class DroveCommunicationException extends CommunicationException {
-    public DroveCommunicationException(final String message) {
+public class HttpCommunicationException extends CommunicationException {
+    public HttpCommunicationException(final String message) {
         super(message);
     }
 }

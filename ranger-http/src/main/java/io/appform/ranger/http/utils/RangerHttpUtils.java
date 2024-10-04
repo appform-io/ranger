@@ -16,7 +16,10 @@
 
 package io.appform.ranger.http.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.http.config.HttpClientConfig;
+import io.appform.ranger.http.servicefinder.HttpApiCommunicator;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
@@ -30,17 +33,22 @@ import java.util.concurrent.TimeUnit;
 @UtilityClass
 @Slf4j
 public class RangerHttpUtils {
-    public static OkHttpClient httpClient(final HttpClientConfig config) {
+    public static <T> HttpCommunicator<T> httpClient(
+            final HttpClientConfig config,
+            final ObjectMapper mapper) {
         log.info("Creating http client for {}:{}", config.getHost(), config.getPort());
-        return new OkHttpClient.Builder()
-                .callTimeout(config.getOperationTimeoutMs() == 0
-                             ? 3000
-                             : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
-                .connectTimeout(config.getConnectionTimeoutMs() == 0
-                                ? 3000
-                                : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
-                .followRedirects(true)
-                .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
-                .build();
+        return new HttpApiCommunicator<>(
+                new OkHttpClient.Builder()
+                        .callTimeout(config.getOperationTimeoutMs() == 0
+                                     ? 3000
+                                     : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
+                        .connectTimeout(config.getConnectionTimeoutMs() == 0
+                                        ? 3000
+                                        : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
+                        .followRedirects(true)
+                        .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
+                        .build(),
+                config,
+                mapper);
     }
 }

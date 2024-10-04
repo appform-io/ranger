@@ -27,6 +27,11 @@
 
     <artifactId>ranger-server</artifactId>
 
+    <properties>
+        <jakarta.inject-api.version>2.0.1</jakarta.inject-api.version>
+        <dw-guicey.version>5.10.2</dw-guicey.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
@@ -36,6 +41,16 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.vyarus</groupId>
+            <artifactId>dropwizard-guicey</artifactId>
+            <version>${dw-guicey.version}</version>
         </dependency>
     </dependencies>
 

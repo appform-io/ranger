@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.zookeeper.common.ZkNodeDataStoreConnector;
 import io.appform.ranger.zookeeper.common.ZkStoreType;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
@@ -29,11 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.apache.zookeeper.KeeperException.NoNodeException;
 
 /**
  *
@@ -65,7 +64,6 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
         }
         Preconditions.checkNotNull(deserializer, "Deserializer has not been set for node data");
         try {
-            val healthcheckZombieCheckThresholdTime = healthcheckZombieCheckThresholdTime(service); //1 Minute
             val serviceName = service.getServiceName();
             if (!isActive()) {
                 log.warn("ZK connection is not active. Ignoring refresh request for service: {}",
@@ -79,13 +77,11 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             log.debug("Found {} nodes for [{}]", children.size(), serviceName);
             for (val child : children) {
                 byte[] data = readChild(parentPath, child).orElse(null);
-                if (data == null || data.length <= 0) {
+                if (data == null || data.length == 0) {
                     continue;
                 }
                 val node = deserializer.deserialize(data);
-                if(FinderUtils.isValidNode(service, healthcheckZombieCheckThresholdTime, node)) {
-                    nodes.add(node);
-                }
+                nodes.add(node);
             }
             return Optional.of(nodes);
         }

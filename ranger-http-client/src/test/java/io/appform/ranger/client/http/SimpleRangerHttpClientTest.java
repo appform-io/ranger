@@ -30,7 +30,7 @@ class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
         val client = SimpleRangerHttpClient.<TestNodeData>builder()
                 .clientConfig(httpClientConfig)
                 .mapper(getObjectMapper())
-                .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
+                .httpClient(RangerHttpUtils.httpClient(httpClientConfig, getObjectMapper()))
                 .deserializer(this::read)
                 .namespace("test-n")
                 .serviceName("test-s")

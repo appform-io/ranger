@@ -22,11 +22,11 @@ import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
-import java.util.Optional;
 import lombok.Builder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 public class TestSimpleUnshardedServiceFinder <T>
@@ -51,6 +51,7 @@ public class TestSimpleUnshardedServiceFinder <T>
                             .host("localhost")
                             .port(9200)
                             .nodeData(TestNodeData.builder().shardId(1).build())
+                            .lastUpdatedTimeStamp(Long.MAX_VALUE)
                             .build())
             );
         }

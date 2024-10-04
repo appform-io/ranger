@@ -26,8 +26,6 @@ import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
-import java.util.Optional;
-
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 class ServiceFinderHubTest {
 
@@ -83,7 +82,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 2_000, 5_000
+                        .build(), 5_000, 5_000
         );
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
@@ -141,7 +140,7 @@ class ServiceFinderHubTest {
             @Override
             public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, 10L, "HTTP"));
+                list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, Long.MAX_VALUE, "HTTP"));
                 return Optional.of(list);
             }
 

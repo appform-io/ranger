@@ -22,9 +22,9 @@ import io.appform.ranger.core.serviceprovider.BaseServiceProviderBuilder;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HttpRequestDataSerializer;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import io.appform.ranger.http.utils.RangerHttpUtils;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
 
     private HttpClientConfig clientConfig;
     private ObjectMapper mapper;
-    private OkHttpClient httpClient;
+    private HttpCommunicator<T> httpClient;
 
     public HttpShardedServiceProviderBuilder<T> withClientConfiguration(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -45,7 +45,7 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
         return this;
     }
 
-    public HttpShardedServiceProviderBuilder<T> withHttpClient(final OkHttpClient httpClient) {
+    public HttpShardedServiceProviderBuilder<T> withHttpClient(final HttpCommunicator<T> httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -59,6 +59,6 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
     protected NodeDataSink<T, HttpRequestDataSerializer<T>> dataSink(Service service) {
         return new HttpNodeDataSink<>(service, clientConfig, mapper,
                                       Objects.requireNonNullElseGet(httpClient,
-                                                                    () -> RangerHttpUtils.httpClient(clientConfig)));
+                                                                    () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 }

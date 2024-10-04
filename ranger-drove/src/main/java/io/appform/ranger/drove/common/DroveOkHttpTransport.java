@@ -68,7 +68,7 @@ public class DroveOkHttpTransport implements DroveHttpTransport {
             return responseHandler.handle(droveResponse);
         }
         catch (Exception e) {
-            log.error("Error calling drove: " + e.getMessage(), e);
+            log.error("Error calling drove: {}. Error: {}", e.getMessage(), e.getClass().getSimpleName());
             throw new DroveCommunicationException(e.getMessage());
         }
     }
