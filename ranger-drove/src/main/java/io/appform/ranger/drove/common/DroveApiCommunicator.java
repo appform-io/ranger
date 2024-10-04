@@ -37,6 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -49,6 +54,8 @@ public class DroveApiCommunicator implements DroveCommunicator {
     private final DroveUpstreamConfig config;
     private final DroveClient droveClient;
     private final ObjectMapper mapper;
+    private final AtomicBoolean upstreamAvailable = new AtomicBoolean(true);
+    private final ScheduledExecutorService resetter = Executors.newSingleThreadScheduledExecutor();
 
     public DroveApiCommunicator(
             String namespace, DroveUpstreamConfig config,
@@ -58,6 +65,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
         this.config = config;
         this.droveClient = droveClient;
         this.mapper = mapper;
+        resetter.scheduleWithFixedDelay(() -> upstreamAvailable.set(true), 0, 60, TimeUnit.SECONDS);
     }
 
     @Override
@@ -71,13 +79,18 @@ public class DroveApiCommunicator implements DroveCommunicator {
     }
 
     @Override
+    public boolean healthy() {
+        return upstreamAvailable.get();
+    }
+
+    @Override
     public List<String> services() {
         log.debug("Loading services list");
         val skipTagName = Objects.requireNonNullElse(
                 config.getSkipTagName(),
                 DroveUpstreamConfig.DEFAULT_SKIP_TAG_NAME);
         val url = "/apis/v1/applications";
-        return droveClient.execute(
+        return executeRemoteCall(() -> droveClient.execute(
                 new DroveClient.Request(DroveClient.Method.GET, url),
                 new DroveClient.ResponseHandler<>() {
                     @Override
@@ -111,7 +124,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
                                 .distinct()
                                 .toList();
                     }
-                });
+                }));
     }
 
     @Override
@@ -124,7 +137,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
                               .toList()));
 
         logUrl(url);
-        return droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
+        return executeRemoteCall(() -> droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
                                    new DroveClient.ResponseHandler<>() {
                                        @Override
                                        public Map<Service, List<ExposedAppInfo>> defaultValue() {
@@ -150,7 +163,18 @@ public class DroveApiCommunicator implements DroveCommunicator {
                                                            appInfo -> new Service(namespace, appInfo.getAppName()),
                                                            Collectors.toList()));
                                        }
-                                   });
+                                   }));
+    }
+
+    private <T> T executeRemoteCall(Supplier<T> executor) {
+        upstreamAvailable.set(true);
+        try {
+            return executor.get();
+        }
+        catch (DroveCommunicationException e) {
+            upstreamAvailable.set(false);
+            throw e;
+        }
     }
 
     private static void throwDroveCommError(DroveClient.Response response) {

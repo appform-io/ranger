@@ -36,7 +36,7 @@ public class ScheduledSignal<T> extends Signal<T> {
     private final String name;
     private final long refreshIntervalMillis;
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private ScheduledFuture<?> scheduledFuture = null;
 

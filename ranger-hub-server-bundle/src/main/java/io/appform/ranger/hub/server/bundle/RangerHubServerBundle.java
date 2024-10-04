@@ -128,7 +128,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .namespace(namespace)
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
-                    .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
+                    .httpClient(RangerHttpUtils.httpClient(httpClientConfig, getMapper()))
                     .serviceRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
                     .hubRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())

@@ -55,7 +55,7 @@ class HttpServiceDataSourceTest {
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
-        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, MAPPER, RangerHttpUtils.httpClient(clientConfig));
+        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, RangerHttpUtils.httpClient(clientConfig, MAPPER));
         val services = httpServiceDataSource.services();
         Assertions.assertNotNull(services);
         Assertions.assertFalse(services.isEmpty());

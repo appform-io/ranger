@@ -23,6 +23,7 @@ import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
 import io.appform.ranger.http.utils.RangerHttpUtils;
@@ -30,37 +31,40 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 
 import java.util.Objects;
 
 @Slf4j
 @Getter
 @SuperBuilder
-public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T>, D extends HTTPResponseDataDeserializer<T>>
-    extends AbstractRangerHubClient<T, R, D> {
+public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T>,
+        D extends HTTPResponseDataDeserializer<T>>
+        extends AbstractRangerHubClient<T, R, D> {
 
-  private final HttpClientConfig clientConfig;
+    private final HttpClientConfig clientConfig;
 
-  private final OkHttpClient httpClient;
+    private final HttpCommunicator<T> httpClient;
 
-  @Builder.Default
-  private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
+    @Builder.Default
+    private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
-  @Override
-  protected ServiceDataSource getDefaultDataSource() {
-    return new HttpServiceDataSource<>(clientConfig, getMapper(), Objects.requireNonNullElseGet(getHttpClient(),
-                                                                                                () -> RangerHttpUtils.httpClient(clientConfig)));
-  }
+    @Override
+    protected ServiceDataSource getDefaultDataSource() {
+        return new HttpServiceDataSource<>(clientConfig,
+                                           Objects.requireNonNullElseGet(getHttpClient(),
+                                                                         () -> RangerHttpUtils.httpClient(
+                                                                                 clientConfig,
+                                                                                 getMapper())));
+    }
 
-  @Override
-  protected ServiceFinderHub<T, R> buildHub() {
-    return new HttpServiceFinderHubBuilder<T, R>()
-        .withServiceDataSource(getServiceDataSource())
-        .withServiceFinderFactory(getFinderFactory())
-        .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-        .withHubRefreshDuration(getHubRefreshDurationMs())
-        .withServiceRefreshDuration(getServiceRefreshDurationMs())
-        .build();
-  }
+    @Override
+    protected ServiceFinderHub<T, R> buildHub() {
+        return new HttpServiceFinderHubBuilder<T, R>()
+                .withServiceDataSource(getServiceDataSource())
+                .withServiceFinderFactory(getFinderFactory())
+                .withRefreshFrequencyMs(getNodeRefreshTimeMs())
+                .withHubRefreshDuration(getHubRefreshDurationMs())
+                .withServiceRefreshDuration(getServiceRefreshDurationMs())
+                .build();
+    }
 }

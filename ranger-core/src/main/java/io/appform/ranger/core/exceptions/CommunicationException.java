@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.drove.common;
-
-import io.appform.ranger.core.exceptions.CommunicationException;
+package io.appform.ranger.core.exceptions;
 
 /**
- * Thrown in case there is an issue communicating with the drove upstream.
+ * Base for communication exception
  */
-public class DroveCommunicationException extends CommunicationException {
-    public DroveCommunicationException(final String message) {
+public abstract class CommunicationException extends RuntimeException {
+    protected CommunicationException(final String message) {
         super(message);
     }
 }
