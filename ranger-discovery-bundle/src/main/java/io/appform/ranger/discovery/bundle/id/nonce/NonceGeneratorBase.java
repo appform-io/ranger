@@ -52,21 +52,21 @@ public abstract class NonceGeneratorBase {
         retryer = Failsafe.with(Collections.singletonList(retryPolicy));
     }
 
-    final public synchronized void cleanUp() {
+    public final synchronized void cleanUp() {
         globalConstraints.clear();
         registeredDomains.clear();
     }
 
-    final public void registerDomain(final Domain domain) {
+    public final void registerDomain(final Domain domain) {
         registeredDomains.put(domain.getDomain(), domain);
     }
 
-    final public synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
+    public final synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
         Preconditions.checkArgument(null != constraints && !constraints.isEmpty());
         globalConstraints.addAll(constraints);
     }
 
-    final public synchronized void registerDomainSpecificConstraints(
+    public final synchronized void registerDomainSpecificConstraints(
             final String domain,
             final List<IdValidationConstraint> validationConstraints) {
         Preconditions.checkArgument(null != validationConstraints && !validationConstraints.isEmpty());
@@ -78,7 +78,7 @@ public abstract class NonceGeneratorBase {
                 .build());
     }
 
-    final protected IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
+    protected final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
         // First evaluate global constraints
         val failedGlobalConstraint
                 = skipGlobal
@@ -108,7 +108,7 @@ public abstract class NonceGeneratorBase {
         return IdValidationState.VALID;
     }
 
-    final public Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
+    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
         val dateTime = new DateTime(idInfo.getTime());
         val id = String.format("%s%s", namespace, idFormatter.format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
         return Id.builder()
@@ -119,7 +119,7 @@ public abstract class NonceGeneratorBase {
                 .build();
     }
 
-    final public Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
+    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
         return getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
@@ -127,7 +127,7 @@ public abstract class NonceGeneratorBase {
      * Generate id with given namespace
      *
      * @param namespace String namespace for ID to be generated
-     * @return Generated Id
+     * @return Generated IdInfo
      */
     public abstract IdInfo generate(final String namespace);
 
@@ -141,13 +141,18 @@ public abstract class NonceGeneratorBase {
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return ID if it could be generated
      */
-    public abstract Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal);
+    public final Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
+        val registeredDomain = getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT);
+        return generateWithConstraints(IdGenerationRequest.builder()
+                .prefix(namespace)
+                .constraints(registeredDomain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(registeredDomain.getDomain())
+                .idFormatter(registeredDomain.getIdFormatter())
+                .build());
+    }
 
     public abstract Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request);
-
-    public abstract Optional<IdInfo> generateWithConstraints(final String namespace,
-                                                             final List<IdValidationConstraint> inConstraints,
-                                                             final boolean skipGlobal);
 
     protected abstract int readRetryCount();
 

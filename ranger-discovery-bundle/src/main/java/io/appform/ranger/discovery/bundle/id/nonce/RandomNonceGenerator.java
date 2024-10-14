@@ -8,12 +8,10 @@ import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
-import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.val;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -23,29 +21,9 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         super(idFormatter);
     }
 
-    /**
-     * Generate id with given namespace
-     *
-     * @param namespace String namespace for ID to be generated
-     * @return Generated IdInfo
-     */
+    @Override
     public IdInfo generate(final String namespace) {
         return random(Domain.DEFAULT.getCollisionChecker());
-    }
-
-    @Override
-    public Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        return generateWithConstraints(namespace, getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT), skipGlobal);
-    }
-
-    public Optional<IdInfo> generateWithConstraints(final String namespace, final Domain domain, final boolean skipGlobal) {
-        return generateWithConstraints(IdGenerationRequest.builder()
-                .prefix(namespace)
-                .constraints(domain.getConstraints())
-                .skipGlobal(skipGlobal)
-                .domain(domain.getDomain())
-                .idFormatter(domain.getIdFormatter())
-                .build());
     }
 
     public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
@@ -59,18 +37,6 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
                     val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
                     return new GenerationResult(idInfo, validateId(request.getConstraints(), id, request.isSkipGlobal()), request.getDomain());
                 }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(GenerationResult::getIdInfo);
-    }
-
-    @Override
-    public Optional<IdInfo> generateWithConstraints(final String namespace, final List<IdValidationConstraint> inConstraints, final boolean skipGlobal) {
-        return Optional.ofNullable(getRetryer().get(
-                        () -> {
-                            val idInfo = generate(namespace);
-                            val id = getIdFromIdInfo(idInfo, namespace, getIdFormatter());
-                            return new GenerationResult(idInfo, validateId(inConstraints, id, skipGlobal), Domain.DEFAULT_DOMAIN_NAME);
-                        }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(GenerationResult::getIdInfo);
     }

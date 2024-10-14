@@ -109,8 +109,13 @@ public class IdGeneratorBase {
     public Optional<Id> generateWithConstraints(final String namespace,
                                                 final List<IdValidationConstraint> inConstraints,
                                                 final boolean skipGlobal) {
-        val idInfoOptional = nonceGenerator.generateWithConstraints(namespace, inConstraints, skipGlobal);
-        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
+        val request = IdGenerationRequest.builder()
+                .prefix(namespace)
+                .constraints(inConstraints)
+                .skipGlobal(skipGlobal)
+                .idFormatter(nonceGenerator.getIdFormatter())
+                .build();
+        return generateWithConstraints(request);
     }
 
     public Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
