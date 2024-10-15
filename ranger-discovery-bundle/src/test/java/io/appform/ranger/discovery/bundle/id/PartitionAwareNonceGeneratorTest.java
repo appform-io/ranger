@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -52,7 +53,7 @@ class PartitionAwareNonceGeneratorTest {
 
     @BeforeEach
     void setup() {
-        nonceGeneratorType = NonceGeneratorType.DISTRIBUTED;
+        nonceGeneratorType = NonceGeneratorType.PARTITION_AWARE;
         val meter = mock(Meter.class);
         doReturn(meter).when(metricRegistry).meter(anyString());
         doNothing().when(meter).mark();
@@ -119,12 +120,10 @@ class PartitionAwareNonceGeneratorTest {
     }
 
     void checkUniqueIds(List<Id> allIdsList) {
-        List<String> allIdStringList = new ArrayList<>(List.of());
-        for (Id id : allIdsList) {
-            allIdStringList.add(id.getId());
-        }
-        HashSet<String> uniqueIds = new HashSet<>(allIdStringList);
-        Assertions.assertEquals(allIdsList.size(), uniqueIds.size());
+        val uniqueIdSet = allIdsList.stream()
+                .map(Id::getId)
+                .collect(Collectors.toSet());
+        Assertions.assertEquals(allIdsList.size(), uniqueIdSet.size());
     }
 
     protected HashMap<Integer, Integer> getIdCountMap(List<Id> allIdsList, Function<String, Integer> partitionResolver) {

@@ -108,7 +108,7 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
 
     @Override
     public IdInfo generateForPartition(final String namespace, int targetPartitionId) {
-        return generate(namespace);
+        throw new UnsupportedOperationException();
     }
 
     private IdInfo random(final CollisionChecker collisionChecker) {
@@ -134,11 +134,6 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
-    }
-
-    @Override
-    public DateTime getDateTimeFromTime(final long time) {
-        return new DateTime(time);
     }
 
 }

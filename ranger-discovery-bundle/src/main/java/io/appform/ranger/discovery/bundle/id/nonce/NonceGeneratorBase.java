@@ -133,6 +133,4 @@ public abstract class NonceGeneratorBase {
                                                              final boolean skipGlobal);
 
     public abstract IdInfo generateForPartition(final String namespace, final int targetPartitionId) ;
-
-    public abstract DateTime getDateTimeFromTime(final long time);
 }
