@@ -2,14 +2,12 @@ package io.appform.ranger.discovery.bundle.id;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-@Slf4j
 class CircularQueue {
     private static final String QUEUE_FULL_METRIC_STRING = "idGenerator.queueFull.forPrefix.";
     private static final String UNUSED_INDICES_METRIC_STRING = "idGenerator.unusedIds.forPrefix.";

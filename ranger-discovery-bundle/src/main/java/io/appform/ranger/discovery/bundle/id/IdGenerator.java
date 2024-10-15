@@ -157,7 +157,7 @@ public class IdGenerator {
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -176,6 +176,26 @@ public class IdGenerator {
                                 .skipGlobal(skipGlobal)
                                 .idFormatter(IdFormatters.original())
                                 .build());
+    }
+
+    /**
+     * Generate id that matches all passed constraints.
+     * NOTE: There are performance implications for this.
+     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     *
+     * @param prefix     String prefix
+     * @param skipGlobal Skip global constrains and use only passed ones
+     * @param domain     Domain
+     * @return Id if it could be generated
+     */
+    private static Optional<Id> generateWithConstraints(String prefix, final Domain domain, boolean skipGlobal) {
+        return generate(IdGenerationRequest.builder()
+                .prefix(prefix)
+                .constraints(domain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(domain.getDomain())
+                .idFormatter(domain.getIdFormatter())
+                .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {

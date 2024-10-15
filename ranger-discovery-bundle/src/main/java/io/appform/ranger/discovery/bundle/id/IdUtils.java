@@ -30,4 +30,19 @@ public class IdUtils {
                                                 final Clock clock) {
         return new PartitionAwareNonceGenerator(idGeneratorConfig, partitionResolverSupplier, idFormatter, metricRegistry, clock);
     }
+
+    public int readRetryCountFromEnv() {
+        try {
+            val count = Integer.parseInt(System.getenv().getOrDefault("NUM_ID_GENERATION_RETRIES", "512"));
+            if (count <= 0) {
+                throw new IllegalArgumentException(
+                        "Negative number of retries does not make sense. Please set a proper value for " +
+                                "NUM_ID_GENERATION_RETRIES");
+            }
+            return count;
+        }
+        catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
+        }
+    }
 }

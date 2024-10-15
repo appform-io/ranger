@@ -1,10 +1,10 @@
 package io.appform.ranger.discovery.bundle.id;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Value;
 
 @Getter
-@Builder
+@Value
 public class GenerationResult {
     IdInfo idInfo;
     IdValidationState state;

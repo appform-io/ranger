@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorBase;
@@ -25,11 +24,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class IdGeneratorBase {
 
-    private final int MINIMUM_ID_LENGTH;
-    private final Pattern PATTERN;
+    private final int minimumIdLength;
+    private final Pattern pattern;
     @Getter
     private static int NODE_ID;
-    protected final DateTimeFormatter DATE_TIME_FORMATTER;
+    protected final DateTimeFormatter dateTimeFormatter;
     protected final NonceGeneratorBase nonceGenerator;
 
     public static void initialize(int node) {
@@ -41,9 +40,9 @@ public class IdGeneratorBase {
                            final Pattern pattern,
                            final NonceGeneratorBase nonceGenerator) {
         this.nonceGenerator = nonceGenerator;
-        this.MINIMUM_ID_LENGTH = minimumIdLength;
-        this.DATE_TIME_FORMATTER = dateTimeFormatter;
-        this.PATTERN = pattern;
+        this.minimumIdLength = minimumIdLength;
+        this.dateTimeFormatter = dateTimeFormatter;
+        this.pattern = pattern;
     }
 
     public synchronized void cleanUp() {
@@ -103,20 +102,25 @@ public class IdGeneratorBase {
      * @return ID if it could be generated
      */
     public Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        Optional<IdInfo> idInfoOptional = nonceGenerator.generateWithConstraints(namespace, domain, skipGlobal);
+        val idInfoOptional = nonceGenerator.generateWithConstraints(namespace, domain, skipGlobal);
         return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
     }
 
     public Optional<Id> generateWithConstraints(final String namespace,
                                                 final List<IdValidationConstraint> inConstraints,
                                                 final boolean skipGlobal) {
-        Optional<IdInfo> idInfoOptional = nonceGenerator.generateWithConstraints(namespace, inConstraints, skipGlobal);
-        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
+        val request = IdGenerationRequest.builder()
+                .prefix(namespace)
+                .constraints(inConstraints)
+                .skipGlobal(skipGlobal)
+                .idFormatter(nonceGenerator.getIdFormatter())
+                .build();
+        return generateWithConstraints(request);
     }
 
     public Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
         val idInfo = nonceGenerator.generateWithConstraints(request);
-        return idInfo.map(info -> (nonceGenerator.getIdFromIdInfo(info, request.getPrefix(), request.getIdFormatter())));
+        return idInfo.map(info -> nonceGenerator.getIdFromIdInfo(info, request.getPrefix(), request.getIdFormatter()));
     }
 
     /**
@@ -127,11 +131,11 @@ public class IdGeneratorBase {
      */
     public Optional<Id> parse(final String idString) {
         if (idString == null
-                || idString.length() < MINIMUM_ID_LENGTH) {
+                || idString.length() < minimumIdLength) {
             return Optional.empty();
         }
         try {
-            val matcher = PATTERN.matcher(idString);
+            val matcher = pattern.matcher(idString);
             if (!matcher.find()) {
                 return Optional.empty();
             }
@@ -139,7 +143,7 @@ public class IdGeneratorBase {
                     .id(idString)
                     .node(Integer.parseInt(matcher.group(3)))
                     .exponent(Integer.parseInt(matcher.group(4)))
-                    .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())
+                    .generatedDate(dateTimeFormatter.parseDateTime(matcher.group(2)).toDate())
                     .build());
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());

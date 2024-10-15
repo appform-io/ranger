@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 class PartitionAwareNonceGeneratorTest {
     final int numThreads = 5;
     final int iterationCountPerThread = 100000;
-    final int partitionCount = 1024;
+    final int partitionCount = 1000;
     final Function<String, Integer> partitionResolverSupplier = (txnId) -> Integer.parseInt(txnId.substring(txnId.length() - 6)) % partitionCount;
     private final IdGeneratorConfig idGeneratorConfig =
             IdGeneratorConfig.builder()
@@ -156,6 +156,7 @@ class PartitionAwareNonceGeneratorTest {
             val txnId = distributedIdGenerator.generate("P").getId();
             if (allIDs.contains(txnId)) {
                 allIdsUnique = false;
+                break;
             } else {
                 allIDs.add(txnId);
             }
