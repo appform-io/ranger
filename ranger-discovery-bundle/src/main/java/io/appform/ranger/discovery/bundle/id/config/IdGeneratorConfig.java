@@ -38,16 +38,12 @@ public class IdGeneratorConfig {
     @Min(1)
     private int partitionCount;
 
-    /** Buffer time to pre-generate IDs for */
+    /** Buffer time in seconds to pre-generate IDs for.
+     * This allows us to generate unique IDs even if the clock gets skewed. */
     @Min(1)
     @Max(300)
     @Builder.Default
     private int dataStorageLimitInSeconds = Constants.DEFAULT_DATA_STORAGE_TIME_LIMIT_IN_SECONDS;
-
-    /** Retry limit for selecting a valid partition. Not required for unconstrained scenarios */
-    @Min(1)
-    @Builder.Default
-    private int partitionRetryCount = Constants.DEFAULT_PARTITION_RETRY_COUNT;
 
     @ValidationMethod(message = "Namespaces should be unique")
     @JsonIgnore

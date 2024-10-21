@@ -6,6 +6,7 @@ import io.appform.ranger.discovery.bundle.id.config.DefaultNamespaceConfig;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorType;
 import io.appform.ranger.discovery.bundle.id.generator.DistributedIdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,7 @@ class PartitionAwareNonceGeneratorTest {
 
     @BeforeEach
     void setup() {
+        IdGeneratorBase.initialize(9999);
         nonceGeneratorType = NonceGeneratorType.PARTITION_AWARE;
         val meter = mock(Meter.class);
         doReturn(meter).when(metricRegistry).meter(anyString());

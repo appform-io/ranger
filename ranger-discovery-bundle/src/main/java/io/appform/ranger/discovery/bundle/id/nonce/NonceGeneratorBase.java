@@ -38,18 +38,12 @@ public abstract class NonceGeneratorBase {
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final IdFormatter idFormatter;
-    @Getter
     private final FailsafeExecutor<GenerationResult> retryer;
 
     protected NonceGeneratorBase(final IdFormatter idFormatter) {
-        this(idFormatter, IdUtils.readRetryCountFromEnv());
-    }
-
-    protected NonceGeneratorBase(final IdFormatter idFormatter, int retryCount) {
-        Preconditions.checkArgument(retryCount > 0, "Invalid number of retries. Please set a positive value for retry count");
         this.idFormatter = idFormatter;
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
-                .withMaxAttempts(retryCount)
+                .withMaxAttempts(IdUtils.readRetryCountFromEnv())
                 .handleIf(throwable -> true)
                 .handleResultIf(Objects::isNull)
                 .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
