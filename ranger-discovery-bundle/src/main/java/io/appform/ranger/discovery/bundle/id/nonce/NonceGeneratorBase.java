@@ -131,27 +131,6 @@ public abstract class NonceGeneratorBase {
      */
     public abstract IdInfo generate(final String namespace);
 
-    /**
-     * Generate id that matches all passed constraints.
-     * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take its toll on id generation rates.
-     *
-     * @param namespace     String namespace
-     * @param domain     Domain for constraint selection
-     * @param skipGlobal Skip global constrains and use only passed ones
-     * @return ID if it could be generated
-     */
-    public final Optional<IdInfo> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        val registeredDomain = getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT);
-        return generateWithConstraints(IdGenerationRequest.builder()
-                .prefix(namespace)
-                .constraints(registeredDomain.getConstraints())
-                .skipGlobal(skipGlobal)
-                .domain(registeredDomain.getDomain())
-                .idFormatter(registeredDomain.getIdFormatter())
-                .build());
-    }
-
     public abstract Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request);
 
     protected abstract int readRetryCount();

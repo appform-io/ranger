@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 @Slf4j
 public class IdGeneratorBase {
 
-    private final int minimumIdLength;
-    private final Pattern pattern;
     @Getter
     private static int NODE_ID;
+    private final int minimumIdLength;
+    private final Pattern pattern;
     protected final DateTimeFormatter dateTimeFormatter;
     protected final NonceGeneratorBase nonceGenerator;
 
@@ -45,30 +45,30 @@ public class IdGeneratorBase {
         this.pattern = pattern;
     }
 
-    public synchronized void cleanUp() {
+    public final synchronized void cleanUp() {
         nonceGenerator.cleanUp();
     }
 
-    public void registerDomain(final Domain domain) {
+    public final void registerDomain(final Domain domain) {
         nonceGenerator.registerDomain(domain);
     }
 
-    public synchronized void registerGlobalConstraints(final IdValidationConstraint... constraints) {
+    public final synchronized void registerGlobalConstraints(final IdValidationConstraint... constraints) {
         registerGlobalConstraints(ImmutableList.copyOf(constraints));
     }
 
-    public synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
+    public final synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
         Preconditions.checkArgument(null != constraints && !constraints.isEmpty());
         nonceGenerator.registerGlobalConstraints(constraints);
     }
 
-    public synchronized void registerDomainSpecificConstraints(
+    public final synchronized void registerDomainSpecificConstraints(
             final String domain,
             final IdValidationConstraint... validationConstraints) {
         registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
     }
 
-    public synchronized void registerDomainSpecificConstraints(
+    public final synchronized void registerDomainSpecificConstraints(
             final String domain,
             final List<IdValidationConstraint> validationConstraints) {
         Preconditions.checkArgument(null != validationConstraints && !validationConstraints.isEmpty());
@@ -81,12 +81,12 @@ public class IdGeneratorBase {
      * @param namespace String namespace for ID to be generated
      * @return Generated Id
      */
-    public Id generate(final String namespace) {
+    public final Id generate(final String namespace) {
         val idInfo = nonceGenerator.generate(namespace);
         return nonceGenerator.getIdFromIdInfo(idInfo, namespace);
     }
 
-    public Id generate(final String namespace, final IdFormatter idFormatter) {
+    public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
         return nonceGenerator.getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
@@ -101,14 +101,21 @@ public class IdGeneratorBase {
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return ID if it could be generated
      */
-    public Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        val idInfoOptional = nonceGenerator.generateWithConstraints(namespace, domain, skipGlobal);
-        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, namespace));
+    public final Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
+        val registeredDomain = nonceGenerator.getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT);
+        val request = IdGenerationRequest.builder()
+                .prefix(namespace)
+                .constraints(registeredDomain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(registeredDomain.getDomain())
+                .idFormatter(registeredDomain.getIdFormatter())
+                .build();
+        return generateWithConstraints(request);
     }
 
-    public Optional<Id> generateWithConstraints(final String namespace,
-                                                final List<IdValidationConstraint> inConstraints,
-                                                final boolean skipGlobal) {
+    public final Optional<Id> generateWithConstraints(final String namespace,
+                                                      final List<IdValidationConstraint> inConstraints,
+                                                      final boolean skipGlobal) {
         val request = IdGenerationRequest.builder()
                 .prefix(namespace)
                 .constraints(inConstraints)
@@ -118,9 +125,9 @@ public class IdGeneratorBase {
         return generateWithConstraints(request);
     }
 
-    public Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val idInfo = nonceGenerator.generateWithConstraints(request);
-        return idInfo.map(info -> nonceGenerator.getIdFromIdInfo(info, request.getPrefix(), request.getIdFormatter()));
+    public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
+        val idInfoOptional = nonceGenerator.generateWithConstraints(request);
+        return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter()));
     }
 
     /**
@@ -129,7 +136,7 @@ public class IdGeneratorBase {
      * @param idString String idString
      * @return ID if it could be generated
      */
-    public Optional<Id> parse(final String idString) {
+    public final Optional<Id> parse(final String idString) {
         if (idString == null
                 || idString.length() < minimumIdLength) {
             return Optional.empty();
