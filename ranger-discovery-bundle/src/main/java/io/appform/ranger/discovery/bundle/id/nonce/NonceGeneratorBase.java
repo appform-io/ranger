@@ -37,7 +37,6 @@ public abstract class NonceGeneratorBase {
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final IdFormatter idFormatter;
-    @Getter
     private final FailsafeExecutor<GenerationResult> retryer;
 
     protected NonceGeneratorBase(final IdFormatter idFormatter) {
@@ -78,6 +77,21 @@ public abstract class NonceGeneratorBase {
                 .build());
     }
 
+    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
+        val dateTime = new DateTime(idInfo.getTime());
+        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
+        return Id.builder()
+                .id(id)
+                .exponent(idInfo.getExponent())
+                .generatedDate(dateTime.toDate())
+                .node(IdGeneratorBase.getNODE_ID())
+                .build();
+    }
+
+    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
+        return getIdFromIdInfo(idInfo, namespace, idFormatter);
+    }
+
     protected final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
         // First evaluate global constraints
         val failedGlobalConstraint
@@ -108,19 +122,19 @@ public abstract class NonceGeneratorBase {
         return IdValidationState.VALID;
     }
 
-    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = new DateTime(idInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
-        return Id.builder()
-                .id(id)
-                .exponent(idInfo.getExponent())
-                .generatedDate(dateTime.toDate())
-                .node(IdGeneratorBase.getNODE_ID())
-                .build();
-    }
-
-    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
-        return getIdFromIdInfo(idInfo, namespace, idFormatter);
+    private int readRetryCount() {
+        try {
+            val count = Integer.parseInt(System.getenv().getOrDefault("NUM_ID_GENERATION_RETRIES", "512"));
+            if (count <= 0) {
+                throw new IllegalArgumentException(
+                        "Negative number of retries does not make sense. Please set a proper value for " +
+                                "NUM_ID_GENERATION_RETRIES");
+            }
+            return count;
+        }
+        catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
+        }
     }
 
     /**
@@ -132,8 +146,6 @@ public abstract class NonceGeneratorBase {
     public abstract IdInfo generate(final String namespace);
 
     public abstract Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request);
-
-    protected abstract int readRetryCount();
 
     protected abstract void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event);
 
