@@ -136,7 +136,7 @@ public class IdGeneratorBase {
      * @param idString String idString
      * @return ID if it could be generated
      */
-    public final Optional<Id> parse(final String idString) {
+    public Optional<Id> parse(final String idString) {
         if (idString == null
                 || idString.length() < minimumIdLength) {
             return Optional.empty();
