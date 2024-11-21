@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.Getter;
@@ -48,6 +49,9 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private ServiceDataSource serviceDataSource;
     private long serviceRefreshDurationMs;
     private long hubRefreshDurationMs;
+    private long serviceRefreshTimeoutMs;
+    private long hubStartTimeoutMs;
+    private Set<String> excludedServices;
 
     @Override
     public void start() {
@@ -62,23 +66,28 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
         this.nodeRefreshTimeMs = Math.max(HubConstants.MINIMUM_REFRESH_TIME_MS, this.nodeRefreshTimeMs);
 
-        if (this.serviceRefreshDurationMs <= 0) {
+        if (this.serviceRefreshTimeoutMs <= 0) {
             log.warn("Service Refresh interval too low: {} ms. Has been upgraded to {} ms ",
-                    this.serviceRefreshDurationMs,
-                    HubConstants.SERVICE_REFRESH_DURATION_MS);
-            this.serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_DURATION_MS;
+                    this.serviceRefreshTimeoutMs,
+                    HubConstants.SERVICE_REFRESH_TIMEOUT_MS);
+            this.serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
         }
 
-        if (this.hubRefreshDurationMs <= 0) {
+        if (this.hubStartTimeoutMs <= 0) {
             log.warn("Hub Refresh interval too low: {} ms. Has been upgraded to {} ms ",
-                    this.hubRefreshDurationMs,
-                    HubConstants.HUB_REFRESH_DURATION_MS);
-            this.hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
+                    this.hubStartTimeoutMs,
+                    HubConstants.HUB_START_TIMEOUT_MS);
+            this.hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
+        }
+
+        if(null == this.excludedServices){
+            this.excludedServices = Collections.emptySet();
         }
 
         if(null == this.serviceDataSource){
-            this.serviceDataSource = getDefaultDataSource();
+            this.serviceDataSource = getDefaultDataSource(this.excludedServices);
         }
+
         this.hub = buildHub();
         this.hub.start();
     }
@@ -181,7 +190,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     }
 
 
-    protected abstract ServiceDataSource getDefaultDataSource();
+    protected abstract ServiceDataSource getDefaultDataSource(final Set<String> excludedServices);
 
     protected abstract ServiceFinderFactory<T, R> getFinderFactory();
 

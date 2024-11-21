@@ -23,6 +23,7 @@ import io.appform.ranger.core.finderhub.*;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.Builder;
 import lombok.Getter;
+import java.util.Set;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -51,7 +52,7 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
     }
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
+    protected ServiceDataSource getDefaultDataSource(Set<String> excludedServices) {
         return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
     }
 

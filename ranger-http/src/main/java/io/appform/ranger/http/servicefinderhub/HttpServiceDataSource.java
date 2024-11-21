@@ -20,6 +20,8 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.servicefinder.HttpCommunicator;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -28,13 +30,20 @@ import java.util.Objects;
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient) {
+    private final Set<String> excludedServices;
+
+    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient,
+                                 final Set<String> excludedServices) {
         super(config, httpClient);
+        this.excludedServices = excludedServices;
     }
 
     @Override
     public Collection<Service> services() {
-       Objects.requireNonNull(config, "client config has not been set for node data");
-        return httpCommunicator.services();
+        Objects.requireNonNull(config, "client config has not been set for node data");
+        return httpCommunicator.services().
+                        stream()
+                .filter(service -> !excludedServices.contains(service.getServiceName()))
+                .collect(Collectors.toSet());
     }
 }

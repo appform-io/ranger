@@ -17,6 +17,7 @@ package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
@@ -52,7 +53,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             new AtomicReference<>(new ConcurrentHashMap<>());
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
-    private boolean updateAvailable = false;
+    private volatile boolean updateAvailable = false;
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Getter
@@ -72,32 +73,32 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final AtomicInteger poolThreadIndex = new AtomicInteger(0);
     private Future<?> monitorFuture = null;
 
-    private final long serviceRefreshDurationMs;
-    private final long hubRefreshDurationMs;
+    private final long serviceRefreshTimeoutMs;
+    private final long hubStartTimeoutMs;
 
     private final ForkJoinPool refresherPool;
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory
-                           ) {
+    ) {
         this(serviceDataSource, finderFactory,
-             HubConstants.SERVICE_REFRESH_DURATION_MS, HubConstants.HUB_REFRESH_DURATION_MS);
+                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS);
     }
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory,
-            long serviceRefreshDurationMs,
-            long hubRefreshDurationMs) {
+            long serviceRefreshTimeoutMs,
+            long hubStartTimeoutMs) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
-        this.serviceRefreshDurationMs = serviceRefreshDurationMs == 0 ? HubConstants.SERVICE_REFRESH_DURATION_MS : serviceRefreshDurationMs;
-        this.hubRefreshDurationMs = hubRefreshDurationMs == 0 ? HubConstants.HUB_REFRESH_DURATION_MS : hubRefreshDurationMs;
+        this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
+        this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                                                      () -> null,
-                                                      Collections.emptyList(),
-                                                      10_000));
+                () -> null,
+                Collections.emptyList(),
+                10_000));
         this.refresherPool = createRefresherPool();
     }
 
@@ -240,12 +241,12 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
 
     private void waitTillHubIsReady() {
         val services = serviceDataSource.services();
-        val timeToRefresh = Math.max(hubRefreshDurationMs,
-                                     (serviceRefreshDurationMs * services.size()) / refresherPool.getParallelism());
-        if (timeToRefresh != hubRefreshDurationMs) {
+        val timeToRefresh = Math.max(hubStartTimeoutMs,
+                (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
+        if (timeToRefresh != hubStartTimeoutMs) {
             log.warn("Max hub refresh time has been dynamically adjusted to {} ms from the provided {} ms as the " +
-                             "provided time would have been insufficient to refresh {} services.",
-                     timeToRefresh, hubRefreshDurationMs, services.size());
+                            "provided time would have been insufficient to refresh {} services.",
+                    timeToRefresh, hubStartTimeoutMs, services.size());
         }
         val hubRefresher = CompletableFuture.allOf(
                 services.stream()
@@ -273,7 +274,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         try {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
-                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshDurationMs, TimeUnit.MILLISECONDS))
+                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshTimeoutMs, TimeUnit.MILLISECONDS))
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)

@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.zookeeper.util.PathBuilder;
+import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -40,13 +41,16 @@ public class ZkServiceDataSource implements ServiceDataSource {
     private final String connectionString;
     private CuratorFramework curatorFramework;
     private boolean curatorProvided;
+    private final Set<String> excludedServices;
 
     public ZkServiceDataSource(String namespace,
+                               Set<String> excludedServices,
                                String connectionString,
                                CuratorFramework curatorFramework){
         this.namespace = namespace;
         this.connectionString = connectionString;
         this.curatorFramework = curatorFramework;
+        this.excludedServices = excludedServices;
     }
 
     @Override
@@ -56,6 +60,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
                 .forPath(PathBuilder.REGISTERED_SERVICES_PATH);
         return null == children ? Collections.emptySet() :
                 children.stream()
+                        .filter(child -> !excludedServices.contains(child))
                         .map(child -> Service.builder().namespace(namespace).serviceName(child).build())
                         .collect(Collectors.toSet());
     }

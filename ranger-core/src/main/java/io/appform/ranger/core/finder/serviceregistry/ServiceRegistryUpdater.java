@@ -47,7 +47,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
 
     private final Lock checkLock = new ReentrantLock();
     private final Condition checkCondition = checkLock.newCondition();
-    private boolean checkForUpdate = false;
+    private volatile boolean checkForUpdate = false;
     private Future<Void> queryThreadFuture;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);

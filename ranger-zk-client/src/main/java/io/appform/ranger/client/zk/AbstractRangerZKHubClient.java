@@ -22,6 +22,7 @@ import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
 import io.appform.ranger.zookeeper.servicefinderhub.ZkServiceDataSource;
 import io.appform.ranger.zookeeper.servicefinderhub.ZkServiceFinderHubBuilder;
+import java.util.Set;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +47,15 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .withServiceDataSource(getServiceDataSource())
                 .withServiceFinderFactory(getFinderFactory())
-                .withHubRefreshDuration(getHubRefreshDurationMs())
-                .withServiceRefreshDuration(getServiceRefreshDurationMs())
+                .withHubRefreshDuration(getHubStartTimeoutMs())
+                .withServiceRefreshDuration(getServiceRefreshTimeoutMs())
+                .withExcludedServices(getExcludedServices())
                 .build();
     }
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
-        return new ZkServiceDataSource(getNamespace(), connectionString, curatorFramework);
+    protected ServiceDataSource getDefaultDataSource(final Set<String> excludedServices) {
+        return new ZkServiceDataSource(getNamespace(), excludedServices, connectionString, curatorFramework);
     }
 
 }

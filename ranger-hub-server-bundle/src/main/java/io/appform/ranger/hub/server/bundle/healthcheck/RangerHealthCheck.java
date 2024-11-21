@@ -19,18 +19,22 @@ import com.codahale.metrics.health.HealthCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 
+import java.util.List;
+
 @Slf4j
 public class RangerHealthCheck extends HealthCheck {
 
-  private final CuratorFramework curatorFramework;
+  private final List<CuratorFramework> curatorFrameworks;
 
-  public RangerHealthCheck(CuratorFramework curatorFramework){
-    this.curatorFramework = curatorFramework;
+  public RangerHealthCheck(final List<CuratorFramework> curatorFrameworks){
+    this.curatorFrameworks = curatorFrameworks;
   }
 
   @Override
   protected Result check() {
-    return curatorFramework.getZookeeperClient().isConnected() ?
-        Result.healthy("Service is healthy") : Result.unhealthy("Can't connect to zookeeper");
+    return curatorFrameworks.stream()
+            .allMatch(curatorFramework -> curatorFramework.getZookeeperClient().isConnected())
+            ? Result.healthy("Service is healthy")
+            : Result.unhealthy("Can't connect to zookeeper");
   }
 }

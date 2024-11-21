@@ -27,6 +27,7 @@ import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import io.appform.ranger.http.servicefinderhub.HttpServiceDataSource;
 import io.appform.ranger.http.servicefinderhub.HttpServiceFinderHubBuilder;
 import io.appform.ranger.http.utils.RangerHttpUtils;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -49,12 +50,13 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
     private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
+    protected ServiceDataSource getDefaultDataSource(Set<String> excludedServices) {
         return new HttpServiceDataSource<>(clientConfig,
                                            Objects.requireNonNullElseGet(getHttpClient(),
                                                                          () -> RangerHttpUtils.httpClient(
                                                                                  clientConfig,
-                                                                                 getMapper())));
+                                                                                 getMapper())),
+                excludedServices);
     }
 
     @Override
@@ -63,8 +65,9 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
                 .withServiceDataSource(getServiceDataSource())
                 .withServiceFinderFactory(getFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-                .withHubRefreshDuration(getHubRefreshDurationMs())
-                .withServiceRefreshDuration(getServiceRefreshDurationMs())
+                .withHubRefreshDuration(getHubStartTimeoutMs())
+                .withServiceRefreshDuration(getServiceRefreshTimeoutMs())
+                .withExcludedServices(getExcludedServices())
                 .build();
     }
 }
