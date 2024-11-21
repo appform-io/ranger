@@ -30,20 +30,13 @@ import java.util.Objects;
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    private final Set<String> excludedServices;
-
-    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient,
-                                 final Set<String> excludedServices) {
+    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient) {
         super(config, httpClient);
-        this.excludedServices = excludedServices;
     }
 
     @Override
     public Collection<Service> services() {
         Objects.requireNonNull(config, "client config has not been set for node data");
-        return httpCommunicator.services().
-                        stream()
-                .filter(service -> !excludedServices.contains(service.getServiceName()))
-                .collect(Collectors.toSet());
+        return httpCommunicator.services();
     }
 }

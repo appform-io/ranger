@@ -95,7 +95,7 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory,
-                serviceRefreshDurationMs, hubRefreshDurationMs);
+                serviceRefreshDurationMs, hubRefreshDurationMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                 () -> null,
                 Collections.emptyList(),

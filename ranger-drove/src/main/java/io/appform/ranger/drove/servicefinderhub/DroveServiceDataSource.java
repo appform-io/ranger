@@ -31,17 +31,14 @@ import java.util.Collection;
 @Slf4j
 public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> implements ServiceDataSource {
     private final String namespace;
-    private final Set<String> excludedServices;
 
     public DroveServiceDataSource(
             final DroveUpstreamConfig config,
             final ObjectMapper mapper,
             final String namespace,
-            final DroveCommunicator droveClient,
-            Set<String> excludedServices) {
+            final DroveCommunicator droveClient) {
         super(config, mapper, droveClient);
         this.namespace = namespace;
-        this.excludedServices = excludedServices;
     }
 
     @Override
@@ -50,7 +47,6 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
         Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
         return droveClient.services()
                 .stream()
-                .filter(serviceName -> !excludedServices.contains(serviceName))
                 .map(serviceName -> new Service(namespace, serviceName))
                 .toList();
     }

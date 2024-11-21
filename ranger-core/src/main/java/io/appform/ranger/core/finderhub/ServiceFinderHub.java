@@ -17,7 +17,6 @@ package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
-import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
@@ -53,7 +52,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             new AtomicReference<>(new ConcurrentHashMap<>());
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
-    private volatile boolean updateAvailable = false;
+    private final AtomicBoolean updateAvailable = new AtomicBoolean(false);
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Getter
@@ -76,6 +75,8 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final long serviceRefreshTimeoutMs;
     private final long hubStartTimeoutMs;
 
+    private final Set<String> excludedServices;
+
     private final ForkJoinPool refresherPool;
 
     public ServiceFinderHub(
@@ -83,14 +84,15 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceFinderFactory<T, R> finderFactory
     ) {
         this(serviceDataSource, finderFactory,
-                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS);
+                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory,
             long serviceRefreshTimeoutMs,
-            long hubStartTimeoutMs) {
+            long hubStartTimeoutMs,
+            final Set<String> excludedServices) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
@@ -100,6 +102,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 Collections.emptyList(),
                 10_000));
         this.refresherPool = createRefresherPool();
+        this.excludedServices = excludedServices;
     }
 
     public Optional<ServiceFinder<T, R>> finder(final Service service) {
@@ -156,7 +159,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     public void updateAvailable() {
         try {
             updateLock.lock();
-            updateAvailable = true;
+            updateAvailable.set(true);
             updateCond.signalAll();
         }
         finally {
@@ -180,7 +183,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         while (true) {
             try {
                 updateLock.lock();
-                while (!updateAvailable) {
+                while (!updateAvailable.get()) {
                     updateCond.await();
                 }
                 updateRegistry();
@@ -191,7 +194,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 break;
             }
             finally {
-                updateAvailable = false;
+                updateAvailable.set(false);
                 updateLock.unlock();
             }
         }
@@ -205,7 +208,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         alreadyUpdating.set(true);
         val updatedFinders = new ConcurrentHashMap<Service, ServiceFinder<T, R>>();
         try {
-            val services = serviceDataSource.services();
+            val services = getEligibleServices();
             if (services.isEmpty()) {
                 log.debug("No services found for the service data source. Skipping update on the registry");
                 return;
@@ -240,7 +243,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
-        val services = serviceDataSource.services();
+        val services = getEligibleServices();
         val timeToRefresh = Math.max(hubStartTimeoutMs,
                 (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
         if (timeToRefresh != hubStartTimeoutMs) {
@@ -286,4 +289,12 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
         }
     }
+
+    private Set<Service> getEligibleServices() {
+        return serviceDataSource.services()
+                .stream()
+                .filter(service -> !excludedServices.contains(service.getServiceName()))
+                .collect(Collectors.toSet());
+    }
+
 }

@@ -27,6 +27,7 @@ import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
+import java.util.Set;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(5)
-                        .build(), 1_000, 5_000
+                        .build(), 1_000, 5_000, Set.of()
         );
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
         val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
@@ -82,7 +83,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 5_000, 5_000
+                        .build(), 5_000, 5_000,Set.of()
         );
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());

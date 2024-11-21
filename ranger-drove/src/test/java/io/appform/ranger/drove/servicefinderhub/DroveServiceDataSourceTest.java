@@ -105,7 +105,7 @@ class DroveServiceDataSourceTest {
                     clientConfig,
                     MAPPER,
                     namespace,
-                    droveClient, Collections.emptySet());
+                    droveClient);
             finder.start();
             val services = finder.services();
             assertFalse(services.isEmpty());

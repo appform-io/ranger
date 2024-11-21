@@ -92,8 +92,8 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             return Optional.of(Collections.emptyList());
         }
         catch (Exception e) {
-            log.error("Error getting service data from zookeeper: ", e);
-            throw new ZkCommunicationException("Error communicating to Zk: exception %s , message: %s"
+            log.error("Error getting node data from zookeeper: ", e);
+            throw new ZkCommunicationException("Error getting node data from zookeeper: exception %s , message: %s"
                     .formatted(e.getClass().getSimpleName(), e.getMessage()));
         }
     }

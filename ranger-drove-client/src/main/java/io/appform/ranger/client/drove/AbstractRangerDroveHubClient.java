@@ -26,7 +26,6 @@ import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceDataSource;
 import io.appform.ranger.drove.servicefinderhub.DroveServiceFinderHubBuilder;
 import io.appform.ranger.drove.common.DroveCommunicator;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -45,8 +44,8 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
   private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
   @Override
-  protected ServiceDataSource getDefaultDataSource(Set<String> excludedServices) {
-    return new DroveServiceDataSource<>(clientConfig, getMapper(), getNamespace(), droveCommunicator, excludedServices);
+  protected ServiceDataSource getDefaultDataSource() {
+    return new DroveServiceDataSource<>(clientConfig, getMapper(), getNamespace(), droveCommunicator);
   }
 
   @Override
