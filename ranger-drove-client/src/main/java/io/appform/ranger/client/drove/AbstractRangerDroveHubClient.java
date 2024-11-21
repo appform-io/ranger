@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @SuperBuilder
 public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<T>, D extends DroveResponseDataDeserializer<T>>
-    extends AbstractRangerHubClient<T, R, D> {
+        extends AbstractRangerHubClient<T, R, D> {
 
   private final DroveUpstreamConfig clientConfig;
   private final DroveCommunicator droveCommunicator;
@@ -54,8 +54,9 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
         .withServiceDataSource(getServiceDataSource())
         .withServiceFinderFactory(getFinderFactory())
         .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-        .withHubRefreshDuration(getHubRefreshDurationMs())
-        .withServiceRefreshDuration(getServiceRefreshDurationMs())
+        .withHubStartTimeout(getHubStartTimeoutMs())
+        .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
+        .withExcludedServices(getExcludedServices())
         .build();
   }
 }

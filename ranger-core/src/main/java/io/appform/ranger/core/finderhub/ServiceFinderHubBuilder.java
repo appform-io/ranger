@@ -20,11 +20,11 @@ import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
+
+import java.util.*;
+
 import lombok.val;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -38,8 +38,9 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private final List<Consumer<Void>> extraStartSignalConsumers = new ArrayList<>();
     private final List<Consumer<Void>> extraStopSignalConsumers = new ArrayList<>();
     private final List<Signal<Void>> extraRefreshSignals = new ArrayList<>();
-    private long serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_DURATION_MS;
-    private long hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
+    private long serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
+    private long hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
+    private Set<String> excludedServices = new HashSet<>();
 
     public ServiceFinderHubBuilder<T, R> withServiceDataSource(ServiceDataSource serviceDataSource) {
         this.serviceDataSource = serviceDataSource;
@@ -50,7 +51,7 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         this.serviceFinderFactory = serviceFinderFactory;
         return this;
     }
-    
+
     public ServiceFinderHubBuilder<T, R> withRefreshFrequencyMs(long refreshFrequencyMs) {
         this.refreshFrequencyMs = refreshFrequencyMs;
         return this;
@@ -71,13 +72,18 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         return this;
     }
 
-    public ServiceFinderHubBuilder<T, R> withServiceRefreshDuration(long serviceRefreshDurationMs) {
-        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
+    public ServiceFinderHubBuilder<T, R> withServiceRefreshTimeout(long serviceRefreshTimeoutMs) {
+        this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs;
         return this;
     }
 
-    public ServiceFinderHubBuilder<T, R> withHubRefreshDuration(long hubRefreshDurationMs) {
-        this.hubRefreshDurationMs = hubRefreshDurationMs;
+    public ServiceFinderHubBuilder<T, R> withHubStartTimeout(long hubStartTimeoutMs) {
+        this.hubStartTimeoutMs = hubStartTimeoutMs;
+        return this;
+    }
+
+    public ServiceFinderHubBuilder<T, R> withExcludedServices(Set<String> excludedServices) {
+        this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
         return this;
     }
 
@@ -86,8 +92,8 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
-        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory,
-                serviceRefreshDurationMs, hubRefreshDurationMs);
+        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
+                hubStartTimeoutMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                                                                           () -> null,
                                                                           Collections.emptyList(),

@@ -15,6 +15,8 @@
  */
 package io.appform.ranger.hub.server.bundle.configuration;
 
+import java.util.Objects;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -38,4 +40,11 @@ public class RangerServerConfiguration {
     @NotEmpty
     @Valid
     List<RangerUpstreamConfiguration> upstreams;
+
+    Set<String> excludedServices;
+
+    public Set<String> getExcludedServices() {
+        return Objects.requireNonNullElseGet(excludedServices,Set::of);
+    }
+
 }

@@ -26,6 +26,7 @@ import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
 import io.appform.ranger.core.util.FinderUtils;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -47,7 +48,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
 
     private final Lock checkLock = new ReentrantLock();
     private final Condition checkCondition = checkLock.newCondition();
-    private boolean checkForUpdate = false;
+    private final AtomicBoolean checkForUpdate = new AtomicBoolean(false);
     private Future<Void> queryThreadFuture;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -95,7 +96,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         Preconditions.checkArgument(null == signalData);
         try {
             checkLock.lock();
-            checkForUpdate = true;
+            checkForUpdate.set(true);
             checkCondition.signalAll();
         }
         finally {
@@ -108,7 +109,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         while (true) {
             try {
                 checkLock.lock();
-                while (!checkForUpdate) {
+                while (!checkForUpdate.get()) {
                     checkCondition.await();
                 }
                 updateRegistry();
@@ -122,7 +123,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                 log.error("Registry update failed for service: " + serviceRegistry.getService().name(), e);
             }
             finally {
-                checkForUpdate = false;
+                checkForUpdate.set(false);
                 checkLock.unlock();
             }
         }

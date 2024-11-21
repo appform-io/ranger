@@ -67,7 +67,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                 serverConfig.getUpstreams(), Collections.emptyList());
         return upstreams.stream()
                 .map(rangerUpstreamConfiguration -> rangerUpstreamConfiguration.accept(new HubCreatorVisitor(
-                        serverConfig.getNamespace())))
+                        serverConfig.getNamespace(), serverConfig.getExcludedServices())))
                 .flatMap(Collection::stream)
                 .toList();
     }
@@ -81,9 +81,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
 
     @Override
     protected List<HealthCheck> withHealthChecks(U configuration) {
-        return curatorFrameworks.stream()
-                .map(curatorFramework -> (HealthCheck) new RangerHealthCheck(curatorFramework))
-                .toList();
+        return List.of(new RangerHealthCheck(curatorFrameworks));
     }
 
     @AllArgsConstructor
@@ -91,6 +89,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
             implements RangerConfigurationVisitor<List<RangerHubClient<ShardInfo,
             ListBasedServiceRegistry<ShardInfo>>>> {
         private final String namespace;
+        private final Set<String> excludedServices;
 
         private RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>> addCuratorAndGetZkHubClient(
                 String zookeeper, RangerZkUpstreamConfiguration zkConfiguration) {
@@ -106,9 +105,10 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .curatorFramework(curatorFramework)
                     .disablePushUpdaters(zkConfiguration.isDisablePushUpdaters())
                     .mapper(getMapper())
-                    .serviceRefreshDurationMs(zkConfiguration.getServiceRefreshDurationMs())
-                    .hubRefreshDurationMs(zkConfiguration.getServiceRefreshDurationMs())
+                    .serviceRefreshTimeoutMs(zkConfiguration.getServiceRefreshTimeoutMs())
+                    .hubStartTimeoutMs(zkConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
+                    .excludedServices(excludedServices)
                     .deserializer(data -> {
                         try {
                             return getMapper().readValue(data, new TypeReference<ServiceNode<ShardInfo>>() {
@@ -129,9 +129,10 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .clientConfig(httpClientConfig)
                     .httpClient(RangerHttpUtils.httpClient(httpClientConfig, getMapper()))
-                    .serviceRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
-                    .hubRefreshDurationMs(httpConfiguration.getServiceRefreshDurationMs())
+                    .serviceRefreshTimeoutMs(httpConfiguration.getServiceRefreshTimeoutMs())
+                    .hubStartTimeoutMs(httpConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
+                    .excludedServices(excludedServices)
                     .deserializer(data -> {
                         try {
                             return getMapper().readValue(data, new TypeReference<>() {});
@@ -156,9 +157,10 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .clientConfig(droveConfig)
                     .droveCommunicator(droveCommunicator)
-                    .serviceRefreshDurationMs(droveUpstreamConfiguration.getServiceRefreshDurationMs())
-                    .hubRefreshDurationMs(droveUpstreamConfiguration.getServiceRefreshDurationMs())
+                    .serviceRefreshTimeoutMs(droveUpstreamConfiguration.getServiceRefreshTimeoutMs())
+                    .hubStartTimeoutMs(droveUpstreamConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
+                    .excludedServices(excludedServices)
                     .deserializer(new DroveResponseDataDeserializer<>() {
                         @Override
                         protected ShardInfo translate(ExposedAppInfo appInfo, ExposedAppInfo.ExposedHost host) {

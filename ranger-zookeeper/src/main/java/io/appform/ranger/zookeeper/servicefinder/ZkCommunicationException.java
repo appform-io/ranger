@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.core.model;
 
-import lombok.experimental.UtilityClass;
+package io.appform.ranger.zookeeper.servicefinder;
 
-@UtilityClass
-public class HubConstants {
-    public static final int SERVICE_REFRESH_TIMEOUT_MS = 10_000;
-    public static final int HUB_START_TIMEOUT_MS = 30_000;
-    public static final long REFRESH_FREQUENCY_MS = 10_000;
-    public static final int CONNECTION_RETRY_TIME_MS = 5_000;
-    public static final int MINIMUM_REFRESH_TIME_MS = 5_000;
-    public static final int MINIMUM_SERVICE_REFRESH_TIMEOUT_MS = 1_000;
-    public static final int MINIMUM_HUB_START_TIMEOUT_MS = 5_000;
+import io.appform.ranger.core.exceptions.CommunicationException;
+
+/**
+ * Thrown in case there is an issue communicating with the Zookeeper upstream.
+
+ */
+public class ZkCommunicationException extends CommunicationException {
+    public ZkCommunicationException(final String message) {
+        super(message);
+    }
 }

@@ -92,9 +92,10 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             return Optional.of(Collections.emptyList());
         }
         catch (Exception e) {
-            log.error("Error getting service data from zookeeper: ", e);
+            log.error("Error getting node data from zookeeper: ", e);
+            throw new ZkCommunicationException("Error getting node data from zookeeper: exception %s , message: %s"
+                    .formatted(e.getClass().getSimpleName(), e.getMessage()));
         }
-        return Optional.empty();
     }
 
     private Optional<byte[]> readChild(String parentPath, String child) throws Exception {
@@ -107,8 +108,11 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             return Optional.empty();
         }
         catch (KeeperException e) {
-            log.error("Could not get data for node: " + path, e);
+            log.error("Could not get data for node: {}", path, e);
             return Optional.empty();
+        } catch (Exception e){
+            log.error("Could not read child for node: {}", path, e);
+            throw e;
         }
     }
 

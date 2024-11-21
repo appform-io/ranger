@@ -26,9 +26,14 @@ import io.appform.ranger.core.model.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import io.appform.ranger.core.util.FinderUtils;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +51,18 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     private int nodeRefreshTimeMs;
     private ServiceFinderHub<T, R> hub;
     private ServiceDataSource serviceDataSource;
-    private long serviceRefreshDurationMs;
-    private long hubRefreshDurationMs;
+
+    /**
+     * Initial time to wait for service node data to be refreshed in service registry (in milliseconds)
+     */
+    private long serviceRefreshTimeoutMs;
+
+    /**
+     * Time to wait for Hub Start completion (in milliseconds)
+     * Hub Start is considered to be completed if service registry for all eligible services has been refreshed
+     */
+    private long hubStartTimeoutMs;
+    private Set<String> excludedServices;
 
     @Override
     public void start() {
@@ -62,23 +77,26 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         }
         this.nodeRefreshTimeMs = Math.max(HubConstants.MINIMUM_REFRESH_TIME_MS, this.nodeRefreshTimeMs);
 
-        if (this.serviceRefreshDurationMs <= 0) {
+        if (this.serviceRefreshTimeoutMs <= 0) {
             log.warn("Service Refresh interval too low: {} ms. Has been upgraded to {} ms ",
-                    this.serviceRefreshDurationMs,
-                    HubConstants.SERVICE_REFRESH_DURATION_MS);
-            this.serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_DURATION_MS;
+                    this.serviceRefreshTimeoutMs,
+                    HubConstants.SERVICE_REFRESH_TIMEOUT_MS);
+            this.serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
         }
 
-        if (this.hubRefreshDurationMs <= 0) {
+        if (this.hubStartTimeoutMs <= 0) {
             log.warn("Hub Refresh interval too low: {} ms. Has been upgraded to {} ms ",
-                    this.hubRefreshDurationMs,
-                    HubConstants.HUB_REFRESH_DURATION_MS);
-            this.hubRefreshDurationMs = HubConstants.HUB_REFRESH_DURATION_MS;
+                    this.hubStartTimeoutMs,
+                    HubConstants.HUB_START_TIMEOUT_MS);
+            this.hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
         }
+
+        this.excludedServices = Objects.requireNonNullElseGet(this.excludedServices, Set::of);
 
         if(null == this.serviceDataSource){
             this.serviceDataSource = getDefaultDataSource();
         }
+
         this.hub = buildHub();
         this.hub.start();
     }
@@ -153,7 +171,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     @Override
     public Collection<Service> getRegisteredServices() {
         try {
-            return this.getHub().getServiceDataSource().services();
+            return FinderUtils.getEligibleServices(this.getHub().getServiceDataSource().services(), excludedServices);
         }
         catch (Exception e) {
             log.error("Call to the hub failed with exception, {}", e.getMessage());

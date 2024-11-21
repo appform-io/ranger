@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.1-RC2]
-
+- Add feature to exclude services from service data source
+- Create one single `RangerHealthCheck` for all curatorFrameworks when giving multiple zookeeper connection strings
+- Update `lastUpdatedTimeStamp` for service nodes in service registry for zk / http communication failures from any kind of node data source - zk/http/drove
 - Pertaining to PR : https://github.com/appform-io/ranger/pull/22/, building of a ServiceFinderHub and a ServiceFinder are bounded.
 
 ## [1.0-RC18]
