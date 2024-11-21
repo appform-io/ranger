@@ -42,10 +42,10 @@ public abstract class RangerUpstreamConfiguration {
   private int nodeRefreshTimeMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
 
   @Min(HubConstants.MINIMUM_SERVICE_REFRESH_TIMEOUT_MS)
-  private int serviceRefreshTimeoutMs = HubConstants.MINIMUM_SERVICE_REFRESH_TIMEOUT_MS;
+  private int serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
 
   @Min(HubConstants.MINIMUM_HUB_START_TIMEOUT_MS)
-  private int hubStartTimeoutMs = HubConstants.MINIMUM_HUB_START_TIMEOUT_MS;
+  private int hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
 
   protected RangerUpstreamConfiguration(BackendType type) {
     this.type = type;
