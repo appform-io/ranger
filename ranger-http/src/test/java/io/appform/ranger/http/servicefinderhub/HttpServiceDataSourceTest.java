@@ -23,7 +23,6 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
 import io.appform.ranger.http.utils.RangerHttpUtils;
-import java.util.Collections;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

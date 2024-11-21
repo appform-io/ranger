@@ -22,8 +22,6 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.common.DroveCommunicator;
-import java.util.Collections;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;

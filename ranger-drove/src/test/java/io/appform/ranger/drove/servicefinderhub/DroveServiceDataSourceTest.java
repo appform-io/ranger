@@ -25,12 +25,10 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
-import java.util.Collections;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

@@ -20,8 +20,6 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.servicefinder.HttpCommunicator;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
