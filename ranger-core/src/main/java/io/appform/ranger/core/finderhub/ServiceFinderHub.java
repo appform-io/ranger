@@ -103,7 +103,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                                                       Collections.emptyList(),
                                       10_000));
         this.refresherPool = createRefresherPool();
-        this.excludedServices = excludedServices;
+        this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
     }
 
     public Optional<ServiceFinder<T, R>> finder(final Service service) {
