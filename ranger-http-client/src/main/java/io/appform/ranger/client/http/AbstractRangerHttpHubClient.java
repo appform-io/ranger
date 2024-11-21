@@ -63,8 +63,8 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
                 .withServiceDataSource(getServiceDataSource())
                 .withServiceFinderFactory(getFinderFactory())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-                .withHubRefreshDuration(getHubStartTimeoutMs())
-                .withServiceRefreshDuration(getServiceRefreshTimeoutMs())
+                .withHubStartTimeout(getHubStartTimeoutMs())
+                .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
                 .withExcludedServices(getExcludedServices())
                 .build();
     }

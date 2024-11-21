@@ -81,7 +81,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
 
     @Override
     protected List<HealthCheck> withHealthChecks(U configuration) {
-        return Collections.singletonList((HealthCheck) new RangerHealthCheck(curatorFrameworks));
+        return List.of(new RangerHealthCheck(curatorFrameworks));
     }
 
     @AllArgsConstructor

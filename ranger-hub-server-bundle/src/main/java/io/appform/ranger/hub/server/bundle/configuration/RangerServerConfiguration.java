@@ -45,9 +45,7 @@ public class RangerServerConfiguration {
     Set<String> excludedServices;
 
     public Set<String> getExcludedServices() {
-        return Objects.isNull(excludedServices)
-               ? Collections.emptySet() :
-               excludedServices;
+        return Objects.requireNonNullElseGet(excludedServices,Set::of);
     }
 
 }

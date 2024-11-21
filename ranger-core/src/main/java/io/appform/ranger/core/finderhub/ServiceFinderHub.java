@@ -82,7 +82,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory
-    ) {
+                           ) {
         this(serviceDataSource, finderFactory,
                 HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
@@ -98,9 +98,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
         this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                () -> null,
-                Collections.emptyList(),
-                10_000));
+                                                      () -> null,
+                                                      Collections.emptyList(),
+                                      10_000));
         this.refresherPool = createRefresherPool();
         this.excludedServices = excludedServices;
     }
@@ -245,10 +245,10 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private void waitTillHubIsReady() {
         val services = getEligibleServices();
         val timeToRefresh = Math.max(hubStartTimeoutMs,
-                (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
+                                     (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
         if (timeToRefresh != hubStartTimeoutMs) {
             log.warn("Max hub refresh time has been dynamically adjusted to {} ms from the provided {} ms as the " +
-                            "provided time would have been insufficient to refresh {} services.",
+                             "provided time would have been insufficient to refresh {} services.",
                     timeToRefresh, hubStartTimeoutMs, services.size());
         }
         val hubRefresher = CompletableFuture.allOf(

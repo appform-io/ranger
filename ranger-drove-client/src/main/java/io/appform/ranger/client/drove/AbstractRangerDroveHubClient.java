@@ -51,12 +51,12 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
   @Override
   protected ServiceFinderHub<T, R> buildHub() {
     return new DroveServiceFinderHubBuilder<T, R>()
-            .withServiceDataSource(getServiceDataSource())
-            .withServiceFinderFactory(getFinderFactory())
-            .withRefreshFrequencyMs(getNodeRefreshTimeMs())
-            .withHubRefreshDuration(getHubStartTimeoutMs())
-            .withServiceRefreshDuration(getServiceRefreshTimeoutMs())
-            .withExcludedServices(getExcludedServices())
-            .build();
+        .withServiceDataSource(getServiceDataSource())
+        .withServiceFinderFactory(getFinderFactory())
+        .withRefreshFrequencyMs(getNodeRefreshTimeMs())
+        .withHubStartTimeout(getHubStartTimeoutMs())
+        .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
+        .withExcludedServices(getExcludedServices())
+        .build();
   }
 }

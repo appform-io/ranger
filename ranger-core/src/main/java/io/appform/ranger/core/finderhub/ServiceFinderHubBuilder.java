@@ -74,13 +74,13 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         return this;
     }
 
-    public ServiceFinderHubBuilder<T, R> withServiceRefreshDuration(long serviceRefreshDurationMs) {
-        this.serviceRefreshTimeoutMs = serviceRefreshDurationMs;
+    public ServiceFinderHubBuilder<T, R> withServiceRefreshTimeout(long serviceRefreshTimeoutMs) {
+        this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs;
         return this;
     }
 
-    public ServiceFinderHubBuilder<T, R> withHubRefreshDuration(long hubRefreshDurationMs) {
-        this.hubStartTimeoutMs = hubRefreshDurationMs;
+    public ServiceFinderHubBuilder<T, R> withHubStartTimeout(long hubStartTimeoutMs) {
+        this.hubStartTimeoutMs = hubStartTimeoutMs;
         return this;
     }
 
@@ -97,9 +97,9 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
                 hubStartTimeoutMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
-                () -> null,
-                Collections.emptyList(),
-                refreshFrequencyMs);
+                                                                          () -> null,
+                                                                          Collections.emptyList(),
+                                                                          refreshFrequencyMs);
         hub.registerUpdateSignal(refreshSignal);
         extraRefreshSignals.forEach(hub::registerUpdateSignal);
 

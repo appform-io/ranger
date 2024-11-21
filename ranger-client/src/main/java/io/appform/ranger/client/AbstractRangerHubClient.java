@@ -169,10 +169,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     @Override
     public Collection<Service> getRegisteredServices() {
         try {
-            return this.getHub().getServiceDataSource().services()
-                    .stream()
-                    .filter(service -> !excludedServices.contains(service.getServiceName()))
-                    .collect(Collectors.toSet());
+            return this.getHub().getServiceDataSource().services();
         }
         catch (Exception e) {
             log.error("Call to the hub failed with exception, {}", e.getMessage());

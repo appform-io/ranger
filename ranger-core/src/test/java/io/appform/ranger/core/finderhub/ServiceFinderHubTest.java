@@ -83,7 +83,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 5_000, 5_000,Set.of()
+                        .build(), 5_000, 5_000, Set.of()
         );
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
