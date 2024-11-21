@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import io.appform.ranger.core.util.FinderUtils;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -169,7 +171,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     @Override
     public Collection<Service> getRegisteredServices() {
         try {
-            return this.getHub().getServiceDataSource().services();
+            return FinderUtils.getEligibleServices(this.getHub().getServiceDataSource().services(), excludedServices);
         }
         catch (Exception e) {
             log.error("Call to the hub failed with exception, {}", e.getMessage());

@@ -26,6 +26,7 @@ import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
+import io.appform.ranger.core.util.FinderUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -208,7 +209,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         alreadyUpdating.set(true);
         val updatedFinders = new ConcurrentHashMap<Service, ServiceFinder<T, R>>();
         try {
-            val services = getEligibleServices();
+            val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
             if (services.isEmpty()) {
                 log.debug("No services found for the service data source. Skipping update on the registry");
                 return;
@@ -243,7 +244,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
-        val services = getEligibleServices();
+        val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
         val timeToRefresh = Math.max(hubStartTimeoutMs,
                                      (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
         if (timeToRefresh != hubStartTimeoutMs) {
@@ -288,13 +289,6 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             Exceptions
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
         }
-    }
-
-    private Set<Service> getEligibleServices() {
-        return serviceDataSource.services()
-                .stream()
-                .filter(service -> !excludedServices.contains(service.getServiceName()))
-                .collect(Collectors.toSet());
     }
 
 }
