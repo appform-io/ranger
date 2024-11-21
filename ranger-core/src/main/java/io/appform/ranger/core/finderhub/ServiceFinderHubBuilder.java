@@ -20,13 +20,11 @@ import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
+
 import lombok.val;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -85,7 +83,7 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     }
 
     public ServiceFinderHubBuilder<T, R> withExcludedServices(Set<String> excludedServices) {
-        this.excludedServices = excludedServices;
+        this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
         return this;
     }
 
