@@ -40,8 +40,8 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private final List<Consumer<Void>> extraStartSignalConsumers = new ArrayList<>();
     private final List<Consumer<Void>> extraStopSignalConsumers = new ArrayList<>();
     private final List<Signal<Void>> extraRefreshSignals = new ArrayList<>();
-    private long serviceRefreshDurationMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
-    private long hubRefreshDurationMs = HubConstants.HUB_START_TIMEOUT_MS;
+    private long serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
+    private long hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
     private Set<String> excludedServices = new HashSet<>();
 
     public ServiceFinderHubBuilder<T, R> withServiceDataSource(ServiceDataSource serviceDataSource) {
@@ -75,12 +75,12 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     }
 
     public ServiceFinderHubBuilder<T, R> withServiceRefreshDuration(long serviceRefreshDurationMs) {
-        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
+        this.serviceRefreshTimeoutMs = serviceRefreshDurationMs;
         return this;
     }
 
     public ServiceFinderHubBuilder<T, R> withHubRefreshDuration(long hubRefreshDurationMs) {
-        this.hubRefreshDurationMs = hubRefreshDurationMs;
+        this.hubStartTimeoutMs = hubRefreshDurationMs;
         return this;
     }
 
@@ -94,8 +94,8 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
-        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory,
-                serviceRefreshDurationMs, hubRefreshDurationMs, excludedServices);
+        val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
+                hubStartTimeoutMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                 () -> null,
                 Collections.emptyList(),
