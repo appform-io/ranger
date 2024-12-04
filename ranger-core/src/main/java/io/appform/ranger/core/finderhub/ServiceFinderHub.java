@@ -55,7 +55,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
     private final AtomicBoolean updateAvailable = new AtomicBoolean(false);
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal
@@ -134,9 +134,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         log.info("Waiting for the service finder hub to start");
         val stopwatch = Stopwatch.createStarted();
         monitorFuture = executorService.submit(this::monitor);
-        updateAvailable();
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
+        updateAvailable();
         waitTillHubIsReady();
         log.info("Service finder hub started in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
@@ -188,7 +188,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 while (!updateAvailable.get()) {
                     updateCond.await();
                 }
-                updateRegistry();
+                executorService.submit(this::updateRegistry);
             }
             catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
@@ -245,7 +245,6 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
-        log.info("executing waitTillHubIsReady");
         val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
         val timeToRefresh = Math.max(hubStartTimeoutMs,
                                      (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
