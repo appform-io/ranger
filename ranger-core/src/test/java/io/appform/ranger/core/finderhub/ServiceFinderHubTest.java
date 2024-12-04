@@ -67,6 +67,25 @@ class ServiceFinderHubTest {
     }
 
     @Test
+    void testTimeoutOnHubStartup() {
+        var testServiceFinderHub = new TestServiceFinderHubBuilder()
+                .withServiceDataSource(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))))
+                .withServiceFinderFactory(new TestServiceFinderFactory())
+                .withRefreshFrequencyMs(5_000)
+                .withHubStartTimeout(1_000)
+                .withServiceRefreshTimeout(10_000)
+                .build();
+
+        try {
+            Exception exception = Assertions.assertThrows(IllegalStateException.class, testServiceFinderHub::start);
+            Assertions.assertTrue(exception.getMessage()
+                    .contains("Couldn't perform service hub refresh at this time. Refresh exceeded the start up time specified"));
+        } finally {
+            testServiceFinderHub.stop();
+        }
+    }
+
+    @Test
     void testDelayedServiceAddition() {
         val delayedHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
@@ -107,6 +126,34 @@ class ServiceFinderHubTest {
         }
     }
 
+    public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+
+        @Override
+        public ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> buildFinder(Service service) {
+            val finder = new TestServiceFinderBuilder()
+                    .withNamespace(service.getNamespace())
+                    .withServiceName(service.getServiceName())
+                    .withDeserializer(new Deserializer<TestNodeData>() {})
+                    .withSleepDuration(60)
+                    .build();
+
+            finder.start();
+            return finder;
+        }
+    }
+
+private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+
+    @Override
+    protected void preBuild() {
+
+    }
+
+    @Override
+    protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
+
+    }
+}
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
 
         private int finderSleepDurationSeconds = 0;

@@ -17,6 +17,7 @@ package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
@@ -133,9 +134,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         log.info("Waiting for the service finder hub to start");
         val stopwatch = Stopwatch.createStarted();
         monitorFuture = executorService.submit(this::monitor);
+        updateAvailable();
         refreshSignals.forEach(signal -> signal.registerConsumer(x -> updateAvailable()));
         startSignal.trigger();
-        updateAvailable();
         waitTillHubIsReady();
         log.info("Service finder hub started in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
@@ -244,6 +245,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
+        log.info("executing waitTillHubIsReady");
         val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
         val timeToRefresh = Math.max(hubStartTimeoutMs,
                                      (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
@@ -279,6 +281,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
                     .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshTimeoutMs, TimeUnit.MILLISECONDS))
+                    .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)

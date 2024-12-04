@@ -45,6 +45,12 @@ public class RangerHttpUtils {
                         .connectTimeout(config.getConnectionTimeoutMs() == 0
                                         ? 3000
                                         : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
+                        .readTimeout(config.getOperationTimeoutMs() == 0
+                                ? 3000
+                                : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
+                        .writeTimeout(config.getOperationTimeoutMs() == 0
+                                ? 3000
+                                : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
                         .followRedirects(true)
                         .connectionPool(new ConnectionPool(1, 30, TimeUnit.SECONDS))
                         .build(),
