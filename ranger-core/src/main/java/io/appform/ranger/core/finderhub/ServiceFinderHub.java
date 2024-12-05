@@ -17,6 +17,7 @@ package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
@@ -54,7 +55,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
     private final AtomicBoolean updateAvailable = new AtomicBoolean(false);
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal
@@ -187,7 +188,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 while (!updateAvailable.get()) {
                     updateCond.await();
                 }
-                updateRegistry();
+                executorService.submit(this::updateRegistry);
             }
             catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
@@ -279,6 +280,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
                     .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshTimeoutMs, TimeUnit.MILLISECONDS))
+                    .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)
