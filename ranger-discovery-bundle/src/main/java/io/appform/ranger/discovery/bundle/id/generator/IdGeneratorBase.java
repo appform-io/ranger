@@ -11,11 +11,9 @@ import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * Base Id Generator
@@ -26,23 +24,14 @@ public class IdGeneratorBase {
 
     @Getter
     private static int NODE_ID;
-    private final int minimumIdLength;
-    private final Pattern pattern;
-    protected final DateTimeFormatter dateTimeFormatter;
     protected final NonceGeneratorBase nonceGenerator;
 
     public static void initialize(int node) {
         NODE_ID = node;
     }
 
-    public IdGeneratorBase(final int minimumIdLength,
-                           final DateTimeFormatter dateTimeFormatter,
-                           final Pattern pattern,
-                           final NonceGeneratorBase nonceGenerator) {
+    public IdGeneratorBase(final NonceGeneratorBase nonceGenerator) {
         this.nonceGenerator = nonceGenerator;
-        this.minimumIdLength = minimumIdLength;
-        this.dateTimeFormatter = dateTimeFormatter;
-        this.pattern = pattern;
     }
 
     public final synchronized void cleanUp() {
@@ -130,31 +119,4 @@ public class IdGeneratorBase {
         return idInfoOptional.map(idInfo -> nonceGenerator.getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter()));
     }
 
-    /**
-     * Generate id by parsing given string
-     *
-     * @param idString String idString
-     * @return ID if it could be generated
-     */
-    public final Optional<Id> parse(final String idString) {
-        if (idString == null
-                || idString.length() < minimumIdLength) {
-            return Optional.empty();
-        }
-        try {
-            val matcher = pattern.matcher(idString);
-            if (!matcher.find()) {
-                return Optional.empty();
-            }
-            return Optional.of(Id.builder()
-                    .id(idString)
-                    .node(Integer.parseInt(matcher.group(3)))
-                    .exponent(Integer.parseInt(matcher.group(4)))
-                    .generatedDate(dateTimeFormatter.parseDateTime(matcher.group(2)).toDate())
-                    .build());
-        } catch (Exception e) {
-            log.warn("Could not parse idString {}", e.getMessage());
-            return Optional.empty();
-        }
-    }
 }
