@@ -34,7 +34,8 @@ import java.util.*;
 @SuppressWarnings("unused")
 @Slf4j
 public class IdGenerator {
-    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(new RandomNonceGenerator(IdFormatters.original()));
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(IdFormatters.original(),
+            new RandomNonceGenerator(IdFormatters.original()));
 
     public static void initialize(int node) {
         IdGeneratorBase.initialize(node);
