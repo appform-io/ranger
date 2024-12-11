@@ -93,21 +93,14 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
-                hubStartTimeoutMs, excludedServices);
-        final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
-                                                                          () -> null,
-                                                                          Collections.emptyList(),
-                                                                          refreshFrequencyMs);
-        hub.registerUpdateSignal(refreshSignal);
+                hubStartTimeoutMs, refreshFrequencyMs, excludedServices);
         extraRefreshSignals.forEach(hub::registerUpdateSignal);
 
         hub.getStartSignal()
                 .registerConsumer(x -> serviceDataSource.start())
-                .registerConsumer(x -> refreshSignal.start())
                 .registerConsumers(extraStartSignalConsumers);
         hub.getStopSignal()
                 .registerConsumers(extraStopSignalConsumers)
-                .registerConsumer(x -> refreshSignal.stop())
                 .registerConsumer(x -> serviceDataSource.stop());
         postBuild(hub);
         return hub;

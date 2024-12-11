@@ -86,7 +86,8 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceFinderFactory<T, R> finderFactory
                            ) {
         this(serviceDataSource, finderFactory,
-                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
+                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, 5_000,
+            Set.of());
     }
 
     public ServiceFinderHub(
@@ -94,15 +95,21 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceFinderFactory<T, R> finderFactory,
             long serviceRefreshTimeoutMs,
             long hubStartTimeoutMs,
+            long refreshTimeIntervalMs,
             final Set<String> excludedServices) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
         this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
-        this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                                                      () -> null,
-                                                      Collections.emptyList(),
-                                      10_000));
+        final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-updater",
+                                                                            () -> null,
+                                                                            Collections.emptyList(),
+                                                                            refreshTimeIntervalMs);
+        this.refreshSignals.add(refreshSignal);
+        this.getStartSignal()
+            .registerConsumer(x -> refreshSignal.start());
+        this.getStopSignal()
+            .registerConsumer(x -> refreshSignal.stop());
         this.refresherPool = createRefresherPool();
         this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
     }
