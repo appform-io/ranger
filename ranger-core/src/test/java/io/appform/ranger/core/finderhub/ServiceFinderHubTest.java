@@ -93,7 +93,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(5)
-                        .build(), 1_000, 5_000, 5_000, Set.of()
+                        .build(), 1_000, 5_000, Set.of()
         );
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
         val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
@@ -102,7 +102,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 5_000, 5_000, 5_000, Set.of()
+                        .build(), 5_000, 5_000, Set.of()
         );
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
@@ -142,18 +142,18 @@ class ServiceFinderHubTest {
         }
     }
 
-private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+    private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
 
-    @Override
-    protected void preBuild() {
+        @Override
+        protected void preBuild() {
 
+        }
+
+        @Override
+        protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
+
+        }
     }
-
-    @Override
-    protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
-
-    }
-}
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
 
         private int finderSleepDurationSeconds = 0;

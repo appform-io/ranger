@@ -3,7 +3,6 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1-RC4]
 - Remove WaitStrategy in the Retryer used to check if ServiceRegistry is refreshed during ServiceRegistryUpdater startup
-- Remove service-hub-refresh-timer ScheduledSignal because there's already one ScheduledSignal service-hub-updater used in ServiceFinderHub
 
 ## [1.1-RC3]
 - Execute updateRegistry operation in async inside  ServiceFinderHub so that main thread reaches till waitTillHubIsReady instead of waiting for lock release and hubStartTimeoutMs is honoured as expected
