@@ -75,7 +75,6 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> null == r || !r)
                     .retryIfException()
-                    .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
                     .build()
                     .call(serviceRegistry::isRefreshed);
         }
