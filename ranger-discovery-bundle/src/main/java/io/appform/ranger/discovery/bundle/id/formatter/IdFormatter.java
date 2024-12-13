@@ -15,7 +15,10 @@
  */
 package io.appform.ranger.discovery.bundle.id.formatter;
 
+import io.appform.ranger.discovery.bundle.id.Id;
 import org.joda.time.DateTime;
+
+import java.util.Optional;
 
 public interface IdFormatter {
 
@@ -23,5 +26,6 @@ public interface IdFormatter {
                   final int nodeId,
                   final int randomNonce);
 
+    Optional<Id> parse(final String idString);
 
 }
