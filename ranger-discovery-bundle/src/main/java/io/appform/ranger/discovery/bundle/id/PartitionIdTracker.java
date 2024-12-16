@@ -49,7 +49,7 @@ public class PartitionIdTracker {
 
     public void addId(final int partitionId, final IdInfo idInfo) {
         Preconditions.checkArgument(partitionId < idPoolList.length, "Invalid partitionId " + partitionId + " for IdPool of size " + idPoolList.length);
-        if (instant.getEpochSecond() == idInfo.getTime()) {
+        if (instant.getEpochSecond() == idInfo.getTime() / 1000) {
             idPoolList[partitionId].setId(idInfo.getExponent());
         }
     }
@@ -57,7 +57,7 @@ public class PartitionIdTracker {
     public IdInfo getIdInfo() {
         Preconditions.checkArgument(nextIdCounter.get() < MAX_IDS_PER_SECOND, "ID Generation Per Second Limit Reached.");
         val timeInSeconds = instant.getEpochSecond();
-        return new IdInfo(nextIdCounter.getAndIncrement(), timeInSeconds);
+        return new IdInfo(nextIdCounter.getAndIncrement(), timeInSeconds * 1000L);
     }
 
     public synchronized void reset(final Instant instant) {

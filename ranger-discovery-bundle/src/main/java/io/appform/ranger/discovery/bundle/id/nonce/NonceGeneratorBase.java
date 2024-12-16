@@ -48,6 +48,6 @@ public abstract class NonceGeneratorBase {
 
     public abstract IdInfo generateForPartition(final String namespace, final int targetPartitionId) ;
 
-    protected abstract void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event);
+    public abstract void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event);
 
 }

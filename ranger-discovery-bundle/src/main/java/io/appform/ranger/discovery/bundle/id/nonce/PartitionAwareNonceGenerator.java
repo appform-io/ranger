@@ -11,7 +11,6 @@ import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.config.NamespaceConfig;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -89,37 +88,28 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
                 partitionTracker,
                 namespace,
                 targetPartitionId);
-        val dateTime = IdUtils.getDateTimeFromSeconds(partitionTracker.getInstant().getEpochSecond());
-        val id = String.format("%s%s", namespace, getIdFormatter().format(dateTime, IdGeneratorBase.getNODE_ID(), idCounter));
-        return new IdInfo(idCounter, dateTime.getMillis());
+        return new IdInfo(idCounter, partitionTracker.getInstant().getEpochSecond() * 1000L);
     }
 
     @Override
-    public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
+    public IdInfo generateWithConstraints(final IdGenerationRequest request) {
         val instant = clock.instant();
         val prefixIdMap = idStore.computeIfAbsent(request.getPrefix(), k -> getAndInitPartitionIdTrackers(request.getPrefix(), clock.instant()));
         val partitionIdTracker = getPartitionTracker(prefixIdMap, instant);
-        return Optional.ofNullable(getRetryer().get(
-                () -> {
-                    val targetPartitionId = getTargetPartitionId();
-                    val idInfo = generateForPartition(request.getPrefix(), targetPartitionId);
-                    return new GenerationResult(idInfo,
-                            validateId(request.getConstraints(), getIdFromIdInfo(idInfo, request.getPrefix(), getIdFormatter()), request.isSkipGlobal()),
-                            request.getDomain(),
-                            request.getPrefix());
-                }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(GenerationResult::getIdInfo);
+        val targetPartitionId = getTargetPartitionId();
+        return generateForPartition(request.getPrefix(), targetPartitionId);
     }
 
     @Override
-    protected void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
+    public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {
             val instant = clock.instant();
             val prefixIdMap = idStore.computeIfAbsent(result.getNamespace(), k -> getAndInitPartitionIdTrackers(result.getNamespace(), clock.instant()));
             val partitionIdTracker = getPartitionTracker(prefixIdMap, instant);
-            val mappedPartitionId = partitionResolver.apply(getIdFromIdInfo(result.getIdInfo(), result.getNamespace(), getIdFormatter()).getId());
+            val id = IdUtils.getIdFromIdInfo(result.getIdInfo(), result.getNamespace(), getIdFormatter());
+            val idString = id.getId();
+            val mappedPartitionId = partitionResolver.apply(idString);
             partitionIdTracker.addId(mappedPartitionId, result.getIdInfo());
         }
     }
@@ -135,8 +125,8 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
         Optional<Integer> idOptional = idPool.getNextId();
         while (idOptional.isEmpty()) {
             val idInfo = partitionIdTracker.getIdInfo();
-            val dateTime = IdUtils.getDateTimeFromSeconds(idInfo.getTime());
-            val idString = String.format("%s%s", namespace, getIdFormatter().format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
+            val id = IdUtils.getIdFromIdInfo(idInfo, namespace, getIdFormatter());
+            val idString = id.getId();
             val mappedPartitionId = partitionResolver.apply(idString);
             partitionIdTracker.addId(mappedPartitionId, idInfo);
             idOptional = idPool.getNextId();

@@ -107,10 +107,9 @@ class PartitionAwareNonceGeneratorTest {
     @Test
     void testGenerateAccuracy() throws IOException {
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
-        val iterationCount = 500000;
         TestUtil.runMTTest(
                 numThreads,
-                iterationCount,
+                iterationCountPerThread,
                 (k) -> {
                     val id = distributedIdGenerator.generate("P");
                     allIdsList.add(id);
@@ -292,12 +291,12 @@ class PartitionAwareNonceGeneratorTest {
 
     @Test
     void testParseSuccess() {
-        val idString = "ABC2011250959030643972247";
+        val idString = "ABC2011250959031643972247";
         val id = distributedIdGenerator.parse(idString).orElse(null);
         Assertions.assertNotNull(id);
         Assertions.assertEquals(idString, id.getId());
-        Assertions.assertEquals(972247, id.getExponent());
-        Assertions.assertEquals(643, id.getNode());
+        Assertions.assertEquals(164247, id.getExponent());
+        Assertions.assertEquals(3972, id.getNode());
         Assertions.assertEquals(TestUtil.generateDate(2020, 11, 25, 9, 59, 3, 0, ZoneId.systemDefault()),
                 id.getGeneratedDate());
     }

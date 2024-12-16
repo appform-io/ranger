@@ -8,7 +8,7 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdInfo;
+import io.appform.ranger.discovery.bundle.id.IdUtils;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
@@ -18,7 +18,6 @@ import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +41,7 @@ public class IdGeneratorBase {
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final FailsafeExecutor<GenerationResult> retryer;
 
-    private final IdFormatter idFormatter;
+    protected final IdFormatter idFormatter;
     protected final NonceGeneratorBase nonceGenerator;
 
     public static void initialize(int node) {
@@ -99,21 +98,6 @@ public class IdGeneratorBase {
                 .build());
     }
 
-    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = new DateTime(idInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, IdGeneratorBase.getNODE_ID(), idInfo.getExponent()));
-        return Id.builder()
-                .id(id)
-                .exponent(idInfo.getExponent())
-                .generatedDate(dateTime.toDate())
-                .node(IdGeneratorBase.getNODE_ID())
-                .build();
-    }
-
-    public final Id getIdFromIdInfo(final IdInfo idInfo, final String namespace) {
-        return getIdFromIdInfo(idInfo, namespace, idFormatter);
-    }
-
     public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
         // First evaluate global constraints
         val failedGlobalConstraint
@@ -152,13 +136,13 @@ public class IdGeneratorBase {
      */
     public final Id generate(final String namespace) {
         val idInfo = nonceGenerator.generate(namespace);
-        return getIdFromIdInfo(idInfo, namespace);
+        return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
 //    Should we support this?
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
-        return getIdFromIdInfo(idInfo, namespace, idFormatter);
+        return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
     /**
@@ -199,14 +183,15 @@ public class IdGeneratorBase {
         return Optional.ofNullable(retryer.get(
                         () -> {
                             val idInfoOptional = nonceGenerator.generateWithConstraints(request);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
+                            val id = IdUtils.getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
-                                    request.getDomainInstance());
+                                    request.getDomainInstance(),
+                                    request.getPrefix());
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> this.getIdFromIdInfo(generationResult.getIdInfo(), request.getPrefix(), request.getIdFormatter()));
+                .map(generationResult -> IdUtils.getIdFromIdInfo(generationResult.getIdInfo(), request.getPrefix(), request.getIdFormatter()));
     }
 
 }

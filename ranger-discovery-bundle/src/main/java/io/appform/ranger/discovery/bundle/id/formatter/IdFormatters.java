@@ -20,6 +20,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -27,11 +28,15 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class IdFormatters {
     private static final int MINIMUM_ID_LENGTH = 22;
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{22})");
+    private static final Pattern PATTERN = Pattern.compile("(.*?)([0-9]{22})([0-9]{2})?");
 
     private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
     private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
     private static final IdFormatter secondPrecisionIdFormatter = new SecondPrecisionIdFormatter();
+
+    private final Map<Integer, IdFormatter> idFormatterCodes = Map.of(
+            11, secondPrecisionIdFormatter
+    );
 
     public static IdFormatter original() {
         return originalIdFormatter;
@@ -60,7 +65,16 @@ public class IdFormatters {
             if (!matcher.find()) {
                 return Optional.empty();
             }
-            return originalIdFormatter.parse(idString);
+
+            val formatterTypeCode = matcher.group(3);
+            if (formatterTypeCode == null)
+                return originalIdFormatter.parse(idString);
+
+            val formatter = idFormatterCodes.get(Integer.parseInt(matcher.group(3)));
+            if (formatter == null)
+                return Optional.empty();
+
+            return formatter.parse(idString);
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();

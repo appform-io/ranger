@@ -29,9 +29,7 @@ public class DistributedIdGenerator extends IdGeneratorBase {
                                   final MetricRegistry metricRegistry,
                                   final Clock clock,
                                   final IdFormatter idFormatter) {
-        super(MINIMUM_ID_LENGTH,
-                DATE_TIME_FORMATTER,
-                PATTERN,
+        super(idFormatter,
                 IdUtils.getNonceGenerator(nonceGeneratorType, idGeneratorConfig, partitionResolverSupplier, idFormatter, metricRegistry, clock));
     }
 
@@ -45,7 +43,7 @@ public class DistributedIdGenerator extends IdGeneratorBase {
 
     public Id generateForPartition(final String namespace, final int targetPartitionId) {
         val idInfo = nonceGenerator.generateForPartition(namespace, targetPartitionId);
-        return nonceGenerator.getIdFromIdInfo(idInfo, namespace);
+        return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
     /**
