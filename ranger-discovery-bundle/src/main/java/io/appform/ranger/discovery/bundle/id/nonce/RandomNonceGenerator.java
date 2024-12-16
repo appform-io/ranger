@@ -1,6 +1,5 @@
 package io.appform.ranger.discovery.bundle.id.nonce;
 
-import com.google.common.base.Strings;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.CollisionChecker;
 import io.appform.ranger.discovery.bundle.id.Constants;
@@ -11,8 +10,6 @@ import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.val;
-
-import java.util.Optional;
 
 
 public class RandomNonceGenerator extends NonceGeneratorBase {
@@ -26,34 +23,18 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         return random(Domain.DEFAULT.getCollisionChecker());
     }
 
-    public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
-        val collisionChecker = !Strings.isNullOrEmpty(request.getDomain())
-                ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT)
-                .getCollisionChecker()
-                : Domain.DEFAULT.getCollisionChecker();
-        return Optional.ofNullable(getRetryer().get(
-                () -> {
-                    IdInfo idInfo = random(collisionChecker);
-                    val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
-                    return new GenerationResult(idInfo, validateId(request.getConstraints(), id, request.isSkipGlobal()), request.getDomain(), request.getPrefix());
-                }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(GenerationResult::getIdInfo);
+    public IdInfo generateWithConstraints(final IdGenerationRequest request) {
+        val domain = request.getDomainInstance() != null ? request.getDomainInstance() : Domain.DEFAULT;
+        return random(domain.getCollisionChecker());
     }
 
     @Override
-    public IdInfo generateForPartition(final String namespace, int targetPartitionId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event) {
+    public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {
             val idInfo = result.getIdInfo();
-            val collisionChecker = Strings.isNullOrEmpty(result.getDomain())
-                    ? Domain.DEFAULT.getCollisionChecker()
-                    : getRegisteredDomains().getOrDefault(result.getDomain(), Domain.DEFAULT).getCollisionChecker();
+            val domain = result.getDomain() != null ? result.getDomain() : Domain.DEFAULT;
+            val collisionChecker = domain.getCollisionChecker();
             collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
         }
     }

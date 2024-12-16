@@ -8,6 +8,6 @@ import lombok.Value;
 public class GenerationResult {
     IdInfo idInfo;
     IdValidationState state;
-    String domain;
+    Domain domain;
     String namespace;
 }
