@@ -4,7 +4,7 @@ import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.Getter;
 import lombok.val;
 
@@ -44,8 +44,8 @@ public abstract class NonceGeneratorBase {
      */
     public abstract IdInfo generate(final String namespace);
 
-    public abstract IdInfo generateWithConstraints(final IdGenerationRequest request);
+    public abstract IdInfo generateWithConstraints(final IdGenerationInput request);
 
-    public abstract void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event);
+    public abstract void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event);
 
 }

@@ -8,7 +8,7 @@ import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.IdInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.val;
 
 
@@ -23,8 +23,8 @@ public class RandomNonceGenerator extends NonceGeneratorBase {
         return random(Domain.DEFAULT.getCollisionChecker());
     }
 
-    public IdInfo generateWithConstraints(final IdGenerationRequest request) {
-        val domain = request.getDomainInstance() != null ? request.getDomainInstance() : Domain.DEFAULT;
+    public IdInfo generateWithConstraints(final IdGenerationInput request) {
+        val domain = request.getDomain() != null ? request.getDomain() : Domain.DEFAULT;
         return random(domain.getCollisionChecker());
     }
 

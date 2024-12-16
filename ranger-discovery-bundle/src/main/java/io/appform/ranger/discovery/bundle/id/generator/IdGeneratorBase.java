@@ -1,7 +1,6 @@
 package io.appform.ranger.discovery.bundle.id.generator;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
@@ -14,6 +13,7 @@ import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorBase;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +42,10 @@ public class IdGeneratorBase {
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final FailsafeExecutor<GenerationResult> retryer;
 
-    private final IdFormatter idFormatter;
+    protected final IdFormatter idFormatter;
     protected final NonceGeneratorBase nonceGenerator;
 
-    public static void initialize(int node) {
+    public static void initialize(final int node) {
         NODE_ID = node;
     }
 
@@ -72,19 +72,9 @@ public class IdGeneratorBase {
         registeredDomains.put(domain.getDomain(), domain);
     }
 
-    public final synchronized void registerGlobalConstraints(final IdValidationConstraint... constraints) {
-        registerGlobalConstraints(ImmutableList.copyOf(constraints));
-    }
-
     public final synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
         Preconditions.checkArgument(null != constraints && !constraints.isEmpty());
         globalConstraints.addAll(constraints);
-    }
-
-    public final synchronized void registerDomainSpecificConstraints(
-            final String domain,
-            final IdValidationConstraint... validationConstraints) {
-        registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
     }
 
     public final synchronized void registerDomainSpecificConstraints(
@@ -155,7 +145,7 @@ public class IdGeneratorBase {
         return getIdFromIdInfo(idInfo, namespace);
     }
 
-//    Should we support this?
+
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
         return getIdFromIdInfo(idInfo, namespace, idFormatter);
@@ -183,27 +173,20 @@ public class IdGeneratorBase {
         return generateWithConstraints(request);
     }
 
-    public final Optional<Id> generateWithConstraints(final String namespace,
-                                                      final List<IdValidationConstraint> inConstraints,
-                                                      final boolean skipGlobal) {
-        val request = IdGenerationRequest.builder()
-                .prefix(namespace)
-                .constraints(inConstraints)
-                .skipGlobal(skipGlobal)
-                .idFormatter(nonceGenerator.getIdFormatter())
-                .build();
-        return generateWithConstraints(request);
-    }
-
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
+        val domain = registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT);
+        val idGenerationInput = IdGenerationInput.builder()
+                .prefix(request.getPrefix())
+                .domain(domain)
+                .build();
         return Optional.ofNullable(retryer.get(
                         () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(request);
+                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
                             val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
-                                    request.getDomainInstance());
+                                    domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
                 .map(generationResult -> this.getIdFromIdInfo(generationResult.getIdInfo(), request.getPrefix(), request.getIdFormatter()));
