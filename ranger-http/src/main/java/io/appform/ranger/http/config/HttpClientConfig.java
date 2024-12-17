@@ -34,4 +34,5 @@ public class HttpClientConfig {
     long connectionTimeoutMs;
     long operationTimeoutMs;
     long refreshIntervalMillis;
+    boolean skipReplicatedData;
 }

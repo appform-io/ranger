@@ -51,7 +51,8 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
     @GET
     @Path("/services/v1")
     @Timed
-    public GenericResponse<Set<Service>> getServices() {
+    public GenericResponse<Set<Service>> getServices(
+            @QueryParam("skipReplicationSources") @DefaultValue("false") boolean skipReplicationSources) {
         return GenericResponse.<Set<Service>>builder()
                 .data(rangerHubs.stream()
                               .map(RangerHubClient::getRegisteredServices)
@@ -65,10 +66,12 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
     @Timed
     public GenericResponse<Collection<ServiceNode<T>>> getNodes(
             @NotNull @NotEmpty @PathParam("namespace") final String namespace,
-            @NotNull @NotEmpty @PathParam("serviceName") final String serviceName) {
+            @NotNull @NotEmpty @PathParam("serviceName") final String serviceName,
+            @QueryParam("skipReplicationSources") @DefaultValue("false") boolean skipReplicationSources) {
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();
         return GenericResponse.<Collection<ServiceNode<T>>>builder()
                 .data(rangerHubs.stream()
+                              .filter(hub -> skipReplicationSources && !hub.isReplicationSource())
                               .map(hub -> hub.getAllNodes(service))
                               .flatMap(List::stream)
                               .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),

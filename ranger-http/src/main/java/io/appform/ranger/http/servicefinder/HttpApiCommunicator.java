@@ -73,6 +73,7 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
                     .host(config.getHost())
                     .port(config.getPort() == 0 ? defaultPort() : config.getPort())
                     .encodedPath("/ranger/services/v1")
+                    .addQueryParameter("skipReplicationSources", Objects.toString(config.isSkipReplicatedData()))
                     .build();
             val request = new Request.Builder()
                     .url(httpUrl)
@@ -109,6 +110,7 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
                     .host(config.getHost())
                     .port(config.getPort() == 0 ? defaultPort() : config.getPort())
                     .encodedPath(url)
+                    .addQueryParameter("skipReplicationSources", Objects.toString(config.isSkipReplicatedData()))
                     .build();
             val request = new Request.Builder()
                     .url(httpUrl)

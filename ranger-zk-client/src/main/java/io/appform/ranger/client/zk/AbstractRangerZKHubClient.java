@@ -36,10 +36,11 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
     private final boolean disablePushUpdaters;
     private final String connectionString;
     private final CuratorFramework curatorFramework;
+    private boolean replicationSource;
 
     @Override
     protected ServiceFinderHub<T, R> buildHub() {
-       return new ZkServiceFinderHubBuilder<T, R>()
+        return new ZkServiceFinderHubBuilder<T, R>()
                 .withCuratorFramework(curatorFramework)
                 .withConnectionString(connectionString)
                 .withNamespace(getNamespace())
@@ -49,6 +50,7 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
                 .withHubStartTimeout(getHubStartTimeoutMs())
                 .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
                 .withExcludedServices(getExcludedServices())
+                .withReplicationSource(isReplicationSource())
                 .build();
     }
 

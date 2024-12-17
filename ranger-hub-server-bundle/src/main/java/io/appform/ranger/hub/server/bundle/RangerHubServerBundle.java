@@ -109,6 +109,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .hubStartTimeoutMs(zkConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
                     .excludedServices(excludedServices)
+                    .replicationSource(zkConfiguration.isReplicationSource())
                     .deserializer(data -> {
                         try {
                             return getMapper().readValue(data, new TypeReference<ServiceNode<ShardInfo>>() {
@@ -133,6 +134,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .hubStartTimeoutMs(httpConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(httpConfiguration.getNodeRefreshTimeMs())
                     .excludedServices(excludedServices)
+                    .replicationSource(httpConfiguration.isReplicationSource())
                     .deserializer(data -> {
                         try {
                             return getMapper().readValue(data, new TypeReference<>() {});
@@ -161,6 +163,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .hubStartTimeoutMs(droveUpstreamConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(droveUpstreamConfiguration.getNodeRefreshTimeMs())
                     .excludedServices(excludedServices)
+                    .replicationSource(droveUpstreamConfiguration.isReplicationSource())
                     .deserializer(new DroveResponseDataDeserializer<>() {
                         @Override
                         protected ShardInfo translate(ExposedAppInfo appInfo, ExposedAppInfo.ExposedHost host) {

@@ -106,12 +106,12 @@ class RangerHubServerBundleTest {
                                 .serviceName("service-" + i)
                                 .build())
                                 .collect(Collectors.toUnmodifiableSet());
-        stubFor(get("/ranger/services/v1")
+        stubFor(get(urlPathEqualTo("/ranger/services/v1"))
                         .willReturn(okJson(environment.getObjectMapper()
                                                .writeValueAsString(ServiceDataSourceResponse.builder()
                                                                                 .data(services)
                                                                .build()))));
-        stubFor(any(urlMatching("/ranger/nodes/v1/test/service-[0-9]+"))
+        stubFor(any(urlPathMatching("/ranger/nodes/v1/test/service-[0-9]+"))
                         .willReturn(okJson(mapper.writeValueAsString(
                                 ServiceNodesResponse.builder()
                                         .data(IntStream.rangeClosed(1, 5)

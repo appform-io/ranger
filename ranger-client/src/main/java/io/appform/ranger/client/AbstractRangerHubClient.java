@@ -22,21 +22,14 @@ import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.*;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import io.appform.ranger.core.util.FinderUtils;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 @Slf4j
 @Getter
@@ -63,6 +56,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      */
     private long hubStartTimeoutMs;
     private Set<String> excludedServices;
+    private boolean replicationSource;
 
     @Override
     public void start() {
