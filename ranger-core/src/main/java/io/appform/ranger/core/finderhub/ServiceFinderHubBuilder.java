@@ -38,7 +38,6 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
     private final List<Signal<Void>> extraRefreshSignals = new ArrayList<>();
     private long serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
     private long hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
-    private boolean replicationSource = false;
 
     private Set<String> excludedServices = new HashSet<>();
 
@@ -87,18 +86,13 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         return this;
     }
 
-    public ServiceFinderHubBuilder<T, R> withReplicationSource(boolean replicationSource) {
-        this.replicationSource = replicationSource;
-        return this;
-    }
-
     public ServiceFinderHub<T, R> build() {
         preBuild();
         Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
         Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
-                hubStartTimeoutMs, excludedServices, replicationSource);
+                hubStartTimeoutMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
                                                                           () -> null,
                                                                           Collections.emptyList(),

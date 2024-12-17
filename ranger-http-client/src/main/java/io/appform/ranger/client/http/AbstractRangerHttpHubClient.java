@@ -66,7 +66,11 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
                 .withHubStartTimeout(getHubStartTimeoutMs())
                 .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
                 .withExcludedServices(getExcludedServices())
-                .withReplicationSource(isReplicationSource())
                 .build();
+    }
+
+    @Override
+    public boolean isReplicationSource() {
+        return clientConfig.isReplicationSource();
     }
 }

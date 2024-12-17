@@ -78,8 +78,6 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final long hubStartTimeoutMs;
 
     private final Set<String> excludedServices;
-    @Getter
-    private final boolean replicationSource;
 
     private final ForkJoinPool refresherPool;
 
@@ -87,7 +85,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory) {
         this(serviceDataSource, finderFactory,
-             HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of(), false);
+             HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
 
     public ServiceFinderHub(
@@ -95,13 +93,11 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceFinderFactory<T, R> finderFactory,
             long serviceRefreshTimeoutMs,
             long hubStartTimeoutMs,
-            final Set<String> excludedServices,
-            boolean replicationSource) {
+            final Set<String> excludedServices) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
         this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
-        this.replicationSource = replicationSource;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
                                                       () -> null,
                                                       Collections.emptyList(),

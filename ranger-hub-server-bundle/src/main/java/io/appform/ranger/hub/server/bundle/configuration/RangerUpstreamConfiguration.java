@@ -47,8 +47,6 @@ public abstract class RangerUpstreamConfiguration {
   @Min(HubConstants.MINIMUM_HUB_START_TIMEOUT_MS)
   private int hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
 
-  private boolean replicationSource;
-
   protected RangerUpstreamConfiguration(BackendType type) {
     this.type = type;
   }

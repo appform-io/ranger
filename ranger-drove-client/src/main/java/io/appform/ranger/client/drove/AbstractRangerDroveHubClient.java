@@ -58,7 +58,6 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
                 .withHubStartTimeout(getHubStartTimeoutMs())
                 .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
                 .withExcludedServices(getExcludedServices())
-                .withReplicationSource(isReplicationSource())
                 .build();
     }
 }

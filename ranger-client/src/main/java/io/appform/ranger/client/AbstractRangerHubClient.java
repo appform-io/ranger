@@ -56,7 +56,6 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      */
     private long hubStartTimeoutMs;
     private Set<String> excludedServices;
-    private boolean replicationSource;
 
     @Override
     public void start() {

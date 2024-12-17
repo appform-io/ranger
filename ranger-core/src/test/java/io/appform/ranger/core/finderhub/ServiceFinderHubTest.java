@@ -89,7 +89,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(5)
-                        .build(), 1_000, 5_000, Set.of(), false);
+                        .build(), 1_000, 5_000, Set.of());
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
         val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
@@ -97,7 +97,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 5_000, 5_000, Set.of(), false);
+                        .build(), 5_000, 5_000, Set.of());
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
     }

@@ -84,7 +84,7 @@ class HttpServiceDataSourceTest {
                     .port(wireMockRuntimeInfo.getHttpPort())
                     .connectionTimeoutMs(30_000)
                     .operationTimeoutMs(30_000)
-                    .skipReplicatedData(true)
+                    .replicationSource(true)
                     .build();
             val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig,
                                                                     RangerHttpUtils.httpClient(clientConfig, MAPPER));
