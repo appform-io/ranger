@@ -68,4 +68,9 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
                 .withExcludedServices(getExcludedServices())
                 .build();
     }
+
+    @Override
+    public boolean isReplicationSource() {
+        return clientConfig.isReplicationSource();
+    }
 }

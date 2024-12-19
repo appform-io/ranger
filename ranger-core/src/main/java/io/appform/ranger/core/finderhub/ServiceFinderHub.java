@@ -83,10 +83,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
-            ServiceFinderFactory<T, R> finderFactory
-                           ) {
+            ServiceFinderFactory<T, R> finderFactory) {
         this(serviceDataSource, finderFactory,
-                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
+             HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
 
     public ServiceFinderHub(

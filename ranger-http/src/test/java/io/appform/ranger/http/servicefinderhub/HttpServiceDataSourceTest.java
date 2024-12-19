@@ -35,34 +35,68 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 class HttpServiceDataSourceTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @Test
     void testServiceDataSource(WireMockRuntimeInfo wireMockRuntimeInfo) throws IOException {
-        val responseObj = ServiceDataSourceResponse.builder()
+        val responseObjReplicated = ServiceDataSourceResponse.builder()
                 .data(Sets.newHashSet(
                         RangerTestUtils.getService("test-n", "test-s"),
                         RangerTestUtils.getService("test-n", "test-s1"),
                         RangerTestUtils.getService("test-n", "test-s2")
                 ))
                 .build();
-        val response = MAPPER.writeValueAsBytes(responseObj);
-        stubFor(get(urlEqualTo("/ranger/services/v1"))
+        stubFor(get(urlEqualTo("/ranger/services/v1?skipDataFromReplicationSources=false"))
                 .willReturn(aResponse()
-                        .withBody(response)
+                        .withBody(MAPPER.writeValueAsBytes(responseObjReplicated))
                         .withStatus(200)));
-        val clientConfig = HttpClientConfig.builder()
-                .host("127.0.0.1")
-                .port(wireMockRuntimeInfo.getHttpPort())
-                .connectionTimeoutMs(30_000)
-                .operationTimeoutMs(30_000)
+        val responseObjReplicationSkipped = ServiceDataSourceResponse.builder()
+                .data(Sets.newHashSet(
+                        RangerTestUtils.getService("test-n", "test-s"),
+                        RangerTestUtils.getService("test-n", "test-s1")))
                 .build();
-        val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig, RangerHttpUtils.httpClient(clientConfig, MAPPER));
-        val services = httpServiceDataSource.services();
-        Assertions.assertNotNull(services);
-        Assertions.assertFalse(services.isEmpty());
-        Assertions.assertEquals(3, services.size());
-        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
-        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
-        Assertions.assertFalse(services.stream().noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
+        stubFor(get(urlEqualTo("/ranger/services/v1?skipDataFromReplicationSources=true"))
+                .willReturn(aResponse()
+                        .withBody(MAPPER.writeValueAsBytes(responseObjReplicationSkipped))
+                        .withStatus(200)));
+        {
+            val clientConfig = HttpClientConfig.builder()
+                    .host("127.0.0.1")
+                    .port(wireMockRuntimeInfo.getHttpPort())
+                    .connectionTimeoutMs(30_000)
+                    .operationTimeoutMs(30_000)
+                    .build();
+            val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig,
+                                                                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
+            val services = httpServiceDataSource.services();
+            Assertions.assertNotNull(services);
+            Assertions.assertFalse(services.isEmpty());
+            Assertions.assertEquals(3, services.size());
+            Assertions.assertFalse(services.stream()
+                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
+            Assertions.assertFalse(services.stream()
+                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
+            Assertions.assertFalse(services.stream()
+                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
+        }
+        { //Here we set skip replication data to false. so query param is set
+            val clientConfig = HttpClientConfig.builder()
+                    .host("127.0.0.1")
+                    .port(wireMockRuntimeInfo.getHttpPort())
+                    .connectionTimeoutMs(30_000)
+                    .operationTimeoutMs(30_000)
+                    .replicationSource(true)
+                    .build();
+            val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig,
+                                                                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
+            val services = httpServiceDataSource.services();
+            Assertions.assertNotNull(services);
+            Assertions.assertFalse(services.isEmpty());
+            Assertions.assertEquals(2, services.size());
+            Assertions.assertFalse(services.stream()
+                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
+            Assertions.assertFalse(services.stream()
+                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
+        }
     }
 
 }

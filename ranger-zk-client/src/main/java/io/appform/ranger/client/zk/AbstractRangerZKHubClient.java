@@ -39,7 +39,7 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
 
     @Override
     protected ServiceFinderHub<T, R> buildHub() {
-       return new ZkServiceFinderHubBuilder<T, R>()
+        return new ZkServiceFinderHubBuilder<T, R>()
                 .withCuratorFramework(curatorFramework)
                 .withConnectionString(connectionString)
                 .withNamespace(getNamespace())
