@@ -45,7 +45,7 @@ class HttpServiceDataSourceTest {
                         RangerTestUtils.getService("test-n", "test-s2")
                 ))
                 .build();
-        stubFor(get(urlEqualTo("/ranger/services/v1?skipReplicationSources=false"))
+        stubFor(get(urlEqualTo("/ranger/services/v1?skipDataFromReplicationSources=false"))
                 .willReturn(aResponse()
                         .withBody(MAPPER.writeValueAsBytes(responseObjReplicated))
                         .withStatus(200)));
@@ -54,7 +54,7 @@ class HttpServiceDataSourceTest {
                         RangerTestUtils.getService("test-n", "test-s"),
                         RangerTestUtils.getService("test-n", "test-s1")))
                 .build();
-        stubFor(get(urlEqualTo("/ranger/services/v1?skipReplicationSources=true"))
+        stubFor(get(urlEqualTo("/ranger/services/v1?skipDataFromReplicationSources=true"))
                 .willReturn(aResponse()
                         .withBody(MAPPER.writeValueAsBytes(responseObjReplicationSkipped))
                         .withStatus(200)));
