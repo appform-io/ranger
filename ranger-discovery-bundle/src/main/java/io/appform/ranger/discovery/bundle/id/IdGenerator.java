@@ -20,16 +20,13 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
-import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Id generation
@@ -37,17 +34,10 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 @Slf4j
 public class IdGenerator {
-    private static final int MINIMUM_ID_LENGTH = 22;
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
-    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(
-            MINIMUM_ID_LENGTH,
-            DATE_TIME_FORMATTER,
-            PATTERN,
-            new RandomNonceGenerator(IdFormatters.original()));
+    private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
 
     public static void initialize(int node) {
-        IdGeneratorBase.initialize(node);
+        baseGenerator.setNodeId(node);
     }
 
     public static synchronized void cleanUp() {
@@ -153,7 +143,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> parse(final String idString) {
-        return baseGenerator.parse(idString);
+        return IdFormatters.parse(idString);
     }
 
     /**

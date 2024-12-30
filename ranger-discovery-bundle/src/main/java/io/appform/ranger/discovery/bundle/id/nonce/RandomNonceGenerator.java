@@ -1,66 +1,51 @@
 package io.appform.ranger.discovery.bundle.id.nonce;
 
-import com.google.common.base.Strings;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.CollisionChecker;
 import io.appform.ranger.discovery.bundle.id.Constants;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.IdInfo;
+import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.val;
 
-import java.util.Optional;
+import java.security.SecureRandom;
 
 
-public class RandomNonceGenerator extends NonceGeneratorBase {
+public class RandomNonceGenerator extends NonceGenerator {
 
-    public RandomNonceGenerator(final IdFormatter idFormatter) {
-        super(idFormatter);
-    }
+    private final SecureRandom secureRandom = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
 
     @Override
-    public IdInfo generate(final String namespace) {
+    public NonceInfo generate(final String namespace) {
         return random(Domain.DEFAULT.getCollisionChecker());
     }
 
-    public Optional<IdInfo> generateWithConstraints(final IdGenerationRequest request) {
-        val collisionChecker = !Strings.isNullOrEmpty(request.getDomain())
-                ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT)
-                .getCollisionChecker()
-                : Domain.DEFAULT.getCollisionChecker();
-        return Optional.ofNullable(getRetryer().get(
-                () -> {
-                    IdInfo idInfo = random(collisionChecker);
-                    val id = getIdFromIdInfo(idInfo, request.getPrefix(), request.getIdFormatter());
-                    return new GenerationResult(idInfo, validateId(request.getConstraints(), id, request.isSkipGlobal()), request.getDomain());
-                }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(GenerationResult::getIdInfo);
+    public NonceInfo generateWithConstraints(final IdGenerationInput request) {
+        val domain = request.getDomain() != null ? request.getDomain() : Domain.DEFAULT;
+        return random(domain.getCollisionChecker());
     }
 
     @Override
-    protected void retryEventListener(ExecutionAttemptedEvent<GenerationResult> event) {
+    public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {
-            val idInfo = result.getIdInfo();
-            val collisionChecker = Strings.isNullOrEmpty(result.getDomain())
-                    ? Domain.DEFAULT.getCollisionChecker()
-                    : getRegisteredDomains().getOrDefault(result.getDomain(), Domain.DEFAULT).getCollisionChecker();
+            val idInfo = result.getNonceInfo();
+            val domain = result.getDomain() != null ? result.getDomain() : Domain.DEFAULT;
+            val collisionChecker = domain.getCollisionChecker();
             collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
         }
     }
 
-    private IdInfo random(final CollisionChecker collisionChecker) {
+    private NonceInfo random(final CollisionChecker collisionChecker) {
         int randomGen;
         long time;
         do {
             time = System.currentTimeMillis();
-            randomGen = getSecureRandom().nextInt(Constants.MAX_ID_PER_MS);
+            randomGen = secureRandom.nextInt(Constants.MAX_ID_PER_MS);
         } while (!collisionChecker.check(time, randomGen));
-        return new IdInfo(randomGen, time);
+        return new NonceInfo(randomGen, time);
     }
 
 }

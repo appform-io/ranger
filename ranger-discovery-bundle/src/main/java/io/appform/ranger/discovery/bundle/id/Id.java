@@ -19,6 +19,7 @@ package io.appform.ranger.discovery.bundle.id;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * A representation of an ID
@@ -33,4 +34,5 @@ public class Id {
     private Date generatedDate;
     private int node;
     private int exponent;
+    Map<String, String> attributes;
 }

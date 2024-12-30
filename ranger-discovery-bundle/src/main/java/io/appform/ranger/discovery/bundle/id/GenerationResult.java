@@ -6,7 +6,7 @@ import lombok.Value;
 @Getter
 @Value
 public class GenerationResult {
-    IdInfo idInfo;
+    NonceInfo nonceInfo;
     IdValidationState state;
-    String domain;
+    Domain domain;
 }
