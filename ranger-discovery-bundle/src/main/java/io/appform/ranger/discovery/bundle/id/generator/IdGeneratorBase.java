@@ -63,6 +63,7 @@ public abstract class IdGeneratorBase {
     public final synchronized void cleanUp() {
         globalConstraints.clear();
         registeredDomains.clear();
+        nodeId = 0;
     }
 
     public final void registerDomain(final Domain domain) {
@@ -171,7 +172,7 @@ public abstract class IdGeneratorBase {
     }
 
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val domain = registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT);
+        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()
                 .prefix(request.getPrefix())
                 .domain(domain)
@@ -190,7 +191,7 @@ public abstract class IdGeneratorBase {
     }
 
     public void setNodeId(int nodeId) {
-        if (nodeId > 0) {
+        if (this.nodeId > 0) {
             throw new RuntimeException("Node ID already set");
         }
         this.nodeId = nodeId;
