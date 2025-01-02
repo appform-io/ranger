@@ -30,6 +30,11 @@ public class Base36IdFormatter implements IdFormatter {
     }
 
     @Override
+    public int getType() {
+        return 1;
+    }
+
+    @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
