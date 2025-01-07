@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1-RC5]
+Server to server replication implemented
+
 ## [1.1-RC4]
 - Remove WaitStrategy in the Retryer used to check if ServiceRegistry is refreshed during ServiceRegistryUpdater startup
 
