@@ -306,12 +306,12 @@ public class IdGenerator {
 
     private static IdInfo random(CollisionChecker collisionChecker) {
         int randomGen;
-        long time;
+        long curTimeMs;
         do {
-            time = System.currentTimeMillis();
+            curTimeMs = System.currentTimeMillis();
             randomGen = SECURE_RANDOM.nextInt(Constants.MAX_ID_PER_MS);
-        } while (!collisionChecker.check(time, randomGen));
-        return new IdInfo(randomGen, time);
+        } while (!collisionChecker.check(curTimeMs, randomGen));
+        return new IdInfo(randomGen, curTimeMs);
     }
 
     private static IdValidationState validateId(List<IdValidationConstraint> inConstraints, Id id, boolean skipGlobal) {
