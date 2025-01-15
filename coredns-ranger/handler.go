@@ -3,7 +3,6 @@ package rangerdns
 import (
 	"context"
 	"fmt"
-
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
 	"github.com/miekg/dns"
@@ -23,9 +22,11 @@ func (e *RangerHandler) Name() string { return "ranger" }
 func (e *RangerHandler) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
 	a := new(dns.Msg)
+
 	if e.RangerServices.getServices() == nil {
-		return dns.RcodeServerFailure, fmt.Errorf("no services found with ranger DNS")
+		return dns.RcodeServerFailure, fmt.Errorf("ranger DNS not ready")
 	}
+
 	if len(r.Question) == 0 {
 		return plugin.NextOrFailure(e.Name(), e.Next, ctx, w, r)
 	}
@@ -68,14 +69,12 @@ func (e *RangerHandler) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *d
 	return plugin.NextOrFailure(e.Name(), e.Next, ctx, w, r)
 }
 
-// Name implements the Handler interface.
 type CombiningResponseWriter struct {
 	dns.ResponseWriter
 	answer *dns.Msg
 }
 
 func (w *CombiningResponseWriter) WriteMsg(res *dns.Msg) error {
-
 	res.Answer = append(res.Answer, w.answer.Answer...)
 	res.Extra = append(res.Extra, w.answer.Extra...)
 	return w.ResponseWriter.WriteMsg(res)

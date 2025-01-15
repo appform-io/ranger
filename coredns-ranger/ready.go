@@ -1,5 +1,5 @@
 package rangerdns
 
 func (e *RangerHandler) Ready() bool {
-	return true
+	return e.RangerServices.getServices() != nil
 }
