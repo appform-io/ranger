@@ -2,7 +2,6 @@ package rangerdns
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"net"
@@ -12,15 +11,17 @@ import (
 
 type MockRangerClient struct{}
 
-func (*MockRangerClient) FetchServices() (*RangerServiceInfoResponse, error) {
-	services := &RangerServiceInfoResponse{}
-	json.Unmarshal([]byte(`{"status": "ok", "message": "ok", "data": [{
-					"service": {"namespace": "testNamespace", "serviceName": "testService"},
-                    "nodes": [{
-							"host": "host", "port": 1234, "portScheme": "HTTP"
-					}]
-			}]}`), services)
-	return services, nil
+func (*MockRangerClient) SearchService(question string) []ServiceNode {
+	if question == "testService.testNamespace." {
+		serviceNodes := []ServiceNode{{
+			Host:       "host",
+			Port:       1234,
+			PortScheme: "HTTP",
+		},
+		}
+		return serviceNodes
+	}
+	return nil
 }
 
 type MockResponseWriter struct {
@@ -36,24 +37,8 @@ func (w *MockResponseWriter) WriteMsg(res *dns.Msg) error {
 
 }
 
-func TestServeDNSNotReady(t *testing.T) {
-	handler := RangerHandler{RangerServices: newRangerServices(&MockRangerClient{})}
-	writer := &MockResponseWriter{
-		validator: func(res *dns.Msg) {
-			assert.Equal(t, 1, len(res.Answer), "One Answer should be returned")
-			assert.Equal(t, 0, len(res.Extra), "Additional should be empty")
-			assert.Equal(t, "host.", res.Answer[0].(*dns.SRV).Target, "'host' should be the target")
-			assert.Equal(t, uint16(1234), res.Answer[0].(*dns.SRV).Port, "1234 should be the port")
-		}}
-	code, err := handler.ServeDNS(context.Background(), writer, &dns.Msg{Question: []dns.Question{dns.Question{Name: "testService.testNamespace.", Qtype: dns.TypeSRV, Qclass: dns.ClassINET}}})
-	assert.NotNil(t, err, "Error should be returned")
-	assert.Equal(t, dns.RcodeServerFailure, code, "Failure error code should be returned")
-	assert.Equal(t, 0, writer.callCounter, "Message would not be written")
-
-}
-
 func TestServeDNSWhenServiceFound(t *testing.T) {
-	handler := RangerHandler{RangerServices: newRangerServices(&MockRangerClient{})}
+	handler := RangerHandler{RangerClient: &MockRangerClient{}}
 	for !handler.Ready() {
 		time.Sleep(1)
 	}
@@ -72,7 +57,7 @@ func TestServeDNSWhenServiceFound(t *testing.T) {
 }
 
 func TestServeDNSQueryTypeAWhenServiceFound(t *testing.T) {
-	handler := RangerHandler{RangerServices: newRangerServices(&MockRangerClient{})}
+	handler := RangerHandler{RangerClient: &MockRangerClient{}}
 	for !handler.Ready() {
 		time.Sleep(1)
 	}
@@ -91,7 +76,7 @@ func TestServeDNSQueryTypeAWhenServiceFound(t *testing.T) {
 }
 
 func TestServeDNSNoMatchingService(t *testing.T) {
-	handler := RangerHandler{RangerServices: newRangerServices(&MockRangerClient{})}
+	handler := RangerHandler{RangerClient: &MockRangerClient{}}
 	for !handler.Ready() {
 		time.Sleep(1)
 	}
@@ -108,7 +93,7 @@ func TestServeDNSNoMatchingService(t *testing.T) {
 }
 
 func TestServeDNSForwarding(t *testing.T) {
-	handler := RangerHandler{RangerServices: newRangerServices(&MockRangerClient{})}
+	handler := RangerHandler{RangerClient: &MockRangerClient{}}
 	mockNextHandler := MockHandler{}
 	handler.Next = &mockNextHandler
 	for !handler.Ready() {

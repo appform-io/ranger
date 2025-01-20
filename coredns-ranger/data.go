@@ -4,20 +4,10 @@ import (
 	"fmt"
 )
 
-type RangerServiceInfoResponse struct {
-	Status   string              `json:"status"`
-	Services []RangerServiceInfo `json:"data"`
-	Message  string              `json:"message"`
-}
-
-type RangerServiceInfo struct {
-	RangerService RangerService `json:"service"`
-	ServiceNodes  []ServiceNode `json:"nodes"`
-}
-
-type RangerService struct {
-	Namespace   string `json:"namespace"`
-	ServiceName string `json:"serviceName"`
+type RangerServiceNodeResponse struct {
+	Status       string        `json:"status"`
+	Message      string        `json:"message"`
+	ServiceNodes []ServiceNode `json:"data"`
 }
 
 type ServiceNode struct {

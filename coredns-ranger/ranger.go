@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net"
 	"net/url"
+	"strings"
 
 	"net/http"
 	"strconv"
@@ -14,11 +15,11 @@ import (
 )
 
 const (
-	FetchServicesTimeout = time.Duration(5) * time.Second
+	FetchServiceNodesTimeout = time.Duration(5) * time.Second
 )
 
 type IRangerClient interface {
-	FetchServices() (*RangerServiceInfoResponse, error)
+	SearchService(question string) []ServiceNode
 }
 type RangerClient struct {
 	EndpointMutex sync.RWMutex
@@ -57,7 +58,7 @@ func NewRangerClient(config RangerConfig) (RangerClient, error) {
 }
 
 func (c *RangerClient) Init() {
-	// Nothing to be done here?
+	// Nothing to be done here
 }
 
 func (c *RangerClient) executeRequest(path string, timeout time.Duration, obj any) error {
@@ -89,9 +90,25 @@ func (c *RangerClient) executeRequest(path string, timeout time.Duration, obj an
 	return nil
 }
 
-func (c *RangerClient) FetchServices() (*RangerServiceInfoResponse, error) {
-	services := &RangerServiceInfoResponse{}
-	err := c.executeRequest("/ranger/services/nodes/v1", FetchServicesTimeout, services)
+func (c *RangerClient) SearchService(question string) []ServiceNode {
+	RangerQueryTotal.Inc()
+	questionSplit := strings.Split(strings.TrimSuffix(question, "."), ".")
+
+	if len(questionSplit) != 2 {
+		return nil
+	}
+	nodes, err := c.FetchServiceNodes(questionSplit[0], questionSplit[1])
+	if err != nil {
+		RangerQueryFailure.Inc()
+		log.Errorf("Error fetching nodes")
+		return nil
+	}
+	return nodes.ServiceNodes
+}
+
+func (c *RangerClient) FetchServiceNodes(serviceName string, namespace string) (*RangerServiceNodeResponse, error) {
+	services := &RangerServiceNodeResponse{}
+	err := c.executeRequest("/ranger/nodes/v1/"+namespace+"/"+serviceName, FetchServiceNodesTimeout, services)
 	return services, err
 
 }
