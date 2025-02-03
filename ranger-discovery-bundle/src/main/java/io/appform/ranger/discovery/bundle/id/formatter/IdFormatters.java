@@ -63,12 +63,14 @@ public class IdFormatters {
 
             val formatterType = matcher.group(3);
 
-            if (formatterType == null)
+            if (formatterType == null) {
                 return originalIdFormatter.parse(idString);
+            }
 
             val formatter = formatterRegistry.get(Integer.parseInt(matcher.group(3)));
-            if (formatter == null)
+            if (formatter == null) {
                 return Optional.empty();
+            }
 
             return formatter.parse(idString);
         } catch (Exception e) {
