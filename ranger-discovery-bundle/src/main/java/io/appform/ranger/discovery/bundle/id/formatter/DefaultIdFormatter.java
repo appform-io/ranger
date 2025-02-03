@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DefaultIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{15})([0-9]{4})([0-9]{3})([0-9]*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
@@ -48,6 +48,8 @@ public class DefaultIdFormatter implements IdFormatter {
         }
         return Optional.of(Id.builder()
                 .id(idString)
+                .prefix(matcher.group(1))
+                .suffix(matcher.group(5))
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
                 .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())

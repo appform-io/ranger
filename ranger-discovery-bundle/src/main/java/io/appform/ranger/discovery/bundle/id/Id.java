@@ -31,6 +31,8 @@ import java.util.Map;
 @ToString
 public class Id {
     private String id;
+    private String prefix;
+    private String suffix;
     private Date generatedDate;
     private int node;
     private int exponent;

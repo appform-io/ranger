@@ -8,6 +8,7 @@ import lombok.Value;
 @Builder
 public class IdGenerationInput {
     String prefix;
+    String suffix;
     Domain domain;
 
 }

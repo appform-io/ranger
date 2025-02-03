@@ -89,6 +89,10 @@ public class IdGenerator {
         return baseGenerator.generate(prefix);
     }
 
+    public static Id generate(String prefix, String suffix) {
+        return baseGenerator.generate(prefix, suffix);
+    }
+
     public static Id generate(final String prefix,
                               final IdFormatter idFormatter) {
         return baseGenerator.generate(prefix, idFormatter);
@@ -136,6 +140,13 @@ public class IdGenerator {
         return generateWithConstraints(prefix, inConstraints, false);
     }
 
+    public static Optional<Id> generateWithConstraints(
+            String prefix,
+            String suffix,
+            final List<IdValidationConstraint> inConstraints) {
+        return generateWithConstraints(prefix, suffix, inConstraints, false);
+    }
+
     /**
      * Generate id by parsing given string
      *
@@ -166,6 +177,20 @@ public class IdGenerator {
                                 .skipGlobal(skipGlobal)
                                 .idFormatter(IdFormatters.original())
                                 .build());
+    }
+
+    public static Optional<Id> generateWithConstraints(
+            String prefix,
+            String suffix,
+            final List<IdValidationConstraint> inConstraints,
+            boolean skipGlobal) {
+        return generate(IdGenerationRequest.builder()
+                .prefix(prefix)
+                .suffix(suffix)
+                .constraints(inConstraints)
+                .skipGlobal(skipGlobal)
+                .idFormatter(IdFormatters.original())
+                .build());
     }
 
     /**
