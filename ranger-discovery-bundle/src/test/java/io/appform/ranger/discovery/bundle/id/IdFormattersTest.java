@@ -1,6 +1,7 @@
 package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,5 +25,21 @@ public class IdFormattersTest {
 
     private void assertDate(final String dateString, final Date date) throws ParseException {
         Assertions.assertEquals(new SimpleDateFormat("yyMMddHHmmssSSS").parse(dateString), date);
+    }
+
+    @Test
+    void testParseSuccessAfterGenerationWithSuffix() {
+        val idGenerator = new DefaultIdGenerator(IdFormatters.suffix());
+        val prefix = "TEST";
+        val suffix = "007";
+        val generatedId = idGenerator.generate(prefix, suffix);
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(prefix, parsedId.getPrefix());
+        Assertions.assertEquals(suffix, parsedId.getSuffix());
+        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
+        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
+        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
 }

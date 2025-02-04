@@ -237,22 +237,6 @@ class IdGeneratorTest {
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
 
-    @Test
-    void testParseSuccessAfterGenerationWithSuffix() {
-        val prefix = "TEST";
-        val suffix = "007";
-        val generatedId = IdGenerator.generate(prefix, suffix);
-        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
-        Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(prefix, parsedId.getPrefix());
-        Assertions.assertEquals(suffix, parsedId.getSuffix());
-        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
-        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
-        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
-        Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
-    }
-
-
     @SuppressWarnings("SameParameterValue")
     private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
         return Date.from(

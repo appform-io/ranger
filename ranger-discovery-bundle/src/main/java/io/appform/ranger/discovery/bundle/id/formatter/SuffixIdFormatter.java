@@ -24,20 +24,21 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class DefaultIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
+public class SuffixIdFormatter implements IdFormatter {
+    private static final int TYPE = 10;
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{15})([0-9]{4})([0-9]{3})([0-9]{2})([0-9]*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
     public int getType() {
-        return 0;
+        return TYPE;
     }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
-        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
+        return String.format("%s%04d%03d%02d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, TYPE);
     }
 
     @Override
@@ -48,6 +49,8 @@ public class DefaultIdFormatter implements IdFormatter {
         }
         return Optional.of(Id.builder()
                 .id(idString)
+                .prefix(matcher.group(1))
+                .suffix(matcher.group(6))
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
                 .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())

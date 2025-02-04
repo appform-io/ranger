@@ -31,14 +31,20 @@ public class IdFormatters {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
 
     private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
+    private static final IdFormatter suffixIdFormatter = new SuffixIdFormatter();
     private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
 
     private final Map<Integer, IdFormatter> formatterRegistry = Map.of(
-            originalIdFormatter.getType(), originalIdFormatter
+            originalIdFormatter.getType(), originalIdFormatter,
+            suffixIdFormatter.getType(), suffixIdFormatter
     );
 
     public static IdFormatter original() {
         return originalIdFormatter;
+    }
+
+    public static IdFormatter suffix() {
+        return suffixIdFormatter;
     }
 
     public static IdFormatter base36() {

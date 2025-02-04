@@ -190,6 +190,18 @@ public abstract class IdGeneratorBase {
         return generateWithConstraints(request);
     }
 
+    public Optional<Id> generateWithConstraints(
+            String namespace,
+            String suffix,
+            final List<IdValidationConstraint> inConstraints) {
+        return generateWithConstraints(IdGenerationRequest.builder()
+                .prefix(namespace)
+                .constraints(inConstraints)
+                .skipGlobal(false)
+                .idFormatter(idFormatter)
+                .build());
+    }
+
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
         val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()
