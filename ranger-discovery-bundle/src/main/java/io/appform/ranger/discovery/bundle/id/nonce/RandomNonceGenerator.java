@@ -22,6 +22,7 @@ public class RandomNonceGenerator extends NonceGenerator {
         return random(Domain.DEFAULT.getCollisionChecker());
     }
 
+    @Override
     public NonceInfo generateWithConstraints(final IdGenerationInput request) {
         val domain = request.getDomain() != null ? request.getDomain() : Domain.DEFAULT;
         return random(domain.getCollisionChecker());

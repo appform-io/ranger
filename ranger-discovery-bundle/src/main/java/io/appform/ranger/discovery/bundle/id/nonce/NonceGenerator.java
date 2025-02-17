@@ -10,6 +10,10 @@ import lombok.val;
 @Getter
 public abstract class NonceGenerator {
 
+    protected NonceGenerator() {
+
+    }
+
     public int readRetryCount() {
         try {
             val count = Integer.parseInt(System.getenv().getOrDefault("NUM_ID_GENERATION_RETRIES", "512"));

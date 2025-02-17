@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("unused")
 @Slf4j
-public abstract class IdGeneratorBase {
+public class IdGeneratorBase {
 
     @Getter
     private int nodeId;
@@ -45,9 +45,8 @@ public abstract class IdGeneratorBase {
     protected final IdFormatter idFormatter;
     protected final NonceGenerator nonceGenerator;
 
-
-    public IdGeneratorBase(final IdFormatter idFormatter,
-                           final NonceGenerator nonceGenerator) {
+    protected IdGeneratorBase(final IdFormatter idFormatter,
+                              final NonceGenerator nonceGenerator) {
         this.idFormatter = idFormatter;
         this.nonceGenerator = nonceGenerator;
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
@@ -190,7 +189,7 @@ public abstract class IdGeneratorBase {
                 .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
     }
 
-    public void setNodeId(int nodeId) {
+    public final void setNodeId(int nodeId) {
         if (this.nodeId > 0) {
             throw new RuntimeException("Node ID already set");
         }
