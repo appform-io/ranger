@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
@@ -48,10 +49,10 @@ public class IdGenerator {
             int node, List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize(node);
-        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
+        if (null != globalConstraints) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
-        if(null != domainSpecificConstraints && !domainSpecificConstraints.isEmpty()) {
+        if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
     }
@@ -144,7 +145,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> parse(final String idString) {
-        return IdFormatters.parse(idString);
+        return IdParsers.parse(idString);
     }
 
     /**
@@ -179,7 +180,10 @@ public class IdGenerator {
      * @param domain     Domain
      * @return Id if it could be generated
      */
-    private static Optional<Id> generateWithConstraints(String prefix, final Domain domain, boolean skipGlobal) {
+    private static Optional<Id> generateWithConstraints(
+            String prefix,
+            final Domain domain,
+            boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
                                 .prefix(prefix)
                                 .constraints(domain.getConstraints())
