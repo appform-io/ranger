@@ -1,8 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1-RC6]
+
+- Avoid duplicate ID in case of backwards time drift by rejecting the requests in case of
+  current time < last processed timestamp.
+
 ## [1.1-RC5]
-Server to server replication implemented
+
+- Server to server replication implemented
 
 ## [1.1-RC4]
 - Remove WaitStrategy in the Retryer used to check if ServiceRegistry is refreshed during ServiceRegistryUpdater startup
