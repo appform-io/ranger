@@ -19,9 +19,11 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class HubConstants {
-    public static final long SERVICE_REFRESH_DURATION_MS = 10_000;
-    public static final long HUB_REFRESH_DURATION_MS = 30_000;
+    public static final int SERVICE_REFRESH_TIMEOUT_MS = 10_000;
+    public static final int HUB_START_TIMEOUT_MS = 30_000;
     public static final long REFRESH_FREQUENCY_MS = 10_000;
     public static final int CONNECTION_RETRY_TIME_MS = 5_000;
     public static final int MINIMUM_REFRESH_TIME_MS = 5_000;
+    public static final int MINIMUM_SERVICE_REFRESH_TIMEOUT_MS = 1_000;
+    public static final int MINIMUM_HUB_START_TIMEOUT_MS = 5_000;
 }

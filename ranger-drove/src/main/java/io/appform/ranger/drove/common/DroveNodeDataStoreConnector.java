@@ -62,7 +62,7 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
 
     @Override
     public boolean isActive() {
-        return droveClient.leader().isPresent();
+        return droveClient.healthy();
     }
 
 }

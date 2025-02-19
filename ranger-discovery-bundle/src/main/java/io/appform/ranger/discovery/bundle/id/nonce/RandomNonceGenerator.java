@@ -41,12 +41,12 @@ public class RandomNonceGenerator extends NonceGenerator {
 
     private NonceInfo random(final CollisionChecker collisionChecker) {
         int randomGen;
-        long time;
+        long curTimeMs;
         do {
-            time = System.currentTimeMillis();
+            curTimeMs = System.currentTimeMillis();
             randomGen = secureRandom.nextInt(Constants.MAX_ID_PER_MS);
-        } while (!collisionChecker.check(time, randomGen));
-        return new NonceInfo(randomGen, time);
+        } while (!collisionChecker.check(curTimeMs, randomGen));
+        return new NonceInfo(randomGen, curTimeMs);
     }
 
 }

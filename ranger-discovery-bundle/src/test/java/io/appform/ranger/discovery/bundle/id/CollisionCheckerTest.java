@@ -37,4 +37,13 @@ class CollisionCheckerTest {
             Assertions.assertFalse(collisionChecker.check(101, i));
         });
     }
+
+    @Test
+    void testCheckGoingBackInTime() {
+        CollisionChecker collisionChecker = new CollisionChecker();
+        Assertions.assertTrue(collisionChecker.check(100, 1));
+        Assertions.assertFalse(collisionChecker.check(90, 1));
+        Assertions.assertFalse(collisionChecker.check(100, 1));
+        Assertions.assertTrue(collisionChecker.check(101, 1));
+    }
 }
