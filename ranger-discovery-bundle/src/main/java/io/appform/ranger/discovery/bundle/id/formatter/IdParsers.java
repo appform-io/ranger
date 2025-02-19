@@ -31,7 +31,7 @@ public class IdParsers {
     private static final int MINIMUM_ID_LENGTH = 22;
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
 
-    private final Map<Integer, IdFormatter> formatterRegistry = Map.of(
+    private final Map<Integer, IdFormatter> parserRegistry = Map.of(
             IdFormatters.original().getType(), IdFormatters.original()
     );
 
@@ -51,18 +51,17 @@ public class IdParsers {
                 return Optional.empty();
             }
 
-            val formatterType = matcher.group(3);
-
-            if (formatterType == null) {
+            val parserType = matcher.group(3);
+            if (parserType == null) {
                 return IdFormatters.original().parse(idString);
             }
 
-            val formatter = formatterRegistry.get(Integer.parseInt(matcher.group(3)));
-            if (formatter == null) {
+            val parser = parserRegistry.get(Integer.parseInt(matcher.group(3)));
+            if (parser == null) {
+                log.warn("Could not parse idString {}, Invalid formatter type {}", idString, parserType);
                 return Optional.empty();
             }
-
-            return formatter.parse(idString);
+            return parser.parse(idString);
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();
