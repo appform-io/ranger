@@ -39,15 +39,16 @@ public abstract class AbstractRangerZKHubClient<T, R extends ServiceRegistry<T>,
 
     @Override
     protected ServiceFinderHub<T, R> buildHub() {
-       return new ZkServiceFinderHubBuilder<T, R>()
+        return new ZkServiceFinderHubBuilder<T, R>()
                 .withCuratorFramework(curatorFramework)
                 .withConnectionString(connectionString)
                 .withNamespace(getNamespace())
                 .withRefreshFrequencyMs(getNodeRefreshTimeMs())
                 .withServiceDataSource(getServiceDataSource())
                 .withServiceFinderFactory(getFinderFactory())
-                .withHubRefreshDuration(getHubRefreshDurationMs())
-                .withServiceRefreshDuration(getServiceRefreshDurationMs())
+                .withHubStartTimeout(getHubStartTimeoutMs())
+                .withServiceRefreshTimeout(getServiceRefreshTimeoutMs())
+                .withExcludedServices(getExcludedServices())
                 .build();
     }
 

@@ -33,16 +33,16 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RangerHttpUpstreamConfiguration extends RangerUpstreamConfiguration {
 
-  @NotEmpty
-  @Valid
-  private List<HttpClientConfig> httpClientConfigs;
+    @NotEmpty
+    @Valid
+    private List<HttpClientConfig> httpClientConfigs;
 
   public RangerHttpUpstreamConfiguration() {
     super(BackendType.HTTP);
   }
 
-  @Override
-  public <T> T accept(RangerConfigurationVisitor<T> visitor) {
-    return visitor.visit(this);
-  }
+    @Override
+    public <T> T accept(RangerConfigurationVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

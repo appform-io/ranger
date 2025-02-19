@@ -16,7 +16,6 @@ import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.DateTime;
 
@@ -32,9 +31,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Base Id Generator
  */
-@SuppressWarnings("unused")
-@Slf4j
-public abstract class IdGeneratorBase {
+public class IdGeneratorBase {
 
     @Getter
     private int nodeId;
@@ -45,9 +42,8 @@ public abstract class IdGeneratorBase {
     protected final IdFormatter idFormatter;
     protected final NonceGenerator nonceGenerator;
 
-
-    public IdGeneratorBase(final IdFormatter idFormatter,
-                           final NonceGenerator nonceGenerator) {
+    protected IdGeneratorBase(final IdFormatter idFormatter,
+                              final NonceGenerator nonceGenerator) {
         this.idFormatter = idFormatter;
         this.nonceGenerator = nonceGenerator;
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
@@ -190,7 +186,7 @@ public abstract class IdGeneratorBase {
                 .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
     }
 
-    public void setNodeId(int nodeId) {
+    public final void setNodeId(int nodeId) {
         if (this.nodeId > 0) {
             throw new RuntimeException("Node ID already set");
         }

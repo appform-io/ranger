@@ -15,79 +15,26 @@
  */
 package io.appform.ranger.http.servicefinderhub;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
-import io.appform.ranger.http.model.ServiceDataSourceResponse;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Objects;
 
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    public HttpServiceDataSource(HttpClientConfig config, ObjectMapper mapper, OkHttpClient httpClient) {
-        super(config, mapper, httpClient);
+    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient) {
+        super(config, httpClient);
     }
 
     @Override
     public Collection<Service> services() {
-        Preconditions.checkNotNull(config, "client config has not been set for node data");
-        Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
-
-        val httpUrl = new HttpUrl.Builder()
-                .scheme(config.isSecure()
-                        ? "https"
-                        : "http")
-                .host(config.getHost())
-                .port(config.getPort() == 0
-                      ? defaultPort()
-                      : config.getPort())
-                .encodedPath("/ranger/services/v1")
-                .build();
-        val request = new Request.Builder()
-                .url(httpUrl)
-                .get()
-                .build();
-
-        try (val response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                try (val body = response.body()) {
-                    if (null == body) {
-                        log.warn("HTTP call to {} returned empty body", httpUrl);
-                    }
-                    else {
-                        val bytes = body.bytes();
-                        val serviceDataSourceResponse = mapper.readValue(bytes, ServiceDataSourceResponse.class);
-                        if (serviceDataSourceResponse.valid()) {
-                            return serviceDataSourceResponse.getData();
-                        }
-                        else {
-                            log.warn("Http call to {} returned a failure response with data {}",
-                                     httpUrl,
-                                     serviceDataSourceResponse);
-                        }
-                    }
-                }
-            }
-            else {
-                log.warn("HTTP call to {} returned code: {}", httpUrl, response.code());
-            }
-        }
-        catch (IOException e) {
-            log.info("Error parsing the response from server for : {} with exception {}", httpUrl, e);
-        }
-
-        log.error("No data returned from server: " + httpUrl);
-        return Collections.emptySet();
+       Objects.requireNonNull(config, "client config has not been set for node data");
+        return httpCommunicator.services();
     }
 }

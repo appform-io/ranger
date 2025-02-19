@@ -1,8 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.1-RC2]
+## [1.1-RC5]
+Server to server replication implemented
 
+## [1.1-RC4]
+- Remove WaitStrategy in the Retryer used to check if ServiceRegistry is refreshed during ServiceRegistryUpdater startup
+
+## [1.1-RC3]
+- Execute updateRegistry operation in async inside  ServiceFinderHub so that main thread reaches till waitTillHubIsReady instead of waiting for lock release and hubStartTimeoutMs is honoured as expected
+- Setting the read timeout and write timeout in OkHttpClient same as operation timeout given in HttpClientConfig
+- Added waitStrategy in waitTillServiceIsReady in ServiceFinderHub to save come cpu cycles in Retryer
+
+## [1.1-RC2]
+- Add feature to exclude services from service data source
+- Create one single `RangerHealthCheck` for all curatorFrameworks when giving multiple zookeeper connection strings
+- Update `lastUpdatedTimeStamp` for service nodes in service registry for zk / http communication failures from any kind of node data source - zk/http/drove
 - Pertaining to PR : https://github.com/appform-io/ranger/pull/22/, building of a ServiceFinderHub and a ServiceFinder are bounded.
 
 ## [1.0-RC18]

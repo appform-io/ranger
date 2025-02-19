@@ -17,8 +17,8 @@ package io.appform.ranger.core.finderhub;
 
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Supplier;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.Service;
@@ -27,6 +27,7 @@ import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import io.appform.ranger.core.util.Exceptions;
+import io.appform.ranger.core.util.FinderUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -34,11 +35,13 @@ import lombok.val;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -51,8 +54,8 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             new AtomicReference<>(new ConcurrentHashMap<>());
     private final Lock updateLock = new ReentrantLock();
     private final Condition updateCond = updateLock.newCondition();
-    private boolean updateAvailable = false;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final AtomicBoolean updateAvailable = new AtomicBoolean(false);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal
@@ -68,32 +71,39 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final ServiceFinderFactory<T, R> finderFactory;
 
     private final AtomicBoolean alreadyUpdating = new AtomicBoolean(false);
+    private final AtomicInteger poolThreadIndex = new AtomicInteger(0);
     private Future<?> monitorFuture = null;
 
-    private final long serviceRefreshDurationMs;
-    private final long hubRefreshDurationMs;
+    private final long serviceRefreshTimeoutMs;
+    private final long hubStartTimeoutMs;
+
+    private final Set<String> excludedServices;
+
+    private final ForkJoinPool refresherPool;
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
-            ServiceFinderFactory<T, R> finderFactory
-                           ) {
+            ServiceFinderFactory<T, R> finderFactory) {
         this(serviceDataSource, finderFactory,
-             HubConstants.SERVICE_REFRESH_DURATION_MS, HubConstants.HUB_REFRESH_DURATION_MS);
+             HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
 
     public ServiceFinderHub(
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory,
-            long serviceRefreshDurationMs,
-            long hubRefreshDurationMs) {
+            long serviceRefreshTimeoutMs,
+            long hubStartTimeoutMs,
+            final Set<String> excludedServices) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
-        this.serviceRefreshDurationMs = serviceRefreshDurationMs;
-        this.hubRefreshDurationMs = hubRefreshDurationMs;
+        this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
+        this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
                                                       () -> null,
                                                       Collections.emptyList(),
-                                                      10_000));
+                                      10_000));
+        this.refresherPool = createRefresherPool();
+        this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
     }
 
     public Optional<ServiceFinder<T, R>> finder(final Service service) {
@@ -150,7 +160,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     public void updateAvailable() {
         try {
             updateLock.lock();
-            updateAvailable = true;
+            updateAvailable.set(true);
             updateCond.signalAll();
         }
         finally {
@@ -158,14 +168,26 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         }
     }
 
+    private  ForkJoinPool createRefresherPool() {
+        return new ForkJoinPool(
+                Math.max(20, Runtime.getRuntime().availableProcessors()),
+                pool -> {
+                    val thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                    thread.setName("hub-refresher-" + poolThreadIndex.getAndIncrement());
+                    return thread;
+                },
+                null,
+                false);
+    }
+
     private void monitor() {
         while (true) {
             try {
                 updateLock.lock();
-                while (!updateAvailable) {
+                while (!updateAvailable.get()) {
                     updateCond.await();
                 }
-                updateRegistry();
+                executorService.submit(this::updateRegistry);
             }
             catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
@@ -173,7 +195,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 break;
             }
             finally {
-                updateAvailable = false;
+                updateAvailable.set(false);
                 updateLock.unlock();
             }
         }
@@ -185,17 +207,18 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             return;
         }
         alreadyUpdating.set(true);
-        final Map<Service, ServiceFinder<T, R>> updatedFinders = new HashMap<>();
+        val updatedFinders = new ConcurrentHashMap<Service, ServiceFinder<T, R>>();
         try {
-            val services = serviceDataSource.services();
+            val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
             if (services.isEmpty()) {
                 log.debug("No services found for the service data source. Skipping update on the registry");
                 return;
             }
             val knownServiceFinders = finders.get();
-            val newFinders = services.stream()
-                    .filter(service -> !knownServiceFinders.containsKey(service))
-                    .collect(Collectors.toMap(Function.identity(), finderFactory::buildFinder));
+            val newFinders = refresherPool.submit(() -> services.parallelStream()
+                            .filter(service -> !knownServiceFinders.containsKey(service))
+                            .collect(Collectors.toMap(Function.identity(), finderFactory::buildFinder)))
+                    .get();
             val matchingServices = knownServiceFinders.entrySet()
                     .stream()
                     .filter(entry -> services.contains(entry.getKey()))
@@ -208,6 +231,10 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             updatedFinders.putAll(matchingServices);
             finders.set(updatedFinders);
         }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Refresh interrupted.");
+        }
         catch (Exception e) {
             log.error("Error updating service list. Will maintain older list", e);
         }
@@ -217,29 +244,33 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     }
 
     private void waitTillHubIsReady() {
+        val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
+        val timeToRefresh = Math.max(hubStartTimeoutMs,
+                                     (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
+        if (timeToRefresh != hubStartTimeoutMs) {
+            log.warn("Max hub refresh time has been dynamically adjusted to {} ms from the provided {} ms as the " +
+                             "provided time would have been insufficient to refresh {} services.",
+                    timeToRefresh, hubStartTimeoutMs, services.size());
+        }
         val hubRefresher = CompletableFuture.allOf(
-                serviceDataSource.services()
-                        .stream()
+                services.stream()
                         .map(service -> CompletableFuture.supplyAsync((Supplier<Void>) () -> {
                             waitTillServiceIsReady(service);
                             return null;
-                        })).toArray(CompletableFuture[]::new)
-                                                  );
+                        })).toArray(CompletableFuture[]::new));
         try {
-            hubRefresher.get(hubRefreshDurationMs, TimeUnit.MILLISECONDS);
+            hubRefresher.get(timeToRefresh, TimeUnit.MILLISECONDS);
         }
         catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Refresh interrupted");
         }
         catch (TimeoutException e) {
-            Exceptions
-                    .illegalState("Couldn't perform service hub refresh at this time. " +
+            Exceptions.illegalState("Couldn't perform service hub refresh at this time. " +
                                           "Refresh exceeded the start up time specified");
         }
         catch (Exception e) {
-            Exceptions
-                    .illegalState("Couldn't perform hub refresh at this time", e);
+            Exceptions.illegalState("Couldn't perform hub refresh at this time", e);
         }
     }
 
@@ -247,7 +278,8 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         try {
             RetryerBuilder.<Boolean>newBuilder()
                     .retryIfResult(r -> !r)
-                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshDurationMs, TimeUnit.MILLISECONDS))
+                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshTimeoutMs, TimeUnit.MILLISECONDS))
+                    .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
                     .build()
                     .call(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)
@@ -259,4 +291,5 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
         }
     }
+
 }

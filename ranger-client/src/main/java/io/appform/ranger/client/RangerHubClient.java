@@ -58,4 +58,8 @@ public interface RangerHubClient<T, R extends ServiceRegistry<T>> {
             final Service service,
             final Predicate<T> criteria,
             final ShardSelector<T, R> shardSelector);
+
+    default boolean isReplicationSource() {
+        return false;
+    }
 }

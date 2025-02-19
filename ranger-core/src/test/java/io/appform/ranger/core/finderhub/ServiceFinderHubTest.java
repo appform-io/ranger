@@ -26,8 +26,6 @@ import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
-import java.util.Optional;
-
 import io.appform.ranger.core.utils.RangerTestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +34,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 class ServiceFinderHubTest {
 
@@ -67,6 +67,25 @@ class ServiceFinderHubTest {
     }
 
     @Test
+    void testTimeoutOnHubStartup() {
+        var testServiceFinderHub = new TestServiceFinderHubBuilder()
+                .withServiceDataSource(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))))
+                .withServiceFinderFactory(new TestServiceFinderFactory())
+                .withRefreshFrequencyMs(5_000)
+                .withHubStartTimeout(1_000)
+                .withServiceRefreshTimeout(10_000)
+                .build();
+
+        try {
+            Exception exception = Assertions.assertThrows(IllegalStateException.class, testServiceFinderHub::start);
+            Assertions.assertTrue(exception.getMessage()
+                    .contains("Couldn't perform service hub refresh at this time. Refresh exceeded the start up time specified"));
+        } finally {
+            testServiceFinderHub.stop();
+        }
+    }
+
+    @Test
     void testDelayedServiceAddition() {
         val delayedHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
@@ -74,8 +93,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(5)
-                        .build(), 1_000, 5_000
-        );
+                        .build(), 1_000, 5_000, Set.of());
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
         val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
@@ -83,8 +101,7 @@ class ServiceFinderHubTest {
                         .withServiceName(service.getServiceName())
                         .withDeserializer(new Deserializer<TestNodeData>() {})
                         .withSleepDuration(1)
-                        .build(), 2_000, 5_000
-        );
+                        .build(), 5_000, 5_000, Set.of());
         serviceFinderHub.start();
         Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
     }
@@ -107,6 +124,34 @@ class ServiceFinderHubTest {
         }
     }
 
+    public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+
+        @Override
+        public ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> buildFinder(Service service) {
+            val finder = new TestServiceFinderBuilder()
+                    .withNamespace(service.getNamespace())
+                    .withServiceName(service.getServiceName())
+                    .withDeserializer(new Deserializer<TestNodeData>() {})
+                    .withSleepDuration(60)
+                    .build();
+
+            finder.start();
+            return finder;
+        }
+    }
+
+private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+
+    @Override
+    protected void preBuild() {
+
+    }
+
+    @Override
+    protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
+
+    }
+}
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
 
         private int finderSleepDurationSeconds = 0;
@@ -141,7 +186,7 @@ class ServiceFinderHubTest {
             @Override
             public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, 10L, "HTTP"));
+                list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, Long.MAX_VALUE, "HTTP"));
                 return Optional.of(list);
             }
 

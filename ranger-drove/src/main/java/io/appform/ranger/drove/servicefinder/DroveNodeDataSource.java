@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.util.FinderUtils;
 import io.appform.ranger.drove.common.DroveCommunicationException;
 import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
@@ -58,20 +57,17 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
             val exposedAppInfos = droveClient.listNodes(service);
             val nodes = deserializer.deserialize(
                     Objects.requireNonNull(exposedAppInfos, "Unexpected empty response from server"));
-            return Optional.of(FinderUtils.filterValidNodes(
-                    service,
-                    nodes,
-                    healthcheckZombieCheckThresholdTime(service)));
+            return Optional.of(nodes);
         }
         catch (DroveCommunicationException e) {
             log.error("Drove communication error", e);
             return Optional.empty(); //In case of refresh failure, maintain old list
         }
-
     }
 
     @Override
     public boolean isActive() {
-        return droveClient.leader().isPresent();
+        return droveClient.healthy();
     }
+
 }
