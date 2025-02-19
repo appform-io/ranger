@@ -49,7 +49,7 @@ public class IdGenerator {
             int node, List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize(node);
-        if (null != globalConstraints) {
+        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
         if (null != domainSpecificConstraints) {
