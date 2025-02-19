@@ -91,8 +91,9 @@ public class IdGenerator {
         return baseGenerator.generate(prefix);
     }
 
-    public static Id generate(final String prefix,
-                              final IdFormatter idFormatter) {
+    public static Id generate(
+            final String prefix,
+            final IdFormatter idFormatter) {
         return baseGenerator.generate(prefix, idFormatter);
     }
 

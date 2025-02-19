@@ -16,7 +16,6 @@ import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.time.DateTime;
 
@@ -32,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Base Id Generator
  */
-@SuppressWarnings("unused")
-@Slf4j
 public class IdGeneratorBase {
 
     @Getter

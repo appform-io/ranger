@@ -4,10 +4,8 @@ import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
-import lombok.Getter;
 import lombok.val;
 
-@Getter
 public abstract class NonceGenerator {
 
     protected NonceGenerator() {
