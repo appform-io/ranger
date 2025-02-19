@@ -27,16 +27,15 @@ import lombok.val;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -45,6 +44,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 class IdGeneratorTest {
+    private final int nodeId = 23;
 
     @Getter
     private static final class Runner implements Callable<Long> {
@@ -82,6 +82,11 @@ class IdGeneratorTest {
         }
     }
 
+    @BeforeEach
+    void setup() {
+        IdGenerator.initialize(nodeId);
+    }
+
     @AfterEach
     void cleanup() {
         IdGenerator.cleanUp();
@@ -89,7 +94,6 @@ class IdGeneratorTest {
 
     @Test
     void testGenerate() {
-        IdGenerator.initialize(23);
         val numRunners = 20;
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
@@ -107,21 +111,19 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        IdGenerator.initialize(23);
         String id = IdGenerator.generate("TEST", IdFormatters.original()).getId();
         Assertions.assertEquals(26, id.length());
     }
 
     @Test
     void testGenerateBase36() {
-        IdGenerator.initialize(23);
         String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
         Assertions.assertEquals(18, id.length());
     }
 
     @Test
     void testGenerateWithConstraints() {
-        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.emptyList()));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
 
         Assertions.assertTrue(id.isPresent());
@@ -135,14 +137,16 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraintsFailedWithLocalConstraint() {
-        IdGenerator.initialize(23, Collections.emptyList(), Map.of("TEST", Collections.singletonList(id -> false)));
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
         Assertions.assertFalse(id.isPresent());
     }
 
     @Test
     void testGenerateWithConstraintsFailedWithGlobalConstraint() {
-        IdGenerator.initialize(23,  Collections.singletonList(id -> false), Map.of("TEST", Collections.singletonList(id -> false)));
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST", false);
         Assertions.assertFalse(id.isPresent());
     }
@@ -150,7 +154,6 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraintsNoConstraint() {
-        IdGenerator.initialize(23);
         int numRunners = 20;
 
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
@@ -170,11 +173,18 @@ class IdGeneratorTest {
 
     @Test
     void testConstraintFailure() {
-        IdGenerator.initialize(23);
         Assertions.assertFalse(IdGenerator.generateWithConstraints(
                 "TST",
                 ImmutableList.of(id -> false),
                 false).isPresent());
+    }
+
+    @Test
+    void testNodeId() {
+        val generatedId = IdGenerator.generate("TEST123");
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(parsedId.getNode(), nodeId);
     }
 
     @Test
