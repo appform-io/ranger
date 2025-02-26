@@ -1,7 +1,6 @@
 package io.appform.ranger.discovery.bundle.id.generator;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
@@ -9,15 +8,17 @@ import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdUtils;
+import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorBase;
+import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,25 +32,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Base Id Generator
  */
-@SuppressWarnings("unused")
-@Slf4j
 public class IdGeneratorBase {
 
     @Getter
-    private static int NODE_ID;
+    private int nodeId;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final FailsafeExecutor<GenerationResult> retryer;
 
     protected final IdFormatter idFormatter;
-    protected final NonceGeneratorBase nonceGenerator;
+    protected final NonceGenerator nonceGenerator;
 
-    public static void initialize(int node) {
-        NODE_ID = node;
-    }
-
-    public IdGeneratorBase(final IdFormatter idFormatter,
-                           final NonceGeneratorBase nonceGenerator) {
+    protected IdGeneratorBase(final IdFormatter idFormatter,
+                              final NonceGenerator nonceGenerator) {
         this.idFormatter = idFormatter;
         this.nonceGenerator = nonceGenerator;
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
@@ -65,25 +60,16 @@ public class IdGeneratorBase {
     public final synchronized void cleanUp() {
         globalConstraints.clear();
         registeredDomains.clear();
+        nodeId = 0;
     }
 
     public final void registerDomain(final Domain domain) {
         registeredDomains.put(domain.getDomain(), domain);
     }
 
-    public final synchronized void registerGlobalConstraints(final IdValidationConstraint... constraints) {
-        registerGlobalConstraints(ImmutableList.copyOf(constraints));
-    }
-
     public final synchronized void registerGlobalConstraints(final List<IdValidationConstraint> constraints) {
         Preconditions.checkArgument(null != constraints && !constraints.isEmpty());
         globalConstraints.addAll(constraints);
-    }
-
-    public final synchronized void registerDomainSpecificConstraints(
-            final String domain,
-            final IdValidationConstraint... validationConstraints) {
-        registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
     }
 
     public final synchronized void registerDomainSpecificConstraints(
@@ -96,6 +82,21 @@ public class IdGeneratorBase {
                 .idFormatter(IdFormatters.original())
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
+    }
+
+    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
+        val dateTime = new DateTime(nonceInfo.getTime());
+        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
+        return Id.builder()
+                .id(id)
+                .exponent(nonceInfo.getExponent())
+                .generatedDate(dateTime.toDate())
+                .node(getNodeId())
+                .build();
+    }
+
+    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace) {
+        return getIdFromIdInfo(nonceInfo, namespace, idFormatter);
     }
 
     public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
@@ -139,7 +140,7 @@ public class IdGeneratorBase {
         return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
-//    Should we support this?
+
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
         return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
@@ -150,7 +151,7 @@ public class IdGeneratorBase {
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take its toll on id generation rates.
      *
-     * @param namespace     String namespace
+     * @param namespace  String namespace
      * @param domain     Domain for constraint selection
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return ID if it could be generated
@@ -167,31 +168,30 @@ public class IdGeneratorBase {
         return generateWithConstraints(request);
     }
 
-    public final Optional<Id> generateWithConstraints(final String namespace,
-                                                      final List<IdValidationConstraint> inConstraints,
-                                                      final boolean skipGlobal) {
-        val request = IdGenerationRequest.builder()
-                .prefix(namespace)
-                .constraints(inConstraints)
-                .skipGlobal(skipGlobal)
-                .idFormatter(nonceGenerator.getIdFormatter())
-                .build();
-        return generateWithConstraints(request);
-    }
-
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
+        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val idGenerationInput = IdGenerationInput.builder()
+                .prefix(request.getPrefix())
+                .domain(domain)
+                .build();
         return Optional.ofNullable(retryer.get(
                         () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(request);
-                            val id = IdUtils.getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
+                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
+                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
-                                    request.getDomainInstance(),
+                                    domain,
                                     request.getPrefix());
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> IdUtils.getIdFromIdInfo(generationResult.getIdInfo(), request.getPrefix(), request.getIdFormatter()));
+                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
     }
 
+    public final void setNodeId(int nodeId) {
+        if (this.nodeId > 0) {
+            throw new RuntimeException("Node ID already set");
+        }
+        this.nodeId = nodeId;
+    }
 }

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.drove.common;
+package io.appform.ranger.zookeeper.servicefinder;
 
 import io.appform.ranger.core.exceptions.CommunicationException;
 
 /**
- * Thrown in case there is an issue communicating with the drove upstream.
+ * Thrown in case there is an issue communicating with the Zookeeper upstream.
+
  */
-public class DroveCommunicationException extends CommunicationException {
-    public DroveCommunicationException(final String message) {
+public class ZkCommunicationException extends CommunicationException {
+    public ZkCommunicationException(final String message) {
         super(message);
     }
 }

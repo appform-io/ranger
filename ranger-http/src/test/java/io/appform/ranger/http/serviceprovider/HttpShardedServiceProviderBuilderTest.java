@@ -61,7 +61,7 @@ class HttpShardedServiceProviderBuilderTest {
                         )
                         .build());
         byte[] requestBytes = MAPPER.writeValueAsBytes(testNode);
-        stubFor(post(urlEqualTo("/ranger/nodes/v1/add/testns/test"))
+        stubFor(post(urlPathEqualTo("/ranger/nodes/v1/add/testns/test"))
                 .withRequestBody(binaryEqualTo(requestBytes))
                 .willReturn(aResponse()
                         .withBody(response)

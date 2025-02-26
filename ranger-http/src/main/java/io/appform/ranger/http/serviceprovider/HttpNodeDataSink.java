@@ -26,10 +26,10 @@ import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceRegistrationResponse;
 import io.appform.ranger.http.serde.HttpRequestDataSerializer;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -40,10 +40,12 @@ import java.util.Optional;
 public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSink<T, S> {
 
     private final Service service;
+    private final ObjectMapper mapper;
 
-    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper, OkHttpClient httpClient) {
-        super(config, mapper, httpClient);
+    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper, HttpCommunicator<T> httpClient) {
+        super(config, httpClient);
         this.service = service;
+        this.mapper = mapper;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
                 .url(httpUrl)
                 .post(requestBody)
                 .build();
-        try (val response = httpClient.newCall(request).execute()) {
+        try (val response = httpCommunicator.getHttpClient().newCall(request).execute()) {
             if (response.isSuccessful()) {
                 try (val body = response.body()) {
                     if (null == body) {

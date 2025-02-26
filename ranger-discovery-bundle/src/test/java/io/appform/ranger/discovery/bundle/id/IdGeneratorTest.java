@@ -33,11 +33,9 @@ import org.junit.jupiter.api.Test;
 import java.time.*;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -125,7 +123,7 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraints() {
-        IdGenerator.initialize(nodeId, Collections.emptyList(), Map.of("TEST", Collections.singletonList(id -> true)));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
 
         Assertions.assertTrue(id.isPresent());
@@ -139,14 +137,16 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraintsFailedWithLocalConstraint() {
-        IdGenerator.initialize(nodeId, Collections.emptyList(), Map.of("TEST", Collections.singletonList(id -> false)));
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
         Assertions.assertFalse(id.isPresent());
     }
 
     @Test
     void testGenerateWithConstraintsFailedWithGlobalConstraint() {
-        IdGenerator.initialize(nodeId,  Collections.singletonList(id -> false), Map.of("TEST", Collections.singletonList(id -> false)));
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST", false);
         Assertions.assertFalse(id.isPresent());
     }

@@ -15,11 +15,10 @@
  */
 package io.appform.ranger.http.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 
 /**
  *
@@ -28,16 +27,13 @@ import okhttp3.OkHttpClient;
 public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     protected final HttpClientConfig config;
-    protected final ObjectMapper mapper;
-    protected final OkHttpClient httpClient;
+    protected final HttpCommunicator<T> httpCommunicator;
 
     public HttpNodeDataStoreConnector(
             final HttpClientConfig config,
-            final ObjectMapper mapper,
-            final OkHttpClient httpClient) {
-        this.httpClient = httpClient;
+            final HttpCommunicator<T> httpCommunicator) {
+        this.httpCommunicator = httpCommunicator;
         this.config = config;
-        this.mapper = mapper;
     }
 
 

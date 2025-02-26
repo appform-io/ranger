@@ -29,7 +29,7 @@ class ShardedRangerHttpClientTest extends BaseRangerHttpClientTest {
         val httpClientConfig = getHttpClientConfig();
         val client = ShardedRangerHttpHubClient.<TestNodeData>builder()
                 .clientConfig(httpClientConfig)
-                .httpClient(RangerHttpUtils.httpClient(httpClientConfig))
+                .httpClient(RangerHttpUtils.httpClient(httpClientConfig, getObjectMapper()))
                 .namespace("test-n")
                 .deserializer(this::read)
                 .mapper(getObjectMapper())
