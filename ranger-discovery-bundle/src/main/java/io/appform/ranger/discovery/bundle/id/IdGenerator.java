@@ -38,7 +38,7 @@ public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
 
     public static void initialize(int node) {
-        baseGenerator.setNodeId(node);
+        baseGenerator.setNODE_ID(node);
     }
 
     public static synchronized void cleanUp() {
