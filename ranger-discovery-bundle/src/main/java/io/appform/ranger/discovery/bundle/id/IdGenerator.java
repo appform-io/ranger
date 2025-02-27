@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
@@ -45,12 +46,13 @@ public class IdGenerator {
     }
 
     public static synchronized void initialize(
-            int node, List<IdValidationConstraint> globalConstraints, Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
+            int node, List<IdValidationConstraint> globalConstraints,
+            Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize(node);
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
-        if(null != domainSpecificConstraints && !domainSpecificConstraints.isEmpty()) {
+        if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
     }
@@ -89,8 +91,9 @@ public class IdGenerator {
         return baseGenerator.generate(prefix);
     }
 
-    public static Id generate(final String prefix,
-                              final IdFormatter idFormatter) {
+    public static Id generate(
+            final String prefix,
+            final IdFormatter idFormatter) {
         return baseGenerator.generate(prefix, idFormatter);
     }
 
@@ -143,7 +146,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> parse(final String idString) {
-        return IdFormatters.parse(idString);
+        return IdParsers.parse(idString);
     }
 
     /**
@@ -178,14 +181,17 @@ public class IdGenerator {
      * @param domain     Domain
      * @return Id if it could be generated
      */
-    private static Optional<Id> generateWithConstraints(String prefix, final Domain domain, boolean skipGlobal) {
+    private static Optional<Id> generateWithConstraints(
+            String prefix,
+            final Domain domain,
+            boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
-                .prefix(prefix)
-                .constraints(domain.getConstraints())
-                .skipGlobal(skipGlobal)
-                .domain(domain.getDomain())
-                .idFormatter(domain.getIdFormatter())
-                .build());
+                                .prefix(prefix)
+                                .constraints(domain.getConstraints())
+                                .skipGlobal(skipGlobal)
+                                .domain(domain.getDomain())
+                                .idFormatter(domain.getIdFormatter())
+                                .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {

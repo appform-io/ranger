@@ -17,13 +17,12 @@ package io.appform.ranger.hub.server.bundle.lifecycle;
 
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.signals.Signal;
-import java.util.Collections;
-import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 
+import java.util.Collections;
+
 @Slf4j
-@Singleton
 public class CuratorLifecycle extends Signal<ShardInfo> {
 
   private final CuratorFramework curatorFramework;

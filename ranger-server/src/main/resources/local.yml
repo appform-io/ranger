@@ -1,0 +1,41 @@
+ranger:
+  namespace: mynamespace
+  upstreams:
+    - type: HTTP
+      nodeRefreshTimeMs: 5000
+      serviceRefreshTimeoutMs: 300000
+      hubStartTimeoutMs: 210000
+      httpClientConfigs:
+        - host: localhost
+          port: 80
+    - type: ZK
+      nodeRefreshTimeMs: 5000
+      serviceRefreshTimeoutMs: 3000
+      hubStartTimeoutMs: 5000
+      zookeepers: [ "localhost:2181" ]
+      disablePushUpdaters: true
+
+
+server:
+  maxThreads: 1024
+  minThreads: 1024
+  applicationConnectors:
+    - type: http
+      port: 18080
+  adminConnectors:
+    - type: http
+      port: 18081
+  applicationContextPath: /
+  requestLog:
+    appenders:
+      - type: console
+        timeZone: IST
+
+logging:
+  level: INFO
+
+  appenders:
+    - type: console
+      threshold: INFO
+      timeZone: IST
+      logFormat: "%(%-5level) [%date] [%thread] [%logger{0}]: %message%n"

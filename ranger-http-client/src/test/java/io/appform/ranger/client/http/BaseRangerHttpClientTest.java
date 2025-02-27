@@ -61,7 +61,7 @@ public abstract class BaseRangerHttpClientTest {
                 ServiceNodesResponse.<TestNodeData>builder()
                         .data(Lists.newArrayList(node))
                         .build());
-        wireMockExtension.stubFor(get(urlEqualTo("/ranger/nodes/v1/test-n/test-s"))
+        wireMockExtension.stubFor(get(urlPathEqualTo("/ranger/nodes/v1/test-n/test-s"))
                 .willReturn(aResponse()
                         .withBody(payload)
                         .withStatus(200)));
@@ -72,7 +72,7 @@ public abstract class BaseRangerHttpClientTest {
                 ))
                 .build();
         val response = objectMapper.writeValueAsBytes(responseObj);
-        wireMockExtension.stubFor(get(urlEqualTo("/ranger/services/v1"))
+        wireMockExtension.stubFor(get(urlPathEqualTo("/ranger/services/v1"))
                 .willReturn(aResponse()
                         .withBody(response)
                         .withStatus(200)));

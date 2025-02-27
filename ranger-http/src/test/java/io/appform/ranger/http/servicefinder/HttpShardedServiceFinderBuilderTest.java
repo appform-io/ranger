@@ -62,7 +62,7 @@ class HttpShardedServiceFinderBuilderTest {
                 ServiceNodesResponse.<NodeData>builder()
                         .data(Collections.singletonList(node))
                         .build());
-        stubFor(get(urlEqualTo("/ranger/nodes/v1/testns/test"))
+        stubFor(get(urlPathEqualTo("/ranger/nodes/v1/testns/test"))
                                .willReturn(aResponse()
                                                    .withBody(payload)
                                                    .withStatus(200)));

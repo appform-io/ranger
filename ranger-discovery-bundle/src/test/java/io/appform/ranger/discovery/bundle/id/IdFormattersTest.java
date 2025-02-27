@@ -1,6 +1,7 @@
 package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +16,7 @@ public class IdFormattersTest {
     @Test
     void testDefaultId() throws ParseException {
         val id = "T2407101232336168748798";
-        val parsedId = IdFormatters.parse(id).orElse(null);
+        val parsedId = IdParsers.parse(id).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(id, parsedId.getId());
         Assertions.assertEquals(798, parsedId.getExponent());

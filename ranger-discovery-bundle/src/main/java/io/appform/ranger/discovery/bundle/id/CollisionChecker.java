@@ -16,13 +16,12 @@
 
 package io.appform.ranger.discovery.bundle.id;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.BitSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Checks collisions between ids in given period
@@ -30,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class CollisionChecker {
     private final BitSet bitSet = new BitSet(1000);
-    private long currentInstant = 0;
+    private long lastResolvedTime = 0;
 
     private final Lock dataLock = new ReentrantLock();
 
@@ -44,22 +43,26 @@ public class CollisionChecker {
         this.resolution = resolution;
     }
 
-    public boolean check(long timeInMillis, int location) {
+    public boolean check(long curTimeMs,
+                         int location) {
         dataLock.lock();
         try {
-            long resolvedTime = resolution.convert(timeInMillis, TimeUnit.MILLISECONDS);;
-            if (currentInstant != resolvedTime) {
-                currentInstant = resolvedTime;
+            long currentTime = resolution.convert(curTimeMs, TimeUnit.MILLISECONDS);
+            if (currentTime < lastResolvedTime) {
+                log.error("Clock has moved backwards. Rejecting requests until current time {} reaches {}", currentTime,
+                        lastResolvedTime);
+                return false;
+            }
+            if (lastResolvedTime != currentTime) {
+                lastResolvedTime = currentTime;
                 bitSet.clear();
             }
-
             if (bitSet.get(location)) {
                 return false;
             }
             bitSet.set(location);
             return true;
-        }
-        finally {
+        } finally {
             dataLock.unlock();
         }
     }
@@ -67,7 +70,7 @@ public class CollisionChecker {
     public void free(long time, int location) {
         dataLock.lock();
         try {
-            if (currentInstant != time) {
+            if (lastResolvedTime != time) {
                 return;
             }
             bitSet.clear(location);

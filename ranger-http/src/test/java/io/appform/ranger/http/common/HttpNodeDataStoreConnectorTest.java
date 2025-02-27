@@ -31,8 +31,8 @@ class HttpNodeDataStoreConnectorTest {
                 .host("localhost-1")
                 .port(80)
                 .build();
-        val httpNodeDataStoreConnector = new HttpNodeDataStoreConnector<>(httpClientConfig, objectMapper,
-                                                                          RangerHttpUtils.httpClient(httpClientConfig));
+        val httpNodeDataStoreConnector = new HttpNodeDataStoreConnector<>(httpClientConfig,
+                                                                          RangerHttpUtils.httpClient(httpClientConfig, objectMapper));
         Assertions.assertNotNull(httpNodeDataStoreConnector);
         Assertions.assertTrue(httpNodeDataStoreConnector.isActive());
     }

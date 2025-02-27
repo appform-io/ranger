@@ -22,6 +22,7 @@ public class RandomNonceGenerator extends NonceGenerator {
         return random(Domain.DEFAULT.getCollisionChecker());
     }
 
+    @Override
     public NonceInfo generateWithConstraints(final IdGenerationInput request) {
         val domain = request.getDomain() != null ? request.getDomain() : Domain.DEFAULT;
         return random(domain.getCollisionChecker());
@@ -40,12 +41,12 @@ public class RandomNonceGenerator extends NonceGenerator {
 
     private NonceInfo random(final CollisionChecker collisionChecker) {
         int randomGen;
-        long time;
+        long curTimeMs;
         do {
-            time = System.currentTimeMillis();
+            curTimeMs = System.currentTimeMillis();
             randomGen = secureRandom.nextInt(Constants.MAX_ID_PER_MS);
-        } while (!collisionChecker.check(time, randomGen));
-        return new NonceInfo(randomGen, time);
+        } while (!collisionChecker.check(curTimeMs, randomGen));
+        return new NonceInfo(randomGen, curTimeMs);
     }
 
 }

@@ -25,11 +25,11 @@ import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.HttpServiceFinderBuilders;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
+import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 
 @Slf4j
 @SuperBuilder
@@ -40,7 +40,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
     private final ObjectMapper mapper;
     private final int nodeRefreshIntervalMs;
     private final HttpClientConfig clientConfig;
-    private final OkHttpClient httpClient;
+    private final HttpCommunicator<T> httpClient;
     private final HTTPResponseDataDeserializer<T> deserializer;
     @Builder.Default
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();

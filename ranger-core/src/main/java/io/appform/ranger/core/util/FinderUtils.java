@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +32,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @UtilityClass
 public class FinderUtils {
+
+    public static Set<Service> getEligibleServices(final Collection<Service> services,
+                                                   final Set<String> excludedServices) {
+        return services.stream()
+                .filter(service -> !excludedServices.contains(service.getServiceName()))
+                .collect(Collectors.toSet());
+    }
+
 
     public static<T> List<ServiceNode<T>> filterValidNodes(
             final Service service,
