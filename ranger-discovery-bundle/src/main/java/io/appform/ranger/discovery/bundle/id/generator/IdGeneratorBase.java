@@ -7,7 +7,6 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdUtils;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class IdGeneratorBase {
 
     @Getter
-    private int nodeId;
+    private static int NODE_ID;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final FailsafeExecutor<GenerationResult> retryer;
@@ -60,7 +59,7 @@ public class IdGeneratorBase {
     public final synchronized void cleanUp() {
         globalConstraints.clear();
         registeredDomains.clear();
-        nodeId = 0;
+        NODE_ID = 0;
     }
 
     public final void registerDomain(final Domain domain) {
@@ -84,19 +83,19 @@ public class IdGeneratorBase {
                 .build());
     }
 
-    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
+    public final Id getIdFromNonceInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
         val dateTime = new DateTime(nonceInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
+        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNODE_ID(), nonceInfo.getExponent()));
         return Id.builder()
                 .id(id)
                 .exponent(nonceInfo.getExponent())
                 .generatedDate(dateTime.toDate())
-                .node(getNodeId())
+                .node(getNODE_ID())
                 .build();
     }
 
-    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace) {
-        return getIdFromIdInfo(nonceInfo, namespace, idFormatter);
+    public final Id getIdFromNonceInfo(final NonceInfo nonceInfo, final String namespace) {
+        return getIdFromNonceInfo(nonceInfo, namespace, idFormatter);
     }
 
     public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
@@ -137,13 +136,13 @@ public class IdGeneratorBase {
      */
     public final Id generate(final String namespace) {
         val idInfo = nonceGenerator.generate(namespace);
-        return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
+        return this.getIdFromNonceInfo(idInfo, namespace, idFormatter);
     }
 
 
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
-        return IdUtils.getIdFromIdInfo(idInfo, namespace, idFormatter);
+        return this.getIdFromNonceInfo(idInfo, namespace, idFormatter);
     }
 
     /**
@@ -177,7 +176,7 @@ public class IdGeneratorBase {
         return Optional.ofNullable(retryer.get(
                         () -> {
                             val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
+                            val id = getIdFromNonceInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
@@ -185,13 +184,13 @@ public class IdGeneratorBase {
                                     request.getPrefix());
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
+                .map(generationResult -> this.getIdFromNonceInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
     }
 
-    public final void setNodeId(int nodeId) {
-        if (this.nodeId > 0) {
+    public final void setNODE_ID(int nodeId) {
+        if (NODE_ID > 0) {
             throw new RuntimeException("Node ID already set");
         }
-        this.nodeId = nodeId;
+        NODE_ID = nodeId;
     }
 }

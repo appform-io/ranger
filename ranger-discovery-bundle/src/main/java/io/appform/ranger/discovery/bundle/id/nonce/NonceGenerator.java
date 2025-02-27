@@ -3,13 +3,21 @@ package io.appform.ranger.discovery.bundle.id.nonce;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
+import lombok.Getter;
 import lombok.val;
 
+@Getter
 public abstract class NonceGenerator {
+    private IdFormatter idFormatter;
 
     protected NonceGenerator() {
 
+    }
+
+    protected NonceGenerator(final IdFormatter idFormatter1) {
+        this.idFormatter = idFormatter1;
     }
 
     public int readRetryCount() {
@@ -30,7 +38,7 @@ public abstract class NonceGenerator {
      * Generate id with given namespace
      *
      * @param namespace String namespace for ID to be generated
-     * @return Generated IdInfo
+     * @return Generated NonceInfo
      */
     public abstract NonceInfo generate(final String namespace);
 

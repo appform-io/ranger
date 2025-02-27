@@ -29,7 +29,7 @@ public class RandomNonceGenerator extends NonceGenerator {
     }
 
     @Override
-    public IdInfo generateForPartition(String namespace, int targetPartitionId) {
+    public NonceInfo generateForPartition(String namespace, int targetPartitionId) {
         throw new UnsupportedOperationException();
     }
 

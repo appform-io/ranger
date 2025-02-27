@@ -3,7 +3,7 @@ package io.appform.ranger.discovery.bundle.id.nonce;
 import com.codahale.metrics.MetricRegistry;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.IdInfo;
+import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdUtils;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.PartitionIdTracker;
@@ -11,11 +11,12 @@ import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.config.NamespaceConfig;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
@@ -28,7 +29,8 @@ import java.util.function.Function;
 @SuppressWarnings("unused")
 @Slf4j
 @Getter
-public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
+public class PartitionAwareNonceGenerator extends NonceGenerator {
+    private final SecureRandom secureRandom = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
     private final Map<String, PartitionIdTracker[]> idStore = new ConcurrentHashMap<>();
     private final Function<String, Integer> partitionResolver;
     private final IdGeneratorConfig idGeneratorConfig;
@@ -75,12 +77,12 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
     }
 
     @Override
-    public IdInfo generate(final String namespace) {
+    public NonceInfo generate(final String namespace) {
         val targetPartitionId = getTargetPartitionId();
         return generateForPartition(namespace, targetPartitionId);
     }
 
-    public IdInfo generateForPartition(final String namespace, final int targetPartitionId) {
+    public NonceInfo generateForPartition(final String namespace, final int targetPartitionId) {
         val instant = clock.instant();
         val prefixIdMap = idStore.computeIfAbsent(namespace, k -> getAndInitPartitionIdTrackers(namespace, instant));
         val partitionTracker = getPartitionTracker(prefixIdMap, instant);
@@ -88,11 +90,11 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
                 partitionTracker,
                 namespace,
                 targetPartitionId);
-        return new IdInfo(idCounter, partitionTracker.getInstant().getEpochSecond() * 1000L);
+        return new NonceInfo(idCounter, partitionTracker.getInstant().getEpochSecond() * 1000L);
     }
 
     @Override
-    public IdInfo generateWithConstraints(final IdGenerationRequest request) {
+    public NonceInfo generateWithConstraints(final IdGenerationInput request) {
         val instant = clock.instant();
         val prefixIdMap = idStore.computeIfAbsent(request.getPrefix(), k -> getAndInitPartitionIdTrackers(request.getPrefix(), clock.instant()));
         val partitionIdTracker = getPartitionTracker(prefixIdMap, instant);
@@ -107,10 +109,8 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
             val instant = clock.instant();
             val prefixIdMap = idStore.computeIfAbsent(result.getNamespace(), k -> getAndInitPartitionIdTrackers(result.getNamespace(), clock.instant()));
             val partitionIdTracker = getPartitionTracker(prefixIdMap, instant);
-            val id = IdUtils.getIdFromIdInfo(result.getIdInfo(), result.getNamespace(), getIdFormatter());
-            val idString = id.getId();
-            val mappedPartitionId = partitionResolver.apply(idString);
-            partitionIdTracker.addId(mappedPartitionId, result.getIdInfo());
+            val mappedPartitionId = resolvePartitionId(result.getNamespace(), result.getNonceInfo());
+            partitionIdTracker.addId(mappedPartitionId, result.getNonceInfo());
         }
     }
 
@@ -124,11 +124,9 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
         val idPool = partitionIdTracker.getPartition(targetPartitionId);
         Optional<Integer> idOptional = idPool.getNextId();
         while (idOptional.isEmpty()) {
-            val idInfo = partitionIdTracker.getIdInfo();
-            val id = IdUtils.getIdFromIdInfo(idInfo, namespace, getIdFormatter());
-            val idString = id.getId();
-            val mappedPartitionId = partitionResolver.apply(idString);
-            partitionIdTracker.addId(mappedPartitionId, idInfo);
+            val nonceInfo = partitionIdTracker.getNonceInfo();
+            val mappedPartitionId = resolvePartitionId(namespace, nonceInfo);
+            partitionIdTracker.addId(mappedPartitionId, nonceInfo);
             idOptional = idPool.getNextId();
         }
         return idOptional.get();
@@ -164,6 +162,12 @@ public class PartitionAwareNonceGenerator extends NonceGeneratorBase {
             partitionTracker.reset(instant);
         }
         return partitionTracker;
+    }
+
+    private int resolvePartitionId(final String namespace, final NonceInfo nonceInfo) {
+        val id = IdUtils.getIdFromNonceInfo(nonceInfo, namespace, getIdFormatter());
+        val idString = id.getId();
+        return partitionResolver.apply(idString);
     }
 
 }

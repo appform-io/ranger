@@ -15,6 +15,11 @@ public class SecondPrecisionIdFormatter implements IdFormatter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmss");
 
     @Override
+    public IdParserType getType() {
+        return IdParserType.SECOND_PRECISION;
+    }
+
+    @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {

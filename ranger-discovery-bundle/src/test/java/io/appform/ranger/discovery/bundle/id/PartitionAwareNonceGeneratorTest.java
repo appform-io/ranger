@@ -6,7 +6,6 @@ import io.appform.ranger.discovery.bundle.id.config.DefaultNamespaceConfig;
 import io.appform.ranger.discovery.bundle.id.config.IdGeneratorConfig;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorType;
 import io.appform.ranger.discovery.bundle.id.generator.DistributedIdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,6 @@ class PartitionAwareNonceGeneratorTest {
 
     @BeforeEach
     void setup() {
-        IdGeneratorBase.initialize(9999);
         nonceGeneratorType = NonceGeneratorType.PARTITION_AWARE;
         val meter = mock(Meter.class);
         doReturn(meter).when(metricRegistry).meter(anyString());
@@ -62,6 +60,7 @@ class PartitionAwareNonceGeneratorTest {
         distributedIdGenerator = new DistributedIdGenerator(
                 idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, metricRegistry, Clock.systemDefaultZone()
         );
+        distributedIdGenerator.setNODE_ID(9999);
     }
 
     @Test
@@ -86,12 +85,12 @@ class PartitionAwareNonceGeneratorTest {
         val allIdsList = Collections.synchronizedList(new ArrayList<Id>());
         IdValidationConstraint partitionConstraint = (k) -> k.getExponent() % 4 == 0;
         val iterationCount = 50000;
-        distributedIdGenerator.registerGlobalConstraints((k) -> k.getExponent() % 4 == 0);
+        distributedIdGenerator.registerGlobalConstraints(List.of((k) -> k.getExponent() % 4 == 0));
         TestUtil.runMTTest(
                 numThreads,
                 iterationCount,
                 (k) -> {
-                    val id = distributedIdGenerator.generateWithConstraints("P", List.of(), false);
+                    val id = distributedIdGenerator.generateWithConstraints("P", Domain.DEFAULT_DOMAIN_NAME, false);
                     id.ifPresent(allIdsList::add);
                 },
                 false,
@@ -258,9 +257,16 @@ class PartitionAwareNonceGeneratorTest {
 
     @Test
     void testConstraintFailure() {
+        val domainName = "ALL_INVALID";
+        distributedIdGenerator.registerDomain(
+                Domain.builder()
+                        .domain(domainName)
+                        .constraints(List.of(id -> false))
+                        .build()
+        );
         Assertions.assertFalse(distributedIdGenerator.generateWithConstraints(
                 "TST",
-                Collections.singletonList((id -> false)),
+                domainName,
                 true).isPresent());
     }
 

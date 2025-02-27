@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum IdParserType {
-    DEFAULT (0);
+    DEFAULT (0),
+    SECOND_PRECISION (10);
 
     private final int value;
 
