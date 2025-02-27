@@ -10,6 +10,7 @@ import io.appform.ranger.discovery.bundle.id.nonce.NonceGeneratorType;
 import io.appform.ranger.discovery.bundle.id.generator.DistributedIdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,11 @@ class PartitionAwareNonceGeneratorTest {
                 idGeneratorConfig, partitionResolverSupplier, nonceGeneratorType, metricRegistry, Clock.systemDefaultZone()
         );
         distributedIdGenerator.setNODE_ID(9999);
+    }
+
+    @AfterEach
+    void cleanup() {
+        distributedIdGenerator.cleanUp();
     }
 
     @Test
