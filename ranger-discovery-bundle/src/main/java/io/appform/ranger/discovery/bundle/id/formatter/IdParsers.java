@@ -20,14 +20,21 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
 
 @Slf4j
 @UtilityClass
 public class IdParsers {
     private static final int MINIMUM_ID_LENGTH = 22;
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{22})");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
+
+    private final Map<Integer, IdFormatter> parserRegistry = Map.of(
+            IdFormatters.original().getType().getValue(), IdFormatters.original(),
+            IdFormatters.suffix().getType().getValue(), IdFormatters.suffix()
+    );
 
     /**
      * Parse the given string to get ID
@@ -44,7 +51,18 @@ public class IdParsers {
             if (!matcher.find()) {
                 return Optional.empty();
             }
-            return IdFormatters.original().parse(idString);
+
+            val parserType = matcher.group(3);
+            if (parserType == null) {
+                return IdFormatters.original().parse(idString);
+            }
+
+            val parser = parserRegistry.get(Integer.parseInt(matcher.group(3)));
+            if (parser == null) {
+                log.warn("Could not parse idString {}, Invalid formatter type {}", idString, parserType);
+                return Optional.empty();
+            }
+            return parser.parse(idString);
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();
