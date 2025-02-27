@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public interface IdFormatter {
 
-    int getType();
+    IdParserType getType();
 
     String format(final DateTime dateTime,
                   final int nodeId,

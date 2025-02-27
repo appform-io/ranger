@@ -25,20 +25,19 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class SuffixIdFormatter implements IdFormatter {
-    private static final int TYPE = 10;
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{15})([0-9]{4})([0-9]{3})([0-9]{2})([0-9]*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
-    public int getType() {
-        return TYPE;
+    public IdParserType getType() {
+        return IdParserType.SUFFIX;
     }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
-        return String.format("%s%04d%03d%02d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, TYPE);
+        return String.format("%s%04d%03d%02d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, getType().getValue());
     }
 
     @Override

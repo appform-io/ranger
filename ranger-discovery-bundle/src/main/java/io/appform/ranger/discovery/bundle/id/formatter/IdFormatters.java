@@ -28,12 +28,12 @@ public class IdFormatters {
         return originalIdFormatter;
     }
 
-    public static IdFormatter suffix() {
-        return suffixIdFormatter;
-    }
-
     public static IdFormatter base36() {
         return base36IdFormatter;
+    }
+
+    public static IdFormatter suffix() {
+        return suffixIdFormatter;
     }
 
 }

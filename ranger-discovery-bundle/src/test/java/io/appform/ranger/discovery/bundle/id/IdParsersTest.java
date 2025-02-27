@@ -11,7 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class IdFormattersTest {
+public class IdParsersTest {
 
     @Test
     void testDefaultId() throws ParseException {

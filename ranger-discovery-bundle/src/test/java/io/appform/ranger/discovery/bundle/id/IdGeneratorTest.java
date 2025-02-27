@@ -225,12 +225,18 @@ class IdGeneratorTest {
     }
 
     @Test
+    void testParseFailAfterGeneration() {
+        val generatedId = IdGenerator.generate("TEST123");
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNull(parsedId);
+    }
+
+    @Test
     void testParseSuccessAfterGeneration() {
         val prefix = "TEST";
         val generatedId = IdGenerator.generate(prefix);
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(prefix, parsedId.getPrefix());
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());

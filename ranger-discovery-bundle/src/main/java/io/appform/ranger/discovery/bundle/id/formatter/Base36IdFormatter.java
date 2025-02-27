@@ -30,8 +30,8 @@ public class Base36IdFormatter implements IdFormatter {
     }
 
     @Override
-    public int getType() {
-        return 1;
+    public IdParserType getType() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
