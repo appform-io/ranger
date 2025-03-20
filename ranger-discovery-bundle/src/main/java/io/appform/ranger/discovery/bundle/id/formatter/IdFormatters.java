@@ -23,6 +23,7 @@ public class IdFormatters {
     private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
     private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
     private static final IdFormatter suffixIdFormatter = new SuffixIdFormatter();
+    private static final IdFormatter base36SuffixIdFormatter = new Base36SuffixIdFormatter();
 
     public static IdFormatter original() {
         return originalIdFormatter;
@@ -36,4 +37,7 @@ public class IdFormatters {
         return suffixIdFormatter;
     }
 
+    public static IdFormatter base36Suffix() {
+        return base36SuffixIdFormatter;
+    }
 }
