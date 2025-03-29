@@ -28,6 +28,8 @@ import lombok.NoArgsConstructor;
 public class ServiceNode<T> {
     private String host;
     private int port;
+    @Builder.Default
+    private double weight = 1.0;
     private T nodeData;
     @Builder.Default
     private HealthcheckStatus healthcheckStatus = HealthcheckStatus.healthy;
@@ -36,6 +38,18 @@ public class ServiceNode<T> {
     //Can be any scheme that you intend to init.
     @Builder.Default
     private String portScheme = PortSchemes.HTTP;
+
+    public ServiceNode(final String host, final int port, final T nodeData, final HealthcheckStatus healthcheckStatus,
+                       final long lastUpdatedTimeStamp,
+                       final String portScheme) {
+        this.host = host;
+        this.port = port;
+        this.weight = 1;
+        this.nodeData = nodeData;
+        this.healthcheckStatus = healthcheckStatus;
+        this.lastUpdatedTimeStamp = lastUpdatedTimeStamp;
+        this.portScheme = portScheme;
+    }
 
     public String representation() {
         return String.format("%s:%d", host, port);

@@ -22,7 +22,9 @@ import io.appform.ranger.core.model.ServiceNode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,6 +46,7 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
                                              }
                                              return new ServiceNode<>(endpoint.getHost(),
                                                                       endpoint.getPort(),
+                                                                      1,
                                                                       info,
                                                                       HealthcheckStatus.healthy,
                                                                       currTime,

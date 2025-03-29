@@ -26,6 +26,7 @@ import io.appform.ranger.core.signals.Signal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,10 +70,23 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             log.debug("No update to health state of node. Skipping data source update.");
             return;
         }
+
+        serviceNode.setWeight(computeWeight());// to be updated
         serviceNode.setHealthcheckStatus(result.getStatus());
         serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
         dataSink.updateState(serializer, serviceNode);
         log.debug("Updated node with health check result: {}", result);
+    }
+
+    private double computeWeight() {
+        double T = 60000; // Midpoint at 5 minutes
+        double S = 30000;  // Scaling factor
+
+        return 1.0 / (1.0 + Math.exp(-( (getInstanceUptime() - T) / S )));
+    }
+
+    private long getInstanceUptime() {
+        return ManagementFactory.getRuntimeMXBean().getUptime();
     }
 
 }

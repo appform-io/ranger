@@ -186,7 +186,8 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
             @Override
             public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                list.add(new ServiceNode<>("HOST", 0, TestNodeData.builder().shardId(1).build(), HealthcheckStatus.healthy, Long.MAX_VALUE, "HTTP"));
+                list.add(new ServiceNode<>("HOST", 0, 1f, TestNodeData.builder().shardId(1).build(),
+                                           HealthcheckStatus.healthy, Long.MAX_VALUE, "HTTP"));
                 return Optional.of(list);
             }
 
