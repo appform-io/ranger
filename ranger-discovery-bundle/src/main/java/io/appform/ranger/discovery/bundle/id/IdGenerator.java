@@ -25,6 +25,7 @@ import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.NonNull;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -34,6 +35,7 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 @Slf4j
+@UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
 
