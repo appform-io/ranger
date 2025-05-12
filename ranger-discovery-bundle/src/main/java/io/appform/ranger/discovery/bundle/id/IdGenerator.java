@@ -52,6 +52,7 @@ public class IdGenerator {
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
+
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
