@@ -181,7 +181,7 @@ class IdGeneratorTest {
 
     @Test
     void testNodeId() {
-        val generatedId = IdGenerator.generate("TEST123");
+        val generatedId = IdGenerator.generate("TEST");
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getNode(), nodeId);
@@ -225,8 +225,15 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testParseSuccessAfterGeneration() {
+    void testParseFailAfterGeneration() {
         val generatedId = IdGenerator.generate("TEST123");
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNull(parsedId);
+    }
+
+    @Test
+    void testParseSuccessAfterGeneration() {
+        val generatedId = IdGenerator.generate("TEST");
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
