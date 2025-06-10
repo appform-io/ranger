@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.appform.ranger.discovery.bundle.Constants.LOCAL_ADDRESSES;
@@ -158,6 +159,10 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
     protected abstract ServiceDiscoveryConfiguration getRangerConfiguration(T configuration);
 
     protected abstract String getServiceName(T configuration);
+
+    protected Supplier<Double> getWeightSupplier() {
+        return () -> 1.0;
+    }
 
     protected NodeInfoResolver createNodeInfoResolver() {
         return new DefaultNodeInfoResolver();
@@ -296,7 +301,8 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                         new TimeEntity(initialDelayForMonitor, dwMonitoringInterval, TimeUnit.SECONDS),
                         dwMonitoringStaleness * 1_000L, environment))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
-                .withStaleUpdateThresholdMs(10000);
+                .withStaleUpdateThresholdMs(10000)
+                .withWeightSupplier(getWeightSupplier());
 
         val healthMonitors = getHealthMonitors();
         if (healthMonitors != null && !healthMonitors.isEmpty()) {

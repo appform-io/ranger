@@ -26,8 +26,12 @@ import io.appform.ranger.core.signals.Signal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+
+import static io.appform.ranger.core.healthcheck.HealthcheckStatus.healthy;
 
 @Slf4j
 public class ServiceProvider<T, S extends Serializer<T>> {
@@ -36,6 +40,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     private final ServiceNode<T> serviceNode;
     private final S serializer;
     private final NodeDataSink<T, S> dataSink;
+    private final Supplier<Double> weightSupplier;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
     @Getter
@@ -46,11 +51,13 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             ServiceNode<T> serviceNode,
             S serializer,
             NodeDataSink<T, S> dataSink,
+            final Supplier<Double> weightSupplier,
             List<Signal<HealthcheckResult>> signalGenerators) {
         this.service = service;
         this.serviceNode = serviceNode;
         this.serializer = serializer;
         this.dataSink = dataSink;
+        this.weightSupplier = weightSupplier;
         signalGenerators.forEach(signalGenerator -> signalGenerator.registerConsumer(this::handleHealthUpdate));
     }
 
@@ -69,10 +76,26 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             log.debug("No update to health state of node. Skipping data source update.");
             return;
         }
+        setStartupTimeIfAbsent(result);
+        if(System.getenv("WEIGHTED_RANDOM") != null) {
+            serviceNode.setWeight(weightSupplier.get());
+        }
         serviceNode.setHealthcheckStatus(result.getStatus());
         serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
         dataSink.updateState(serializer, serviceNode);
         log.debug("Updated node with health check result: {}", result);
+    }
+
+    public void setStartupTimeIfAbsent(final HealthcheckResult result) {
+        if (healthy == result.getStatus()) {
+            if (serviceNode.getNodeStartupTimeInMs() == 0) {
+                serviceNode.setNodeStartupTimeInMs(Instant.now().toEpochMilli());
+                log.debug("Setting startup time for node to {}", serviceNode.getNodeStartupTimeInMs());
+            }
+        } else {
+            log.debug("Healthcheck result is not healthy. Not setting startup time.");
+        }
+
     }
 
 }
