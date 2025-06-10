@@ -9,4 +9,5 @@ public class GenerationResult {
     NonceInfo nonceInfo;
     IdValidationState state;
     Domain domain;
+    String namespace;
 }
