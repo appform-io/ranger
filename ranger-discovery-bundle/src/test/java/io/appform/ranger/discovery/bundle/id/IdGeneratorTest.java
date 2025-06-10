@@ -233,7 +233,8 @@ class IdGeneratorTest {
 
     @Test
     void testParseSuccessAfterGeneration() {
-        val generatedId = IdGenerator.generate("TEST");
+        val prefix = "TEST";
+        val generatedId = IdGenerator.generate(prefix);
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
@@ -241,7 +242,6 @@ class IdGeneratorTest {
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
-
 
     @SuppressWarnings("SameParameterValue")
     private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
