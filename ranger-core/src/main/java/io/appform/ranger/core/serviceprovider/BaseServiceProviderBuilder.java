@@ -40,6 +40,7 @@ import lombok.val;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -56,6 +57,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
+    protected Supplier<Double> weightSupplier;
     protected final List<Healthcheck> healthchecks = Lists.newArrayList();
     protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
     protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
@@ -163,6 +165,11 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
+    public B withWeightSupplier(final Supplier<Double> weightSupplier){
+        this.weightSupplier =weightSupplier;
+        return (B)this;
+    }
+
     protected final ServiceProvider<T, S> buildProvider() {
         Preconditions.checkNotNull(namespace);
         Preconditions.checkNotNull(serviceName);
@@ -214,6 +221,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         val serviceProvider = new ServiceProvider<>(service, serviceNode,
                                                     serializer,
                                                     usableNodeDataSource,
+                                                    weightSupplier,
                                                     signalGenerators);
         val startSignal = serviceProvider.getStartSignal();
 

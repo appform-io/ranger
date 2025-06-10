@@ -28,6 +28,7 @@ import lombok.NoArgsConstructor;
 public class ServiceNode<T> {
     private String host;
     private int port;
+    private long nodeStartupTimeInMs;
     @Builder.Default
     private double weight = 1.0;
     private T nodeData;
@@ -44,6 +45,7 @@ public class ServiceNode<T> {
                        final String portScheme) {
         this.host = host;
         this.port = port;
+        this.nodeStartupTimeInMs = 0;
         this.weight = 1;
         this.nodeData = nodeData;
         this.healthcheckStatus = healthcheckStatus;

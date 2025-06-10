@@ -46,6 +46,7 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
                                              }
                                              return new ServiceNode<>(endpoint.getHost(),
                                                                       endpoint.getPort(),
+                                                                      0,
                                                                       1,
                                                                       info,
                                                                       HealthcheckStatus.healthy,
