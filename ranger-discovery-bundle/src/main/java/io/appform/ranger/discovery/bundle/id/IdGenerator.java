@@ -46,9 +46,8 @@ public class IdGenerator {
     }
 
     public static synchronized void initialize(
-            int node, List<IdValidationConstraint> globalConstraints,
+            List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
-        initialize(node);
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
