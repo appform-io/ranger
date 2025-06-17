@@ -24,6 +24,7 @@ import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.dropwizard.logback.shaded.guava.annotations.VisibleForTesting;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,7 @@ import java.util.*;
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
 
+    @VisibleForTesting
     public static void initialize(int node) {
         baseGenerator.setNodeId(node);
     }
@@ -46,9 +48,8 @@ public class IdGenerator {
     }
 
     public static synchronized void initialize(
-            int node, List<IdValidationConstraint> globalConstraints,
+            List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
-        initialize(node);
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }

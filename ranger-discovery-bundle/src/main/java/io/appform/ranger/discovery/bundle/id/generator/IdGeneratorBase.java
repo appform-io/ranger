@@ -11,10 +11,10 @@ import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.Getter;
 import lombok.val;
 import org.joda.time.DateTime;
@@ -53,6 +53,7 @@ public class IdGeneratorBase {
                 .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
                 .onRetry(nonceGenerator::retryEventListener)
                 .build();
+        this.nodeId = NodeUtils.getNode();
         this.retryer = Failsafe.with(Collections.singletonList(retryPolicy));
     }
 
@@ -78,7 +79,7 @@ public class IdGeneratorBase {
         registeredDomains.computeIfAbsent(domain, key -> Domain.builder()
                 .domain(domain)
                 .constraints(validationConstraints)
-                .idFormatter(IdFormatters.original())
+                .idFormatter(idFormatter)
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
     }
@@ -94,8 +95,23 @@ public class IdGeneratorBase {
                 .build();
     }
 
+    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final String suffix, final IdFormatter idFormatter) {
+        val dateTime = new DateTime(nonceInfo.getTime());
+        val id = String.format("%s%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()), suffix != null ? suffix : "");
+        return Id.builder()
+                .id(id)
+                .exponent(nonceInfo.getExponent())
+                .generatedDate(dateTime.toDate())
+                .node(getNodeId())
+                .build();
+    }
+
     public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace) {
         return getIdFromIdInfo(nonceInfo, namespace, idFormatter);
+    }
+
+    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final String suffix) {
+        return getIdFromIdInfo(nonceInfo, namespace, suffix, idFormatter);
     }
 
     public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
@@ -139,6 +155,10 @@ public class IdGeneratorBase {
         return getIdFromIdInfo(idInfo, namespace);
     }
 
+    public final Id generate(final String namespace, final String suffix) {
+        val idInfo = nonceGenerator.generate(namespace);
+        return getIdFromIdInfo(idInfo, namespace, suffix);
+    }
 
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
         val idInfo = nonceGenerator.generate(namespace);
@@ -167,23 +187,37 @@ public class IdGeneratorBase {
         return generateWithConstraints(request);
     }
 
+    public Optional<Id> generateWithConstraints(
+            String namespace,
+            String suffix,
+            final List<IdValidationConstraint> inConstraints) {
+        return generateWithConstraints(IdGenerationRequest.builder()
+                .prefix(namespace)
+                .suffix(suffix)
+                .constraints(inConstraints)
+                .skipGlobal(false)
+                .idFormatter(idFormatter)
+                .build());
+    }
+
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
         val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()
                 .prefix(request.getPrefix())
+                .suffix(request.getSuffix())
                 .domain(domain)
                 .build();
         return Optional.ofNullable(retryer.get(
                         () -> {
                             val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
+                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getSuffix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
                                     domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
+                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getSuffix(), request.getIdFormatter()));
     }
 
     public final void setNodeId(int nodeId) {
