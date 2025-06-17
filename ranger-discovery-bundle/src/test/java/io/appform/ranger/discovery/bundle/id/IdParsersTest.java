@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 
 public class IdParsersTest {
 
@@ -38,6 +40,29 @@ public class IdParsersTest {
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
+    }
+
+    @Test
+    void testParseSuccessAfterGenerationWithConstraintsSuffix() {
+        val idGenerator = new DefaultIdGenerator(IdFormatters.suffix());
+        val prefix = "TEST";
+        val suffix = "007";
+        val domain = "TEST";
+
+        idGenerator.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
+        Optional<Id> id = idGenerator.generateWithConstraints(prefix, suffix, Collections.emptyList());
+
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(31, id.get().getId().length());
+
+        val parsedId = IdGenerator.parse(id.get().getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(prefix, parsedId.getPrefix());
+        Assertions.assertEquals(suffix, parsedId.getSuffix());
+        Assertions.assertEquals(parsedId.getId(), id.get().getId());
+        Assertions.assertEquals(parsedId.getExponent(), id.get().getExponent());
+        Assertions.assertEquals(parsedId.getNode(), id.get().getNode());
+        Assertions.assertEquals(parsedId.getGeneratedDate(), id.get().getGeneratedDate());
     }
 
     private void assertDate(final String dateString, final Date date) throws ParseException {
