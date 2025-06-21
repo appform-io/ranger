@@ -29,6 +29,11 @@ public class DefaultIdFormatter implements IdFormatter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
+    public IdParserType getType() {
+        return IdParserType.DEFAULT;
+    }
+
+    @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
