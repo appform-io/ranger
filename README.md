@@ -45,7 +45,6 @@ Use the following maven dependency:
 <dependency>
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
-    <versio>1.1.0</version>
 </dependency>
 ```
 
