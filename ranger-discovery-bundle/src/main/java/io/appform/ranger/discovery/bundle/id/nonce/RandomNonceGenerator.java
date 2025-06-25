@@ -29,6 +29,11 @@ public class RandomNonceGenerator extends NonceGenerator {
     }
 
     @Override
+    public NonceInfo generateForPartition(String namespace, int targetPartitionId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {
