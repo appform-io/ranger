@@ -48,11 +48,7 @@ public class CollisionChecker {
         dataLock.lock();
         try {
             long currentTime = resolution.convert(curTimeMs, TimeUnit.MILLISECONDS);
-            if (currentTime < lastResolvedTime) {
-                log.error("Clock has moved backwards. Rejecting requests until current time {} reaches {}", currentTime,
-                        lastResolvedTime);
-                return false;
-            }
+            // TODO: Handle case when (currentTime < lastResolvedTime) as it can result in Duplicate IDs
             if (lastResolvedTime != currentTime) {
                 lastResolvedTime = currentTime;
                 bitSet.clear();
