@@ -32,7 +32,8 @@ public class IdParsers {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
 
     private final Map<Integer, IdFormatter> parserRegistry = Map.of(
-            IdFormatters.original().getType().getValue(), IdFormatters.original()
+            IdFormatters.original().getType().getValue(), IdFormatters.original(),
+            IdFormatters.suffix().getType().getValue(), IdFormatters.suffix()
     );
 
     /**
