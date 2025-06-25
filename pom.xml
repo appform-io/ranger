@@ -23,7 +23,7 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-RC5</version>
+    <version>1.1.0</version>
     <name>Ranger</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
@@ -44,6 +44,7 @@
         <module>ranger-discovery-bundle</module>
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
+        <module>ranger-bom</module>
     </modules>
 
     <distributionManagement>
