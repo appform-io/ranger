@@ -16,7 +16,7 @@
 
 package io.appform.ranger.discovery.bundle;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.experimental.UtilityClass;
 import org.awaitility.Awaitility;
 

@@ -21,7 +21,6 @@ import io.appform.ranger.core.model.ShardSelector;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ListShardSelector<T> implements ShardSelector<T, ListBasedServiceRegistry<T>> {
 

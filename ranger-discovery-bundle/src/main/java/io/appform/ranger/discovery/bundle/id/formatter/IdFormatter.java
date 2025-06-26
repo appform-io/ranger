@@ -16,13 +16,13 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import org.joda.time.DateTime;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public interface IdFormatter {
 
-    String format(final DateTime dateTime,
+    String format(final ZonedDateTime dateTime,
                   final int nodeId,
                   final int randomNonce);
 

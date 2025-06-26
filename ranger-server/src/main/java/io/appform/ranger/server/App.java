@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.appform.ranger.hub.server.bundle.RangerHubServerBundle;
 import io.appform.ranger.hub.server.bundle.configuration.RangerServerConfiguration;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import lombok.SneakyThrows;
 import lombok.val;
 

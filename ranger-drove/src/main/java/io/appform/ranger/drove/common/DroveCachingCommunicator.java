@@ -82,9 +82,8 @@ public class DroveCachingCommunicator implements DroveCommunicator {
                     }
 
                     @Override
-                    public @NonNull Map<Service, List<ExposedAppInfo>> loadAll(
-                            @NonNull Iterable<? extends Service> services) {
-                        return root.listNodes(services); //This will throw in the case of comm failure, which is correct
+                    public Map<? extends Service, ? extends @org.jspecify.annotations.NonNull List<ExposedAppInfo>> loadAll(Set<? extends Service> keys) throws Exception {
+                        return root.listNodes(keys);
                     }
                 });
         val relevantEvents = EnumSet.of(DroveEventType.APP_STATE_CHANGE, DroveEventType.INSTANCE_STATE_CHANGE);
