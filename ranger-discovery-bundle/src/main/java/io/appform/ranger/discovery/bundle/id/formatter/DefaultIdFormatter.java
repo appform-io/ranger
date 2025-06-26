@@ -54,7 +54,7 @@ public class DefaultIdFormatter implements IdFormatter {
                 .id(idString)
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
-                .generatedDate(dateTime)
+                .generatedDate(dateTime.toInstant())
                 .build());
     }
 }

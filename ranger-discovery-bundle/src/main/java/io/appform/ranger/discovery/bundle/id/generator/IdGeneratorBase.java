@@ -86,12 +86,13 @@ public class IdGeneratorBase {
     }
 
     public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(nonceInfo.getTime()), ZoneId.systemDefault());
+        val instant = Instant.ofEpochMilli(nonceInfo.getTime());
+        val dateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
         val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
         return Id.builder()
                 .id(id)
                 .exponent(nonceInfo.getExponent())
-                .generatedDate(dateTime)
+                .generatedDate(instant)
                 .node(getNodeId())
                 .build();
     }

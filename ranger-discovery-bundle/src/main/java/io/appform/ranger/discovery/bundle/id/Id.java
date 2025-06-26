@@ -22,7 +22,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
+
 
 /**
  * A representation of an ID
@@ -34,7 +35,7 @@ import java.time.ZonedDateTime;
 @ToString
 public class Id {
     private String id;
-    private ZonedDateTime generatedDate;
+    private Instant generatedDate;
     private int node;
     private int exponent;
 }

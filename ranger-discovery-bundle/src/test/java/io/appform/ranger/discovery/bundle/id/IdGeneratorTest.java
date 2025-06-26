@@ -221,7 +221,7 @@ class IdGeneratorTest {
         Assertions.assertEquals(247, id.getExponent());
         Assertions.assertEquals(3972, id.getNode());
         Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
-                                id.getGeneratedDate());
+                id.getGeneratedDate());
     }
 
     @Test
@@ -244,17 +244,15 @@ class IdGeneratorTest {
 
 
     @SuppressWarnings("SameParameterValue")
-    private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Date.from(
-                Instant.from(
-                        ZonedDateTime.of(
-                                LocalDateTime.of(
-                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                                ),
-                                zoneId
-                                        )
-                            )
-                        );
+    private Instant generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
+        return Instant.from(
+                ZonedDateTime.of(
+                        LocalDateTime.of(
+                                year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
+                        ),
+                        zoneId
+                )
+        );
     }
 
 

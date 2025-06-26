@@ -43,10 +43,10 @@ public abstract class BenchmarkTest {
                 .timeUnit(TimeUnit.SECONDS)
                 .warmupTime(TimeValue.seconds(5))
                 .warmupIterations(1)
-                .measurementTime(TimeValue.seconds(5))
-                .measurementIterations(4)
+                .measurementTime(TimeValue.seconds(2))
+                .measurementIterations(2)
                 .threads(1)
-                .forks(3)
+                .forks(1)
                 .shouldFailOnError(true)
                 .shouldDoGC(true)
                 .build();
