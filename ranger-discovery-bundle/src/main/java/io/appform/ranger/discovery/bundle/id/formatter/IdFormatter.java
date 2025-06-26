@@ -22,6 +22,8 @@ import java.util.Optional;
 
 public interface IdFormatter {
 
+    IdParserType getType();
+
     String format(final ZonedDateTime dateTime,
                   final int nodeId,
                   final int randomNonce);

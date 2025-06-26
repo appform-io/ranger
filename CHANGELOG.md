@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.0]
+- Added bill of materials for ranger, for clients who intend to use ranger.
+- Updated version to release version 1.1.0
+
 ## [1.1-RC5]
 Server to server replication implemented
 

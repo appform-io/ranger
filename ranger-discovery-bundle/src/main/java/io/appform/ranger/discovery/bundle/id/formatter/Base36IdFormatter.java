@@ -30,6 +30,11 @@ public class Base36IdFormatter implements IdFormatter {
     }
 
     @Override
+    public IdParserType getType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String format(final ZonedDateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
