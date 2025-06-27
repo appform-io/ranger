@@ -17,14 +17,14 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface IdFormatter {
 
     IdParserType getType();
 
-    String format(final Instant instant,
+    String format(final LocalDateTime localDateTime,
                   final int nodeId,
                   final int randomNonce);
 

@@ -29,7 +29,7 @@
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
-        <failsafe.version>3.2.4</failsafe.version>
+        <failsafe.version>3.3.2</failsafe.version>
     </properties>
 
     <dependencies>

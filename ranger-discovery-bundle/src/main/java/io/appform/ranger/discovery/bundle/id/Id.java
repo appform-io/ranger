@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 
 /**
@@ -35,7 +35,7 @@ import java.time.Instant;
 @ToString
 public class Id {
     private String id;
-    private Instant generatedDate;
+    private LocalDateTime generatedDate;
     private int node;
     private int exponent;
 }

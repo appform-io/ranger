@@ -103,22 +103,23 @@
         <curator.version>5.5.0</curator.version>
         <slf4j.version>1.7.32</slf4j.version>
 
-        <maven.compiler.version>3.8.0</maven.compiler.version>
+        <maven.compiler.version>3.14.0</maven.compiler.version>
         <java.version>17</java.version>
         <java.release.version>17</java.release.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <annotations.version>3.0.1u2</annotations.version>
 
-        <junit.version>5.8.2</junit.version>
-        <awaitility.version>4.1.1</awaitility.version>
+        <junit.version>5.10.2</junit.version>
+        <awaitility.version>4.2.1</awaitility.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
 
         <http.client.version>4.9.3</http.client.version>
-        <wiremock.version>3.3.1</wiremock.version>
-        <mockito.version>4.2.0</mockito.version>
+        <wiremock.version>3.5.4</wiremock.version>
+        <mockito.version>5.11.0</mockito.version>
 
         <dropwizard.version>5.0.0-rc.3</dropwizard.version>
         <logback.version>1.2.12</logback.version>
+        <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
     <dependencyManagement>
@@ -232,7 +233,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>

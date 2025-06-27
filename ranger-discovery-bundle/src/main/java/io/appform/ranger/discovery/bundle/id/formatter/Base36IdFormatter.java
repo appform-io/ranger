@@ -18,7 +18,7 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 import io.appform.ranger.discovery.bundle.id.Id;
 
 import java.math.BigInteger;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class Base36IdFormatter implements IdFormatter {
@@ -35,10 +35,10 @@ public class Base36IdFormatter implements IdFormatter {
     }
 
     @Override
-    public String format(final Instant instant,
+    public String format(final LocalDateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
-        return toBase36(idFormatter.format(instant, nodeId, randomNonce));
+        return toBase36(idFormatter.format(dateTime, nodeId, randomNonce));
     }
 
     @Override

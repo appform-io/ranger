@@ -5,6 +5,8 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.temporal.ChronoField;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IdParsersTest {
@@ -17,6 +19,14 @@ public class IdParsersTest {
         assertEquals(id, parsedId.getId());
         assertEquals(798, parsedId.getExponent());
         assertEquals(8748, parsedId.getNode());
-        assertEquals(1720594953616L, parsedId.getGeneratedDate().toEpochMilli());
+
+        var dateTime = parsedId.getGeneratedDate();
+        assertEquals(2024, dateTime.get(ChronoField.YEAR_OF_ERA));
+        assertEquals(7, dateTime.getMonth().getValue());
+        assertEquals(10, dateTime.getDayOfMonth());
+        assertEquals(12, dateTime.getHour());
+        assertEquals(32, dateTime.getMinute());
+        assertEquals(33, dateTime.getSecond());
+        assertEquals(616, dateTime.get(ChronoField.MILLI_OF_SECOND));
     }
 }
