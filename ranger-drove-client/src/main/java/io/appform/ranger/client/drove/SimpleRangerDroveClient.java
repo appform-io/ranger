@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
+import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.drove.DroveServiceFinderBuilders;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
@@ -42,7 +44,8 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     private final DroveResponseDataDeserializer<T> deserializer;
     @Builder.Default
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
-
+    @Builder.Default
+    private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
     @Getter
     private SimpleUnshardedServiceFinder<T> serviceFinder;
 
@@ -61,6 +64,7 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
                 .withNodeRefreshIntervalMs(nodeRefreshIntervalMs)
                 .withDeserializer(deserializer)
                 .withShardSelector(shardSelector)
+                .withNodeSelector(nodeSelector)
                 .build();
         this.serviceFinder.start();
         log.info("Started the service finder");

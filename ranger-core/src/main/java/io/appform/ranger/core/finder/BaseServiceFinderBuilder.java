@@ -18,7 +18,7 @@ package io.appform.ranger.core.finder;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ServiceRegistryUpdater;
 import io.appform.ranger.core.finder.serviceregistry.signal.ScheduledRegistryUpdateSignal;
 import io.appform.ranger.core.model.Deserializer;
@@ -53,7 +53,7 @@ public abstract class BaseServiceFinderBuilder
     protected boolean disablePushUpdaters;
     protected D deserializer;
     protected ShardSelector<T, R> shardSelector;
-    protected ServiceNodeSelector<T> nodeSelector = new WeightedRandomServiceNodeSelector<>();
+    protected ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
     protected final List<Signal<T>> additionalRefreshSignals = new ArrayList<>();
     protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
     protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();

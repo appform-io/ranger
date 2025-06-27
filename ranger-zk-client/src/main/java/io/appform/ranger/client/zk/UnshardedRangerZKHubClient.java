@@ -15,7 +15,7 @@
  */
 package io.appform.ranger.client.zk;
 
-import io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.ListShardSelector;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
@@ -36,7 +36,7 @@ public class UnshardedRangerZKHubClient<T>
     private final ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector = new ListShardSelector<>();
 
     @Builder.Default
-    private final ServiceNodeSelector<T> nodeSelector = new WeightedRandomServiceNodeSelector<>();
+    private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {

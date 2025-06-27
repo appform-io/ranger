@@ -16,7 +16,7 @@
 package io.appform.ranger.client.drove;
 
 import io.appform.ranger.client.AbstractRangerHubClient;
-import io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.model.ServiceNodeSelector;
@@ -42,7 +42,7 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
     private final DroveCommunicator droveCommunicator;
 
     @Builder.Default
-    private final ServiceNodeSelector<T> nodeSelector = new WeightedRandomServiceNodeSelector<>();
+    private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
     protected ServiceDataSource getDefaultDataSource() {
