@@ -16,7 +16,6 @@
 package io.appform.ranger.core.finder.serviceregistry;
 
 import com.github.rholder.retry.RetryerBuilder;
-import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;

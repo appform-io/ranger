@@ -5,24 +5,28 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.temporal.ChronoField;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IdParsersTest {
 
     @Test
-    void testDefaultId() throws ParseException {
+    void testDefaultId() {
         val id = "T2407101232336168748798";
         val parsedId = IdParsers.parse(id).orElse(null);
         Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(id, parsedId.getId());
-        Assertions.assertEquals(798, parsedId.getExponent());
-        Assertions.assertEquals(8748, parsedId.getNode());
-        assertDate("240710123233616", parsedId.getGeneratedDate());
-    }
+        assertEquals(id, parsedId.getId());
+        assertEquals(798, parsedId.getExponent());
+        assertEquals(8748, parsedId.getNode());
 
-    private void assertDate(final String dateString, final Date date) throws ParseException {
-        Assertions.assertEquals(new SimpleDateFormat("yyMMddHHmmssSSS").parse(dateString), date);
+        var dateTime = parsedId.getGeneratedDate();
+        assertEquals(2024, dateTime.get(ChronoField.YEAR_OF_ERA));
+        assertEquals(7, dateTime.getMonth().getValue());
+        assertEquals(10, dateTime.getDayOfMonth());
+        assertEquals(12, dateTime.getHour());
+        assertEquals(32, dateTime.getMinute());
+        assertEquals(33, dateTime.getSecond());
+        assertEquals(616, dateTime.get(ChronoField.MILLI_OF_SECOND));
     }
 }

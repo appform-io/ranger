@@ -17,16 +17,15 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
 import lombok.val;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DefaultIdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmssSSS");
 
     @Override
     public IdParserType getType() {
@@ -34,10 +33,10 @@ public class DefaultIdFormatter implements IdFormatter {
     }
 
     @Override
-    public String format(final DateTime dateTime,
+    public String format(final LocalDateTime dateTime,
                          final int nodeId,
                          final int randomNonce) {
-        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
+        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.format(dateTime), nodeId, randomNonce);
     }
 
     @Override
@@ -46,11 +45,13 @@ public class DefaultIdFormatter implements IdFormatter {
         if (!matcher.find()) {
             return Optional.empty();
         }
+        var dateTimeString = matcher.group(2);
+        val localDateTime = LocalDateTime.from(DATE_TIME_FORMATTER.parse(dateTimeString));
         return Optional.of(Id.builder()
                 .id(idString)
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
-                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())
+                .generatedDate(localDateTime)
                 .build());
     }
 }
