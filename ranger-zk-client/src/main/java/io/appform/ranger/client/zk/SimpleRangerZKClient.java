@@ -19,9 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
+import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.model.HubConstants;
+import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataDeserializer;
@@ -49,6 +51,8 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     private SimpleShardedServiceFinder<T> serviceFinder;
     @Builder.Default
     private ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector = new MatchingShardSelector<>();
+    @Builder.Default
+    private ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
     public void start() {
@@ -84,6 +88,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
                 .withNodeRefreshIntervalMs(effectiveRefreshTime)
                 .withDisableWatchers(disableWatchers)
                 .withShardSelector(shardSelector)
+                .withNodeSelector(nodeSelector)
                 .build();
 
         this.serviceFinder.start();
