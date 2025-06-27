@@ -99,8 +99,8 @@ class IdGeneratorTest {
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
+                .pollInterval(Duration.ofSeconds(2))
+                .timeout(Duration.ofSeconds(3))
                 .until(() -> true);
         executorService.shutdownNow();
         val totalCount = runners.stream().mapToLong(Runner::getCount).sum();

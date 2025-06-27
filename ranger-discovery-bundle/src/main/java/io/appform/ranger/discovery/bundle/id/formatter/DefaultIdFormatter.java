@@ -28,7 +28,8 @@ import java.util.regex.Pattern;
 
 public class DefaultIdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmssSSS");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmssSSS")
+            .withZone(ZoneId.systemDefault());
 
     @Override
     public IdParserType getType() {
