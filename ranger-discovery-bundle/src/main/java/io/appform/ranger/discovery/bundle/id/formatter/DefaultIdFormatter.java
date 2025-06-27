@@ -18,6 +18,7 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 import io.appform.ranger.discovery.bundle.id.Id;
 import lombok.val;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -35,10 +36,10 @@ public class DefaultIdFormatter implements IdFormatter {
     }
 
     @Override
-    public String format(final ZonedDateTime dateTime,
+    public String format(final Instant instant,
                          final int nodeId,
                          final int randomNonce) {
-        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.format(dateTime), nodeId, randomNonce);
+        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.format(instant), nodeId, randomNonce);
     }
 
     @Override
