@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -244,15 +243,10 @@ class IdGeneratorTest {
 
 
     @SuppressWarnings("SameParameterValue")
-    private Instant generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Instant.from(
-                ZonedDateTime.of(
-                        LocalDateTime.of(
-                                year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                        ),
-                        zoneId
-                )
-        );
+    private LocalDateTime generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
+        return LocalDateTime.of(
+                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
+                );
     }
 
 
