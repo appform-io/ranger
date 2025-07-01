@@ -17,8 +17,9 @@ import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.val;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,12 +85,13 @@ public class IdGeneratorBase {
     }
 
     public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = new DateTime(nonceInfo.getTime());
+        val instant = Instant.ofEpochMilli(nonceInfo.getTime());
+        val dateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
         return Id.builder()
                 .id(id)
                 .exponent(nonceInfo.getExponent())
-                .generatedDate(dateTime.toDate())
+                .generatedDate(dateTime)
                 .node(getNodeId())
                 .build();
     }

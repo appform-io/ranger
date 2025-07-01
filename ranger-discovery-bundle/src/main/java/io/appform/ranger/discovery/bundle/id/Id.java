@@ -16,9 +16,14 @@
 
 package io.appform.ranger.discovery.bundle.id;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
 
 /**
  * A representation of an ID
@@ -30,7 +35,7 @@ import java.util.Date;
 @ToString
 public class Id {
     private String id;
-    private Date generatedDate;
+    private LocalDateTime generatedDate;
     private int node;
     private int exponent;
 }

@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -99,8 +98,8 @@ class IdGeneratorTest {
         val executorService = Executors.newFixedThreadPool(numRunners);
         runners.forEach(executorService::submit);
         Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
+                .pollInterval(Duration.ofSeconds(2))
+                .timeout(Duration.ofSeconds(3))
                 .until(() -> true);
         executorService.shutdownNow();
         val totalCount = runners.stream().mapToLong(Runner::getCount).sum();
@@ -221,7 +220,7 @@ class IdGeneratorTest {
         Assertions.assertEquals(247, id.getExponent());
         Assertions.assertEquals(3972, id.getNode());
         Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
-                                id.getGeneratedDate());
+                id.getGeneratedDate());
     }
 
     @Test
@@ -244,17 +243,10 @@ class IdGeneratorTest {
 
 
     @SuppressWarnings("SameParameterValue")
-    private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
-        return Date.from(
-                Instant.from(
-                        ZonedDateTime.of(
-                                LocalDateTime.of(
-                                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                                ),
-                                zoneId
-                                        )
-                            )
-                        );
+    private LocalDateTime generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
+        return LocalDateTime.of(
+                        year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
+                );
     }
 
 
