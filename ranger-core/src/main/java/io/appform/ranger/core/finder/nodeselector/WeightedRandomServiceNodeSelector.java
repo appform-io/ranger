@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector<T> {
     private static final long FIVE_MINUTES_IN_MS = 5 * 60 * 1000; // 5 minutes
+    private static final double BOOST_FACTOR = 1.5;
 
     @Override
     public ServiceNode<T> select(List<ServiceNode<T>> serviceNodes) {
@@ -44,11 +45,19 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
      * Weighted random selection based on normalized weights.
      */
     private ServiceNode<T> selectWeighted(List<ServiceNode<T>> serviceNodes) {
+        long currentTime = System.currentTimeMillis();
         double totalWeight = 0.0;
         double[] cumulativeWeights = new double[serviceNodes.size()];
 
         for (int i = 0; i < serviceNodes.size(); i++) {
-            totalWeight += serviceNodes.get(i).getWeight();
+            ServiceNode<T> node = serviceNodes.get(i);
+            double adjustedWeight = node.getWeight();
+
+            if ((currentTime - node.getNodeStartupTimeInMs()) > FIVE_MINUTES_IN_MS) {
+                adjustedWeight *= BOOST_FACTOR;
+            }
+
+            totalWeight += adjustedWeight;
             cumulativeWeights[i] = totalWeight;
         }
 
@@ -70,14 +79,13 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
      */
     private ServiceNode<T> getBetterNode(ServiceNode<T> n1, ServiceNode<T> n2) {
         final long currentTime = System.currentTimeMillis();
-        final boolean n1IsRecent = (currentTime - n1.getNodeStartupTimeInMs() <= FIVE_MINUTES_IN_MS);
-        final boolean n2IsRecent = (currentTime - n2.getNodeStartupTimeInMs() <= FIVE_MINUTES_IN_MS);
+        final boolean n1IsRecent = ((currentTime - n1.getNodeStartupTimeInMs()) <= FIVE_MINUTES_IN_MS);
+        final boolean n2IsRecent = ((currentTime - n2.getNodeStartupTimeInMs()) <= FIVE_MINUTES_IN_MS);
 
         if (n1IsRecent && !n2IsRecent) {
-            return n1;
-        }
-        else if (n2IsRecent && !n1IsRecent) {
             return n2;
+        } else if (n2IsRecent && !n1IsRecent) {
+            return n1;
         }
         // In this scenario, prioritize by weight (higher weight wins)
         else {
