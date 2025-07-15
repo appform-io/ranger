@@ -77,7 +77,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             return;
         }
         setStartupTimeIfAbsent(result);
-        if(System.getenv("WEIGHTED_RANDOM") != null) {
+        if(System.getenv("WEIGHTED_RANDOM") != null && isBetweenZeroAndOne(weightSupplier.get())) {
             serviceNode.setWeight(weightSupplier.get());
         }
         serviceNode.setHealthcheckStatus(result.getStatus());
@@ -86,7 +86,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
         log.debug("Updated node with health check result: {}", result);
     }
 
-    public void setStartupTimeIfAbsent(final HealthcheckResult result) {
+    private void setStartupTimeIfAbsent(final HealthcheckResult result) {
         if (healthy == result.getStatus()) {
             if (serviceNode.getNodeStartupTimeInMs() == 0) {
                 serviceNode.setNodeStartupTimeInMs(Instant.now().toEpochMilli());
@@ -96,6 +96,10 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             log.debug("Healthcheck result is not healthy. Not setting startup time.");
         }
 
+    }
+
+    private boolean isBetweenZeroAndOne(double value) {
+        return value > 0.0 && value < 1.0;
     }
 
 }
