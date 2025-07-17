@@ -16,6 +16,7 @@
 
 package io.appform.ranger.discovery.bundle.rotationstatus;
 
+import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 import io.dropwizard.servlets.tasks.Task;
 import lombok.extern.slf4j.Slf4j;
 
