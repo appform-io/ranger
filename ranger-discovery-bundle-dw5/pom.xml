@@ -25,27 +25,34 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ranger-server-bundle</artifactId>
+    <artifactId>ranger-discovery-bundle-dw5</artifactId>
 
     <properties>
-        <dropwizard.version>2.1.12</dropwizard.version>
+        <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
+        <dropwizard.version>5.0.0-rc.3</dropwizard.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-http-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>${curator.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -54,16 +61,25 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>${wiremock.version}</version>
-            <scope>test</scope>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-discovery-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-client</artifactId>
+            <artifactId>ranger-zk-client</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-server-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dns-cache-manipulator</artifactId>
+            <version>${dns.cache.manipulator.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

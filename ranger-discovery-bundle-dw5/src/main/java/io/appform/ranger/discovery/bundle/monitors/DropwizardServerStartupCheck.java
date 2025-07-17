@@ -19,7 +19,7 @@ package io.appform.ranger.discovery.bundle.monitors;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.rotationstatus.DropwizardServerStatus;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -42,6 +42,7 @@
         <module>ranger-server-bundle</module>
         <module>ranger-http-model</module>
         <module>ranger-discovery-bundle</module>
+        <module>ranger-discovery-bundle-dw5</module>
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
         <module>ranger-bom</module>
@@ -117,10 +118,10 @@
         <http.client.version>4.9.3</http.client.version>
         <wiremock.version>3.3.1</wiremock.version>
         <mockito.version>4.2.0</mockito.version>
-
         <dropwizard.version>2.1.12</dropwizard.version>
         <logback.version>1.2.12</logback.version>
         <metrics.version>4.2.0</metrics.version>
+        <jackson.version>2.13.5</jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -163,10 +164,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -66,6 +66,11 @@
             <artifactId>metrics-healthchecks</artifactId>
             <version>${metrics.version}</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.12.6</version>
+        </dependency>
     </dependencies>
 
 </project>
