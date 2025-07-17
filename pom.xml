@@ -36,17 +36,18 @@
         <module>ranger-drove</module>
         <module>ranger-client</module>
         <module>ranger-zk-client</module>
+        <module>ranger-id</module>
         <module>ranger-http-client</module>
         <module>ranger-drove-client</module>
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
         <module>ranger-http-model</module>
+        <module>ranger-discovery-common</module>
         <module>ranger-discovery-bundle</module>
         <module>ranger-discovery-bundle-dw5</module>
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
         <module>ranger-bom</module>
-        <module>ranger-discovery-core</module>
     </modules>
 
     <distributionManagement>
