@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.rotationstatus;
+package io.appform.ranger.discovery.core.rotationstatus;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

@@ -39,14 +39,14 @@ import io.appform.ranger.discovery.core.healthchecks.RotationCheck;
 import io.appform.ranger.discovery.core.id.IdGenerator;
 import io.appform.ranger.discovery.core.id.NodeIdManager;
 import io.appform.ranger.discovery.core.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.monitors.DropwizardHealthMonitor;
+import io.appform.ranger.discovery.core.monitors.DropwizardHealthMonitor;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardServerStartupCheck;
 import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.DefaultPortSchemeResolver;
 import io.appform.ranger.discovery.core.resolvers.NodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.PortSchemeResolver;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
-import io.appform.ranger.discovery.bundle.rotationstatus.DropwizardServerStatus;
+import io.appform.ranger.discovery.core.rotationstatus.DropwizardServerStatus;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
@@ -295,7 +295,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 .withHealthcheck(new DropwizardServerStartupCheck(environment, serverStatus))
                 .withIsolatedHealthMonitor(new DropwizardHealthMonitor(
                         new TimeEntity(initialDelayForMonitor, dwMonitoringInterval, TimeUnit.SECONDS),
-                        dwMonitoringStaleness * 1_000L, environment))
+                        dwMonitoringStaleness * 1_000L, environment.healthChecks()))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
                 .withStaleUpdateThresholdMs(10000);
 
