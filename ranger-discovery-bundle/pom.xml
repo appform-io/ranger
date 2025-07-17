@@ -68,6 +68,11 @@
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-discovery-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-zk-client</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -80,18 +85,6 @@
             <groupId>com.alibaba</groupId>
             <artifactId>dns-cache-manipulator</artifactId>
             <version>${dns.cache.manipulator.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>1.35</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.35</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

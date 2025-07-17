@@ -45,6 +45,7 @@
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
         <module>ranger-bom</module>
+        <module>ranger-discovery-core</module>
     </modules>
 
     <distributionManagement>
@@ -232,7 +233,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.13</version>
                 <executions>
                     <execution>
                         <goals>
