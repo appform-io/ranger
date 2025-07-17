@@ -27,10 +27,6 @@
 
     <artifactId>ranger-server-bundle</artifactId>
 
-    <properties>
-        <dropwizard.version>2.1.12</dropwizard.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
