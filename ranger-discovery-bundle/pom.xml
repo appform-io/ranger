@@ -29,7 +29,6 @@
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
-        <failsafe.version>3.2.4</failsafe.version>
     </properties>
 
     <dependencies>
@@ -38,11 +37,6 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>dev.failsafe</groupId>
-            <artifactId>failsafe</artifactId>
-            <version>${failsafe.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
@@ -68,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-discovery-core</artifactId>
+            <artifactId>ranger-discovery-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -86,6 +80,11 @@
             <artifactId>dns-cache-manipulator</artifactId>
             <version>${dns.cache.manipulator.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-id</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
