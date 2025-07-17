@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core;
+package io.appform.ranger.discovery.common.rotationstatus;
 
-import lombok.experimental.UtilityClass;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Constants
+ * Current rotation status
  */
-@UtilityClass
-public class Constants {
-    public static final String DEFAULT_NAMESPACE = "default";
-    public static final String DEFAULT_HOST = "__DEFAULT_SERVICE_HOST";
-    public static final int DEFAULT_PORT = -1;
-    public static final int DEFAULT_DW_CHECK_INTERVAL = 15;
-    public static final int DEFAULT_RETRY_CONN_INTERVAL = 5000;
+public class RotationStatus {
+    private final AtomicBoolean inRotation;
 
-    public static final String ZOOKEEPER_HOST_DELIMITER = ",";
-    public static final String HOST_PORT_DELIMITER = ":";
-    public static final String PATH_DELIMITER = "/";
+    public RotationStatus(boolean initialStatus) {
+        inRotation = new AtomicBoolean(initialStatus);
+    }
 
+    public void oor() {
+        inRotation.set(false);
+    }
+
+    public void bir() {
+        inRotation.set(true);
+    }
+
+    public boolean status() {
+        return inRotation.get();
+    }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core;
+package io.appform.ranger.discovery.common;
 
 import com.google.common.base.Strings;
 import jakarta.validation.constraints.Max;

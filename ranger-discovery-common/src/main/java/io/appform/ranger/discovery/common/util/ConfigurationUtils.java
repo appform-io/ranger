@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.core.util;
+package io.appform.ranger.discovery.common.util;
 
 import com.google.common.base.Strings;
-import io.appform.ranger.discovery.core.Constants;
+import io.appform.ranger.discovery.common.Constants;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.appform.ranger.discovery.core.Constants.*;
+import static io.appform.ranger.discovery.common.Constants.*;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

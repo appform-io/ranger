@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core.monitors;
+package io.appform.ranger.discovery.common.monitors;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;

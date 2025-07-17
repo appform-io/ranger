@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core.selectors;
+package io.appform.ranger.discovery.common.selectors;
 
 import com.google.common.base.Strings;
 import io.appform.ranger.common.server.ShardInfo;

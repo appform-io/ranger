@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core.selectors;
+package io.appform.ranger.discovery.common.selectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -23,7 +23,6 @@ import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

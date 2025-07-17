@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core.healthchecks;
+package io.appform.ranger.discovery.common.healthchecks;
 
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.discovery.common.rotationstatus.RotationStatus;
 
 /**
- * The following will return healthy only after stipulated time
- * This will give other bundles etc to startup properly
- * By the time the node joins the cluster
+ * This allows the node to be taken offline in the cluster but still keep running
  */
-public class InitialDelayChecker implements Healthcheck {
-    private final long validRegistrationTime;
+public class RotationCheck implements Healthcheck {
 
+    private final RotationStatus rotationStatus;
 
-    public InitialDelayChecker(long initialDelaySeconds) {
-        validRegistrationTime = System.currentTimeMillis() + initialDelaySeconds * 1000;
+    public RotationCheck(RotationStatus rotationStatus) {
+        this.rotationStatus = rotationStatus;
     }
 
     @Override
     public HealthcheckStatus check() {
-        return System.currentTimeMillis() > validRegistrationTime
+        return (rotationStatus.status())
                ? HealthcheckStatus.healthy
                : HealthcheckStatus.unhealthy;
     }

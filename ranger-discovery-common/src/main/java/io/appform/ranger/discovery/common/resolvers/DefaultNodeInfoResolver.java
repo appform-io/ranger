@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.core.resolvers;
+package io.appform.ranger.discovery.common.resolvers;
 
 import io.appform.ranger.common.server.ShardInfo;
-import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.common.ServiceDiscoveryConfiguration;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

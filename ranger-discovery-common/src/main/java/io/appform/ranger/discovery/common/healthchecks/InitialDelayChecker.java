@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.core.healthchecks;
-
+package io.appform.ranger.discovery.common.healthchecks;
 
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 
-import java.util.List;
-
 /**
- * Evaluates all registered healthchecks
+ * The following will return healthy only after stipulated time
+ * This will give other bundles etc to startup properly
+ * By the time the node joins the cluster
  */
-public class InternalHealthChecker implements Healthcheck {
-    private final List<Healthcheck> healthchecks;
+public class InitialDelayChecker implements Healthcheck {
+    private final long validRegistrationTime;
 
-    public InternalHealthChecker(List<Healthcheck> healthchecks) {
-        this.healthchecks = healthchecks;
+
+    public InitialDelayChecker(long initialDelaySeconds) {
+        validRegistrationTime = System.currentTimeMillis() + initialDelaySeconds * 1000;
     }
 
     @Override
     public HealthcheckStatus check() {
-        return healthchecks.stream()
-                .map(Healthcheck::check)
-                .filter(healthcheckStatus -> healthcheckStatus == HealthcheckStatus.unhealthy)
-                .findFirst()
-                .orElse(HealthcheckStatus.healthy);
+        return System.currentTimeMillis() > validRegistrationTime
+               ? HealthcheckStatus.healthy
+               : HealthcheckStatus.unhealthy;
     }
 }
