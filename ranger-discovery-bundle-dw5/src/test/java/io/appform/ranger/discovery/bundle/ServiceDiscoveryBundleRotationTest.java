@@ -16,8 +16,6 @@
 
 package io.appform.ranger.discovery.bundle;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.alibaba.dcm.DnsCacheManipulator;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -25,9 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
-import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
-import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
-import io.appform.ranger.discovery.core.util.ConfigurationUtils;
+import io.appform.ranger.discovery.common.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.common.rotationstatus.RotationStatus;
+import io.appform.ranger.discovery.common.util.ConfigurationUtils;
 import io.dropwizard.core.Configuration;
 import io.dropwizard.core.server.DefaultServerFactory;
 import io.dropwizard.jersey.DropwizardResourceConfig;
@@ -46,7 +44,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 

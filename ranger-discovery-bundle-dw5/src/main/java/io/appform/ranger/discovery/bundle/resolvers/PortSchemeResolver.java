@@ -15,7 +15,7 @@
  */
 package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
+import io.appform.ranger.discovery.common.resolvers.CriteriaResolver;
 import io.dropwizard.core.Configuration;
 
 /**
