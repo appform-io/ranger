@@ -2,14 +2,22 @@ package io.appform.ranger.core.finder.nodeselector;
 
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
+import io.appform.ranger.core.model.WeightedNodeSelectorConfig;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector<T> {
-    private static final long FIVE_MINUTES_IN_MS = 5 * 60 * 1000; // 5 minutes
-    private static final double BOOST_FACTOR = 1.5;
+    private final long minNodeAgeMs;
+    private final double boostFactor;
+    private final int weightedSelectionThreshold;
+
+    public WeightedRandomServiceNodeSelector(final WeightedNodeSelectorConfig weightedNodeSelectorConfig) {
+        this.minNodeAgeMs = weightedNodeSelectorConfig.getMinNodeAgeMs();
+        this.boostFactor = weightedNodeSelectorConfig.getBoostFactor();
+        this.weightedSelectionThreshold = weightedNodeSelectorConfig.getWeightedSelectionThreshold();
+    }
 
     @Override
     public ServiceNode<T> select(List<ServiceNode<T>> serviceNodes) {
@@ -21,7 +29,7 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
             return serviceNodes.get(0);
         }
 
-        if (serviceNodes.size() < 20) {
+        if (serviceNodes.size() < weightedSelectionThreshold) {
             return selectWeighted(serviceNodes);
         } else {
             return selectTwoRandomChoice(serviceNodes);
@@ -53,8 +61,8 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
             ServiceNode<T> node = serviceNodes.get(i);
             double adjustedWeight = node.getWeight();
 
-            if ((currentTime - node.getNodeStartupTimeInMs()) > FIVE_MINUTES_IN_MS) {
-                adjustedWeight *= BOOST_FACTOR;
+            if ((currentTime - node.getNodeStartupTimeInMs()) > minNodeAgeMs) {
+                adjustedWeight *= boostFactor;
             }
 
             totalWeight += adjustedWeight;
@@ -79,8 +87,8 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
      */
     private ServiceNode<T> getBetterNode(ServiceNode<T> n1, ServiceNode<T> n2) {
         final long currentTime = System.currentTimeMillis();
-        final boolean n1IsRecent = ((currentTime - n1.getNodeStartupTimeInMs()) <= FIVE_MINUTES_IN_MS);
-        final boolean n2IsRecent = ((currentTime - n2.getNodeStartupTimeInMs()) <= FIVE_MINUTES_IN_MS);
+        final boolean n1IsRecent = ((currentTime - n1.getNodeStartupTimeInMs()) <= minNodeAgeMs);
+        final boolean n2IsRecent = ((currentTime - n2.getNodeStartupTimeInMs()) <= minNodeAgeMs);
 
         if (n1IsRecent && !n2IsRecent) {
             return n2;

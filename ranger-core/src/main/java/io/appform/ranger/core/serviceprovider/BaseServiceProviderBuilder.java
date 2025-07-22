@@ -165,9 +165,9 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
-    public B withWeightSupplier(final Supplier<Double> weightSupplier){
-        this.weightSupplier =weightSupplier;
-        return (B)this;
+    public B withWeightSupplier(final Supplier<Double> weightSupplier) {
+        this.weightSupplier = weightSupplier;
+        return (B) this;
     }
 
     protected final ServiceProvider<T, S> buildProvider() {
