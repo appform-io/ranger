@@ -29,6 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-drove</artifactId>
+    <name>Drove based discovery for Ranger</name>
 
     <dependencies>
         <dependency>
