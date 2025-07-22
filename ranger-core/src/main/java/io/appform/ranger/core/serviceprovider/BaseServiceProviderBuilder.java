@@ -30,6 +30,7 @@ import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.WeightSupplier;
 import io.appform.ranger.core.signals.ScheduledSignal;
 import io.appform.ranger.core.signals.Signal;
 import lombok.AccessLevel;
@@ -40,7 +41,6 @@ import lombok.val;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -57,7 +57,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
-    protected Supplier<Double> weightSupplier;
+    protected WeightSupplier weightSupplier;
     protected final List<Healthcheck> healthchecks = Lists.newArrayList();
     protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
     protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
@@ -165,7 +165,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
-    public B withWeightSupplier(final Supplier<Double> weightSupplier) {
+    public B withWeightSupplier(final WeightSupplier weightSupplier) {
         this.weightSupplier = weightSupplier;
         return (B) this;
     }

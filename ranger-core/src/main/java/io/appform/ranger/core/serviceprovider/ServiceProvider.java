@@ -21,6 +21,7 @@ import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.WeightSupplier;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.Signal;
 import lombok.Getter;
@@ -29,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static io.appform.ranger.core.healthcheck.HealthcheckStatus.healthy;
 
@@ -40,7 +40,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     private final ServiceNode<T> serviceNode;
     private final S serializer;
     private final NodeDataSink<T, S> dataSink;
-    private final Supplier<Double> weightSupplier;
+    private final WeightSupplier weightSupplier;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
     @Getter
@@ -51,7 +51,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             ServiceNode<T> serviceNode,
             S serializer,
             NodeDataSink<T, S> dataSink,
-            final Supplier<Double> weightSupplier,
+            final WeightSupplier weightSupplier,
             List<Signal<HealthcheckResult>> signalGenerators) {
         this.service = service;
         this.serviceNode = serviceNode;
@@ -77,8 +77,9 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             return;
         }
         setStartupTimeIfAbsent(result);
-        if (System.getenv("WEIGHTED_RANDOM") != null && isBetweenZeroAndOne(weightSupplier.get())) {
-            serviceNode.setWeight(weightSupplier.get());
+        if (null != weightSupplier && weightSupplier.isEnabled() && isBetweenZeroAndOne(
+                weightSupplier.getSupplier().get())) {
+            serviceNode.setWeight(weightSupplier.getSupplier().get());
         }
         serviceNode.setHealthcheckStatus(result.getStatus());
         serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
