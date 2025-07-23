@@ -18,9 +18,11 @@ package io.appform.ranger.core.finderhub;
 
 
 import com.google.common.collect.Lists;
+import io.appform.ranger.core.exceptions.CommunicationException;
 import io.appform.ranger.core.finder.BaseServiceFinderBuilder;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
+import io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
@@ -31,9 +33,12 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -124,6 +129,195 @@ class ServiceFinderHubTest {
         }
     }
 
+    @Test
+    void testWeightedNodeSelectionWithVaryingWeights() {
+        final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub =
+                new ServiceFinderHub<>(
+                        new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
+                        service ->
+                                new TestServiceFinderBuilder()
+                                        .withNamespace(service.getNamespace())
+                                        .withServiceName(service.getServiceName())
+                                        .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
+                                                WeightedNodeSelectorConfig.builder()
+                                                        .boostFactor(1.5f)
+                                                        .minNodeAgeMs(60_000)
+                                                        .weightedSelectionThreshold(10)
+                                                        .build()))
+                                        .withDeserializer(new Deserializer<TestNodeData>() {
+                                        })
+                                        .withDataSource(new NodeDataSource<>() {
+                                            @Override
+                                            public Optional<List<ServiceNode<TestNodeData>>> refresh(
+                                                    final Deserializer<TestNodeData> deserializer)
+                                                    throws CommunicationException {
+
+                                                val list = new ArrayList<ServiceNode<TestNodeData>>();
+                                                list.add(new ServiceNode<>("HOST", 0, 0,
+                                                                           1f,
+                                                                           TestNodeData.builder().shardId(1).build(),
+                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
+                                                                           "HTTP"));
+                                                list.add(new ServiceNode<>("HOST1", 1, 0, 0.5,
+                                                                           TestNodeData.builder().shardId(1).build(),
+                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
+                                                                           "HTTP"));
+                                                return Optional.of(list);
+                                            }
+
+                                            @Override
+                                            public void start() {
+
+                                            }
+
+                                            @Override
+                                            public void ensureConnected() {
+
+                                            }
+
+                                            @Override
+                                            public void stop() {
+
+                                            }
+
+                                            @Override
+                                            public boolean isActive() {
+                                                return true;
+                                            }
+                                        })
+                                        .build());
+        serviceFinderHub.start();
+        final var preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
+                .orElseThrow(() -> new IllegalStateException("Finder should be present"));
+        final var all = preRegisteredServiceFinder.getAll(null);
+        Assertions.assertEquals(2, all.size());
+        int iterations = 10000;
+        Map<String, Integer> selectionCounts = new HashMap<>();
+        selectionCounts.put("HOST", 0);
+        selectionCounts.put("HOST1", 0);
+        for (int i = 0; i < iterations; i++) {
+            Optional<ServiceNode<TestNodeData>> selectedNode = preRegisteredServiceFinder.get(null,
+                                                                                              (criteria,
+                                                                                               serviceRegistry) -> serviceRegistry.nodeList());
+
+            Assertions.assertTrue(selectedNode.isPresent(), "Node should be selected");
+            String host = selectedNode.get().getHost();
+
+            selectionCounts.put(host, selectionCounts.getOrDefault(host, 0) + 1);
+        }
+        double probHost = selectionCounts.get("HOST") / (double) iterations;
+        double probHost1 = selectionCounts.get("HOST1") / (double) iterations;
+
+        // Expected probabilities
+        double expectedProbHost = 1.0 / 1.5;
+        double expectedProbHost1 = 0.5 / 1.5;
+
+        // Allow some tolerance due to randomness, e.g., 5%
+        double tolerance = 0.02;
+
+        Assertions.assertTrue(Math.abs(probHost - expectedProbHost) < tolerance,
+                              "Probability for HOST is not within expected tolerance");
+
+        Assertions.assertTrue(Math.abs(probHost1 - expectedProbHost1) < tolerance,
+                              "Probability for HOST1 is not within expected tolerance");
+
+    }
+
+    @Test
+    void testWeightedNodeSelectionWithVaryingNodeAge() {
+        final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub =
+                new ServiceFinderHub<>(
+                        new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
+                        service ->
+                                new TestServiceFinderBuilder()
+                                        .withNamespace(service.getNamespace())
+                                        .withServiceName(service.getServiceName())
+                                        .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
+                                                WeightedNodeSelectorConfig.builder()
+                                                        .boostFactor(1.5f)
+                                                        .minNodeAgeMs(60_000)
+                                                        .weightedSelectionThreshold(10)
+                                                        .build()))
+                                        .withDeserializer(new Deserializer<TestNodeData>() {
+                                        })
+                                        .withDataSource(new NodeDataSource<>() {
+                                            @Override
+                                            public Optional<List<ServiceNode<TestNodeData>>> refresh(
+                                                    final Deserializer<TestNodeData> deserializer)
+                                                    throws CommunicationException {
+
+                                                val list = new ArrayList<ServiceNode<TestNodeData>>();
+                                                final long epochMilli = Instant.now().toEpochMilli();
+                                                final long twoMinutesInMillis = 120_000;
+                                                list.add(new ServiceNode<>("HOST", 0, epochMilli - twoMinutesInMillis,
+                                                                           1f,
+                                                                           TestNodeData.builder().shardId(1).build(),
+                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
+                                                                           "HTTP"));
+                                                list.add(new ServiceNode<>("HOST1", 1, epochMilli, 0.5,
+                                                                           TestNodeData.builder().shardId(1).build(),
+                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
+                                                                           "HTTP"));
+                                                return Optional.of(list);
+                                            }
+
+                                            @Override
+                                            public void start() {
+
+                                            }
+
+                                            @Override
+                                            public void ensureConnected() {
+
+                                            }
+
+                                            @Override
+                                            public void stop() {
+
+                                            }
+
+                                            @Override
+                                            public boolean isActive() {
+                                                return true;
+                                            }
+                                        })
+                                        .build());
+        serviceFinderHub.start();
+        final var preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
+                .orElseThrow(() -> new IllegalStateException("Finder should be present"));
+        final var all = preRegisteredServiceFinder.getAll(null);
+        Assertions.assertEquals(2, all.size());
+        int iterations = 10000;
+        Map<String, Integer> selectionCounts = new HashMap<>();
+        selectionCounts.put("HOST", 0);
+        selectionCounts.put("HOST1", 0);
+        for (int i = 0; i < iterations; i++) {
+            Optional<ServiceNode<TestNodeData>> selectedNode = preRegisteredServiceFinder.get(null,
+                                                                                              (criteria,
+                                                                                               serviceRegistry) -> serviceRegistry.nodeList());
+
+            Assertions.assertTrue(selectedNode.isPresent(), "Node should be selected");
+            String host = selectedNode.get().getHost();
+
+            selectionCounts.put(host, selectionCounts.getOrDefault(host, 0) + 1);
+        }
+        double probHost = selectionCounts.get("HOST") / (double) iterations;
+        double probHost1 = selectionCounts.get("HOST1") / (double) iterations;
+
+        // Expected probabilities
+        double expectedProbHost = 1.0 * 1.5 / 2;
+        double expectedProbHost1 = 0.5 / 2;
+
+        // Allow some tolerance due to randomness, e.g., 5%
+        double tolerance = 0.02;
+
+        Assertions.assertTrue(Math.abs(probHost - expectedProbHost) < tolerance,
+                              "Probability for HOST is not within expected tolerance");
+
+        Assertions.assertTrue(Math.abs(probHost1 - expectedProbHost1) < tolerance,
+                              "Probability for HOST1 is not within expected tolerance");
+    }
+
     public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
 
         @Override
@@ -155,6 +349,7 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
 
         private int finderSleepDurationSeconds = 0;
+        private NodeDataSource<TestNodeData, Deserializer<TestNodeData>> testNodeDataSource = new TestNodeDataSource();
 
         @Override
         public ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> build() {
@@ -165,7 +360,7 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
 
         @Override
         protected NodeDataSource<TestNodeData, Deserializer<TestNodeData>> dataSource(Service service) {
-            return new TestNodeDataSource();
+            return testNodeDataSource;
         }
 
         @Override
@@ -179,6 +374,12 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
 
         public TestServiceFinderBuilder withSleepDuration(final int finderSleepDurationSeconds) {
             this.finderSleepDurationSeconds = finderSleepDurationSeconds;
+            return this;
+        }
+
+        public TestServiceFinderBuilder withDataSource(
+                final NodeDataSource<TestNodeData, Deserializer<TestNodeData>> testNodeDataSource) {
+            this.testNodeDataSource = testNodeDataSource;
             return this;
         }
 
