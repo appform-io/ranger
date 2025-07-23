@@ -26,6 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-http-client</artifactId>
+    <name>Client for Ranger HTTP Discovery</name>
 
     <dependencies>
         <dependency>

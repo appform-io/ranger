@@ -11,6 +11,7 @@
 
   <artifactId>ranger-bom</artifactId>
   <packaging>pom</packaging>
+  <name>Bill of Materials for Ranger</name>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>

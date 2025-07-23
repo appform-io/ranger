@@ -26,4 +26,5 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-http-model</artifactId>
+    <name>HTTP Service Models for Ranger</name>
 </project>

@@ -26,6 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-server-bundle</artifactId>
+    <name>Dropwizard Server Bundle for Ranger</name>
 
     <dependencies>
         <dependency>

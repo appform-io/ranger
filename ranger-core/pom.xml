@@ -26,6 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-core</artifactId>
+    <name>Core libraries for Ranger</name>
 
     <properties>
         <httpclient.version>4.5.13</httpclient.version>
