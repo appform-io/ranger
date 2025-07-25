@@ -242,6 +242,39 @@ class IdGeneratorTest {
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
 
+    @Test
+    void testGenerateWithNumericalPrefix() {
+        val prefix = "10";
+        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGenerator.generate(prefix));
+        Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
+    }
+
+    @Test
+    void testGenerateWithEmptyPrefix() {
+        val prefix = "";
+        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGenerator.generate(prefix));
+        Assertions.assertEquals("Namespace cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void testGenerateWithConstraintsWithNumericalPrefix() {
+        val prefix = "10";
+        val domain = "TEST";
+        IdGenerator.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
+        val exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> IdGenerator.generateWithConstraints(prefix, domain));
+        Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
+    }
+
+    @Test
+    void testGenerateWithConstraintsWithEmptyPrefix() {
+        val prefix = "";
+        val domain = "TEST";
+        IdGenerator.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
+        val exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> IdGenerator.generateWithConstraints(prefix, domain));
+        Assertions.assertEquals("Namespace cannot be null or empty", exception.getMessage());
+    }
 
     @SuppressWarnings("SameParameterValue")
     private Date generateDate(int year, int month, int day, int hour, int min, int sec, int ms, ZoneId zoneId) {
