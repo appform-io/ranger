@@ -225,10 +225,16 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testParseFailAfterGeneration() {
-        val generatedId = IdGenerator.generate("TEST123");
-        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
-        Assertions.assertNull(parsedId);
+    void testParseAnIdWithNonNumericPrefixUsingDefaultFormatter() {
+        val generatedId = "0M00002310011825377769658722";
+        val parsedId = IdGenerator.parse(generatedId).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        val date = parsedId.getGeneratedDate();
+        Assertions.assertNotNull(date);
+        Assertions.assertEquals(722, parsedId.getExponent());
+        Assertions.assertEquals(9658, parsedId.getNode());
+        Assertions.assertEquals(generateDate(2023, 10, 1, 18, 25, 37, 777,
+                ZoneId.systemDefault()).toString(), date.toString());
     }
 
     @Test
