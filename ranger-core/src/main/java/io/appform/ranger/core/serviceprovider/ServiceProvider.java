@@ -99,7 +99,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     }
 
     private boolean isBetweenZeroAndOne(double value) {
-        return value > 0.0 && value < 1.0;
+        return value >= 0.0 && value <= 1.0;
     }
 
 }
