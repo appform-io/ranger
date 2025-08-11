@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.2-RC5</version>
+        <version>1.1.2</version>
     </parent>
     <build>
         <plugins>
@@ -38,6 +38,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-hub-server-bundle</artifactId>
+    <name>Dropwizard bundle for making Ranger HTTP Hub Server</name>
 
   <dependencies>
     <dependency>
