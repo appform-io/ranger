@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.2]
+- Check if Zookeeper Client is connected to consider ZkNodeDataSource as active
+
+## [1.1.1]
+- Added fallback in IdParsers.parse() for original formatter 
+
 ## [1.1.0]
 - Added bill of materials for ranger, for clients who intend to use ranger.
 - Updated version to release version 1.1.0

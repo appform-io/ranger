@@ -137,8 +137,8 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     @Override
     public boolean isActive() {
-        return curatorFramework != null
-                && (curatorFramework.getState() == CuratorFrameworkState.STARTED);
+        return curatorFramework != null && curatorFramework.getZookeeperClient() != null
+                && curatorFramework.getZookeeperClient().isConnected();
     }
 
     protected boolean isStarted() {
