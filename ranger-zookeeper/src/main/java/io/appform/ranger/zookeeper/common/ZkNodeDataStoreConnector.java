@@ -96,8 +96,9 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
                 "Start called on a data source. Will ensure connection to zk cluster for service: {}",service.getServiceName());
         try {
             curatorFramework.blockUntilConnected();
+            log.info("ZK Node Data Source is connected to zookeeper cluster for {}", service.getServiceName());
         } catch (InterruptedException e) {
-            log.error("Thread interrupted");
+            log.error("Thread interrupted while connecting to zk for data source");
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Could not start ZK data source for service: "
                 + service.getServiceName()
@@ -106,18 +107,18 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             Exceptions.illegalState(
                 "Could not start ZK data source for service: " + service.getServiceName(), e);
         }
-        log.info("Connected to zookeeper cluster for {}", service.getServiceName());
     }
 
     private void startSink() {
         val path = PathBuilder.servicePath(service);
         try {
             curatorFramework.blockUntilConnected();
-            log.info("Connected to zookeeper cluster for {}", service.getServiceName());
+            log.info("ZK Node Data Sink is connected to zookeeper cluster for {}", service.getServiceName());
             curatorFramework
                     .create()
                     .creatingParentContainersIfNeeded()
                     .forPath(path);
+            log.info("Successfully created parent containers for path : {}", path);
         }
         catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
@@ -125,14 +126,14 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             }
         }
         catch (InterruptedException e) {
-            log.error("Thread interrupted");
+            log.error("Thread interrupted while connecting to zk for data sink");
             Thread.currentThread().interrupt();
-            Exceptions.illegalState("Could not start ZK data source for service: "
+            Exceptions.illegalState("Could not start ZK data sink for service: "
                                             + service.getServiceName()
                                             + " as thread was interrupted");
         }
         catch (Exception e) {
-            Exceptions.illegalState("Could not start ZK data source for service: " + service.getServiceName(), e);
+            Exceptions.illegalState("Could not start ZK data sink for service: " + service.getServiceName(), e);
         }
     }
 
