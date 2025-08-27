@@ -72,18 +72,44 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     @Override
     public void start() {
-        if (storeType == ZkStoreType.SOURCE) {
-            log.info(
-                    "Start called on a data source will not do anything, since we don't have to create paths for services found in source. Ignoring after setting started");
-            started.set(true);
-            return;
-        }
-
         if (started.get()) {
             log.info("Start called on already initialized data source for service {}. Ignoring.",
                      service.getServiceName());
             return;
         }
+
+        switch (storeType){
+            case SOURCE:
+                startSource();
+                break;
+            case SINK:
+                startSink();
+                break;
+            default:
+                Exceptions.illegalState("Unknown store type: " + storeType + " for service: " + service.getServiceName());
+        }
+        started.set(true);
+    }
+
+    private void startSource() {
+        log.info(
+                "Start called on a data source. Will ensure connection to zk cluster for service: {}",service.getServiceName());
+        try {
+            curatorFramework.blockUntilConnected();
+        } catch (InterruptedException e) {
+            log.error("Thread interrupted");
+            Thread.currentThread().interrupt();
+            Exceptions.illegalState("Could not start ZK data source for service: "
+                + service.getServiceName()
+                + " as thread was interrupted");
+        } catch (Exception e) {
+            Exceptions.illegalState(
+                "Could not start ZK data source for service: " + service.getServiceName(), e);
+        }
+        log.info("Connected to zookeeper cluster for {}", service.getServiceName());
+    }
+
+    private void startSink() {
         val path = PathBuilder.servicePath(service);
         try {
             curatorFramework.blockUntilConnected();
@@ -108,7 +134,6 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
         catch (Exception e) {
             Exceptions.illegalState("Could not start ZK data source for service: " + service.getServiceName(), e);
         }
-        started.set(true);
     }
 
     @Override
