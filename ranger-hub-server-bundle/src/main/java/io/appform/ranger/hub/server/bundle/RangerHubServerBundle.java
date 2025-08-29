@@ -107,7 +107,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .mapper(getMapper())
                     .serviceRefreshTimeoutMs(HubConstants.SLEEP_MS_BETWEEN_RETRIES)
                     .hubStartTimeoutMs(zkConfiguration.getHubStartTimeoutMs())
-                    .nodeRefreshTimeMs(zkConfiguration.getMaxElapsedTimeMs())
+                    .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
                     .excludedServices(excludedServices)
                     .deserializer(data -> {
                         try {
