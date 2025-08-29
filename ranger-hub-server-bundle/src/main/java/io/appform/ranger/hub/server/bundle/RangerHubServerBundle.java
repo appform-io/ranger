@@ -105,7 +105,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .curatorFramework(curatorFramework)
                     .disablePushUpdaters(zkConfiguration.isDisablePushUpdaters())
                     .mapper(getMapper())
-                    .serviceRefreshTimeoutMs(HubConstants.SLEEP_MS_BETWEEN_RETRIES)
+                    .serviceRefreshTimeoutMs(zkConfiguration.getServiceRefreshTimeoutMs())
                     .hubStartTimeoutMs(zkConfiguration.getHubStartTimeoutMs())
                     .nodeRefreshTimeMs(zkConfiguration.getNodeRefreshTimeMs())
                     .excludedServices(excludedServices)
