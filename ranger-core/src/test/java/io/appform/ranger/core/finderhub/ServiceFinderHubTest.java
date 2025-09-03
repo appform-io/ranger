@@ -153,15 +153,15 @@ class ServiceFinderHubTest {
                                                     throws CommunicationException {
 
                                                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                                                list.add(new ServiceNode<>("HOST", 0, 0,
+                                                list.add(new ServiceNode<>("HOST", 0,
                                                                            1f,
                                                                            TestNodeData.builder().shardId(1).build(),
                                                                            HealthcheckStatus.healthy, Long.MAX_VALUE,
-                                                                           "HTTP"));
-                                                list.add(new ServiceNode<>("HOST1", 1, 0, 0.5,
+                                                                           0, "HTTP"));
+                                                list.add(new ServiceNode<>("HOST1", 1, 0.5,
                                                                            TestNodeData.builder().shardId(1).build(),
                                                                            HealthcheckStatus.healthy, Long.MAX_VALUE,
-                                                                           "HTTP"));
+                                                                           0, "HTTP"));
                                                 return Optional.of(list);
                                             }
 
@@ -247,17 +247,18 @@ class ServiceFinderHubTest {
                                                     throws CommunicationException {
 
                                                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                                                final long epochMilli = Instant.now().toEpochMilli();
+                                                final long epochMilli = System.currentTimeMillis();
                                                 final long twoMinutesInMillis = 120_000;
-                                                list.add(new ServiceNode<>("HOST", 0, epochMilli - twoMinutesInMillis,
-                                                                           1f,
+                                                list.add(new ServiceNode<>("HOST", 0, 1f,
                                                                            TestNodeData.builder().shardId(1).build(),
-                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
-                                                                           "HTTP"));
-                                                list.add(new ServiceNode<>("HOST1", 1, epochMilli, 0.5,
+                                                                           HealthcheckStatus.healthy,
+                                                                           Long.MAX_VALUE,
+                                                                           epochMilli - twoMinutesInMillis, "HTTP"));
+                                                list.add(new ServiceNode<>("HOST1", 1, 0.5,
                                                                            TestNodeData.builder().shardId(1).build(),
-                                                                           HealthcheckStatus.healthy, Long.MAX_VALUE,
-                                                                           "HTTP"));
+                                                                           HealthcheckStatus.healthy,
+                                                                           Long.MAX_VALUE,
+                                                                           epochMilli, "HTTP"));
                                                 return Optional.of(list);
                                             }
 
@@ -387,8 +388,8 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
             @Override
             public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {
                 val list = new ArrayList<ServiceNode<TestNodeData>>();
-                list.add(new ServiceNode<>("HOST", 0, 0, 1f, TestNodeData.builder().shardId(1).build(),
-                                           HealthcheckStatus.healthy, Long.MAX_VALUE, "HTTP"));
+                list.add(new ServiceNode<>("HOST", 0, 1f, TestNodeData.builder().shardId(1).build(),
+                                           HealthcheckStatus.healthy, Long.MAX_VALUE, 0, "HTTP"));
                 return Optional.of(list);
             }
 

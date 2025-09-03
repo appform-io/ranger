@@ -33,7 +33,6 @@ import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
-import io.appform.ranger.core.model.WeightSupplier;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.discovery.bundle.healthchecks.InitialDelayChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.InternalHealthChecker;
@@ -168,11 +167,8 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
 
     protected abstract String getServiceName(T configuration);
 
-    protected WeightSupplier getWeightSupplier() {
-        return WeightSupplier.builder()
-                .enabled(false)
-                .supplier(() -> 1.0)
-                .build();
+    protected Supplier<Double> getWeightSupplier() {
+        return () -> 1.0;
     }
 
     protected NodeInfoResolver createNodeInfoResolver() {

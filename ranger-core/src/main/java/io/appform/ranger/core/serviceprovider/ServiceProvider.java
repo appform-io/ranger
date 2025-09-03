@@ -21,16 +21,16 @@ import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.WeightSupplier;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.signals.Signal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
+import static io.appform.ranger.core.Constants.DEFAULT_ROUTING_WEIGHT;
 import static io.appform.ranger.core.healthcheck.HealthcheckStatus.healthy;
 
 @Slf4j
@@ -40,7 +40,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     private final ServiceNode<T> serviceNode;
     private final S serializer;
     private final NodeDataSink<T, S> dataSink;
-    private final WeightSupplier weightSupplier;
+    private final Supplier<Double> weightSupplier;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
     @Getter
@@ -51,7 +51,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             ServiceNode<T> serviceNode,
             S serializer,
             NodeDataSink<T, S> dataSink,
-            final WeightSupplier weightSupplier,
+            final Supplier<Double> weightSupplier,
             List<Signal<HealthcheckResult>> signalGenerators) {
         this.service = service;
         this.serviceNode = serviceNode;
@@ -77,9 +77,11 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             return;
         }
         setStartupTimeIfAbsent(result);
-        if (null != weightSupplier && weightSupplier.isEnabled() && isBetweenZeroAndOne(
-                weightSupplier.getSupplier().get())) {
-            serviceNode.setWeight(weightSupplier.getSupplier().get());
+        if (!isBetweenZeroAndOne(weightSupplier.get())) {
+            log.warn("Routing weight supplied is not between 0 and 1. Updating to default");
+            serviceNode.setRoutingWeight(DEFAULT_ROUTING_WEIGHT);
+        } else {
+            serviceNode.setRoutingWeight(weightSupplier.get());
         }
         serviceNode.setHealthcheckStatus(result.getStatus());
         serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
@@ -89,9 +91,9 @@ public class ServiceProvider<T, S extends Serializer<T>> {
 
     private void setStartupTimeIfAbsent(final HealthcheckResult result) {
         if (healthy == result.getStatus()) {
-            if (serviceNode.getNodeStartupTimeInMs() == 0) {
-                serviceNode.setNodeStartupTimeInMs(Instant.now().toEpochMilli());
-                log.debug("Setting startup time for node to {}", serviceNode.getNodeStartupTimeInMs());
+            if (serviceNode.getHealthySinceTimeStamp() == 0) {
+                serviceNode.setHealthySinceTimeStamp(System.currentTimeMillis());
+                log.debug("Setting or Updating startup time for node to {}", serviceNode.getHealthySinceTimeStamp());
             }
         } else {
             log.debug("Healthcheck result is not healthy. Not setting startup time.");

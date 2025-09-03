@@ -51,8 +51,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     private SimpleShardedServiceFinder<T> serviceFinder;
     @Builder.Default
     private ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector = new MatchingShardSelector<>();
-    @Builder.Default
-    private ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
+    private ServiceNodeSelector<T> nodeSelector;
 
     @Override
     public void start() {

@@ -22,10 +22,13 @@ import io.appform.ranger.core.model.ServiceNode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+
+import static io.appform.ranger.drove.Constants.DROVE_HEALTHY_SINCE_TAG;
+import static io.appform.ranger.drove.Constants.DROVE_ROUTING_WEIGHT_TAG;
 
 /**
  *
@@ -46,11 +49,16 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
                                              }
                                              return new ServiceNode<>(endpoint.getHost(),
                                                                       endpoint.getPort(),
-                                                                      0,
-                                                                      1,
+                                                                      resolveTagValue(appEndpoints.getTags(),
+                                                                                      DROVE_ROUTING_WEIGHT_TAG,
+                                                                                      1.0D, Double::parseDouble),
+
                                                                       info,
                                                                       HealthcheckStatus.healthy,
                                                                       currTime,
+                                                                      resolveTagValue(appEndpoints.getTags(),
+                                                                                      DROVE_HEALTHY_SINCE_TAG,
+                                                                                      0L, Long::parseLong),
                                                                       endpoint.getPortType().name());
                                          }))
                 .filter(Objects::nonNull)
@@ -58,4 +66,16 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
     }
 
     protected abstract T translate(final ExposedAppInfo appInfo, final ExposedAppInfo.ExposedHost host);
+
+    private <T> T resolveTagValue(Map<String, String> tags, String tagKey, T defaultValue, Function<String, T> parser) {
+        if (tags == null || !tags.containsKey(tagKey)) {
+            return defaultValue;
+        }
+        try {
+            return parser.apply(tags.get(tagKey));
+        } catch (Exception e) {
+            log.warn("Could not parse tag value for key {}: {}", tagKey, tags.get(tagKey), e);
+            return defaultValue;
+        }
+    }
 }
