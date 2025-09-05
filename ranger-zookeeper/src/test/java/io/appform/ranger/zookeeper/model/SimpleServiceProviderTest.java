@@ -21,6 +21,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.HashMultiset;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
@@ -104,6 +107,8 @@ class SimpleServiceProviderTest {
     }
 
     private void registerService(String host, int port) {
+        final HealthUpdateHandler<UnshardedInfo> healthUpdateHandler = new LastUpdatedHandler<UnshardedInfo>()
+                .setNext(new HealthStatusHandler<UnshardedInfo>());
         val serviceProvider = ServiceProviderBuilders.<UnshardedInfo>unshardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -120,6 +125,7 @@ class SimpleServiceProviderTest {
                 .withPort(port)
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withHealthUpdateIntervalMs(1000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
     }

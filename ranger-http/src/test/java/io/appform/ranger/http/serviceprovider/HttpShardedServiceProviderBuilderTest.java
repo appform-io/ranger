@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.PortSchemes;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.http.config.HttpClientConfig;
@@ -72,6 +75,8 @@ class HttpShardedServiceProviderBuilderTest {
                 .connectionTimeoutMs(30_000)
                 .operationTimeoutMs(30_000)
                 .build();
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<TestNodeData>());
         val serviceProvider = new HttpShardedServiceProviderBuilder<TestNodeData>()
                 .withNamespace("testns")
                 .withServiceName("test")
@@ -83,6 +88,7 @@ class HttpShardedServiceProviderBuilderTest {
                 .withClientConfiguration(clientConfig)
                 .withNodeData(farmNodeData)
                 .withSerializer(node -> requestBytes)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
         Assertions.assertNotNull(serviceProvider);

@@ -17,6 +17,7 @@
 package io.appform.ranger.core.serviceprovider;
 
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
@@ -28,10 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
-
-import static io.appform.ranger.core.Constants.DEFAULT_ROUTING_WEIGHT;
-import static io.appform.ranger.core.healthcheck.HealthcheckStatus.healthy;
 
 @Slf4j
 public class ServiceProvider<T, S extends Serializer<T>> {
@@ -40,7 +37,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     private final ServiceNode<T> serviceNode;
     private final S serializer;
     private final NodeDataSink<T, S> dataSink;
-    private final Supplier<Double> weightSupplier;
+    private final HealthUpdateHandler<T> healthUpdateHandler;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
     @Getter
@@ -51,13 +48,13 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             ServiceNode<T> serviceNode,
             S serializer,
             NodeDataSink<T, S> dataSink,
-            final Supplier<Double> weightSupplier,
-            List<Signal<HealthcheckResult>> signalGenerators) {
+            List<Signal<HealthcheckResult>> signalGenerators,
+            final HealthUpdateHandler<T> healthUpdateHandler) {
         this.service = service;
         this.serviceNode = serviceNode;
         this.serializer = serializer;
         this.dataSink = dataSink;
-        this.weightSupplier = weightSupplier;
+        this.healthUpdateHandler = healthUpdateHandler;
         signalGenerators.forEach(signalGenerator -> signalGenerator.registerConsumer(this::handleHealthUpdate));
     }
 
@@ -76,32 +73,9 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             log.debug("No update to health state of node. Skipping data source update.");
             return;
         }
-        setStartupTimeIfAbsent(result);
-        if (!isBetweenZeroAndOne(weightSupplier.get())) {
-            log.warn("Routing weight supplied is not between 0 and 1. Updating to default");
-            serviceNode.setRoutingWeight(DEFAULT_ROUTING_WEIGHT);
-        } else {
-            serviceNode.setRoutingWeight(weightSupplier.get());
-        }
-        serviceNode.setHealthcheckStatus(result.getStatus());
-        serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
+        healthUpdateHandler.handleNext(result, serviceNode);
         dataSink.updateState(serializer, serviceNode);
         log.debug("Updated node with health check result: {}", result);
-    }
-
-    private void setStartupTimeIfAbsent(final HealthcheckResult result) {
-        if (healthy == result.getStatus()) {
-            if (serviceNode.getHealthySinceTimeStamp() == 0) {
-                serviceNode.setHealthySinceTimeStamp(System.currentTimeMillis());
-                log.debug("Setting or Updating startup time for node to {}", serviceNode.getHealthySinceTimeStamp());
-            }
-        } else {
-            log.debug("Healthcheck result is not healthy. Not setting startup time.");
-        }
-    }
-
-    private boolean isBetweenZeroAndOne(double value) {
-        return value >= 0.0 && value <= 1.0;
     }
 
 }

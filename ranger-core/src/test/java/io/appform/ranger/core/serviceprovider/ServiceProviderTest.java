@@ -18,6 +18,9 @@ package io.appform.ranger.core.serviceprovider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
@@ -110,17 +113,34 @@ class ServiceProviderTest {
 
     @Test
     void testInvalidServiceProviderNoHealthCheck() {
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<TestNodeData>());
         Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->  new TestServiceProviderBuilder<>()
                 .withServiceName("test-service")
                 .withNamespace("test")
                 .withHostname("localhost-1")
                 .withPort(9000)
                 .withSerializer(new TestSerializerImpl())
+                .healthUpdateHandler(healthUpdateHandler)
+                .build());
+    }
+
+    @Test
+    void testInvalidServiceProviderNoHealthUpdatehandler() {
+        Assertions.assertThrowsExactly(NullPointerException.class, () ->  new TestServiceProviderBuilder<>()
+                .withServiceName("test-service")
+                .withNamespace("test")
+                .withHostname("localhost-1")
+                .withPort(9000)
+                .withSerializer(new TestSerializerImpl())
+                .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .build());
     }
 
     @Test
     void testBuildServiceProvider() {
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<TestNodeData>());
         val testProvider = new TestServiceProviderBuilder<>()
                 .withServiceName("test-service")
                 .withNamespace("test")
@@ -130,6 +150,7 @@ class ServiceProviderTest {
                 .withNodeData(TestNodeData.builder().shardId(1).build())
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withHealthUpdateIntervalMs(1000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         testProvider.start();
         Assertions.assertNotNull(testNodeData);

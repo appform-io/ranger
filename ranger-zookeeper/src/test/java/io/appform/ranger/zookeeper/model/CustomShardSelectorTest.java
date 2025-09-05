@@ -21,15 +21,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
-import lombok.*;
+import lombok.Builder;
+import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -128,6 +133,8 @@ class CustomShardSelectorTest {
     }
 
     private void registerService(String host, int port, int a, int b) {
+        final HealthUpdateHandler<TestShardInfo> healthUpdateHandler = new LastUpdatedHandler<TestShardInfo>()
+                .setNext(new HealthStatusHandler<TestShardInfo>());
         val serviceProvider = ServiceProviderBuilders.<TestShardInfo>shardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -146,6 +153,7 @@ class CustomShardSelectorTest {
                 .withNodeData(new TestShardInfo(a, b))
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withHealthUpdateIntervalMs(1000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
         serviceProviders.add(serviceProvider);

@@ -28,6 +28,11 @@ import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
+import io.appform.ranger.core.healthcheck.updater.RoutingWeightHandler;
+import io.appform.ranger.core.healthcheck.updater.StartupTimeHandler;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.model.ServiceNode;
@@ -286,6 +291,10 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                                    : serviceDiscoveryConfiguration.getDropwizardCheckInterval();
         val dwMonitoringStaleness = Math.max(serviceDiscoveryConfiguration.getDropwizardCheckStaleness(),
                 dwMonitoringInterval + 1);
+        final HealthUpdateHandler<ShardInfo> shardInfoHealthUpdateHandler = new LastUpdatedHandler<ShardInfo>()
+                .setNext(new HealthStatusHandler<>())
+                .setNext(new RoutingWeightHandler<>(getWeightSupplier().get()))
+                .setNext(new StartupTimeHandler<>());
         val serviceProviderBuilder = ServiceProviderBuilders.<ShardInfo>shardedServiceProviderBuilder()
                 .withCuratorFramework(curator)
                 .withNamespace(namespace)
@@ -311,7 +320,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                         dwMonitoringStaleness * 1_000L, environment))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
                 .withStaleUpdateThresholdMs(10000)
-                .withWeightSupplier(getWeightSupplier());
+                .healthUpdateHandler(shardInfoHealthUpdateHandler);
 
         val healthMonitors = getHealthMonitors();
         if (healthMonitors != null && !healthMonitors.isEmpty()) {
