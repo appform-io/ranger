@@ -16,6 +16,7 @@ public abstract class HealthUpdateHandler<T> {
         }
         return this;
     }
+
     public void handleNext(HealthcheckResult result, ServiceNode<T> serviceNode) {
         // Do handler-specific logic
         handle(result, serviceNode);

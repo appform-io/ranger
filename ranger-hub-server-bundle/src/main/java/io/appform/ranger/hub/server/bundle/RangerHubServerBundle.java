@@ -58,10 +58,12 @@ import java.util.stream.Collectors;
 public abstract class RangerHubServerBundle<U extends Configuration>
         extends RangerServerBundle<ShardInfo, ListBasedServiceRegistry<ShardInfo>, U> {
 
+    public static final ServiceNodeSelector<ShardInfo> DEFAULT_NODE_SELECTOR = new RandomServiceNodeSelector<>();
+
     protected abstract RangerServerConfiguration getRangerConfiguration(U configuration);
 
     protected ServiceNodeSelector<ShardInfo> getServiceNodeSelector(U configuration) {
-        return new RandomServiceNodeSelector<>();
+        return DEFAULT_NODE_SELECTOR;
     }
 
     private final List<CuratorFramework> curatorFrameworks = new ArrayList<>();
