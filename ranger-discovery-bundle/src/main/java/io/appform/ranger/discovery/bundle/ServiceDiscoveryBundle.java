@@ -294,7 +294,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 .withHealthcheck(new DropwizardServerStartupCheck(environment, serverStatus))
                 .withIsolatedHealthMonitor(new DropwizardHealthMonitor(
                         new TimeEntity(initialDelayForMonitor, dwMonitoringInterval, TimeUnit.SECONDS),
-                        dwMonitoringStaleness * 1_000L, environment.healthChecks()))
+                        dwMonitoringStaleness * 1_000L, environment))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
                 .withStaleUpdateThresholdMs(10000);
 
