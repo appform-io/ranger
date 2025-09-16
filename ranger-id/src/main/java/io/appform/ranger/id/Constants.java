@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
+package io.appform.ranger.id;
 
-import io.appform.ranger.common.server.ShardInfo;
-import io.appform.ranger.discovery.bundle.ServiceDiscoveryConfiguration;
+import lombok.experimental.UtilityClass;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a node to be saved in the discovery backend while building the serviceProvider.
- * To define your custom nodeData {@link ShardInfo}, please define your own implementation.
+ * All constants for this project
  */
-@FunctionalInterface
-public interface NodeInfoResolver extends CriteriaResolver<ShardInfo, ServiceDiscoveryConfiguration> {
-
+@UtilityClass
+public class Constants {
+    public static final int MAX_ID_PER_MS = 1000;
+    public static final int MAX_NUM_NODES = 10000;
 }

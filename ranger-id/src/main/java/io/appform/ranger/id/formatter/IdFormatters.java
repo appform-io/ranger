@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
+package io.appform.ranger.id.formatter;
 
-import io.appform.ranger.common.server.ShardInfo;
-import io.appform.ranger.discovery.bundle.ServiceDiscoveryConfiguration;
+import lombok.experimental.UtilityClass;
 
-/**
- * NodeInfoResolver.java
- * Interface to help build a node to be saved in the discovery backend while building the serviceProvider.
- * To define your custom nodeData {@link ShardInfo}, please define your own implementation.
- */
-@FunctionalInterface
-public interface NodeInfoResolver extends CriteriaResolver<ShardInfo, ServiceDiscoveryConfiguration> {
+@UtilityClass
+public class IdFormatters {
+
+    private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
+    private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
+
+    public static IdFormatter original() {
+        return originalIdFormatter;
+    }
+
+    public static IdFormatter base36() {
+        return base36IdFormatter;
+    }
 
 }

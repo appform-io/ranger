@@ -17,30 +17,30 @@
 package io.appform.ranger.discovery.bundle.monitors;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
-import io.dropwizard.setup.Environment;
 
 /**
  * This monitor calls dropwizard healthchecks every few secs.
  */
 public class DropwizardHealthMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
 
-    private final Environment environment;
+    private final HealthCheckRegistry healthCheckRegistry;
 
     public DropwizardHealthMonitor(
             TimeEntity runInterval,
             long stalenessAllowedInMillis,
-            Environment environment) {
+            HealthCheckRegistry healthCheckRegistry) {
         super("dropwizard-health-monitor", runInterval, stalenessAllowedInMillis);
-        this.environment = environment;
+        this.healthCheckRegistry = healthCheckRegistry;
     }
 
     @Override
     public HealthcheckStatus monitor() {
-        return (null != environment.healthChecks()
-                && environment.healthChecks()
+        return (null != healthCheckRegistry
+                && healthCheckRegistry
                 .runHealthChecks()
                 .values()
                 .stream()

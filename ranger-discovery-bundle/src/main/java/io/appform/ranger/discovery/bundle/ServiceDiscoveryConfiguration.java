@@ -17,7 +17,11 @@
 package io.appform.ranger.discovery.bundle;
 
 import com.google.common.base.Strings;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

@@ -16,6 +16,7 @@
 
 package io.appform.ranger.discovery.bundle.healthchecks;
 
+
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 

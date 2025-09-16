@@ -35,9 +35,6 @@ import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.discovery.bundle.healthchecks.InitialDelayChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.InternalHealthChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.RotationCheck;
-import io.appform.ranger.discovery.bundle.id.IdGenerator;
-import io.appform.ranger.discovery.bundle.id.NodeIdManager;
-import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardHealthMonitor;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardServerStartupCheck;
 import io.appform.ranger.discovery.bundle.resolvers.DefaultNodeInfoResolver;
@@ -50,6 +47,9 @@ import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.bundle.selectors.HierarchicalEnvironmentAwareShardSelector;
 import io.appform.ranger.discovery.bundle.util.ConfigurationUtils;
+import io.appform.ranger.id.IdGenerator;
+import io.appform.ranger.id.NodeIdManager;
+import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
 import io.dropwizard.Configuration;
@@ -294,7 +294,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 .withHealthcheck(new DropwizardServerStartupCheck(environment, serverStatus))
                 .withIsolatedHealthMonitor(new DropwizardHealthMonitor(
                         new TimeEntity(initialDelayForMonitor, dwMonitoringInterval, TimeUnit.SECONDS),
-                        dwMonitoringStaleness * 1_000L, environment))
+                        dwMonitoringStaleness * 1_000L, environment.healthChecks()))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
                 .withStaleUpdateThresholdMs(10000);
 

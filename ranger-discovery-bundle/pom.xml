@@ -30,7 +30,6 @@
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
-        <failsafe.version>3.2.4</failsafe.version>
     </properties>
 
     <dependencies>
@@ -39,11 +38,6 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>dev.failsafe</groupId>
-            <artifactId>failsafe</artifactId>
-            <version>${failsafe.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
@@ -84,16 +78,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>1.35</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.35</version>
-            <scope>test</scope>
+            <groupId>io.appform.ranger</groupId>
+            <artifactId>ranger-id</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

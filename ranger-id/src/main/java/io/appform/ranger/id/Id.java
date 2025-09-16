@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.common.server.ShardInfo;
-import io.appform.ranger.discovery.bundle.ServiceDiscoveryConfiguration;
+package io.appform.ranger.id;
+
+import lombok.*;
+
+import java.util.Date;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a node to be saved in the discovery backend while building the serviceProvider.
- * To define your custom nodeData {@link ShardInfo}, please define your own implementation.
+ * A representation of an ID
  */
-@FunctionalInterface
-public interface NodeInfoResolver extends CriteriaResolver<ShardInfo, ServiceDiscoveryConfiguration> {
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@ToString
+public class Id {
+    private String id;
+    private Date generatedDate;
+    private int node;
+    private int exponent;
 }
