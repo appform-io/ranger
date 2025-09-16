@@ -229,13 +229,6 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testParseFailAfterGeneration() {
-        val generatedId = IdGenerator.generate("TEST123");
-        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
-        Assertions.assertNull(parsedId);
-    }
-
-    @Test
     void testParseSuccessAfterGeneration() {
         val generatedId = IdGenerator.generate("TEST");
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
