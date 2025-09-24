@@ -19,7 +19,8 @@ import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.PingCheckMonitor;
 import lombok.val;
-import org.apache.http.client.methods.HttpGet;
+
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

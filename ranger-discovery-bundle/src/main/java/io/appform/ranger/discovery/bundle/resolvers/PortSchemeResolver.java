@@ -15,7 +15,8 @@
  */
 package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.dropwizard.Configuration;
+
+import io.dropwizard.core.Configuration;
 
 /**
  * NodeInfoResolver.java

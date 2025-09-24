@@ -25,13 +25,13 @@ import io.appform.ranger.client.utils.RangerHubTestUtils;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.setup.AdminEnvironment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
-import io.dropwizard.setup.AdminEnvironment;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import lombok.val;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.junit.jupiter.api.*;
@@ -43,7 +43,7 @@ import static io.appform.ranger.client.utils.RangerHubTestUtils.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class RangerServerBundleTest {
+class RangerServerBundleTest {
 
     private static final JerseyEnvironment JERSEY_ENVIRONMENT = mock(JerseyEnvironment.class);
     private static final MetricRegistry METRIC_REGISTRY = mock(MetricRegistry.class);
@@ -67,7 +67,7 @@ public class RangerServerBundleTest {
     };
 
     @BeforeAll
-    public static void setup() throws Exception {
+    static void setup() throws Exception {
         when(JERSEY_ENVIRONMENT.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(ENVIRONMENT.jersey()).thenReturn(JERSEY_ENVIRONMENT);
         when(ENVIRONMENT.lifecycle()).thenReturn(LIFECYCLE_ENVIRONMENT);
@@ -91,7 +91,7 @@ public class RangerServerBundleTest {
     @Test
     void testRangerBundle() {
         var hub = RANGER_SERVER_BUNDLE.getHubs().get(0);
-        Assertions.assertTrue(hub instanceof RangerTestHub);
+        Assertions.assertInstanceOf(RangerTestHub.class, hub);
         var node = hub.getNode(service).orElse(null);
         Assertions.assertNotNull(node);
         Assertions.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
@@ -104,7 +104,7 @@ public class RangerServerBundleTest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         for (LifeCycle lifeCycle : LIFECYCLE_ENVIRONMENT.getManagedObjects()) {
             lifeCycle.stop();
         }

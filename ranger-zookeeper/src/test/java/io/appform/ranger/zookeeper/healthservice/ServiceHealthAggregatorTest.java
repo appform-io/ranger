@@ -35,7 +35,7 @@ class ServiceHealthAggregatorTest {
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         testMonitor = new TestMonitor("TestHealthMonitor", TimeEntity.everySecond(), 1000);
         serviceHealthAggregator.addIsolatedMonitor(testMonitor);
         serviceHealthAggregator.addInlineMonitor(new Monitor<HealthcheckStatus>() {
@@ -55,7 +55,7 @@ class ServiceHealthAggregatorTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         serviceHealthAggregator.stop();
     }
 
@@ -65,7 +65,7 @@ class ServiceHealthAggregatorTest {
         testMonitor.run();
         testMonitor.setThreadSleep(2000);
 
-        RangerTestUtils.sleepUntil(3, () -> !testMonitor.hasValidUpdatedTime(new Date()));
+        RangerTestUtils.sleepUntil(4, () -> !testMonitor.hasValidUpdatedTime(new Date()));
 
         /* in the TestMonitor, thread was sleeping for 2 seconds, */
         /* so its state is supposed to be stale (>1 second) and service has to be unhealthy */

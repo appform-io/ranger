@@ -25,11 +25,11 @@ import io.appform.ranger.server.bundle.rotation.BirTask;
 import io.appform.ranger.server.bundle.rotation.OorTask;
 import io.appform.ranger.server.bundle.rotation.RotationCheck;
 import io.appform.ranger.server.bundle.rotation.RotationStatus;
-import io.dropwizard.Configuration;
-import io.dropwizard.ConfiguredBundle;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.ConfiguredBundle;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -41,7 +41,7 @@ import java.util.List;
 public abstract class RangerServerBundle<
         T,
         R extends ServiceRegistry<T>,
-        U extends Configuration> implements ConfiguredBundle<U>{
+        U extends Configuration> implements ConfiguredBundle<U> {
 
     /*
         Why are we taking a list of hubs, instead of one? To be able to aggregate from different dataSources if need be

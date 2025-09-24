@@ -19,15 +19,17 @@ package io.appform.ranger.hub.server.bundle.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import lombok.Data;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,9 +39,9 @@ public class RangerHttpUpstreamConfiguration extends RangerUpstreamConfiguration
     @Valid
     private List<HttpClientConfig> httpClientConfigs;
 
-  public RangerHttpUpstreamConfiguration() {
-    super(BackendType.HTTP);
-  }
+    public RangerHttpUpstreamConfiguration() {
+        super(BackendType.HTTP);
+    }
 
     @Override
     public <T> T accept(RangerConfigurationVisitor<T> visitor) {

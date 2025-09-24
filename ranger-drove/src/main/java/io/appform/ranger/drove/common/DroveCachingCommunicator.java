@@ -38,7 +38,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Duration;
 import java.util.*;
@@ -77,13 +76,13 @@ public class DroveCachingCommunicator implements DroveCommunicator {
                 .refreshAfterWrite(Duration.ofSeconds(30)) //Load async every 30 secs
                 .build(new CacheLoader<>() {
                     @Override
-                    public @Nullable List<ExposedAppInfo> load(@NonNull Service service) {
+                    public List<ExposedAppInfo> load(Service service) {
                         return root.listNodes(service);
                     }
 
                     @Override
                     public @NonNull Map<Service, List<ExposedAppInfo>> loadAll(
-                            @NonNull Iterable<? extends Service> services) {
+                            @NonNull Set<? extends Service> services) {
                         return root.listNodes(services); //This will throw in the case of comm failure, which is correct
                     }
                 });

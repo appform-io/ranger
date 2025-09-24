@@ -19,7 +19,7 @@ package io.appform.ranger.discovery.bundle.monitors;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.bundle.rotationstatus.DropwizardServerStatus;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,7 +31,7 @@ public class DropwizardServerStartupCheck implements Healthcheck {
     private final DropwizardServerStatus serverStatus;
 
     public DropwizardServerStartupCheck(Environment environment,
-      DropwizardServerStatus serverStatus) {
+                                        DropwizardServerStatus serverStatus) {
         this.serverStatus = serverStatus;
         environment.lifecycle().addServerLifecycleListener(server -> {
             log.info("Dropwizard server started. Marking healthcheck as healthy");
