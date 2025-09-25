@@ -23,8 +23,8 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.0</version>
-    <name>Ranger</name>
+    <version>1.1.1</version>
+    <name>Ranger Service Discovery</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
     <inceptionYear>2015</inceptionYear>
@@ -53,11 +53,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://ossrh-staging-api.central.sonatype.com</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://ossrh-staging-api.central.sonatype.com</url>
         </repository>
     </distributionManagement>
 
@@ -123,6 +123,7 @@
         <logback.version>1.2.12</logback.version>
         <metrics.version>4.2.0</metrics.version>
         <jackson.version>2.13.5</jackson.version>
+        <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
     <dependencyManagement>
@@ -232,7 +233,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -286,7 +287,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <nexusUrl>https://ossrh-staging-api.central.sonatype.com</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                     <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
                 </configuration>

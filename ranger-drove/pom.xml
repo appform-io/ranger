@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
     <properties>
         <drove.version>1.30</drove.version>
@@ -29,6 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-drove</artifactId>
+    <name>Drove based discovery for Ranger</name>
 
     <dependencies>
         <dependency>
