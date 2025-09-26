@@ -16,14 +16,12 @@
 package io.appform.ranger.discovery.bundle.resolvers;
 
 import io.appform.ranger.common.server.ShardInfo;
-import io.appform.ranger.discovery.bundle.ServiceDiscoveryBundle;
 import io.appform.ranger.discovery.bundle.ServiceDiscoveryConfiguration;
 
 /**
  * NodeInfoResolver.java
  * Interface to help build a node to be saved in the discovery backend while building the serviceProvider.
- * To define your custom nodeData {@link ShardInfo}, please define your own implementation, during the bundle {@link
- * ServiceDiscoveryBundle} init.
+ * To define your custom nodeData {@link ShardInfo}, please define your own implementation.
  */
 @FunctionalInterface
 public interface NodeInfoResolver extends CriteriaResolver<ShardInfo, ServiceDiscoveryConfiguration> {

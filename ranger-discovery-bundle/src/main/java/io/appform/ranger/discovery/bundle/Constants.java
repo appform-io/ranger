@@ -28,6 +28,7 @@ import java.util.Set;
 public class Constants {
     public static final String DEFAULT_NAMESPACE = "default";
     public static final String DEFAULT_HOST = "__DEFAULT_SERVICE_HOST";
+
     public static final int DEFAULT_PORT = -1;
     public static final int DEFAULT_DW_CHECK_INTERVAL = 15;
     public static final int DEFAULT_RETRY_CONN_INTERVAL = 5000;
@@ -37,4 +38,5 @@ public class Constants {
     public static final String PATH_DELIMITER = "/";
 
     public static final Set<String> LOCAL_ADDRESSES = ImmutableSet.of("127.0.0.1", "127.0.1.1", "localhost");
+
 }

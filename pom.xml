@@ -23,7 +23,7 @@
     <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>Ranger Service Discovery</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
@@ -36,6 +36,7 @@
         <module>ranger-drove</module>
         <module>ranger-client</module>
         <module>ranger-zk-client</module>
+        <module>ranger-id</module>
         <module>ranger-http-client</module>
         <module>ranger-drove-client</module>
         <module>ranger-server-common</module>
@@ -119,6 +120,9 @@
 
         <dropwizard.version>2.1.12</dropwizard.version>
         <logback.version>1.2.12</logback.version>
+        <metrics.version>4.2.0</metrics.version>
+
+        <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
     <dependencyManagement>
@@ -232,7 +236,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
