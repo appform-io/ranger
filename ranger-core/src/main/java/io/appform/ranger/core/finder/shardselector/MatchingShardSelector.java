@@ -23,7 +23,6 @@ import io.appform.ranger.core.model.ShardSelector;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class MatchingShardSelector<T> implements ShardSelector<T, MapBasedServiceRegistry<T>> {
 

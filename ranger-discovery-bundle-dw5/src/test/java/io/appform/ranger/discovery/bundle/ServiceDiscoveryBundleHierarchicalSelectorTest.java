@@ -16,8 +16,6 @@
 
 package io.appform.ranger.discovery.bundle;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.alibaba.dcm.DnsCacheManipulator;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -45,7 +43,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodeAbsence;
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodePresence;

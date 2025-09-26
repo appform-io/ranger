@@ -15,9 +15,6 @@
  */
 package io.appform.ranger.hub.server.bundle.configuration;
 
-import java.util.Objects;
-import java.util.Set;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +23,8 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  *

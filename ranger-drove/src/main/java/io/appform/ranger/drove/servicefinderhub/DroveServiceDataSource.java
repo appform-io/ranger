@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
-import io.appform.ranger.drove.common.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;

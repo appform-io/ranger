@@ -22,10 +22,10 @@ import io.appform.ranger.core.finderhub.ServiceFinderFactory;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
 import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilider;
-import io.appform.ranger.drove.common.DroveCommunicator;
 import lombok.Builder;
 import lombok.val;
 

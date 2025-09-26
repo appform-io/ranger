@@ -21,7 +21,10 @@ import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 

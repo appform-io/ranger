@@ -37,7 +37,6 @@ import io.appform.ranger.hub.server.bundle.configuration.*;
 import io.appform.ranger.hub.server.bundle.healthcheck.RangerHealthCheck;
 import io.appform.ranger.hub.server.bundle.lifecycle.CuratorLifecycle;
 import io.appform.ranger.server.bundle.RangerServerBundle;
-
 import io.dropwizard.core.Configuration;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

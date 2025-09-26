@@ -20,9 +20,9 @@ import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
+import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
-import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.utils.RangerDroveUtils;
 
 import java.util.Objects;

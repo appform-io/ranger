@@ -15,10 +15,10 @@
  */
 package io.appform.ranger.core.model;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
 
 import java.util.List;
-import lombok.Getter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class ServiceRegistry<T> {
     @Getter
