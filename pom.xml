@@ -121,7 +121,8 @@
         <metrics.version>4.2.0</metrics.version>
         <jackson.version>2.20</jackson.version>
         <snappy.version>1.1.10.8</snappy.version>
-        <netty.version>4.1.127.Final</netty.version>
+
+        <zookeeper.version>3.8.5</zookeeper.version>
 
         <!-- Test Dependencies -->
         <junit.version>5.13.4</junit.version>
@@ -150,9 +151,9 @@
                 <version>${snappy.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
