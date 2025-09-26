@@ -45,11 +45,11 @@ public class App extends Application<AppConfig> {
     }
 
     @Override
-    public void run(AppConfig appConfig, Environment environment) throws Exception {
+    public void run(AppConfig appConfig, Environment environment) {
         val objectMapper = environment.getObjectMapper();
         objectMapper.registerModule(new ParameterNamesModule());
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);

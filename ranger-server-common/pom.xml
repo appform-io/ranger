@@ -27,5 +27,4 @@
 
     <artifactId>ranger-server-common</artifactId>
     <name>Common libraries for Ranger</name>
-
 </project>

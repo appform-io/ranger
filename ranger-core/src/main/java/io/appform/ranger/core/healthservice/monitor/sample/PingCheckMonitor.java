@@ -21,14 +21,14 @@ import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.healthservice.monitor.RollingWindowHealthQueue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpStatus;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.HttpRoute;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
+import java.io.IOException;
 import java.util.concurrent.*;
 
 /**
@@ -38,8 +38,8 @@ import java.util.concurrent.*;
 @Slf4j
 @SuppressWarnings("unused")
 public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
-    
-    private final HttpRequest httpRequest;
+
+    private final ClassicHttpRequest httpRequest;
     private final String host;
     private final ExecutorService executorService;
     private final Integer pingTimeoutInMilliseconds;
@@ -58,7 +58,7 @@ public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
      */
     public PingCheckMonitor(
             TimeEntity timeEntity,
-            HttpRequest httpRequest,
+            ClassicHttpRequest httpRequest,
             Integer pingTimeoutInMilliseconds,
             Integer pingWindowSize,
             Integer maxFailures,
@@ -92,8 +92,7 @@ public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
             log.error("Request thread interrupted");
             Thread.currentThread().interrupt();
             return getRollingWindowHealthcheckStatus(HealthcheckStatus.unhealthy);
-        }
-        catch (ExecutionException | TimeoutException e) {
+        } catch (ExecutionException | TimeoutException e) {
             log.error("Ping monitor failed:{} with HttpRequest:{} on host:{} port:{}", name, httpRequest, host, port);
             log.error("Error running ping monitor: ", e);
             return getRollingWindowHealthcheckStatus(HealthcheckStatus.unhealthy);
@@ -114,8 +113,8 @@ public class PingCheckMonitor extends IsolatedHealthMonitor<HealthcheckStatus> {
         try {
             log.debug("executing http HttpRequest: {}, host:{}, port:{}", httpRequest, host, port);
             val response = httpClient.execute(new HttpHost(host, port), httpRequest);
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                log.error("Error while executing Ping Test. HttpRequest: {}, host:{}, port:{}, reason:{}", httpRequest, host, port, response.getStatusLine().getReasonPhrase());
+            if (response.getCode() != HttpStatus.SC_OK) {
+                log.error("Error while executing Ping Test. HttpRequest: {}, host:{}, port:{}, reason:{}", httpRequest, host, port, response.getReasonPhrase());
                 response.close();
                 return false;
             }
