@@ -21,29 +21,39 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-discovery-bundle</artifactId>
-    <name>Dropwizard bundle for Ranger dicovery</name>
+    <name>Dropwizard bundle for Ranger discovery</name>
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
         <dropwizard.version>2.1.12</dropwizard.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-bom</artifactId>
+                <version>${dropwizard.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>${dropwizard.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jackson</artifactId>
-            <version>${dropwizard.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
