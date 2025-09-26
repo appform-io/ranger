@@ -33,8 +33,8 @@ import static org.awaitility.Awaitility.await;
 @UtilityClass
 public class RangerTestUtils {
 
-    static String TEST_NAMESPACE = "test";
-    static String TEST_SERVICE = "test-service";
+    static final String TEST_NAMESPACE = "test";
+    static final String TEST_SERVICE = "test-service";
     //Visible outside the class scope
     public static Service service = Service.builder().namespace(TEST_NAMESPACE).serviceName(TEST_SERVICE).build();
 

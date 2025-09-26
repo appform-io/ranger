@@ -51,7 +51,7 @@ class ServiceProviderExtCuratorTest {
     private CuratorFramework curatorFramework;
 
     @BeforeEach
-    public void startTestCluster() throws Exception {
+    void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
@@ -66,7 +66,7 @@ class ServiceProviderExtCuratorTest {
     }
 
     @AfterEach
-    public void stopTestCluster() throws Exception {
+    void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         curatorFramework.close();
         if(null != testingCluster) {

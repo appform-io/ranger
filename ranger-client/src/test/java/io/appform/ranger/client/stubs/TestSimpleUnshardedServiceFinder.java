@@ -58,17 +58,17 @@ public class TestSimpleUnshardedServiceFinder <T>
 
         @Override
         public void start() {
-
+            // no-op
         }
 
         @Override
         public void ensureConnected() {
-
+            // no-op
         }
 
         @Override
         public void stop() {
-
+            // no-op
         }
 
         @Override

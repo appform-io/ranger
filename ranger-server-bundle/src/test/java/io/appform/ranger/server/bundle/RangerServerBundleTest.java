@@ -43,13 +43,15 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.appform.ranger.client.utils.RangerHubTestUtils.service;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RangerServerBundleTest {
+class RangerServerBundleTest {
 
     private static final JerseyEnvironment JERSEY_ENVIRONMENT = mock(JerseyEnvironment.class);
     private static final MetricRegistry METRIC_REGISTRY = mock(MetricRegistry.class);
@@ -73,7 +75,7 @@ public class RangerServerBundleTest {
     };
 
     @BeforeAll
-    public static void setup() throws Exception {
+    static void setup() throws Exception {
         when(JERSEY_ENVIRONMENT.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(ENVIRONMENT.jersey()).thenReturn(JERSEY_ENVIRONMENT);
         when(ENVIRONMENT.lifecycle()).thenReturn(LIFECYCLE_ENVIRONMENT);
@@ -97,10 +99,10 @@ public class RangerServerBundleTest {
     @Test
     void testRangerBundle() {
         var hub = RANGER_SERVER_BUNDLE.getHubs().get(0);
-        Assertions.assertTrue(hub instanceof RangerTestHub);
+        assertInstanceOf(RangerTestHub.class, hub);
         var node = hub.getNode(service).orElse(null);
         Assertions.assertNotNull(node);
-        Assertions.assertTrue(node.getHost().equalsIgnoreCase("localhost"));
+        assertTrue(node.getHost().equalsIgnoreCase("localhost"));
         Assertions.assertEquals(9200, node.getPort());
         Assertions.assertEquals(1, node.getNodeData().getShardId());
         Assertions.assertNull(hub.getNode(RangerTestUtils.getService("test", "test")).orElse(null));
@@ -110,7 +112,7 @@ public class RangerServerBundleTest {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         for (LifeCycle lifeCycle : LIFECYCLE_ENVIRONMENT.getManagedObjects()) {
             lifeCycle.stop();
         }

@@ -49,13 +49,11 @@ public class DefaultPortSchemeResolver<T extends Configuration> implements PortS
     }
 
     private Optional<ConnectorFactory> getConnectorFactory(ServerFactory serverFactory) {
-        if (serverFactory instanceof DefaultServerFactory) {
-            val defaultFactory = (DefaultServerFactory) serverFactory;
+        if (serverFactory instanceof DefaultServerFactory defaultFactory) {
             return defaultFactory.getApplicationConnectors()
                     .stream()
                     .findFirst();
-        } else if (serverFactory instanceof SimpleServerFactory) {
-            val defaultFactory = (SimpleServerFactory) serverFactory;
+        } else if (serverFactory instanceof SimpleServerFactory defaultFactory) {
             return Optional.ofNullable(defaultFactory.getConnector());
         } else {
             return Optional.empty();

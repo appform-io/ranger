@@ -24,7 +24,7 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ServiceNodeResponseTest {
+class ServiceNodeResponseTest {
 
     @Value
     @Builder
@@ -35,7 +35,7 @@ public class ServiceNodeResponseTest {
     }
 
     @Test
-    public void testServiceNodesResponse(){
+    void testServiceNodesResponse(){
         val serviceNodesResponse = ResourceHelper.getResource("fixtures/serviceNodesResponse.json", ServiceNodesResponse.class);
         Assertions.assertNotNull(serviceNodesResponse);
         Assertions.assertFalse(serviceNodesResponse.getData().isEmpty());

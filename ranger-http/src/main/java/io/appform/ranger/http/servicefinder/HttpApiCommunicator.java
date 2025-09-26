@@ -133,8 +133,8 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
     }
 
     @Override
-    public void close() throws Exception {
-
+    public void close() {
+        //Not required
     }
 
     private <U> U executeRemoteCall(Supplier<U> executor) {

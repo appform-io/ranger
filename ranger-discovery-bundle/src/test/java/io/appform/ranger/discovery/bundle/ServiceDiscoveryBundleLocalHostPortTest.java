@@ -74,7 +74,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     };
 
     @AfterEach
-    public void afterMethod() {
+    void afterMethod() {
         DnsCacheManipulator.clearDnsCache();
     }
 

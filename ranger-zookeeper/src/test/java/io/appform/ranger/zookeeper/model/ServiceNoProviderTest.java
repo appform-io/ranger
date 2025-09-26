@@ -37,14 +37,14 @@ class ServiceNoProviderTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void startTestCluster() throws Exception {
+    void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
     }
 
     @AfterEach
-    public void stopTestCluster() throws Exception {
+    void stopTestCluster() throws Exception {
         if (null != testingCluster) {
             testingCluster.close();
         }

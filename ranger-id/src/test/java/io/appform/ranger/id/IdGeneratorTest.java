@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -179,7 +180,7 @@ class IdGeneratorTest {
     void testConstraintFailure() {
         Assertions.assertFalse(IdGenerator.generateWithConstraints(
                 "TST",
-                ImmutableList.of(id -> false),
+                List.of(id -> false),
                 false).isPresent());
     }
 

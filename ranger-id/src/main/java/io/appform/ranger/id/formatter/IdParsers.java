@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class IdParsers {
     private static final int MINIMUM_ID_LENGTH = 22;
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)(\\d{22})(\\d{2})?(.*)");
 
     private final Map<Integer, IdFormatter> parserRegistry = Map.of(
             IdFormatters.original().getType().getValue(), IdFormatters.original()

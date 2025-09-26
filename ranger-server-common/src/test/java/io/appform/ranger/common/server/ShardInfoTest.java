@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 
-public class ShardInfoTest {
+class ShardInfoTest {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private String getResource(String path) {
@@ -49,7 +49,7 @@ public class ShardInfoTest {
     }
 
     @Test
-    public void testShardInfo(){
+    void testShardInfo(){
         val shardInfo1 = getResource("fixtures/env1.json", ShardInfo.class);
         val shardInfo2 = getResource("fixtures/env2.json", ShardInfo.class);
         Assertions.assertNotNull(shardInfo1);

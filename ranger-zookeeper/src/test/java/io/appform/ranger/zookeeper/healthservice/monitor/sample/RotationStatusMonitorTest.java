@@ -31,12 +31,12 @@ class RotationStatusMonitorTest {
     File file = new File(filePath);
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         deleteRotationFile();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         deleteRotationFile();
     }
 
@@ -60,11 +60,10 @@ class RotationStatusMonitorTest {
     }
 
     private void deleteRotationFile() throws Exception {
-        if (file.exists()) {
-            if (!file.delete()) {
+        if (file.exists() && !file.delete()) {
                 System.out.println("Unable to delete file = " + filePath);
                 throw new Exception("Unable to delete file = " + filePath);
             }
-        }
+
     }
 }

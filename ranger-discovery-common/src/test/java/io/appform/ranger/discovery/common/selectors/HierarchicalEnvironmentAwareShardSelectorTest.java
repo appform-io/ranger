@@ -45,7 +45,7 @@ class HierarchicalEnvironmentAwareShardSelectorTest {
     private MapBasedServiceRegistry<ShardInfo> serviceRegistry;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 

@@ -35,7 +35,7 @@ class ServiceHealthAggregatorTest {
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         testMonitor = new TestMonitor("TestHealthMonitor", TimeEntity.everySecond(), 1000);
         serviceHealthAggregator.addIsolatedMonitor(testMonitor);
         serviceHealthAggregator.addInlineMonitor(new Monitor<HealthcheckStatus>() {
@@ -55,7 +55,7 @@ class ServiceHealthAggregatorTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         serviceHealthAggregator.stop();
     }
 

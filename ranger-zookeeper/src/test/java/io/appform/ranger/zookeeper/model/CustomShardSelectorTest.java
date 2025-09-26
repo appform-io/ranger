@@ -51,7 +51,7 @@ class CustomShardSelectorTest {
     private final List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = Lists.newArrayList();
 
     @BeforeEach
-    public void startTestCluster() throws Exception {
+    void startTestCluster() throws Exception {
         objectMapper = new ObjectMapper();
         testingCluster = new TestingCluster(3);
         testingCluster.start();
@@ -61,7 +61,7 @@ class CustomShardSelectorTest {
     }
 
     @AfterEach
-    public void stopTestCluster() throws Exception {
+    void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         if (null != testingCluster) {
             testingCluster.close();

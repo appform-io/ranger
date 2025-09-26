@@ -149,12 +149,12 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
 
     @Override
     protected void preBuild() {
-
+        // no-op
     }
 
     @Override
     protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
-
+        // no-op
     }
 }
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
@@ -197,17 +197,17 @@ private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder
 
             @Override
             public void start() {
-
+                // no-op
             }
 
             @Override
             public void ensureConnected() {
-
+                // no-op
             }
 
             @Override
             public void stop() {
-
+                // no-op
             }
 
             @Override

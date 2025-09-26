@@ -26,8 +26,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
-
 /**
  * Test performance between different constructs
  */
@@ -38,7 +36,7 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
     public static class BenchmarkState {
 
         @Setup(Level.Trial)
-        public void setUp() throws IOException {
+        public void setUp() {
             IdGenerator.initialize(23);
         }
     }

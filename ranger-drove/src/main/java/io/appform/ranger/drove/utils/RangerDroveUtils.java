@@ -64,10 +64,12 @@ public class RangerDroveUtils {
                     new X509TrustManager() {
                         @Override
                         public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                            // Trust all client certificates
                         }
 
                         @Override
                         public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                            // Trust all server certificates
                         }
 
                         @Override
@@ -100,8 +102,6 @@ public class RangerDroveUtils {
                                                                                config.getPassword()),
                                                         new AuthHeaderDecorator(config.getAuthHeader())),
                                                 new DroveOkHttpTransport(createOkHttpClient(config)));
-//                                                new DroveHttpComponentsTransport(droveConfig,
-//                                                                                 createHttpClient(config)));
         val apiCommunicator = new DroveApiCommunicator(namespace, config, droveClient, mapper);
         return config.isSkipCaching()
                ? apiCommunicator

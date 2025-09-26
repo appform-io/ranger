@@ -20,10 +20,10 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ServiceRegistrationResponseTest {
+class ServiceRegistrationResponseTest {
 
     @Test
-    public void testServiceRegistrationResponse(){
+    void testServiceRegistrationResponse(){
         val resource = ResourceHelper.getResource("fixtures/serviceResponse.json", ServiceRegistrationResponse.class);
         Assertions.assertNotNull(resource);
         Assertions.assertTrue(resource.valid());

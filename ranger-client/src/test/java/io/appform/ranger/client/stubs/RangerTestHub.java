@@ -42,12 +42,12 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
         return new ServiceFinderHubBuilder<TestNodeData, ListBasedServiceRegistry<TestNodeData>>() {
             @Override
             protected void preBuild() {
-
+                // no-op
             }
 
             @Override
             protected void postBuild(ServiceFinderHub<TestNodeData, ListBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
-
+                // no-op
             }
         }.withServiceDataSource(getServiceDataSource())
             .withServiceFinderFactory(getFinderFactory())

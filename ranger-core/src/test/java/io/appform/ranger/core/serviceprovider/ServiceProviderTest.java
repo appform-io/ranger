@@ -55,7 +55,8 @@ class ServiceProviderTest {
 
     static class TestNodeDataSink<T extends TestNodeData, S extends TestSerializer<T>> implements NodeDataSink<T, S> {
 
-        public TestNodeDataSink(){
+        public TestNodeDataSink() {
+            //no-op
         }
 
         @Override
@@ -65,17 +66,17 @@ class ServiceProviderTest {
 
         @Override
         public void start() {
-
+            // no-op
         }
 
         @Override
         public void ensureConnected() {
-
+            // no-op
         }
 
         @Override
         public void stop() {
-
+            // no-op
         }
 
         @Override

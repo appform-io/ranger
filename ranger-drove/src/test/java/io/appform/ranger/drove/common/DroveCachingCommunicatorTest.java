@@ -72,7 +72,7 @@ class DroveCachingCommunicatorTest {
             .build();
 
     @AfterAll
-    public static void shutdown() {
+    static void shutdown() {
         extension.shutdownServer();
     }
 
