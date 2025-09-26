@@ -50,7 +50,9 @@ import java.util.Collections;
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodeAbsence;
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodePresence;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @Slf4j

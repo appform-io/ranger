@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.appform.ranger.discovery.common.Constants.*;
+import static io.appform.ranger.discovery.common.Constants.HOST_PORT_DELIMITER;
+import static io.appform.ranger.discovery.common.Constants.PATH_DELIMITER;
+import static io.appform.ranger.discovery.common.Constants.ZOOKEEPER_HOST_DELIMITER;
 
 
 
