@@ -111,17 +111,17 @@
 
         <!-- Global -->
         <guava.version>33.5.0-jre</guava.version>
-        <curator.version>5.5.0</curator.version>
+        <curator.version>5.9.0</curator.version>
         <slf4j.version>1.7.32</slf4j.version>
         <lombok.version>1.18.42</lombok.version>
-        <annotations.version>3.0.1u2</annotations.version>
+        <annotations.version>3.0.1</annotations.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
         <http.client.version>5.1.0</http.client.version>
         <logback.version>1.5.18</logback.version>
         <metrics.version>4.2.0</metrics.version>
         <jackson.version>2.20</jackson.version>
         <snappy.version>1.1.10.8</snappy.version>
-        <zookeeper.version>3.8.5</zookeeper.version>
+        <zookeeper.version>3.9.4</zookeeper.version>
 
         <!-- Test Dependencies -->
         <junit.version>5.13.4</junit.version>
