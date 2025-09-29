@@ -54,7 +54,7 @@ public abstract class RangerServerBundle<
     private List<RangerHubClient<T, R>> hubs;
     private ObjectMapper mapper;
 
-    protected void preBundle(U configuration){
+    protected void preBundle(U configuration) {
         /*
             Noop here! Let the subclasses override if there are any. Not a mandatory check everywhere. Http doesn't need it, only dataStore builders will need them.
             Need not be abstract!
@@ -65,7 +65,7 @@ public abstract class RangerServerBundle<
         Letting the subclasses override should they have to again. The default is set to false always. Need not be abstract, not a mandatory parameter.
      */
     @SuppressWarnings("unused")
-    protected boolean withInitialRotationStatus(U configuration){
+    protected boolean withInitialRotationStatus(U configuration) {
         return true;
     }
 
@@ -74,7 +74,7 @@ public abstract class RangerServerBundle<
         Letting the subclasses override should they have to, need not be abstract. Avoids boilerplate code everywhere, the default impl!
      */
     @SuppressWarnings("unused")
-    protected List<Signal<T>> withLifecycleSignals(U configuration){
+    protected List<Signal<T>> withLifecycleSignals(U configuration) {
         return List.of();
     }
 

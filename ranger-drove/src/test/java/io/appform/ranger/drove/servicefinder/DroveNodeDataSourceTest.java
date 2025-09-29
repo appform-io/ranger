@@ -72,11 +72,11 @@ class DroveNodeDataSourceTest {
 
         when(droveClient.listNodes(any(Service.class)))
                 .thenReturn(List.of(new ExposedAppInfo("TEST_APP",
-                                                       "A1",
-                                                       "xx.x.xx",
-                                                       Map.of(),
-                                                       List.of(new ExposedAppInfo.ExposedHost("h1", 100, TCP),
-                                                               new ExposedAppInfo.ExposedHost("h2", 100, TCP)))));
+                        "A1",
+                        "xx.x.xx",
+                        Map.of(),
+                        List.of(new ExposedAppInfo.ExposedHost("h1", 100, TCP),
+                                new ExposedAppInfo.ExposedHost("h2", 100, TCP)))));
         val ds = new DroveNodeDataSource<DNodeData, DNodeDataDeserializer>(
                 service,
                 config,

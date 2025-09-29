@@ -63,7 +63,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
         if (effectiveRefreshTime < HubConstants.MINIMUM_REFRESH_TIME_MS) {
             effectiveRefreshTime = HubConstants.MINIMUM_REFRESH_TIME_MS;
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
-                     nodeRefreshIntervalMs,
+                    nodeRefreshIntervalMs,
                     HubConstants.MINIMUM_REFRESH_TIME_MS);
         }
 

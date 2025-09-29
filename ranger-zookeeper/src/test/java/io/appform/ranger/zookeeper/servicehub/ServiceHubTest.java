@@ -103,16 +103,16 @@ class ServiceHubTest {
 
         val refreshHubSignal = new ExternalTriggeredSignal<Void>(() -> null, Collections.emptyList());
         val hub = new ZkServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>()
-            .withCuratorFramework(curatorFramework)
-            .withNamespace("test")
-            .withRefreshFrequencyMs(1000)
-            .withServiceDataSource(new ZkServiceDataSource("test", testingCluster.getConnectString(), curatorFramework))
-            .withServiceFinderFactory(ZkShardedServiceFinderFactory.<TestNodeData>builder()
-                .curatorFramework(curatorFramework)
-                .deserializer(this::read)
-                .build())
-            .withExtraRefreshSignal(refreshHubSignal)
-            .build();
+                .withCuratorFramework(curatorFramework)
+                .withNamespace("test")
+                .withRefreshFrequencyMs(1000)
+                .withServiceDataSource(new ZkServiceDataSource("test", testingCluster.getConnectString(), curatorFramework))
+                .withServiceFinderFactory(ZkShardedServiceFinderFactory.<TestNodeData>builder()
+                        .curatorFramework(curatorFramework)
+                        .deserializer(this::read)
+                        .build())
+                .withExtraRefreshSignal(refreshHubSignal)
+                .build();
         hub.start();
         refreshHubSignal.trigger();
 
@@ -125,9 +125,9 @@ class ServiceHubTest {
 
     private ServiceNode<TestNodeData> read(final byte[] data) {
         try {
-            return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {});
-        }
-        catch (IOException e) {
+            return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {
+            });
+        } catch (IOException e) {
             Exceptions.illegalState(e);
         }
         return null;
@@ -136,8 +136,7 @@ class ServiceHubTest {
     private byte[] write(final ServiceNode<TestNodeData> node) {
         try {
             return objectMapper.writeValueAsBytes(node);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Exceptions.illegalState(e);
         }
         return null;

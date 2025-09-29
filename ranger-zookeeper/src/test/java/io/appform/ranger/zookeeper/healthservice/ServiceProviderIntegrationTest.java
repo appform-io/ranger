@@ -71,7 +71,8 @@ class ServiceProviderIntegrationTest {
                 .withServiceName("test-service")
                 .withDeserializer(data -> {
                     try {
-                        return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {});
+                        return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {
+                        });
                     } catch (IOException e) {
                         Exceptions.illegalState(e);
                     }

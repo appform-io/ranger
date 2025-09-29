@@ -1,4 +1,6 @@
 {
-  "environment" : "e",
-  "tags" : ["tag1"]
+  "environment": "e",
+  "tags": [
+    "tag1"
+  ]
 }

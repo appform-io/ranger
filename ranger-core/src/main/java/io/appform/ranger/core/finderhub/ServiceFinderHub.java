@@ -98,7 +98,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             ServiceDataSource serviceDataSource,
             ServiceFinderFactory<T, R> finderFactory) {
         this(serviceDataSource, finderFactory,
-             HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
+                HubConstants.SERVICE_REFRESH_TIMEOUT_MS, HubConstants.HUB_START_TIMEOUT_MS, Set.of());
     }
 
     public ServiceFinderHub(
@@ -112,9 +112,9 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
         this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
         this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                                                      () -> null,
-                                                      Collections.emptyList(),
-                                      10_000));
+                () -> null,
+                Collections.emptyList(),
+                10_000));
         this.refresherPool = createRefresherPool();
         this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
     }
@@ -134,8 +134,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                 updateAvailable();
                 waitTillServiceIsReady(service);
                 return finders.get().get(service);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("Exception whiling building finder", e);
                 throw e;
             }
@@ -158,8 +157,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
         if (null != monitorFuture) {
             try {
                 monitorFuture.cancel(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("Error stopping service finder hub monitor: {}", e.getMessage());
             }
         }
@@ -175,13 +173,12 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             updateLock.lock();
             updateAvailable.set(true);
             updateCond.signalAll();
-        }
-        finally {
+        } finally {
             updateLock.unlock();
         }
     }
 
-    private  ForkJoinPool createRefresherPool() {
+    private ForkJoinPool createRefresherPool() {
         return new ForkJoinPool(
                 Math.max(20, Runtime.getRuntime().availableProcessors()),
                 pool -> {
@@ -201,13 +198,11 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                     updateCond.await();
                 }
                 executorService.submit(this::updateRegistry);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
                 Thread.currentThread().interrupt();
                 break;
-            }
-            finally {
+            } finally {
                 updateAvailable.set(false);
                 updateLock.unlock();
             }
@@ -243,15 +238,12 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             updatedFinders.putAll(newFinders);
             updatedFinders.putAll(matchingServices);
             finders.set(updatedFinders);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("Refresh interrupted.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error updating service list. Will maintain older list", e);
-        }
-        finally {
+        } finally {
             alreadyUpdating.set(false);
         }
     }
@@ -259,10 +251,10 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private void waitTillHubIsReady() {
         val services = FinderUtils.getEligibleServices(serviceDataSource.services(), excludedServices);
         val timeToRefresh = Math.max(hubStartTimeoutMs,
-                                     (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
+                (serviceRefreshTimeoutMs * services.size()) / refresherPool.getParallelism());
         if (timeToRefresh != hubStartTimeoutMs) {
             log.warn("Max hub refresh time has been dynamically adjusted to {} ms from the provided {} ms as the " +
-                             "provided time would have been insufficient to refresh {} services.",
+                            "provided time would have been insufficient to refresh {} services.",
                     timeToRefresh, hubStartTimeoutMs, services.size());
         }
         val hubRefresher = CompletableFuture.allOf(
@@ -273,16 +265,13 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                         })).toArray(CompletableFuture[]::new));
         try {
             hubRefresher.get(timeToRefresh, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException ie) {
+        } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Refresh interrupted");
-        }
-        catch (TimeoutException e) {
+        } catch (TimeoutException e) {
             Exceptions.illegalState("Couldn't perform service hub refresh at this time. " +
-                                          "Refresh exceeded the start up time specified");
-        }
-        catch (Exception e) {
+                    "Refresh exceeded the start up time specified");
+        } catch (Exception e) {
             Exceptions.illegalState("Couldn't perform hub refresh at this time", e);
         }
     }
@@ -298,8 +287,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                             .map(ServiceFinder::getServiceRegistry)
                             .map(ServiceRegistry::isRefreshed)
                             .orElse(false));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Exceptions
                     .illegalState("Could not perform initial state for service: " + service.getServiceName(), e);
         }

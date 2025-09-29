@@ -23,5 +23,5 @@ import io.appform.ranger.http.model.ServiceNodesResponse;
  */
 @FunctionalInterface
 public interface HTTPResponseDataDeserializer<T> extends Deserializer<T> {
-    ServiceNodesResponse<T> deserialize(byte []data);
+    ServiceNodesResponse<T> deserialize(byte[] data);
 }

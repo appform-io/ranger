@@ -39,9 +39,9 @@ public class RangerHttpUpstreamConfiguration extends RangerUpstreamConfiguration
     @Valid
     private List<HttpClientConfig> httpClientConfigs;
 
-  public RangerHttpUpstreamConfiguration() {
-    super(BackendType.HTTP);
-  }
+    public RangerHttpUpstreamConfiguration() {
+        super(BackendType.HTTP);
+    }
 
     @Override
     public <T> T accept(RangerConfigurationVisitor<T> visitor) {

@@ -45,13 +45,13 @@ class SimpleServiceProviderTest {
         testingCluster = new TestingCluster(3);
         testingCluster.start();
         registerService("localhost-1", 9000);
-        registerService("localhost-2", 9001 );
+        registerService("localhost-2", 9001);
         registerService("localhost-3", 9002);
     }
 
     @AfterEach
     void stopTestCluster() throws Exception {
-        if(null != testingCluster) {
+        if (null != testingCluster) {
             testingCluster.close();
         }
     }
@@ -99,7 +99,7 @@ class SimpleServiceProviderTest {
             Assertions.assertNotNull(node);
             frequency.add(node.getHost());
         });
-        System.out.println("1 Million lookups and freq counting took (ms):" + (System.currentTimeMillis() -startTime));
+        System.out.println("1 Million lookups and freq counting took (ms):" + (System.currentTimeMillis() - startTime));
         System.out.println("Frequency: " + frequency);
     }
 

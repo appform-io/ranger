@@ -29,7 +29,7 @@ public class PathBuilder {
         return String.format("/%s", service.getServiceName());
     }
 
-    public static<T> String instancePath(final Service service, final ServiceNode<T> node) {
+    public static <T> String instancePath(final Service service, final ServiceNode<T> node) {
         return String.format("/%s/%s", service.getServiceName(), node.representation());
     }
 }

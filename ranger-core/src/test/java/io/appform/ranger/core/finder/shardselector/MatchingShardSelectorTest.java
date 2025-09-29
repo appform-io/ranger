@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class MatchingShardSelectorTest {
 
     @Test
-    void testMatchingShardSelector(){
+    void testMatchingShardSelector() {
         val serviceRegistry = RegistryTestUtils.getServiceRegistry();
         val shardSelector = new MatchingShardSelector<TestNodeData>();
         val nodes = shardSelector.nodes(

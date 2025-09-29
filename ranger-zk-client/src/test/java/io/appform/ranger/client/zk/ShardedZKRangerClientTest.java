@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class ShardedZKRangerClientTest extends BaseRangerZKClientTest {
 
     @Test
-    void testShardedHub(){
+    void testShardedHub() {
         val zkHubClient = ShardedRangerZKHubClient.<TestNodeData>builder()
                 .namespace("test-n")
                 .connectionString(getTestingCluster().getConnectString())

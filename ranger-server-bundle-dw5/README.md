@@ -1,13 +1,14 @@
 # Ranger Server Bundle
 
-Ranger server bundle is a common dropwizard bundle atop which we could implement any http based ranger backend. 
+Ranger server bundle is a common dropwizard bundle atop which we could implement any http based ranger backend.
+
 - Provides the core interface atop which any ranger http backend could be built.
-- Provides type-safe generic interface for integration with the above. 
-- A really easy plug and play system to get started. 
-- Abstracts out ranger's finder hub's complexity. 
+- Provides type-safe generic interface for integration with the above.
+- A really easy plug and play system to get started.
+- Abstracts out ranger's finder hub's complexity.
 - Written atop the wonderful. [Dropwizard](http://dropwizard.io/)
 
-#### Using a server bundle to initialize a ZK backend. 
+#### Using a server bundle to initialize a ZK backend.
 
 ```
     val rangerServerBundle = new RangerServerBundle<ShardInfo, Criteria<ShardInfo>, ZkNodeDataDeserializer<ShardInfo>,
@@ -57,7 +58,7 @@ Ranger server bundle is a common dropwizard bundle atop which we could implement
     rangerServerBundle.start();
 ```
 
-Stop the bundle once you are done with it. 
+Stop the bundle once you are done with it.
 
 ```
 rangerServerBundle.stop();

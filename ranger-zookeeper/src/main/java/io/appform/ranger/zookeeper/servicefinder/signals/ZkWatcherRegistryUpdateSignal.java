@@ -53,7 +53,7 @@ public class ZkWatcherRegistryUpdateSignal<T> extends Signal<T> {
     public void start() {
         dataSource.ensureConnected();
         log.info("Node data source is connected, Initializing watchers for service: {}",
-                 service.getServiceName());
+                service.getServiceName());
         try {
             curatorFramework.getChildren()
                     .usingWatcher((CuratorWatcher) event -> {

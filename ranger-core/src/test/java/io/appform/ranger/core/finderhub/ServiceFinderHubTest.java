@@ -93,18 +93,20 @@ class ServiceFinderHubTest {
     @Test
     void testDelayedServiceAddition() {
         val delayedHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
-                service ->  new TestServiceFinderBuilder()
+                service -> new TestServiceFinderBuilder()
                         .withNamespace(service.getNamespace())
                         .withServiceName(service.getServiceName())
-                        .withDeserializer(new Deserializer<TestNodeData>() {})
+                        .withDeserializer(new Deserializer<TestNodeData>() {
+                        })
                         .withSleepDuration(5)
                         .build(), 1_000, 5_000, Set.of());
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
         val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
-                service ->  new TestServiceFinderBuilder()
+                service -> new TestServiceFinderBuilder()
                         .withNamespace(service.getNamespace())
                         .withServiceName(service.getServiceName())
-                        .withDeserializer(new Deserializer<TestNodeData>() {})
+                        .withDeserializer(new Deserializer<TestNodeData>() {
+                        })
                         .withSleepDuration(1)
                         .build(), 5_000, 5_000, Set.of());
         serviceFinderHub.start();
@@ -129,14 +131,15 @@ class ServiceFinderHubTest {
         }
     }
 
-    public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+    public class TestServiceFinderFactory implements ServiceFinderFactory<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
 
         @Override
         public ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> buildFinder(Service service) {
             val finder = new TestServiceFinderBuilder()
                     .withNamespace(service.getNamespace())
                     .withServiceName(service.getServiceName())
-                    .withDeserializer(new Deserializer<TestNodeData>() {})
+                    .withDeserializer(new Deserializer<TestNodeData>() {
+                    })
                     .withSleepDuration(60)
                     .build();
 
@@ -145,18 +148,19 @@ class ServiceFinderHubTest {
         }
     }
 
-private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
+    private static class TestServiceFinderHubBuilder extends ServiceFinderHubBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>> {
 
-    @Override
-    protected void preBuild() {
-        // no-op
+        @Override
+        protected void preBuild() {
+            // no-op
+        }
+
+        @Override
+        protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
+            // no-op
+        }
     }
 
-    @Override
-    protected void postBuild(ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub) {
-        // no-op
-    }
-}
     private static class TestServiceFinderBuilder extends BaseServiceFinderBuilder<TestNodeData, MapBasedServiceRegistry<TestNodeData>, ServiceFinder<TestNodeData, MapBasedServiceRegistry<TestNodeData>>, TestServiceFinderBuilder, Deserializer<TestNodeData>> {
 
         private int finderSleepDurationSeconds = 0;

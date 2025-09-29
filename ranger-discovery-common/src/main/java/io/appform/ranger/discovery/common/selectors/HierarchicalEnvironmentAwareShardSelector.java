@@ -57,8 +57,8 @@ public class HierarchicalEnvironmentAwareShardSelector implements ShardSelector<
         val serviceNodes = serviceRegistry.nodes();
         val serviceName = serviceRegistry.getService().getServiceName();
         val evalPredicate = null != criteria
-                            ? criteria
-                            : DEFAULT_PREDICATE;
+                ? criteria
+                : DEFAULT_PREDICATE;
         for (val env : new IterableEnvironment(environment, separator)) {
             val eligibleNodes = serviceNodes.entries()
                     .stream()
@@ -113,8 +113,8 @@ public class HierarchicalEnvironmentAwareShardSelector implements ShardSelector<
                 val shardInfo = new IterableEnvironment(remainingEnvironment, separator);
                 val sepIndex = remainingEnvironment.lastIndexOf(this.separator);
                 remainingEnvironment = sepIndex < 0
-                                       ? ""
-                                       : remainingEnvironment.substring(0, sepIndex);
+                        ? ""
+                        : remainingEnvironment.substring(0, sepIndex);
                 return shardInfo;
             }
         }

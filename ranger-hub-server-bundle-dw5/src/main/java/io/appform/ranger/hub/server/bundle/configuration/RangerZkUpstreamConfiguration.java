@@ -33,18 +33,18 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RangerZkUpstreamConfiguration extends RangerUpstreamConfiguration {
 
-  @NotEmpty
-  @Valid
-  private List<String> zookeepers;
+    @NotEmpty
+    @Valid
+    private List<String> zookeepers;
 
-  private boolean disablePushUpdaters;
+    private boolean disablePushUpdaters;
 
-  protected RangerZkUpstreamConfiguration() {
-    super(BackendType.ZK);
-  }
+    protected RangerZkUpstreamConfiguration() {
+        super(BackendType.ZK);
+    }
 
-  @Override
-  public <T> T accept(RangerConfigurationVisitor<T> visitor) {
-    return visitor.visit(this);
-  }
+    @Override
+    public <T> T accept(RangerConfigurationVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

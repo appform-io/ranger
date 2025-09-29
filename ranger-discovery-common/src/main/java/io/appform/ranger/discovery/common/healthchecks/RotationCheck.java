@@ -34,7 +34,7 @@ public class RotationCheck implements Healthcheck {
     @Override
     public HealthcheckStatus check() {
         return (rotationStatus.status())
-               ? HealthcheckStatus.healthy
-               : HealthcheckStatus.unhealthy;
+                ? HealthcheckStatus.healthy
+                : HealthcheckStatus.unhealthy;
     }
 }

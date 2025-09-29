@@ -25,9 +25,12 @@ import java.util.Collection;
 public interface ServiceDataSource {
 
     Collection<Service> services();
+
     default void add(Service service) {
         throw new UnsupportedOperationException("Service addition is unsupported");
     }
+
     void start();
+
     void stop();
 }

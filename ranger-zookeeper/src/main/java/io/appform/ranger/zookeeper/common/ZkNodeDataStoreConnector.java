@@ -88,7 +88,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
         if (started.get()) {
             log.info("Start called on already initialized data source for service {}. Ignoring.",
-                     service.getServiceName());
+                    service.getServiceName());
             return;
         }
         val path = PathBuilder.servicePath(service);
@@ -99,20 +99,17 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
                     .create()
                     .creatingParentContainersIfNeeded()
                     .forPath(path);
-        }
-        catch (KeeperException e) {
+        } catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
                 log.info("Service node {} already exists for service: {}", path, service.getServiceName());
             }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("Thread interrupted");
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Could not start ZK data source for service: "
-                                            + service.getServiceName()
-                                            + " as thread was interrupted");
-        }
-        catch (Exception e) {
+                    + service.getServiceName()
+                    + " as thread was interrupted");
+        } catch (Exception e) {
             Exceptions.illegalState("Could not start ZK data source for service: " + service.getServiceName(), e);
         }
         started.set(true);
@@ -122,8 +119,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     public void ensureConnected() {
         try {
             discoveryRetrier.call(this::isActive);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Exceptions.illegalState("Could not get zk connection", e);
         }
     }
@@ -138,7 +134,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             log.warn("Shutdown called for service: {}, but data source is not started.", service.getServiceName());
         }
         log.info("Shutting down data source for service: {}.  (It's a no-op.)",
-                 service.getServiceName());
+                service.getServiceName());
         stopped.set(true);
     }
 

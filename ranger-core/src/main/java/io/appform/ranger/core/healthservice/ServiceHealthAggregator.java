@@ -163,10 +163,10 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
             return true;
         }
         val hasValidUpdateTime = isolatedHealthMonitor.hasValidUpdatedTime(currentTime);
-            /* check if the monitor and its last updated time is stale, if so, mark status as unhealthy */
+        /* check if the monitor and its last updated time is stale, if so, mark status as unhealthy */
         if (!hasValidUpdateTime) {
             log.error("Monitor: {} is stuck and its status is stale. Marking service as unhealthy",
-                         isolatedHealthMonitor.getName());
+                    isolatedHealthMonitor.getName());
             return true;
         }
         return false;

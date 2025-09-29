@@ -31,7 +31,7 @@ public class RangerHubTestUtils {
     public static final Service service = RangerTestUtils.getService("test-ns", "test-s");
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static RangerTestHub getTestHub(){
+    public static RangerTestHub getTestHub() {
         return RangerTestHub.builder()
                 .namespace(service.getNamespace())
                 .mapper(mapper)
@@ -41,16 +41,16 @@ public class RangerHubTestUtils {
                 .build();
     }
 
-    public static RangerTestHub getTestHubWithDataSource(){
+    public static RangerTestHub getTestHubWithDataSource() {
         return RangerTestHub.builder()
-            .namespace(service.getNamespace())
-            .mapper(mapper)
-            .nodeRefreshTimeMs(1000)
-            .initialCriteria(new TestCriteria())
-            .useDefaultDataSource(false)
-            .serviceDataSource(new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service)))
-            .deserializer(new TestDeserializer<>())
-            .build();
+                .namespace(service.getNamespace())
+                .mapper(mapper)
+                .nodeRefreshTimeMs(1000)
+                .initialCriteria(new TestCriteria())
+                .useDefaultDataSource(false)
+                .serviceDataSource(new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service)))
+                .deserializer(new TestDeserializer<>())
+                .build();
     }
 
 }

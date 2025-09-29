@@ -34,7 +34,7 @@ import org.apache.zookeeper.KeeperException;
  *
  */
 @Slf4j
-public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNodeDataStoreConnector<T> implements NodeDataSink<T,S> {
+public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNodeDataStoreConnector<T> implements NodeDataSink<T, S> {
     public ZkNodeDataSink(
             Service service,
             CuratorFramework curatorFramework) {
@@ -45,7 +45,7 @@ public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNode
     public void updateState(S serializer, ServiceNode<T> serviceNode) {
         if (isStopped()) {
             log.warn("Node has been stopped already for service: {}. No update will be possible.",
-                     service.getServiceName());
+                    service.getServiceName());
             return;
         }
         Preconditions.checkNotNull(serializer, "Serializer has not been set for node data");
@@ -54,12 +54,10 @@ public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNode
             if (null == curatorFramework.checkExists().forPath(path)) {
                 log.info("No node exists for path: {}. Will create now.", path);
                 createPath(serviceNode, serializer);
-            }
-            else {
+            } else {
                 curatorFramework.setData().forPath(path, serializer.serialize(serviceNode));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error updating node data at path " + path, e);
             Exceptions.illegalState(e);
         }
@@ -77,11 +75,9 @@ public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNode
                         .forPath(instancePath, serializer.serialize(serviceNode));
                 log.info("Created instance path: {}", instancePath);
             }
-        }
-        catch (KeeperException.NodeExistsException e) {
+        } catch (KeeperException.NodeExistsException e) {
             log.warn("Node already exists.. Race condition?", e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             val message = String.format(
                     "Could not create node for %s after 60 retries (1 min). " +
                             "This service will not be discoverable. Retry after some time.", service.getServiceName());

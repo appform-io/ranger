@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class HttpClientConfigTest {
 
     @Test
-    void testHttpClientConfig(){
+    void testHttpClientConfig() {
         val resource = ResourceHelper.getResource("fixtures/httpClientConfig.json", HttpClientConfig.class);
         Assertions.assertNotNull(resource);
         Assertions.assertEquals("localhost-1", resource.getHost());

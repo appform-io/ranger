@@ -39,7 +39,7 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
 
     @Override
     public HealthcheckResult get() {
-        if(refreshHealth()) {
+        if (refreshHealth()) {
             return HealthcheckResult.builder()
                     .status(lastHealthcheckStatus)
                     .updatedTime(lastUpdatedTime)
@@ -53,8 +53,7 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
         for (Healthcheck healthcheck : healthChecks) {
             try {
                 healthcheckStatus = healthcheck.check();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Error running healthcheck. Setting node to unhealthy", e);
                 healthcheckStatus = HealthcheckStatus.unhealthy;
             }
@@ -75,8 +74,7 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
                 lastUpdatedTime = currentTime;
                 return true;
             }
-        }
-        finally {
+        } finally {
             lastHealthcheckStatus = healthcheckStatus;
         }
         return false;

@@ -67,8 +67,8 @@ class DroveCachingCommunicatorTest {
     @RegisterExtension
     private static final WireMockExtension extension = WireMockExtension.newInstance()
             .options(wireMockConfig()
-                             .dynamicPort()
-                             .extensions(new StateSetter()))
+                    .dynamicPort()
+                    .extensions(new StateSetter()))
             .build();
 
     @AfterAll
@@ -91,9 +91,9 @@ class DroveCachingCommunicatorTest {
             assertFalse(services.isEmpty());
             assertEquals(2, services.size());
             assertFalse(client.listNodes(Service.builder()
-                                                 .namespace("testns")
-                                                 .serviceName("TEST_APP")
-                                                 .build()).isEmpty());
+                    .namespace("testns")
+                    .serviceName("TEST_APP")
+                    .build()).isEmpty());
         }
     }
 
@@ -118,41 +118,41 @@ class DroveCachingCommunicatorTest {
     void testEventDrivenLoading() {
         val config = config();
         extension.stubFor(get(urlPathEqualTo("/apis/v1/applications"))
-                                  .willReturn(okJson(toJson(ApiResponse.success(Map.of())))));
+                .willReturn(okJson(toJson(ApiResponse.success(Map.of())))));
         extension.stubFor(get(urlPathEqualTo("/apis/v1/cluster/events"))
-                                  .withServeEventListener(
-                                          Set.of(ServeEventListener.RequestPhase.AFTER_COMPLETE),
-                                          "state_setter",
-                                          Map.of())
-                                  .willReturn(okJson(toJson(
-                                          ApiResponse.success(
-                                                  List.of(new DroveAppStateChangeEvent(
-                                                          Map.of(AppEventDataTag.APP_NAME, "TEST_APP"))))))));
+                .withServeEventListener(
+                        Set.of(ServeEventListener.RequestPhase.AFTER_COMPLETE),
+                        "state_setter",
+                        Map.of())
+                .willReturn(okJson(toJson(
+                        ApiResponse.success(
+                                List.of(new DroveAppStateChangeEvent(
+                                        Map.of(AppEventDataTag.APP_NAME, "TEST_APP"))))))));
 
         extension.stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                                  .inScenario("EventDrivenLoading")
-                                  .whenScenarioStateIs("BEFORE_EVENT")
-                                  .willReturn(okJson(toJson(ApiResponse.success(List.of())))));
+                .inScenario("EventDrivenLoading")
+                .whenScenarioStateIs("BEFORE_EVENT")
+                .willReturn(okJson(toJson(ApiResponse.success(List.of())))));
 
         extension.stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                                  .inScenario("EventDrivenLoading")
-                                  .whenScenarioStateIs("AFTER_EVENT")
-                                  .willReturn(aResponse()
-                                                      .withBody(toJson(
-                                                              ApiResponse.success(List.of(new ExposedAppInfo(
-                                                                      "TEST_APP",
-                                                                      "test-0.1",
-                                                                      "test.appform.io",
-                                                                      Map.of(),
-                                                                      List.of(new ExposedAppInfo.ExposedHost(
-                                                                              "executor001.internal",
-                                                                              32456,
-                                                                              PortType.HTTP)))))))
-                                                      .withStatus(200)));
+                .inScenario("EventDrivenLoading")
+                .whenScenarioStateIs("AFTER_EVENT")
+                .willReturn(aResponse()
+                        .withBody(toJson(
+                                ApiResponse.success(List.of(new ExposedAppInfo(
+                                        "TEST_APP",
+                                        "test-0.1",
+                                        "test.appform.io",
+                                        Map.of(),
+                                        List.of(new ExposedAppInfo.ExposedHost(
+                                                "executor001.internal",
+                                                32456,
+                                                PortType.HTTP)))))))
+                        .withStatus(200)));
         extension.setScenarioState("EventDrivenLoading", "BEFORE_EVENT");
         try (val comm = RangerDroveUtils.buildDroveClient("testns",
-                                                          config,
-                                                          MAPPER)) {
+                config,
+                MAPPER)) {
             val service = Service.builder()
                     .namespace("testns")
                     .serviceName("TEST_APP")
@@ -167,12 +167,12 @@ class DroveCachingCommunicatorTest {
     void testServiceCommFailure() {
         setupNetworkError("/apis/v1/applications");
         assertThrows(DroveCommunicationException.class,
-                     () -> {
-                         try (val dc = RangerDroveUtils.buildDroveClient(
-                                 "testns", config(), MAPPER)) {
-                             fail("Should not have come here");
-                         }
-                     });
+                () -> {
+                    try (val dc = RangerDroveUtils.buildDroveClient(
+                            "testns", config(), MAPPER)) {
+                        fail("Should not have come here");
+                    }
+                });
     }
 
     @Test
@@ -181,12 +181,12 @@ class DroveCachingCommunicatorTest {
         setupAppsResponse();
         setupNetworkError("/apis/v1/endpoints");
         assertThrows(DroveCommunicationException.class,
-                     () -> {
-                         try (val dc = RangerDroveUtils.buildDroveClient(
-                                 "testns", config, MAPPER)) {
-                             fail("Should not have come here");
-                         }
-                     });
+                () -> {
+                    try (val dc = RangerDroveUtils.buildDroveClient(
+                            "testns", config, MAPPER)) {
+                        fail("Should not have come here");
+                    }
+                });
     }
 
 
@@ -214,18 +214,18 @@ class DroveCachingCommunicatorTest {
     @SneakyThrows
     private static void setupEndpointsResponse() {
         extension.stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                                  .willReturn(aResponse()
-                                                      .withBody(toJson(
-                                                              ApiResponse.success(List.of(new ExposedAppInfo(
-                                                                      "TEST_APP",
-                                                                      "test-0.1",
-                                                                      "test.appform.io",
-                                                                      Map.of(),
-                                                                      List.of(new ExposedAppInfo.ExposedHost(
-                                                                              "executor001.internal",
-                                                                              32456,
-                                                                              PortType.HTTP)))))))
-                                                      .withStatus(200)));
+                .willReturn(aResponse()
+                        .withBody(toJson(
+                                ApiResponse.success(List.of(new ExposedAppInfo(
+                                        "TEST_APP",
+                                        "test-0.1",
+                                        "test.appform.io",
+                                        Map.of(),
+                                        List.of(new ExposedAppInfo.ExposedHost(
+                                                "executor001.internal",
+                                                32456,
+                                                PortType.HTTP)))))))
+                        .withStatus(200)));
     }
 
     @SneakyThrows
@@ -233,57 +233,57 @@ class DroveCachingCommunicatorTest {
         val response = ApiResponse.success(Map.of(
                 "TEST_APP-1",
                 new AppSummary("TEST_APP-1",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "TEST_APP-2",
                 new AppSummary("TEST_APP-2",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "DEAD_APP-2",
                 new AppSummary("DEAD_APP-2",
-                               "DEAD_APP",
-                               0,
-                               0,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.MONITORING,
-                               new Date(),
-                               new Date()),
+                        "DEAD_APP",
+                        0,
+                        0,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.MONITORING,
+                        new Date(),
+                        new Date()),
                 "OTHER_APP-2",
                 new AppSummary("OTHER_APP-2",
-                               "OTHER_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date())));
+                        "OTHER_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date())));
         extension.stubFor(get("/apis/v1/applications")
-                                  .withBasicAuth("guest", "guest")
-                                  .willReturn(okJson(MAPPER.writeValueAsString(
-                                          response))));
+                .withBasicAuth("guest", "guest")
+                .willReturn(okJson(MAPPER.writeValueAsString(
+                        response))));
     }
 
     private static void setupNetworkError(String api) {
         extension.stubFor(get(urlPathEqualTo(api))
-                                  .withBasicAuth("guest", "guest")
-                                  .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+                .withBasicAuth("guest", "guest")
+                .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
     }
 }

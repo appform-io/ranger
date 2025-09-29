@@ -54,8 +54,8 @@ public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> 
 
     protected int defaultPort() {
         return config.isSecure()
-               ? 443
-               : 80;
+                ? 443
+                : 80;
     }
 
     @Override

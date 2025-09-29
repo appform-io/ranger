@@ -41,7 +41,7 @@ public class FinderUtils {
     }
 
 
-    public static<T> List<ServiceNode<T>> filterValidNodes(
+    public static <T> List<ServiceNode<T>> filterValidNodes(
             final Service service,
             final Collection<ServiceNode<T>> serviceNodes,
             long healthcheckZombieCheckThresholdTime) {
@@ -54,16 +54,16 @@ public class FinderUtils {
             Service service,
             long healthcheckZombieCheckThresholdTime,
             ServiceNode<T> serviceNode) {
-        if(null == serviceNode) return false;
+        if (null == serviceNode) return false;
 
-        if(HealthcheckStatus.healthy != serviceNode.getHealthcheckStatus()) {
+        if (HealthcheckStatus.healthy != serviceNode.getHealthcheckStatus()) {
             log.debug("Unhealthy node [{}:{}] found for [{}]",
-                      serviceNode.getHost(), serviceNode.getPort(), service.getServiceName());
+                    serviceNode.getHost(), serviceNode.getPort(), service.getServiceName());
             return false;
         }
-        if(serviceNode.getLastUpdatedTimeStamp() < healthcheckZombieCheckThresholdTime) {
+        if (serviceNode.getLastUpdatedTimeStamp() < healthcheckZombieCheckThresholdTime) {
             log.warn("Zombie node [{}:{}] found for [{}]",
-                      serviceNode.getHost(), serviceNode.getPort(), service.getServiceName());
+                    serviceNode.getHost(), serviceNode.getPort(), service.getServiceName());
             return false;
         }
         return true;

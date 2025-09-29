@@ -23,11 +23,11 @@ import lombok.experimental.UtilityClass;
 @SuppressWarnings("unused")
 public final class HttpServiceFinderBuilders {
 
-    public static <T> HttpShardedServiceFinderBuilder<T> httpShardedServiceFinderBuilder(){
+    public static <T> HttpShardedServiceFinderBuilder<T> httpShardedServiceFinderBuilder() {
         return new HttpShardedServiceFinderBuilder<>();
     }
 
-    public static <T> HttpUnshardedServiceFinderBuilder<T> httpUnshardedServiceFinderBuilider(){
+    public static <T> HttpUnshardedServiceFinderBuilder<T> httpUnshardedServiceFinderBuilider() {
         return new HttpUnshardedServiceFinderBuilder<>();
     }
 }

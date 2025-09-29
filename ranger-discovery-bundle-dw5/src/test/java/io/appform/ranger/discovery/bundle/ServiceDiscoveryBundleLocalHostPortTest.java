@@ -142,7 +142,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         });
 
         assertTrue(thrown.getMessage()
-                           .contains("Couldn't resolve host address for zkHost"));
+                .contains("Couldn't resolve host address for zkHost"));
 
     }
 
@@ -282,7 +282,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
 
         });
         assertTrue(thrown.getMessage()
-                           .contains("Not allowed to publish localhost address to remote zookeeper"));
+                .contains("Not allowed to publish localhost address to remote zookeeper"));
     }
 
 

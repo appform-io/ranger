@@ -24,17 +24,17 @@ import java.util.List;
 @Slf4j
 public class RangerHealthCheck extends HealthCheck {
 
-  private final List<CuratorFramework> curatorFrameworks;
+    private final List<CuratorFramework> curatorFrameworks;
 
-  public RangerHealthCheck(final List<CuratorFramework> curatorFrameworks){
-    this.curatorFrameworks = curatorFrameworks;
-  }
+    public RangerHealthCheck(final List<CuratorFramework> curatorFrameworks) {
+        this.curatorFrameworks = curatorFrameworks;
+    }
 
-  @Override
-  protected Result check() {
-    return curatorFrameworks.stream()
-            .allMatch(curatorFramework -> curatorFramework.getZookeeperClient().isConnected())
-            ? Result.healthy("Service is healthy")
-            : Result.unhealthy("Can't connect to zookeeper");
-  }
+    @Override
+    protected Result check() {
+        return curatorFrameworks.stream()
+                .allMatch(curatorFramework -> curatorFramework.getZookeeperClient().isConnected())
+                ? Result.healthy("Service is healthy")
+                : Result.unhealthy("Can't connect to zookeeper");
+    }
 }

@@ -108,7 +108,7 @@ class RangerServerBundleTest {
         Assertions.assertNull(hub.getNode(RangerTestUtils.getService("test", "test")).orElse(null));
         Assertions.assertNull(hub.getNode(service, nodeData -> nodeData.getShardId() == 2).orElse(null));
         Assertions.assertNull(hub.getNode(RangerTestUtils.getService("test", "test"),
-                                      nodeData -> nodeData.getShardId() == 1).orElse(null));
+                nodeData -> nodeData.getShardId() == 1).orElse(null));
     }
 
     @AfterAll

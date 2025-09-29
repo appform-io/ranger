@@ -23,16 +23,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class HttpNodeDataStoreConnectorTest {
-    
+
     @Test
-    void testHttpNodeDataStoreConnector(){
+    void testHttpNodeDataStoreConnector() {
         val objectMapper = new ObjectMapper();
         val httpClientConfig = HttpClientConfig.builder()
                 .host("localhost-1")
                 .port(80)
                 .build();
         val httpNodeDataStoreConnector = new HttpNodeDataStoreConnector<>(httpClientConfig,
-                                                                          RangerHttpUtils.httpClient(httpClientConfig, objectMapper));
+                RangerHttpUtils.httpClient(httpClientConfig, objectMapper));
         Assertions.assertNotNull(httpNodeDataStoreConnector);
         Assertions.assertTrue(httpNodeDataStoreConnector.isActive());
     }

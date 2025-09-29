@@ -36,18 +36,18 @@ class ServiceProviderTest {
         byte[] serialize(final ServiceNode<TestNodeData> node);
     }
 
-    static class TestSerializerImpl implements TestSerializer<TestNodeData>{
+    static class TestSerializerImpl implements TestSerializer<TestNodeData> {
         private final ObjectMapper objectMapper;
 
-        public TestSerializerImpl(){
+        public TestSerializerImpl() {
             objectMapper = new ObjectMapper();
         }
 
         @Override
         public byte[] serialize(ServiceNode<TestNodeData> node) {
-            try{
+            try {
                 return objectMapper.writeValueAsBytes(node);
-            }catch (JsonProcessingException jpe){
+            } catch (JsonProcessingException jpe) {
                 return null;
             }
         }
@@ -111,7 +111,7 @@ class ServiceProviderTest {
 
     @Test
     void testInvalidServiceProviderNoHealthCheck() {
-        Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->  new TestServiceProviderBuilder<>()
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> new TestServiceProviderBuilder<>()
                 .withServiceName("test-service")
                 .withNamespace("test")
                 .withHostname("localhost-1")

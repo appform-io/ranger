@@ -33,7 +33,7 @@ public class ServiceDataSourceResponse {
     Set<Service> data;
 
     @JsonIgnore
-    public boolean valid(){
+    public boolean valid() {
         return null != data;
     }
 }

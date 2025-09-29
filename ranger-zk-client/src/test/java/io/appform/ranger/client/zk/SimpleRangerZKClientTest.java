@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
 
     @Test
-    void testBaseClient(){
-        val client  = SimpleRangerZKClient.<TestNodeData>builder()
+    void testBaseClient() {
+        val client = SimpleRangerZKClient.<TestNodeData>builder()
                 .curatorFramework(getCuratorFramework())
                 .deserializer(this::read)
                 .namespace("test-n")
@@ -33,7 +33,7 @@ class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
                 .mapper(getObjectMapper())
                 .build();
         client.start();
-        Assertions.assertNotNull( client.getNode().orElse(null));
+        Assertions.assertNotNull(client.getNode().orElse(null));
         Assertions.assertNotNull(client.getNode(c -> c.getShardId() == 1).orElse(null));
         Assertions.assertNull(client.getNode(c -> c.getShardId() == 2).orElse(null));
     }

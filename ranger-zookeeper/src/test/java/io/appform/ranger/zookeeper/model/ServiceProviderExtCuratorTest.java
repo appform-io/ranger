@@ -69,7 +69,7 @@ class ServiceProviderExtCuratorTest {
     void stopTestCluster() throws Exception {
         serviceProviders.forEach(ServiceProvider::stop);
         curatorFramework.close();
-        if(null != testingCluster) {
+        if (null != testingCluster) {
             testingCluster.close();
         }
     }

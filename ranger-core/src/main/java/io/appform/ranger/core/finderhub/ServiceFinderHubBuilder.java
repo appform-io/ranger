@@ -99,9 +99,9 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
                 hubStartTimeoutMs, excludedServices);
         final ScheduledSignal<Void> refreshSignal = new ScheduledSignal<>("service-hub-refresh-timer",
-                                                                          () -> null,
-                                                                          Collections.emptyList(),
-                                                                          refreshFrequencyMs);
+                () -> null,
+                Collections.emptyList(),
+                refreshFrequencyMs);
         hub.registerUpdateSignal(refreshSignal);
         extraRefreshSignals.forEach(hub::registerUpdateSignal);
 

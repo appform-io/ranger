@@ -32,7 +32,7 @@ public abstract class Signal<T> {
 
     protected Signal(Supplier<T> signalDataGenerator, List<Consumer<T>> consumers) {
         this.signalDataGenerator = signalDataGenerator;
-        if(null != consumers) {
+        if (null != consumers) {
             this.consumers.addAll(consumers);
         }
     }
@@ -53,5 +53,6 @@ public abstract class Signal<T> {
     }
 
     public abstract void start();
+
     public abstract void stop();
 }

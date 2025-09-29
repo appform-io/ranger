@@ -1,22 +1,22 @@
 {
-  "data" : [
+  "data": [
     {
-      "host" : "localhost-1",
-      "port" : 80,
-      "nodeData" : {
-          "shardId" : 1,
-          "region" : "r1"
+      "host": "localhost-1",
+      "port": 80,
+      "nodeData": {
+        "shardId": 1,
+        "region": "r1"
       },
-      "healthcheckStatus" : "healthy"
+      "healthcheckStatus": "healthy"
     },
     {
-      "host" : "localhost-2",
-      "port" : 90,
-      "nodeData" : {
-        "shardId" : 2,
-        "region" : "r2"
+      "host": "localhost-2",
+      "port": 90,
+      "nodeData": {
+        "shardId": 2,
+        "region": "r2"
       },
-      "healthcheckStatus" : "healthy"
+      "healthcheckStatus": "healthy"
     }
   ]
 }

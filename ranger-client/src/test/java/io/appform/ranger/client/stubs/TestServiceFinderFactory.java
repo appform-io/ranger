@@ -23,7 +23,7 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.val;
 
-public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeData, ListBasedServiceRegistry<TestNodeData>> {
+public class TestServiceFinderFactory implements ServiceFinderFactory<TestNodeData, ListBasedServiceRegistry<TestNodeData>> {
 
     @Override
     public ServiceFinder<TestNodeData, ListBasedServiceRegistry<TestNodeData>> buildFinder(Service service) {

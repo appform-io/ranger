@@ -45,7 +45,7 @@ import java.util.function.Predicate;
 @Slf4j
 @Getter
 @SuperBuilder
-public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T,R> {
+public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T, R> {
 
     private final String namespace;
     private final ObjectMapper mapper;
@@ -76,7 +76,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
         if (this.nodeRefreshTimeMs < HubConstants.MINIMUM_REFRESH_TIME_MS) {
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",
-                     this.nodeRefreshTimeMs,
+                    this.nodeRefreshTimeMs,
                     HubConstants.MINIMUM_REFRESH_TIME_MS);
         }
         this.nodeRefreshTimeMs = Math.max(HubConstants.MINIMUM_REFRESH_TIME_MS, this.nodeRefreshTimeMs);
@@ -97,7 +97,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
         this.excludedServices = Objects.requireNonNullElseGet(this.excludedServices, Set::of);
 
-        if(null == this.serviceDataSource){
+        if (null == this.serviceDataSource) {
             this.serviceDataSource = getDefaultDataSource();
         }
 
@@ -131,7 +131,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T,R> shardSelector) {
+            final ShardSelector<T, R> shardSelector) {
         return getNode(service, criteria, shardSelector, null);
     }
 
@@ -139,23 +139,23 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Optional<ServiceNode<T>> getNode(
             final Service service,
             final Predicate<T> criteria,
-            final ShardSelector<T,R> shardSelector,
+            final ShardSelector<T, R> shardSelector,
             final ServiceNodeSelector<T> nodeSelector) {
         return this.getHub()
                 .finder(service)
                 .flatMap(trServiceFinder
-                                 -> trServiceFinder.get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria,
-                                                                                  initialCriteria,
-                                                                                  criteria),
-                                                        shardSelector,
-                                                        nodeSelector));
+                        -> trServiceFinder.get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria,
+                                initialCriteria,
+                                criteria),
+                        shardSelector,
+                        nodeSelector));
     }
 
     @Override
     public List<ServiceNode<T>> getAllNodes(
             final Service service,
             final Predicate<T> criteria
-                                           ) {
+    ) {
         return getAllNodes(service, criteria, null);
     }
 
@@ -176,8 +176,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     public Collection<Service> getRegisteredServices() {
         try {
             return FinderUtils.getEligibleServices(this.getHub().getServiceDataSource().services(), excludedServices);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Call to the hub failed with exception, {}", e.getMessage());
             return Collections.emptySet();
         }
@@ -188,15 +187,14 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      * Method will return asynchronously after adding service to ServiceDataSource.
      * To block till rangerHub is ready to discover service wait for future completion
      *
-     * @throws UnsupportedOperationException for any datasource which doesnt support
-     *          dynamic addition of services
-     * @throws IllegalStateException if called before hub is started
-     *
      * @return CompletableFuture which waits for hub to be ready for discovering the new service
+     * @throws UnsupportedOperationException for any datasource which doesnt support
+     *                                       dynamic addition of services
+     * @throws IllegalStateException         if called before hub is started
      */
     @Override
     public CompletableFuture<?> addService(Service service) {
-        if(hub == null) {
+        if (hub == null) {
             throw new IllegalStateException("Hub not started yet. Call .start()");
         }
         return hub.buildFinder(service);

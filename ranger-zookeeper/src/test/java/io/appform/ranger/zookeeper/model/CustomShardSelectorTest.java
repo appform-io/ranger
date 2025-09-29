@@ -105,7 +105,8 @@ class CustomShardSelectorTest {
                 .withDeserializer(data -> {
                     try {
                         return objectMapper.readValue(data,
-                                new TypeReference<ServiceNode<TestShardInfo>>() {});
+                                new TypeReference<ServiceNode<TestShardInfo>>() {
+                                });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -137,8 +138,7 @@ class CustomShardSelectorTest {
                 .withSerializer(data -> {
                     try {
                         return objectMapper.writeValueAsBytes(data);
-                    }
-                    catch (JsonProcessingException e) {
+                    } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
                     return null;

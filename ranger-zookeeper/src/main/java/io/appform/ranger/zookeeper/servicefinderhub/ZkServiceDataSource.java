@@ -43,7 +43,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
 
     public ZkServiceDataSource(String namespace,
                                String connectionString,
-                               CuratorFramework curatorFramework){
+                               CuratorFramework curatorFramework) {
         this.namespace = namespace;
         this.connectionString = connectionString;
         this.curatorFramework = curatorFramework;
@@ -62,7 +62,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
 
     @Override
     public void start() {
-        if(null == curatorFramework){
+        if (null == curatorFramework) {
             Preconditions.checkNotNull(connectionString);
             log.info("Building custom curator framework");
             curatorFramework = CuratorFrameworkFactory.builder()
@@ -75,8 +75,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
         }
         try {
             curatorFramework.blockUntilConnected();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("Curator block interrupted", e);
             Thread.currentThread().interrupt();
         }
@@ -86,7 +85,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
     @Override
     public void stop() {
         log.info("Service data stopped");
-        if(!curatorProvided) curatorFramework.close();
+        if (!curatorProvided) curatorFramework.close();
         log.info("Service data source stopped");
     }
 }

@@ -1,8 +1,8 @@
 {
-  "name" : "io.appform.ranger.discovery.bundle.id.IdGeneratorPerfTest.testGenerate",
-  "mode" : "Throughput",
-  "iterations" : 4,
-  "threads" : 1,
-  "forks" : 3,
-  "mean_ops" : 983207.6911013111
+  "name": "io.appform.ranger.discovery.bundle.id.IdGeneratorPerfTest.testGenerate",
+  "mode": "Throughput",
+  "iterations": 4,
+  "threads": 1,
+  "forks": 3,
+  "mean_ops": 983207.6911013111
 }

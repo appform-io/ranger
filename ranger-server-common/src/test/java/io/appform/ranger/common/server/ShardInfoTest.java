@@ -33,7 +33,7 @@ class ShardInfoTest {
 
     private String getResource(String path) {
         val data = ShardInfoTest.class.getClassLoader().getResourceAsStream(path);
-        if(null == data) return null;
+        if (null == data) return null;
         return new BufferedReader(
                 new InputStreamReader(data))
                 .lines()
@@ -42,14 +42,14 @@ class ShardInfoTest {
 
     @SneakyThrows
     @SuppressWarnings("SameParameterValue")
-    private  <T> T getResource(String path, Class<T> klass) {
+    private <T> T getResource(String path, Class<T> klass) {
         val data = getResource(path);
-        if(null == data) return null;
+        if (null == data) return null;
         return mapper.readValue(data, klass);
     }
 
     @Test
-    void testShardInfo(){
+    void testShardInfo() {
         val shardInfo1 = getResource("fixtures/env1.json", ShardInfo.class);
         val shardInfo2 = getResource("fixtures/env2.json", ShardInfo.class);
         Assertions.assertNotNull(shardInfo1);

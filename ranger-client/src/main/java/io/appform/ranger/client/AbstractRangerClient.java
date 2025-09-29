@@ -57,8 +57,8 @@ public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> impl
             ShardSelector<T, R> shardSelector,
             ServiceNodeSelector<T> nodeSelector) {
         return getServiceFinder().get(CriteriaUtils.getCriteria(alwaysUseInitialCriteria, initialCriteria, criteria),
-                                      shardSelector,
-                                      nodeSelector);
+                shardSelector,
+                nodeSelector);
     }
 
     @Override
@@ -75,9 +75,9 @@ public abstract class AbstractRangerClient<T, R extends ServiceRegistry<T>> impl
     public List<ServiceNode<T>> getAllNodes(
             Predicate<T> criteria, ShardSelector<T, R> shardSelector) {
         return getServiceFinder().getAll(CriteriaUtils.getCriteria(alwaysUseInitialCriteria,
-                                                                   initialCriteria,
-                                                                   criteria),
-                                         shardSelector);
+                        initialCriteria,
+                        criteria),
+                shardSelector);
     }
 
 }

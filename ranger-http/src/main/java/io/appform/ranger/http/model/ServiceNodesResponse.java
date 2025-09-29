@@ -36,7 +36,7 @@ public class ServiceNodesResponse<T> {
     List<ServiceNode<T>> data;
 
     @JsonIgnore
-    public boolean valid(){
-       return  null != data;
+    public boolean valid() {
+        return null != data;
     }
 }

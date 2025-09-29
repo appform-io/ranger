@@ -98,8 +98,8 @@ class ServiceDiscoveryBundleDwMonitorTest {
             @Override
             protected Result check() {
                 val result = (counter.decrementAndGet() < 0)
-                             ? Result.unhealthy("unhealthy")
-                             : Result.healthy();
+                        ? Result.unhealthy("unhealthy")
+                        : Result.healthy();
                 log.info("Marking node as {}", result.isHealthy());
                 return result;
             }

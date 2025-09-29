@@ -61,65 +61,65 @@ class DroveApiCommunicatorTest {
         val response = ApiResponse.success(Map.of(
                 "TEST_APP-1",
                 new AppSummary("TEST_APP-1",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "TEST_APP-2",
                 new AppSummary("TEST_APP-2",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "DEAD_APP-2",
                 new AppSummary("DEAD_APP-2",
-                               "DEAD_APP",
-                               0,
-                               0,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.MONITORING,
-                               new Date(),
-                               new Date()),
+                        "DEAD_APP",
+                        0,
+                        0,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.MONITORING,
+                        new Date(),
+                        new Date()),
                 "OTHER_APP-2",
                 new AppSummary("OTHER_APP-2",
-                               "OTHER_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date())));
+                        "OTHER_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date())));
         stubFor(get("/apis/v1/applications")
-                        .withBasicAuth("guest", "guest")
-                        .willReturn(okJson(MAPPER.writeValueAsString(
-                                response))));
+                .withBasicAuth("guest", "guest")
+                .willReturn(okJson(MAPPER.writeValueAsString(
+                        response))));
         stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                        .willReturn(aResponse()
-                                            .withBody(MAPPER.writeValueAsBytes(
-                                                    ApiResponse.success(List.of(new ExposedAppInfo(
-                                                            "TEST_APP",
-                                                            "test-0.1",
-                                                            "test.appform.io",
-                                                            Map.of(),
-                                                            List.of(new ExposedAppInfo.ExposedHost(
-                                                                    "executor001.internal",
-                                                                    32456,
-                                                                    PortType.HTTP)))))))
-                                            .withStatus(200)));
+                .willReturn(aResponse()
+                        .withBody(MAPPER.writeValueAsBytes(
+                                ApiResponse.success(List.of(new ExposedAppInfo(
+                                        "TEST_APP",
+                                        "test-0.1",
+                                        "test.appform.io",
+                                        Map.of(),
+                                        List.of(new ExposedAppInfo.ExposedHost(
+                                                "executor001.internal",
+                                                32456,
+                                                PortType.HTTP)))))))
+                        .withStatus(200)));
         try (val client = RangerDroveUtils.buildDroveClient(
                 "testns",
                 DroveUpstreamConfig.builder()
@@ -134,15 +134,15 @@ class DroveApiCommunicatorTest {
             assertFalse(services.isEmpty());
             assertEquals(2, services.size());
             assertFalse(client.listNodes(Service.builder()
-                                                 .namespace("testns")
-                                                 .serviceName("TEST_APP")
-                                                 .build())
-                                .isEmpty());
+                            .namespace("testns")
+                            .serviceName("TEST_APP")
+                            .build())
+                    .isEmpty());
             assertTrue(client.listNodes(Service.builder()
-                                                 .namespace("testns")
-                                                 .serviceName("OTHER_APP")
-                                                 .build())
-                               .isEmpty());
+                            .namespace("testns")
+                            .serviceName("OTHER_APP")
+                            .build())
+                    .isEmpty());
         }
     }
 
@@ -150,7 +150,7 @@ class DroveApiCommunicatorTest {
     @Test
     void testServicesAuthFail(final WireMockRuntimeInfo wm) {
         testAuthFail(wm, "/apis/v1/applications",
-                     client -> assertThrows(DroveCommunicationException.class, client::services));
+                client -> assertThrows(DroveCommunicationException.class, client::services));
     }
 
     @Test
@@ -160,15 +160,15 @@ class DroveApiCommunicatorTest {
                 .serviceName("TEST_APP")
                 .build();
         testAuthFail(wm, "/apis/v1/endpoints",
-                     client -> assertThrows(DroveCommunicationException.class,
-                                            () -> client.listNodes(service)));
+                client -> assertThrows(DroveCommunicationException.class,
+                        () -> client.listNodes(service)));
     }
 
     @Test
     @SneakyThrows
     void testServicesNetworkError(final WireMockRuntimeInfo wm) {
         testNetworkFail(wm, "/apis/v1/applications",
-                        client -> assertThrows(DroveCommunicationException.class, client::services));
+                client -> assertThrows(DroveCommunicationException.class, client::services));
     }
 
     @Test
@@ -178,13 +178,14 @@ class DroveApiCommunicatorTest {
                 .serviceName("TEST_APP")
                 .build();
         testNetworkFail(wm, "/apis/v1/endpoints",
-                     client -> assertThrows(DroveCommunicationException.class,
-                                            () -> client.listNodes(service)));
+                client -> assertThrows(DroveCommunicationException.class,
+                        () -> client.listNodes(service)));
     }
+
     @Test
     void testServiceApiFail(final WireMockRuntimeInfo wm) {
         testApiFail(wm, "/apis/v1/applications",
-                    client -> assertThrows(DroveCommunicationException.class, client::services));
+                client -> assertThrows(DroveCommunicationException.class, client::services));
     }
 
     @Test
@@ -194,7 +195,7 @@ class DroveApiCommunicatorTest {
                 .serviceName("TEST_APP")
                 .build();
         testApiFail(wm, "/apis/v1/endpoints",
-                    client -> assertThrows(DroveCommunicationException.class, () -> client.listNodes(service)));
+                client -> assertThrows(DroveCommunicationException.class, () -> client.listNodes(service)));
     }
 
 
@@ -204,9 +205,9 @@ class DroveApiCommunicatorTest {
             final String api,
             Consumer<DroveCommunicator> test) {
         stubFor(get(urlPathEqualTo(api))
-                        .withBasicAuth("guest", "guest")
-                        .willReturn(okJson(MAPPER.writeValueAsString(
-                                ApiResponse.success(List.of())))));
+                .withBasicAuth("guest", "guest")
+                .willReturn(okJson(MAPPER.writeValueAsString(
+                        ApiResponse.success(List.of())))));
         try (val client = RangerDroveUtils.buildDroveClient(
                 "testns",
                 DroveUpstreamConfig.builder()
@@ -227,9 +228,9 @@ class DroveApiCommunicatorTest {
             final String api,
             Consumer<DroveCommunicator> test) {
         stubFor(get(urlPathEqualTo(api))
-                        .withBasicAuth("guest", "guest")
-                        .willReturn(okJson(MAPPER.writeValueAsString(
-                                ApiResponse.failure("Emotional Damage!!")))));
+                .withBasicAuth("guest", "guest")
+                .willReturn(okJson(MAPPER.writeValueAsString(
+                        ApiResponse.failure("Emotional Damage!!")))));
         try (val client = RangerDroveUtils.buildDroveClient(
                 "testns",
                 DroveUpstreamConfig.builder()
@@ -250,8 +251,8 @@ class DroveApiCommunicatorTest {
             final String api,
             Consumer<DroveCommunicator> test) {
         stubFor(get(urlPathEqualTo(api))
-                        .withBasicAuth("guest", "guest")
-                        .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+                .withBasicAuth("guest", "guest")
+                .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
         try (val client = RangerDroveUtils.buildDroveClient(
                 "testns",
                 DroveUpstreamConfig.builder()

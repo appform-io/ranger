@@ -60,77 +60,77 @@ public abstract class BaseServiceFinderBuilder
 
     public B withNamespace(final String namespace) {
         this.namespace = namespace;
-        return (B)this;
+        return (B) this;
     }
 
     public B withServiceName(final String serviceName) {
         this.serviceName = serviceName;
-        return (B)this;
+        return (B) this;
     }
 
     public B withDeserializer(D deserializer) {
         this.deserializer = deserializer;
-        return (B)this;
+        return (B) this;
     }
 
     public B withShardSelector(ShardSelector<T, R> shardSelector) {
         this.shardSelector = shardSelector;
-        return (B)this;
+        return (B) this;
     }
 
     public B withNodeSelector(ServiceNodeSelector<T> nodeSelector) {
         this.nodeSelector = null != nodeSelector ? nodeSelector : this.nodeSelector;
-        return (B)this;
+        return (B) this;
     }
 
     public B withNodeRefreshIntervalMs(int nodeRefreshIntervalMs) {
         this.nodeRefreshIntervalMs = nodeRefreshIntervalMs;
-        return (B)this;
+        return (B) this;
     }
 
     public B withDisableWatchers() {
         this.disablePushUpdaters = true;
-        return (B)this;
+        return (B) this;
     }
 
     public B withDisableWatchers(boolean disablePushUpdaters) {
         this.disablePushUpdaters = disablePushUpdaters;
-        return (B)this;
+        return (B) this;
     }
 
     public B withAdditionalSignalGenerator(Signal<T> signalGenerator) {
         this.additionalRefreshSignals.add(signalGenerator);
-        return (B)this;
+        return (B) this;
     }
 
     public B withAdditionalSignalGenerators(Signal<T>... signalGenerators) {
         this.additionalRefreshSignals.addAll(Arrays.asList(signalGenerators));
-        return (B)this;
+        return (B) this;
     }
 
     public B withAdditionalSignalGenerators(List<Signal<T>> signalGenerators) {
         this.additionalRefreshSignals.addAll(signalGenerators);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStartSignalHandler(Consumer<Void> startSignalHandler) {
         this.startSignalHandlers.add(startSignalHandler);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStartSignalHandlers(List<Consumer<Void>> startSignalHandlers) {
         this.startSignalHandlers.addAll(startSignalHandlers);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStopSignalHandler(Consumer<Void> stopSignalHandler) {
         this.stopSignalHandlers.add(stopSignalHandler);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStopSignalHandlers(List<Consumer<Void>> stopSignalHandlers) {
         this.stopSignalHandlers.addAll(stopSignalHandlers);
-        return (B)this;
+        return (B) this;
     }
 
     public abstract F build();
@@ -142,7 +142,7 @@ public abstract class BaseServiceFinderBuilder
 
         if (nodeRefreshIntervalMs < 1000) {
             log.warn("Node refresh interval for {} is too low: {} ms. Has been upgraded to 1000ms ",
-                     serviceName, nodeRefreshIntervalMs);
+                    serviceName, nodeRefreshIntervalMs);
             nodeRefreshIntervalMs = 1000;
         }
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();

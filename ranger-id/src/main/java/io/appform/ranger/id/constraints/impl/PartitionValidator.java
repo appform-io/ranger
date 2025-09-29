@@ -32,9 +32,9 @@ public class PartitionValidator implements IdValidationConstraint {
 
     public PartitionValidator(int partition, KeyPartitioner partitioner) {
         Preconditions.checkArgument(partition > 0,
-                                    "Provide a non-negative and non-zero partition count");
+                "Provide a non-negative and non-zero partition count");
         Preconditions.checkArgument(partitioner != null,
-                                    "Provide a non null key partitioner");
+                "Provide a non null key partitioner");
         this.partition = partition;
         this.partitioner = partitioner;
     }

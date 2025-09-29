@@ -79,9 +79,9 @@ public class ZkSimpleUnshardedServiceFinderBuilder<T>
         if (!disablePushUpdaters) {
             return Collections.singletonList(
                     new ZkWatcherRegistryUpdateSignal<>(service, nodeDataSource, curatorFramework));
-        }
-        else {
+        } else {
             log.info("Push based signal updater not registered for service: {}", service.getServiceName());
         }
         return Collections.emptyList();
-    }}
+    }
+}

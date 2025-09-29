@@ -23,11 +23,11 @@ import lombok.experimental.UtilityClass;
 @SuppressWarnings("unused")
 public final class DroveServiceFinderBuilders {
 
-    public static <T> DroveShardedServiceFinderBuilder<T> droveShardedServiceFinderBuilder(){
+    public static <T> DroveShardedServiceFinderBuilder<T> droveShardedServiceFinderBuilder() {
         return new DroveShardedServiceFinderBuilder<>();
     }
 
-    public static <T> DroveUnshardedServiceFinderBuilder<T> droveUnshardedServiceFinderBuilider(){
+    public static <T> DroveUnshardedServiceFinderBuilder<T> droveUnshardedServiceFinderBuilider() {
         return new DroveUnshardedServiceFinderBuilder<>();
     }
 }

@@ -58,8 +58,7 @@ public class CollisionChecker {
             }
             bitSet.set(location);
             return true;
-        }
-        finally {
+        } finally {
             dataLock.unlock();
         }
     }
@@ -71,8 +70,7 @@ public class CollisionChecker {
                 return;
             }
             bitSet.clear(location);
-        }
-        finally {
+        } finally {
             dataLock.unlock();
         }
     }

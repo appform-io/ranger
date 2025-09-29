@@ -31,20 +31,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 @UtilityClass
 public class TestUtils {
-    public static<T extends Configuration> void assertNodePresence(ServiceDiscoveryBundle<T> bundle) {
+    public static <T extends Configuration> void assertNodePresence(ServiceDiscoveryBundle<T> bundle) {
         Awaitility.await()
                 .pollInterval(Duration.ofSeconds(1))
                 .atMost(Duration.ofSeconds(30))
                 .untilAsserted(() -> assertNotNull(bundle.getServiceDiscoveryClient()
-                                                           .getNode()
-                                                           .orElse(null)));
+                        .getNode()
+                        .orElse(null)));
     }
-    public static<T extends Configuration>  void assertNodeAbsence(ServiceDiscoveryBundle<T> bundle) {
+
+    public static <T extends Configuration> void assertNodeAbsence(ServiceDiscoveryBundle<T> bundle) {
         Awaitility.await()
                 .pollInterval(Duration.ofSeconds(1))
                 .atMost(Duration.ofSeconds(30))
                 .untilAsserted(() -> assertNull(bundle.getServiceDiscoveryClient()
-                                                           .getNode()
-                                                           .orElse(null)));
+                        .getNode()
+                        .orElse(null)));
     }
 }

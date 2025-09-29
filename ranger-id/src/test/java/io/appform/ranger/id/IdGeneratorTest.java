@@ -16,7 +16,6 @@
 
 package io.appform.ranger.id;
 
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.id.constraints.impl.PartitionValidator;
@@ -226,7 +225,7 @@ class IdGeneratorTest {
         Assertions.assertEquals(247, id.getExponent());
         Assertions.assertEquals(3972, id.getNode());
         Assertions.assertEquals(generateDate(2020, 11, 25, 9, 59, 3, 64, ZoneId.systemDefault()),
-                                id.getGeneratedDate());
+                id.getGeneratedDate());
     }
 
     @Test
@@ -248,11 +247,11 @@ class IdGeneratorTest {
                         ZonedDateTime.of(
                                 LocalDateTime.of(
                                         year, month, day, hour, min, sec, Math.multiplyExact(ms, 1000000)
-                                                ),
+                                ),
                                 zoneId
-                                        )
-                            )
-                        );
+                        )
+                )
+        );
     }
 
 

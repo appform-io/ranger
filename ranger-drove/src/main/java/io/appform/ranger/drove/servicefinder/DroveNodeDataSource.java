@@ -58,8 +58,7 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
             val nodes = deserializer.deserialize(
                     Objects.requireNonNull(exposedAppInfos, "Unexpected empty response from server"));
             return Optional.of(nodes);
-        }
-        catch (DroveCommunicationException e) {
+        } catch (DroveCommunicationException e) {
             log.error("Drove communication error", e);
             return Optional.empty(); //In case of refresh failure, maintain old list
         }

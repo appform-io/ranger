@@ -61,9 +61,9 @@ class RotationStatusMonitorTest {
 
     private void deleteRotationFile() throws Exception {
         if (file.exists() && !file.delete()) {
-                System.out.println("Unable to delete file = " + filePath);
-                throw new Exception("Unable to delete file = " + filePath);
-            }
+            System.out.println("Unable to delete file = " + filePath);
+            throw new Exception("Unable to delete file = " + filePath);
+        }
 
     }
 }

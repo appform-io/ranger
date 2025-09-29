@@ -61,10 +61,10 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
             @QueryParam("skipDataFromReplicationSources") @DefaultValue("false") boolean skipDataFromReplicationSources) {
         return GenericResponse.<Set<Service>>builder()
                 .data(rangerHubs.stream()
-                              .filter(hub -> !skipDataFromReplicationSources || !hub.isReplicationSource())
-                              .map(RangerHubClient::getRegisteredServices)
-                              .flatMap(Collection::stream)
-                              .collect(Collectors.toSet()))
+                        .filter(hub -> !skipDataFromReplicationSources || !hub.isReplicationSource())
+                        .map(RangerHubClient::getRegisteredServices)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -78,16 +78,16 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();
         return GenericResponse.<Collection<ServiceNode<T>>>builder()
                 .data(rangerHubs.stream()
-                              .filter(hub -> !(skipDataFromReplicationSources && hub.isReplicationSource()))
-                              .map(hub -> hub.getAllNodes(service))
-                              .flatMap(List::stream)
-                              .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),
-                                                        Function.identity(),
-                                                        (oldV, newV) ->
-                                                                oldV.getLastUpdatedTimeStamp() > newV.getLastUpdatedTimeStamp()
-                                                                ? oldV
-                                                                : newV))
-                              .values())
+                        .filter(hub -> !(skipDataFromReplicationSources && hub.isReplicationSource()))
+                        .map(hub -> hub.getAllNodes(service))
+                        .flatMap(List::stream)
+                        .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),
+                                Function.identity(),
+                                (oldV, newV) ->
+                                        oldV.getLastUpdatedTimeStamp() > newV.getLastUpdatedTimeStamp()
+                                                ? oldV
+                                                : newV))
+                        .values())
                 .build();
     }
 }

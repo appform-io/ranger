@@ -21,7 +21,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ServiceFinderBuilders {
-    
+
     public static <T> ZkSimpleShardedServiceFinderBuilder<T> shardedFinderBuilder() {
         return new ZkSimpleShardedServiceFinderBuilder<>();
     }

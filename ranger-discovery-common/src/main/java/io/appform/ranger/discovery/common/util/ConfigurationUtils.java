@@ -31,7 +31,6 @@ import static io.appform.ranger.discovery.common.Constants.PATH_DELIMITER;
 import static io.appform.ranger.discovery.common.Constants.ZOOKEEPER_HOST_DELIMITER;
 
 
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigurationUtils {
 

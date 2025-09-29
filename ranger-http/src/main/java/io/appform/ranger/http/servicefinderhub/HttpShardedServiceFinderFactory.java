@@ -29,7 +29,7 @@ import io.appform.ranger.http.servicefinder.HttpShardedServiceFinderBuilder;
 import lombok.Builder;
 import lombok.val;
 
-public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
+public class HttpShardedServiceFinderFactory<T> implements ServiceFinderFactory<T, MapBasedServiceRegistry<T>> {
 
     private final HttpClientConfig clientConfig;
     private final HttpCommunicator<T> httpClient;
@@ -47,8 +47,7 @@ public class HttpShardedServiceFinderFactory <T> implements ServiceFinderFactory
             HTTPResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,
             ServiceNodeSelector<T> nodeSelector,
-            int nodeRefreshIntervalMs)
-    {
+            int nodeRefreshIntervalMs) {
         this.clientConfig = httpClientConfig;
         this.httpClient = httpClient;
         this.mapper = mapper;

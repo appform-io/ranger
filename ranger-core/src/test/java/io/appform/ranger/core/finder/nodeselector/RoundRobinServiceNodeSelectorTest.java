@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 class RoundRobinServiceNodeSelectorTest {
     @Test
-    void testRandomNodeSelector(){
+    void testRandomNodeSelector() {
         val roundRobinSelector = new RoundRobinServiceNodeSelector<TestNodeData>();
         val serviceNodes = new ArrayList<ServiceNode<TestNodeData>>();
         serviceNodes.add(ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build());

@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class Domain {
     public static final String DEFAULT_DOMAIN_NAME = "__DEFAULT_DOMAIN__";
     public static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,
-                                                    List.of(),
-                                                    new DefaultIdFormatter(),
-                                                    TimeUnit.MILLISECONDS);
+            List.of(),
+            new DefaultIdFormatter(),
+            TimeUnit.MILLISECONDS);
 
     private final String domain;
     private final List<IdValidationConstraint> constraints;

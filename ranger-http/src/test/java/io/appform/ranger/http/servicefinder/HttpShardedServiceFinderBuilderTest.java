@@ -66,9 +66,9 @@ class HttpShardedServiceFinderBuilderTest {
                         .data(Collections.singletonList(node))
                         .build());
         stubFor(get(urlPathEqualTo("/ranger/nodes/v1/testns/test"))
-                               .willReturn(aResponse()
-                                                   .withBody(payload)
-                                                   .withStatus(200)));
+                .willReturn(aResponse()
+                        .withBody(payload)
+                        .withStatus(200)));
         val clientConfig = HttpClientConfig.builder()
                 .host("127.0.0.1")
                 .port(wireMockRuntimeInfo.getHttpPort())
@@ -83,9 +83,9 @@ class HttpShardedServiceFinderBuilderTest {
                 .withObjectMapper(MAPPER)
                 .withDeserializer(data -> {
                     try {
-                        return MAPPER.readValue(data, new TypeReference<ServiceNodesResponse<NodeData>>() {});
-                    }
-                    catch (IOException e) {
+                        return MAPPER.readValue(data, new TypeReference<ServiceNodesResponse<NodeData>>() {
+                        });
+                    } catch (IOException e) {
                         throw new IllegalArgumentException(e);
                     }
                 })

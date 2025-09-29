@@ -71,47 +71,47 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
 
     public B withServiceName(final String serviceName) {
         this.serviceName = serviceName;
-        return (B)this;
+        return (B) this;
     }
 
     public B withSerializer(S serializer) {
         this.serializer = serializer;
-        return (B)this;
+        return (B) this;
     }
 
     public B withHostname(final String hostname) {
         this.hostname = hostname;
-        return (B)this;
+        return (B) this;
     }
 
     public B withPort(int port) {
         this.port = port;
-        return (B)this;
+        return (B) this;
     }
 
-    public B withPortScheme(String portScheme){
+    public B withPortScheme(String portScheme) {
         this.portScheme = portScheme;
-        return (B)this;
+        return (B) this;
     }
 
     public B withNodeData(T nodeData) {
         this.nodeData = nodeData;
-        return (B)this;
+        return (B) this;
     }
 
     public B withHealthcheck(Healthcheck healthcheck) {
         this.healthchecks.add(healthcheck);
-        return (B)this;
+        return (B) this;
     }
 
     public B withHealthUpdateIntervalMs(int healthUpdateIntervalMs) {
         this.healthUpdateIntervalMs = healthUpdateIntervalMs;
-        return (B)this;
+        return (B) this;
     }
 
     public B withStaleUpdateThresholdMs(int staleUpdateThresholdMs) {
         this.staleUpdateThresholdMs = staleUpdateThresholdMs;
-        return (B)this;
+        return (B) this;
     }
 
     /**
@@ -125,42 +125,42 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
      */
     public B withIsolatedHealthMonitor(IsolatedHealthMonitor<HealthcheckStatus> monitor) {
         this.isolatedMonitors.add(monitor);
-        return (B)this;
+        return (B) this;
     }
 
     public B withNodeDataSource(NodeDataSink<T, S> nodeDataSource) {
         this.nodeDataSource = nodeDataSource;
-        return (B)this;
+        return (B) this;
     }
 
     public B withStartSignalHandler(Consumer<Void> startSignalHandler) {
         this.startSignalHandlers.add(startSignalHandler);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStartSignalHandlers(List<Consumer<Void>> startSignalHandlers) {
         this.startSignalHandlers.addAll(startSignalHandlers);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStopSignalHandler(Consumer<Void> stopSignalHandler) {
         this.stopSignalHandlers.add(stopSignalHandler);
-        return (B)this;
+        return (B) this;
     }
 
     public B withStopSignalHandlers(List<Consumer<Void>> stopSignalHandlers) {
         this.stopSignalHandlers.addAll(stopSignalHandlers);
-        return (B)this;
+        return (B) this;
     }
 
     public B withAdditionalRefreshSignal(Signal<HealthcheckResult> additionalRefreshSignal) {
         this.additionalRefreshSignals.add(additionalRefreshSignal);
-        return (B)this;
+        return (B) this;
     }
 
     public B withAdditionalRefreshSignals(List<Signal<HealthcheckResult>> additionalRefreshSignals) {
         this.additionalRefreshSignals.addAll(additionalRefreshSignals);
-        return (B)this;
+        return (B) this;
     }
 
     protected final ServiceProvider<T, S> buildProvider() {
@@ -173,13 +173,13 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
 
         if (healthUpdateIntervalMs < 1000 || healthUpdateIntervalMs > 20000) {
             log.warn("Health update interval for {} should be between 1000ms and 20000ms. Current value: {} ms. " +
-                             "Being set to 1000ms", serviceName, healthUpdateIntervalMs);
+                    "Being set to 1000ms", serviceName, healthUpdateIntervalMs);
             healthUpdateIntervalMs = 1000;
         }
 
         if (staleUpdateThresholdMs < 5000 || staleUpdateThresholdMs > 20000) {
             log.warn("Stale update threshold for {} should be between 5000ms and 20000ms. Current value: {} ms. " +
-                             "Being set to 5000ms", serviceName, staleUpdateThresholdMs);
+                    "Being set to 5000ms", serviceName, staleUpdateThresholdMs);
             staleUpdateThresholdMs = 5000;
         }
 
@@ -206,15 +206,15 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
                 .addAll(additionalRefreshSignals)
                 .build();
         val serviceNode = ServiceNode.<T>builder()
-          .host(hostname)
-          .port(port)
-          .portScheme(portScheme)
-          .nodeData(nodeData)
-          .build();
+                .host(hostname)
+                .port(port)
+                .portScheme(portScheme)
+                .nodeData(nodeData)
+                .build();
         val serviceProvider = new ServiceProvider<>(service, serviceNode,
-                                                    serializer,
-                                                    usableNodeDataSource,
-                                                    signalGenerators);
+                serializer,
+                usableNodeDataSource,
+                signalGenerators);
         val startSignal = serviceProvider.getStartSignal();
 
         startSignal
@@ -232,7 +232,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return serviceProvider;
     }
 
-    public abstract ServiceProvider<T,S> build();
+    public abstract ServiceProvider<T, S> build();
 
-    protected abstract NodeDataSink<T,S> dataSink(final Service service);
+    protected abstract NodeDataSink<T, S> dataSink(final Service service);
 }

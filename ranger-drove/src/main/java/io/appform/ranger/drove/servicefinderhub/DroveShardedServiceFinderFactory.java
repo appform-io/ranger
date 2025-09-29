@@ -47,8 +47,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
             DroveResponseDataDeserializer<T> deserializer,
             ShardSelector<T, MapBasedServiceRegistry<T>> shardSelector,
             ServiceNodeSelector<T> nodeSelector,
-            int nodeRefreshIntervalMs)
-    {
+            int nodeRefreshIntervalMs) {
         this.clientConfig = droveConfig;
         this.droveClient = droveClient;
         this.mapper = mapper;

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class MapBasedServiceRegistryTest {
 
     @Test
-    void testMapBasedServiceRegistryWithMatchingShardSelector(){
+    void testMapBasedServiceRegistryWithMatchingShardSelector() {
         val serviceRegistry = RegistryTestUtils.getServiceRegistry();
         Assertions.assertTrue(null != serviceRegistry.nodes() && !serviceRegistry.nodes().isEmpty());
         val matchingShardSelector = new MatchingShardSelector<TestNodeData>();

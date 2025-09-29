@@ -64,14 +64,13 @@ public class IdParsers {
      * @param idString the string representation of the ID to parse. Must not be null and should be
      *                 at least {@value #MINIMUM_ID_LENGTH} characters long to be considered valid
      * @return an {@link Optional} containing the parsed {@link Id} if the string could be successfully
-     *         parsed and converted, or {@link Optional#empty()} if:
-     *         <ul>
-     *           <li>The input string is null</li>
-     *           <li>The input string is shorter than the minimum required length</li>
-     *           <li>The input string doesn't match the expected regex pattern</li>
-     *           <li>An exception occurs during parsing</li>
-     *         </ul>
-     *
+     * parsed and converted, or {@link Optional#empty()} if:
+     * <ul>
+     *   <li>The input string is null</li>
+     *   <li>The input string is shorter than the minimum required length</li>
+     *   <li>The input string doesn't match the expected regex pattern</li>
+     *   <li>An exception occurs during parsing</li>
+     * </ul>
      * @see Id
      * @see IdFormatter
      * @see IdFormatters#original()

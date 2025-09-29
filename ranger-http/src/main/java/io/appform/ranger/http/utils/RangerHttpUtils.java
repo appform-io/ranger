@@ -40,11 +40,11 @@ public class RangerHttpUtils {
         return new HttpApiCommunicator<>(
                 new OkHttpClient.Builder()
                         .callTimeout(config.getOperationTimeoutMs() == 0
-                                     ? 3000
-                                     : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
+                                ? 3000
+                                : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)
                         .connectTimeout(config.getConnectionTimeoutMs() == 0
-                                        ? 3000
-                                        : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
+                                ? 3000
+                                : config.getConnectionTimeoutMs(), TimeUnit.MILLISECONDS)
                         .readTimeout(config.getOperationTimeoutMs() == 0
                                 ? 3000
                                 : config.getOperationTimeoutMs(), TimeUnit.MILLISECONDS)

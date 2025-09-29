@@ -47,8 +47,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
             DroveResponseDataDeserializer<T> deserializer,
             ShardSelector<T, ListBasedServiceRegistry<T>> shardSelector,
             ServiceNodeSelector<T> nodeSelector,
-            int nodeRefreshIntervalMs)
-    {
+            int nodeRefreshIntervalMs) {
         this.clientConfig = droveConfig;
         this.droveCommunicator = droveCommunicator;
         this.mapper = mapper;

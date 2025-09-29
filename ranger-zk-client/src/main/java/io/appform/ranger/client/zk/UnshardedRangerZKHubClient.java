@@ -41,14 +41,14 @@ public class UnshardedRangerZKHubClient<T>
     @Override
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
         return ZKUnshardedServiceFinderFactory.<T>builder()
-            .curatorFramework(getCuratorFramework())
-            .connectionString(getConnectionString())
-            .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
-            .disablePushUpdaters(isDisablePushUpdaters())
-            .deserializer(getDeserializer())
-            .shardSelector(shardSelector)
-            .nodeSelector(nodeSelector)
-            .build();
+                .curatorFramework(getCuratorFramework())
+                .connectionString(getConnectionString())
+                .nodeRefreshIntervalMs(getNodeRefreshTimeMs())
+                .disablePushUpdaters(isDisablePushUpdaters())
+                .deserializer(getDeserializer())
+                .shardSelector(shardSelector)
+                .nodeSelector(nodeSelector)
+                .build();
     }
 
 }

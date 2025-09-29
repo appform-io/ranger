@@ -107,8 +107,8 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
 
     protected ServiceDiscoveryBundle(List<IdValidationConstraint> globalIdConstraints) {
         this.globalIdConstraints = globalIdConstraints != null
-                                   ? globalIdConstraints
-                                   : Collections.emptyList();
+                ? globalIdConstraints
+                : Collections.emptyList();
     }
 
     @Override
@@ -266,11 +266,11 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
         val nodeInfoResolver = createNodeInfoResolver();
         val nodeInfo = nodeInfoResolver.resolve(serviceDiscoveryConfiguration);
         val initialDelayForMonitor = serviceDiscoveryConfiguration.getInitialDelaySeconds() > 1
-                                     ? serviceDiscoveryConfiguration.getInitialDelaySeconds() - 1
-                                     : 0;
+                ? serviceDiscoveryConfiguration.getInitialDelaySeconds() - 1
+                : 0;
         val dwMonitoringInterval = serviceDiscoveryConfiguration.getDropwizardCheckInterval() == 0
-                                   ? Constants.DEFAULT_DW_CHECK_INTERVAL
-                                   : serviceDiscoveryConfiguration.getDropwizardCheckInterval();
+                ? Constants.DEFAULT_DW_CHECK_INTERVAL
+                : serviceDiscoveryConfiguration.getDropwizardCheckInterval();
         val dwMonitoringStaleness = Math.max(serviceDiscoveryConfiguration.getDropwizardCheckStaleness(),
                 dwMonitoringInterval + 1);
         val serviceProviderBuilder = ServiceProviderBuilders.<ShardInfo>shardedServiceProviderBuilder()

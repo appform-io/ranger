@@ -67,7 +67,7 @@ public class ScheduledSignal<T> extends Signal<T> {
             try {
                 onSignalReceived();
             } catch (Exception e) {
-                log.error("Error delivering signal for:" + name , e);
+                log.error("Error delivering signal for:" + name, e);
             }
         }, 0, refreshIntervalMillis, TimeUnit.MILLISECONDS);
         log.info("Started scheduled signal generator: {}", name);
@@ -75,7 +75,7 @@ public class ScheduledSignal<T> extends Signal<T> {
 
     @Override
     public final void stop() {
-        if(null != scheduledFuture) {
+        if (null != scheduledFuture) {
             scheduledFuture.cancel(true);
         }
         log.info("Stopped scheduled signal generator: {}", name);

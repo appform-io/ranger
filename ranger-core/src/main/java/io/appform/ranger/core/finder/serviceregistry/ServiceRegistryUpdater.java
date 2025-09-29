@@ -76,12 +76,11 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                     .retryIfException()
                     .build()
                     .call(serviceRegistry::isRefreshed);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Exceptions.illegalState("Could not perform initial state for service: " + serviceName, e);
         }
         log.info("Initial node list updated for service: {} in {}ms",
-                 serviceName, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                serviceName, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void stop() {
@@ -96,8 +95,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
             checkLock.lock();
             checkForUpdate.set(true);
             checkCondition.signalAll();
-        }
-        finally {
+        } finally {
             checkLock.unlock();
         }
     }
@@ -111,16 +109,13 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                     checkCondition.await();
                 }
                 updateRegistry();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.info("Updater thread interrupted");
                 Thread.currentThread().interrupt();
                 return null;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Registry update failed for service: " + serviceRegistry.getService().name(), e);
-            }
-            finally {
+            } finally {
                 checkForUpdate.set(false);
                 checkLock.unlock();
             }
@@ -129,7 +124,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
 
     private void updateRegistry() throws InterruptedException {
         log.debug("Checking for updates on data source for service: {}",
-                  serviceRegistry.getService().getServiceName());
+                serviceRegistry.getService().getServiceName());
         var callFailed = false;
         if (nodeDataSource.isActive()) { //Source should implement circuit breaker to fail fast and reopen after some
             // time
@@ -137,34 +132,32 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                 val nodeList = nodeDataSource.refresh(deserializer).orElse(null);
                 if (null != nodeList) {
                     log.debug("Updating nodeList of size: {} for [{}]", nodeList.size(),
-                              serviceRegistry.getService().getServiceName());
+                            serviceRegistry.getService().getServiceName());
                     val livenessCheckMaxAge = nodeDataSource.healthcheckZombieCheckThresholdTime(serviceRegistry.getService());
                     //Remove all stale nodes before updating. This is done centrally to ensure some data sources
                     //don't skip this check. Some control is still provided so that they can overload.
                     serviceRegistry.updateNodes(FinderUtils.filterValidNodes(serviceRegistry.getService(), nodeList, livenessCheckMaxAge));
-                }
-                else {
+                } else {
                     log.warn("Empty list returned from node data source. We are in a weird state. Keeping old list for {}",
                             serviceRegistry.getService().getServiceName());
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Error updating data from registry. Error: [{}] {}",
-                          e.getClass().getSimpleName(),
-                          e.getMessage());
+                        e.getClass().getSimpleName(),
+                        e.getMessage());
                 callFailed = true;
             }
         }
         if (!nodeDataSource.isActive() || callFailed) {
             val currTime = System.currentTimeMillis();
             log.warn("Node data source seems to be down. Keeping old list for {}." +
-                             " Will update timestamp to keep stale date relevant.",
-                     serviceRegistry.getService().getServiceName());
+                            " Will update timestamp to keep stale date relevant.",
+                    serviceRegistry.getService().getServiceName());
             serviceRegistry.updateNodes(serviceRegistry.nodeList()
-                                                .stream()
-                                                .filter(node -> HealthcheckStatus.healthy == node.getHealthcheckStatus())
-                                                .map(node -> node.setLastUpdatedTimeStamp(currTime))
-                                                .toList());
+                    .stream()
+                    .filter(node -> HealthcheckStatus.healthy == node.getHealthcheckStatus())
+                    .map(node -> node.setLastUpdatedTimeStamp(currTime))
+                    .toList());
         }
     }
 

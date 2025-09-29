@@ -39,10 +39,10 @@ public abstract class ServiceFinder<T, R extends ServiceRegistry<T>> {
     private final ServiceNodeSelector<T> nodeSelector;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null,
-                                                                                            Collections.emptyList());
+            Collections.emptyList());
     @Getter
     private final ExternalTriggeredSignal<Void> stopSignal = new ExternalTriggeredSignal<>(() -> null,
-                                                                                           Collections.emptyList());
+            Collections.emptyList());
 
     protected ServiceFinder(
             R serviceRegistry,
@@ -70,8 +70,8 @@ public abstract class ServiceFinder<T, R extends ServiceRegistry<T>> {
         val nodes = ObjectUtils.requireNonNullElse(shardSelector, this.shardSelector)
                 .nodes(criteria, serviceRegistry);
         return nodes.isEmpty()
-               ? Optional.empty()
-               : Optional.ofNullable(ObjectUtils.requireNonNullElse(nodeSelector, this.nodeSelector).select(nodes));
+                ? Optional.empty()
+                : Optional.ofNullable(ObjectUtils.requireNonNullElse(nodeSelector, this.nodeSelector).select(nodes));
     }
 
     public List<ServiceNode<T>> getAll(Predicate<T> criteria) {

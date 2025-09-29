@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class ShardedRangerHttpClientTest extends BaseRangerHttpClientTest {
 
     @Test
-    void testShardedHttpHubClient(){
+    void testShardedHttpHubClient() {
         val httpClientConfig = getHttpClientConfig();
         val client = ShardedRangerHttpHubClient.<TestNodeData>builder()
                 .clientConfig(httpClientConfig)

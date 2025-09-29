@@ -133,45 +133,44 @@ public class DroveApiCommunicator implements DroveCommunicator {
         log.debug("Loading nodes list for services: {}", Lists.newArrayList(services));
         val url = String.format("/apis/v1/endpoints?%s", Joiner.on("&")
                 .join(StreamSupport.stream(services.spliterator(), false)
-                              .map(service -> "app=" + service.getServiceName())
-                              .toList()));
+                        .map(service -> "app=" + service.getServiceName())
+                        .toList()));
 
         logUrl(url);
         return executeRemoteCall(() -> droveClient.execute(new DroveClient.Request(DroveClient.Method.GET, url),
-                                   new DroveClient.ResponseHandler<>() {
-                                       @Override
-                                       public Map<Service, List<ExposedAppInfo>> defaultValue() {
-                                           throw new IllegalStateException("Default value should not be used here");
-                                       }
+                new DroveClient.ResponseHandler<>() {
+                    @Override
+                    public Map<Service, List<ExposedAppInfo>> defaultValue() {
+                        throw new IllegalStateException("Default value should not be used here");
+                    }
 
-                                       @Override
-                                       public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) throws Exception {
-                                           if (response.statusCode() != HttpStatus.SC_OK) {
-                                               throwDroveCommError(response);
-                                           }
-                                           val apiResponse = mapper.readValue(response.body(),
-                                                                              new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
-                                                                              });
-                                           if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
-                                               throwDroveCommError(response);
-                                           }
-                                           val data = Objects.requireNonNullElse(apiResponse.getData(),
-                                                                                 List.<ExposedAppInfo>of());
-                                           return data.stream()
-                                                   .filter(appInfo -> !Strings.isNullOrEmpty(appInfo.getAppName()))
-                                                   .collect(Collectors.groupingBy(
-                                                           appInfo -> new Service(namespace, appInfo.getAppName()),
-                                                           Collectors.toList()));
-                                       }
-                                   }));
+                    @Override
+                    public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) throws Exception {
+                        if (response.statusCode() != HttpStatus.SC_OK) {
+                            throwDroveCommError(response);
+                        }
+                        val apiResponse = mapper.readValue(response.body(),
+                                new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
+                                });
+                        if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
+                            throwDroveCommError(response);
+                        }
+                        val data = Objects.requireNonNullElse(apiResponse.getData(),
+                                List.<ExposedAppInfo>of());
+                        return data.stream()
+                                .filter(appInfo -> !Strings.isNullOrEmpty(appInfo.getAppName()))
+                                .collect(Collectors.groupingBy(
+                                        appInfo -> new Service(namespace, appInfo.getAppName()),
+                                        Collectors.toList()));
+                    }
+                }));
     }
 
     private <T> T executeRemoteCall(Supplier<T> executor) {
         upstreamAvailable.set(true);
         try {
             return executor.get();
-        }
-        catch (DroveCommunicationException e) {
+        } catch (DroveCommunicationException e) {
             upstreamAvailable.set(false);
             throw e;
         }

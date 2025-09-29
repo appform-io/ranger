@@ -90,9 +90,9 @@ public abstract class BaseRangerHttpClientTest {
 
     protected ServiceNodesResponse<TestNodeData> read(final byte[] data) {
         try {
-            return getObjectMapper().readValue(data, new TypeReference<ServiceNodesResponse<TestNodeData>>() {});
-        }
-        catch (IOException e) {
+            return getObjectMapper().readValue(data, new TypeReference<ServiceNodesResponse<TestNodeData>>() {
+            });
+        } catch (IOException e) {
             Exceptions.illegalState(e);
         }
         return null;

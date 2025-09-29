@@ -69,7 +69,7 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     @Override
     public void stop() {
         log.info("Stopping the service finder");
-        if(null != serviceFinder){
+        if (null != serviceFinder) {
             this.serviceFinder.stop();
         }
     }

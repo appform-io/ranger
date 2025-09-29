@@ -61,23 +61,23 @@ class DroveShardedServiceFinderBuilderTest {
     void testFinder(WireMockRuntimeInfo wm) throws Exception {
         val payload = MAPPER.writeValueAsBytes(
                 ApiResponse.success(List.of(new ExposedAppInfo("test",
-                                                               "test-0.1",
-                                                               "test.appform.io",
-                                                               Map.of(),
-                                                               List.of(new ExposedAppInfo.ExposedHost(
-                                                                       "executor001.internal",
-                                                                       32456,
-                                                                       PortType.HTTP))))));
+                        "test-0.1",
+                        "test.appform.io",
+                        Map.of(),
+                        List.of(new ExposedAppInfo.ExposedHost(
+                                "executor001.internal",
+                                32456,
+                                PortType.HTTP))))));
         stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                        .willReturn(aResponse()
-                                            .withBody(payload)
-                                            .withStatus(200)));
+                .willReturn(aResponse()
+                        .withBody(payload)
+                        .withStatus(200)));
         val clientConfig = DroveUpstreamConfig.builder()
                 .endpoints(List.of("http://localhost:" + wm.getHttpPort()))
                 .skipCaching(true)
                 .build();
 
-        try(val droveClient = RangerDroveUtils.buildDroveClient("testns", clientConfig, MAPPER)) {
+        try (val droveClient = RangerDroveUtils.buildDroveClient("testns", clientConfig, MAPPER)) {
             val finder = new DroveShardedServiceFinderBuilder<NodeData>()
                     .withClientConfig(clientConfig)
                     .withNamespace("testns")

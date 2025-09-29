@@ -62,7 +62,7 @@ public class DroveUnshardedServiceFinderBuilder<T>
                 clientConfig,
                 mapper,
                 Objects.requireNonNullElseGet(droveCommunicator,
-                                              () -> RangerDroveUtils.buildDroveClient(namespace, clientConfig, mapper)));
+                        () -> RangerDroveUtils.buildDroveClient(namespace, clientConfig, mapper)));
     }
 
 }

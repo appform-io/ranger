@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class NoopShardSelectorTest {
 
     @Test
-    void testNoOpShardSelector(){
+    void testNoOpShardSelector() {
         val serviceRegistry = RegistryTestUtils.getUnshardedRegistry();
         val shardSelector = new NoopShardSelector<TestNodeData>();
         val nodes = shardSelector.nodes(RangerTestUtils.getCriteria(1), serviceRegistry);

@@ -40,12 +40,12 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
         return this;
     }
 
-    public HttpShardedServiceFinderBuilder<T> withObjectMapper(final ObjectMapper mapper){
+    public HttpShardedServiceFinderBuilder<T> withObjectMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
         return this;
     }
 
-    public HttpShardedServiceFinderBuilder<T> withHttpCommunicator(final HttpCommunicator<T> httpCommunicator){
+    public HttpShardedServiceFinderBuilder<T> withHttpCommunicator(final HttpCommunicator<T> httpCommunicator) {
         this.httpCommunicator = httpCommunicator;
         return this;
     }
@@ -58,8 +58,8 @@ public class HttpShardedServiceFinderBuilder<T> extends SimpleShardedServiceFind
     @Override
     protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
         return new HttpNodeDataSource<>(service, clientConfig,
-                                        Objects.requireNonNullElseGet(httpCommunicator,
-                                                                      () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
+                Objects.requireNonNullElseGet(httpCommunicator,
+                        () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 
 }

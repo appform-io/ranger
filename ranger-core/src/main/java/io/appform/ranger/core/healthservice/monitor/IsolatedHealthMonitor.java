@@ -57,9 +57,9 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
     private final long stalenessAllowedInMillis;
 
     /**
-     * @param name       name of the monitor
+     * @param name        name of the monitor
      * @param runInterval initial delay, time interval of how regularly the monitor is to be run, and timeunit
-     *                   to specify how often the {@link #monitor()} check needs to be executed
+     *                    to specify how often the {@link #monitor()} check needs to be executed
      */
     protected IsolatedHealthMonitor(String name, TimeEntity runInterval) {
         this(name, runInterval, 60000);
@@ -67,7 +67,7 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
 
     /**
      * @param name                     name of the monitor
-     * @param runInterval               initial delay, time interval of how regularly the monitor is to be run, and timeunit
+     * @param runInterval              initial delay, time interval of how regularly the monitor is to be run, and timeunit
      *                                 to specify how often the {@link #monitor()} check needs to be executed
      * @param stalenessAllowedInMillis after how long (in milliseconds) should the monitor be regarded as stale (default: 60 seconds)
      */
@@ -114,7 +114,7 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
         return disabled.get();
     }
 
-    public boolean hasValidUpdatedTime(Date currentTime){
+    public boolean hasValidUpdatedTime(Date currentTime) {
         return null != lastStatusUpdateTime && (currentTime.getTime() - lastStatusUpdateTime.getTime() <= stalenessAllowedInMillis);
     }
 }

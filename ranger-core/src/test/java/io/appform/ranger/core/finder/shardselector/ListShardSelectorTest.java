@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 class ListShardSelectorTest {
 
     @Test
-    void testListShardSelector(){
+    void testListShardSelector() {
         val serviceRegistry = RegistryTestUtils.getUnshardedRegistry();
         val shardSelector = new ListShardSelector<TestNodeData>();
         val nodes = shardSelector.nodes(RangerTestUtils.getCriteria(1), serviceRegistry);

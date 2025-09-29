@@ -40,7 +40,7 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
         return this;
     }
 
-    public HttpShardedServiceProviderBuilder<T> withObjectMapper(final ObjectMapper mapper){
+    public HttpShardedServiceProviderBuilder<T> withObjectMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
         return this;
     }
@@ -58,7 +58,7 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
     @Override
     protected NodeDataSink<T, HttpRequestDataSerializer<T>> dataSink(Service service) {
         return new HttpNodeDataSink<>(service, clientConfig, mapper,
-                                      Objects.requireNonNullElseGet(httpClient,
-                                                                    () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
+                Objects.requireNonNullElseGet(httpClient,
+                        () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 }

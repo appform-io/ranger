@@ -83,13 +83,11 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
             try (val response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful()) {
                     return parseServices(response, httpUrl);
-                }
-                else {
+                } else {
                     throw new HttpCommunicationException(
                             "Http call to returned a failure response. Url:" + httpUrl + " status: " + response.code());
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new HttpCommunicationException(
                         "Error parsing the response from server for url: " + httpUrl
                                 + " with exception " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -120,14 +118,12 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
             try (val response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful()) {
                     return parseNodeList(deserializer, response, httpUrl);
-                }
-                else {
+                } else {
                     throw new HttpCommunicationException("HTTP call failed. url: " + httpUrl + " status: " + response.code());
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new HttpCommunicationException("Error getting node data from the http endpoint: " + httpUrl +
-                                                             ". Error: " + e.getMessage());
+                        ". Error: " + e.getMessage());
             }
         });
     }
@@ -141,8 +137,7 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
         upstreamAvailable.set(true);
         try {
             return executor.get();
-        }
-        catch (HttpCommunicationException e) {
+        } catch (HttpCommunicationException e) {
             upstreamAvailable.set(false);
             throw e;
         }
@@ -150,28 +145,25 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
 
     private int defaultPort() {
         return config.isSecure()
-               ? 443
-               : 80;
+                ? 443
+                : 80;
     }
 
     private Set<Service> parseServices(Response response, HttpUrl httpUrl) {
         try (val body = response.body()) {
             if (null == body) {
                 throw new HttpCommunicationException("Empty response body from: " + httpUrl);
-            }
-            else {
+            } else {
                 val bytes = body.bytes();
                 val serviceDataSourceResponse = mapper.readValue(bytes, ServiceDataSourceResponse.class);
                 if (serviceDataSourceResponse.valid()) {
                     return serviceDataSourceResponse.getData();
-                }
-                else {
+                } else {
                     throw new HttpCommunicationException(
                             "Http call to returned a failure response. Url:" + httpUrl + " data: " + serviceDataSourceResponse);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new HttpCommunicationException(
                     "Error reading data from server. Url: " + httpUrl + "Error: " + e.getMessage());
         }
@@ -185,20 +177,17 @@ public class HttpApiCommunicator<T> implements HttpCommunicator<T> {
             if (null == body) {
                 log.warn("HTTP call to {} returned empty body", httpUrl);
                 throw new HttpCommunicationException("Empty response received for call to " + httpUrl);
-            }
-            else {
+            } else {
                 val bytes = body.bytes();
                 val serviceNodesResponse = deserializer.deserialize(bytes);
                 if (serviceNodesResponse.valid()) {
                     return serviceNodesResponse.getData();
-                }
-                else {
+                } else {
                     throw new HttpCommunicationException(
                             "Http call returned null nodes for url: " + httpUrl + " response: " + serviceNodesResponse);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new HttpCommunicationException(
                     "Error parsing node data from server. Url: " + httpUrl + "Error: " + e.getMessage());
         }

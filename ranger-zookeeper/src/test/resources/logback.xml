@@ -23,14 +23,14 @@
     </appender>
 
     <logger name="io.appform">
-        <level value="INFO" />
+        <level value="INFO"/>
     </logger>
     <logger name="org.apache.zookeeper">
-        <level value="ERROR" />
+        <level value="ERROR"/>
     </logger>
 
     <root>
-        <level value="INFO" />
-        <appender-ref ref="CONSOLE" />
+        <level value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

@@ -28,7 +28,7 @@ import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 
 
-public class ZKUnshardedServiceFinderFactory<T> implements ServiceFinderFactory<T, ListBasedServiceRegistry<T>>{
+public class ZKUnshardedServiceFinderFactory<T> implements ServiceFinderFactory<T, ListBasedServiceRegistry<T>> {
 
     private final CuratorFramework curatorFramework;
     private final String connectionString;

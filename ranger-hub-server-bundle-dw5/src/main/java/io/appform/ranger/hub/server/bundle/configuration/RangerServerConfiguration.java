@@ -44,7 +44,7 @@ public class RangerServerConfiguration {
     Set<String> excludedServices;
 
     public Set<String> getExcludedServices() {
-        return Objects.requireNonNullElseGet(excludedServices,Set::of);
+        return Objects.requireNonNullElseGet(excludedServices, Set::of);
     }
 
 }

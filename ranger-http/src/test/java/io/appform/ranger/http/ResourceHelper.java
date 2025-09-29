@@ -31,7 +31,7 @@ public class ResourceHelper {
 
     public static String getResource(String path) {
         val data = ResourceHelper.class.getClassLoader().getResourceAsStream(path);
-        if(null == data) return null;
+        if (null == data) return null;
         return new BufferedReader(
                 new InputStreamReader(data))
                 .lines()
@@ -41,7 +41,7 @@ public class ResourceHelper {
     @SneakyThrows
     public static <T> T getResource(String path, Class<T> klass) {
         val data = getResource(path);
-        if(null == data) return null;
+        if (null == data) return null;
         return objectMapper.readValue(data, klass);
     }
 }

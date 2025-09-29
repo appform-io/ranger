@@ -50,7 +50,7 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
                 // no-op
             }
         }.withServiceDataSource(getServiceDataSource())
-            .withServiceFinderFactory(getFinderFactory())
+                .withServiceFinderFactory(getFinderFactory())
                 .build();
     }
 

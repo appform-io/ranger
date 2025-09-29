@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Builder
-public class TestSimpleUnshardedServiceFinder <T>
+public class TestSimpleUnshardedServiceFinder<T>
         extends SimpleUnshardedServiceFinderBuilder<TestNodeData, TestSimpleUnshardedServiceFinder<T>, Deserializer<TestNodeData>> {
 
     @Override
@@ -42,7 +42,7 @@ public class TestSimpleUnshardedServiceFinder <T>
         return new TestDataSource();
     }
 
-    static class TestDataSource implements NodeDataSource<TestNodeData, Deserializer<TestNodeData>>{
+    static class TestDataSource implements NodeDataSource<TestNodeData, Deserializer<TestNodeData>> {
 
         @Override
         public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {

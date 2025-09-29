@@ -38,7 +38,7 @@ public class TimeEntity {
     public TimeEntity(long timeInterval, TimeUnit timeUnit) {
         this(0, timeInterval, timeUnit);
     }
-    
+
     /**
      * @param initialDelay initial delay for triggering the task
      * @param timeInterval repeat time interval of task
@@ -49,7 +49,7 @@ public class TimeEntity {
         this.timeInterval = timeInterval;
         this.timeUnit = timeUnit;
     }
-    
+
     /**
      * @return a TimeEntity with time interval of every second
      */

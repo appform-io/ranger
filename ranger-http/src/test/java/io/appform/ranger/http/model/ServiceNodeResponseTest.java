@@ -29,13 +29,13 @@ class ServiceNodeResponseTest {
     @Value
     @Builder
     @Jacksonized
-    static class TestNodeInfo{
+    static class TestNodeInfo {
         int shardId;
         String region;
     }
 
     @Test
-    void testServiceNodesResponse(){
+    void testServiceNodesResponse() {
         val serviceNodesResponse = ResourceHelper.getResource("fixtures/serviceNodesResponse.json", ServiceNodesResponse.class);
         Assertions.assertNotNull(serviceNodesResponse);
         Assertions.assertFalse(serviceNodesResponse.getData().isEmpty());

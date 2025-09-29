@@ -27,7 +27,7 @@ import java.util.List;
 @UtilityClass
 public class RegistryTestUtils {
 
-    public static MapBasedServiceRegistry<TestNodeData> getServiceRegistry(){
+    public static MapBasedServiceRegistry<TestNodeData> getServiceRegistry() {
         val serviceRegistry = new MapBasedServiceRegistry<TestNodeData>(RangerTestUtils.service);
         val serviceNodes = List.of(
                 ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build(),
@@ -38,7 +38,7 @@ public class RegistryTestUtils {
         return serviceRegistry;
     }
 
-    public static ListBasedServiceRegistry<TestNodeData> getUnshardedRegistry(){
+    public static ListBasedServiceRegistry<TestNodeData> getUnshardedRegistry() {
         val serviceRegistry = new ListBasedServiceRegistry<TestNodeData>(RangerTestUtils.service);
         val serviceNodes = List.of(
                 ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build(),

@@ -29,11 +29,11 @@ public class MatchingShardSelector<T> implements ShardSelector<T, MapBasedServic
     @Override
     public List<ServiceNode<T>> nodes(Predicate<T> criteria, MapBasedServiceRegistry<T> serviceRegistry) {
         return null == criteria ? serviceRegistry.nodeList() :
-            serviceRegistry.nodes()
-                .entries()
-                .stream()
-                .filter(e -> criteria.test(e.getKey()))
-                .map(Map.Entry::getValue)
-                .toList();
+                serviceRegistry.nodes()
+                        .entries()
+                        .stream()
+                        .filter(e -> criteria.test(e.getKey()))
+                        .map(Map.Entry::getValue)
+                        .toList();
     }
 }

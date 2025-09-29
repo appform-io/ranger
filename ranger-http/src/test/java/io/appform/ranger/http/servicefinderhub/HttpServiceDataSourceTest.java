@@ -69,17 +69,17 @@ class HttpServiceDataSourceTest {
                     .operationTimeoutMs(30_000)
                     .build();
             val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig,
-                                                                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
+                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
             val services = httpServiceDataSource.services();
             Assertions.assertNotNull(services);
             Assertions.assertFalse(services.isEmpty());
             Assertions.assertEquals(3, services.size());
             Assertions.assertFalse(services.stream()
-                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
+                    .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
             Assertions.assertFalse(services.stream()
-                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
+                    .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
             Assertions.assertFalse(services.stream()
-                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
+                    .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s2")));
         }
         { //Here we set skip replication data to false. so query param is set
             val clientConfig = HttpClientConfig.builder()
@@ -90,15 +90,15 @@ class HttpServiceDataSourceTest {
                     .replicationSource(true)
                     .build();
             val httpServiceDataSource = new HttpServiceDataSource<>(clientConfig,
-                                                                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
+                    RangerHttpUtils.httpClient(clientConfig, MAPPER));
             val services = httpServiceDataSource.services();
             Assertions.assertNotNull(services);
             Assertions.assertFalse(services.isEmpty());
             Assertions.assertEquals(2, services.size());
             Assertions.assertFalse(services.stream()
-                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
+                    .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s")));
             Assertions.assertFalse(services.stream()
-                                           .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
+                    .noneMatch(each -> each.getServiceName().equalsIgnoreCase("test-s1")));
         }
     }
 

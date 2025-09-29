@@ -16,7 +16,7 @@
 package io.appform.ranger.hub.server.bundle.models;
 
 public enum BackendType {
-  ZK,
-  HTTP,
-  DROVE,
+    ZK,
+    HTTP,
+    DROVE,
 }

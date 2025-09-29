@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @EqualsAndHashCode(callSuper = true)
 public class ListBasedServiceRegistry<T> extends ServiceRegistry<T> {
     private final AtomicReference<List<ServiceNode<T>>> nodes
-                                        = new AtomicReference<>();
+            = new AtomicReference<>();
 
     public ListBasedServiceRegistry(Service service) {
         super(service);

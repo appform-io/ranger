@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class UnshardedRangerDroveClientTest extends BaseRangerDroveClientTest {
 
     @Test
-    void testUnshardedRangerHubClient(){
+    void testUnshardedRangerHubClient() {
         val clientConfig = getClientConfig();
         val namespace = "test";
         val client = UnshardedRangerDroveHubClient.<TestNodeData>builder()

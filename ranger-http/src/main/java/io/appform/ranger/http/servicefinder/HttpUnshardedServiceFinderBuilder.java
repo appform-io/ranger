@@ -56,8 +56,8 @@ public class HttpUnshardedServiceFinderBuilder<T>
     @Override
     protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
         return new HttpNodeDataSource<>(service, clientConfig,
-                                        Objects.requireNonNullElseGet(httpClient,
-                                                                      () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
+                Objects.requireNonNullElseGet(httpClient,
+                        () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 
 }

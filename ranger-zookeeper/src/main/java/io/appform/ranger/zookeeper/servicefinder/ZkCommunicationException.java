@@ -20,7 +20,6 @@ import io.appform.ranger.core.exceptions.CommunicationException;
 
 /**
  * Thrown in case there is an issue communicating with the Zookeeper upstream.
-
  */
 public class ZkCommunicationException extends CommunicationException {
     public ZkCommunicationException(final String message) {

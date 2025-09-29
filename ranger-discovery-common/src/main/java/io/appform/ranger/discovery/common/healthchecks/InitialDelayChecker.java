@@ -35,7 +35,7 @@ public class InitialDelayChecker implements Healthcheck {
     @Override
     public HealthcheckStatus check() {
         return System.currentTimeMillis() > validRegistrationTime
-               ? HealthcheckStatus.healthy
-               : HealthcheckStatus.unhealthy;
+                ? HealthcheckStatus.healthy
+                : HealthcheckStatus.unhealthy;
     }
 }

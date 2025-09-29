@@ -25,12 +25,12 @@ import java.util.function.Predicate;
 
 class CriteriaUtilsTest {
 
-    private Predicate<TestNodeData> getCriteria(int shardId){
+    private Predicate<TestNodeData> getCriteria(int shardId) {
         return testNodeData -> testNodeData.getShardId() == shardId;
     }
 
     @Test
-    void testGetCriteria(){
+    void testGetCriteria() {
         val initialCriteria = getCriteria(1);
         val argCriteria = getCriteria(2);
         var mergedCriteria = CriteriaUtils.getCriteria(true, initialCriteria, argCriteria);

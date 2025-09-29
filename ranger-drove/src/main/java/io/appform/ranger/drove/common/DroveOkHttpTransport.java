@@ -58,16 +58,15 @@ public class DroveOkHttpTransport implements DroveHttpTransport {
         try (val response = httpClient.newCall(request).execute()) {
             val body = response.body();
             var strResponse = body != null ? body.string() : null;
-            if(!response.isSuccessful()) {
+            if (!response.isSuccessful()) {
                 log.error("Error calling drove api {}: Status: {} Body: {}",
-                          uri, response.code(), strResponse);
+                        uri, response.code(), strResponse);
             }
             val droveResponse = new DroveClient.Response(response.code(),
-                                                         response.headers().toMultimap(),
-                                                         strResponse);
+                    response.headers().toMultimap(),
+                    strResponse);
             return responseHandler.handle(droveResponse);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error calling drove: {}. Error: {}", e.getMessage(), e.getClass().getSimpleName());
             throw new DroveCommunicationException(e.getMessage());
         }

@@ -20,7 +20,6 @@ import io.appform.ranger.core.exceptions.CommunicationException;
 
 /**
  * Thrown in case there is an issue communicating with the HTTP upstream.
-
  */
 public class HttpCommunicationException extends CommunicationException {
     public HttpCommunicationException(final String message) {

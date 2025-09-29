@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class ServiceRegistrationResponseTest {
 
     @Test
-    void testServiceRegistrationResponse(){
+    void testServiceRegistrationResponse() {
         val resource = ResourceHelper.getResource("fixtures/serviceResponse.json", ServiceRegistrationResponse.class);
         Assertions.assertNotNull(resource);
         Assertions.assertTrue(resource.valid());

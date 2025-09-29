@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 public class ExternalTriggeredSignal<T> extends Signal<T> {
 
-     public ExternalTriggeredSignal(
+    public ExternalTriggeredSignal(
             Supplier<T> signalDataGenerator,
             List<Consumer<T>> consumers) {
         super(signalDataGenerator, consumers);

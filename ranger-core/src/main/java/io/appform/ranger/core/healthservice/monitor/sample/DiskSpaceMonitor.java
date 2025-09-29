@@ -29,9 +29,9 @@ public class DiskSpaceMonitor extends CountMonitor {
     private final String partition;
 
     /**
-     * @param partition       partition to be monitored
+     * @param partition      partition to be monitored
      * @param countThreshold maximum free space of partition, below which, the monitor will mark itself as unhealthy
-     * @param timeEntity      how often the {@link #monitor()} check needs to be executed
+     * @param timeEntity     how often the {@link #monitor()} check needs to be executed
      */
     public DiskSpaceMonitor(String partition, Integer countThreshold, TimeEntity timeEntity) {
         super(DiskSpaceMonitor.class.getSimpleName(), CheckSign.GREATER_THAN, countThreshold, timeEntity);
@@ -41,7 +41,7 @@ public class DiskSpaceMonitor extends CountMonitor {
     /**
      * @param partition  partition to be monitored
      * @param name       name of monitor
-     * @param threshold maximum free space of partition, below which, the monitor will mark itself as unhealthy
+     * @param threshold  maximum free space of partition, below which, the monitor will mark itself as unhealthy
      * @param timeEntity how often the {@link #monitor()} check needs to be executed
      */
     public DiskSpaceMonitor(String partition, String name, Integer threshold, TimeEntity timeEntity) {

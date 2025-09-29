@@ -124,8 +124,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                         try {
                             return getMapper().readValue(data, new TypeReference<ServiceNode<ShardInfo>>() {
                             });
-                        }
-                        catch (IOException e) {
+                        } catch (IOException e) {
                             logUnparseableData(data);
                         }
                         return null;
@@ -146,9 +145,9 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                     .excludedServices(excludedServices)
                     .deserializer(data -> {
                         try {
-                            return getMapper().readValue(data, new TypeReference<>() {});
-                        }
-                        catch (IOException e) {
+                            return getMapper().readValue(data, new TypeReference<>() {
+                            });
+                        } catch (IOException e) {
                             logUnparseableData(data);
                         }
                         return null;
@@ -159,9 +158,9 @@ public abstract class RangerHubServerBundle<U extends Configuration>
         private RangerHubClient<ShardInfo, ListBasedServiceRegistry<ShardInfo>> getDroveClient(
                 final DroveUpstreamConfig droveConfig, RangerDroveUpstreamConfiguration droveUpstreamConfiguration) {
             val envTagName = Objects.requireNonNullElse(droveConfig.getEnvironmentTagName(),
-                                                        DroveUpstreamConfig.DEFAULT_ENVIRONMENT_TAG_NAME);
+                    DroveUpstreamConfig.DEFAULT_ENVIRONMENT_TAG_NAME);
             val regionTagName = Objects.requireNonNullElse(droveConfig.getRegionTagName(),
-                                                           DroveUpstreamConfig.DEFAULT_REGION_TAG_NAME);
+                    DroveUpstreamConfig.DEFAULT_REGION_TAG_NAME);
             val droveCommunicator = RangerDroveUtils.<ShardInfo>buildDroveClient(namespace, droveConfig, getMapper());
             return UnshardedRangerDroveHubClient.<ShardInfo>builder()
                     .namespace(namespace)
@@ -188,9 +187,9 @@ public abstract class RangerHubServerBundle<U extends Configuration>
                                     .environment(env)
                                     .region(region)
                                     .tags(tags.entrySet()
-                                                  .stream()
-                                                  .map(entry -> entry.getKey() + "|" + entry.getValue())
-                                                  .collect(Collectors.toUnmodifiableSet()))
+                                            .stream()
+                                            .map(entry -> entry.getKey() + "|" + entry.getValue())
+                                            .collect(Collectors.toUnmodifiableSet()))
                                     .build();
                         }
                     })

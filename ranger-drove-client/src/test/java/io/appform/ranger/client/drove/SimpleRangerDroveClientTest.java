@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class SimpleRangerDroveClientTest extends BaseRangerDroveClientTest {
 
     @Test
-    void testSimpleDroveRangerClient(){
+    void testSimpleDroveRangerClient() {
         val client = SimpleRangerDroveClient.<TestNodeData>builder()
                 .clientConfig(getClientConfig())
                 .namespace("test")

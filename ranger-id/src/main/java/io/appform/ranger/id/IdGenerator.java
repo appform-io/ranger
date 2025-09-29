@@ -53,7 +53,7 @@ public class IdGenerator {
             int node, List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize(node);
-        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
+        if (null != globalConstraints && !globalConstraints.isEmpty()) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
 
@@ -169,11 +169,11 @@ public class IdGenerator {
             final List<IdValidationConstraint> inConstraints,
             boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .constraints(inConstraints)
-                                .skipGlobal(skipGlobal)
-                                .idFormatter(IdFormatters.original())
-                                .build());
+                .prefix(prefix)
+                .constraints(inConstraints)
+                .skipGlobal(skipGlobal)
+                .idFormatter(IdFormatters.original())
+                .build());
     }
 
     /**
@@ -191,12 +191,12 @@ public class IdGenerator {
             final Domain domain,
             boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .constraints(domain.getConstraints())
-                                .skipGlobal(skipGlobal)
-                                .domain(domain.getDomain())
-                                .idFormatter(domain.getIdFormatter())
-                                .build());
+                .prefix(prefix)
+                .constraints(domain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(domain.getDomain())
+                .idFormatter(domain.getIdFormatter())
+                .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {

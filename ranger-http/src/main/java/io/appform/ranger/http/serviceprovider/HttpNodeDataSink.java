@@ -68,13 +68,13 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
                 .build();
         val requestBody = RequestBody.create(serializer.serialize(serviceNode));
         val serviceRegistrationResponse = registerService(httpUrl, requestBody).orElse(null);
-        if(null == serviceRegistrationResponse || !serviceRegistrationResponse.valid()){
+        if (null == serviceRegistrationResponse || !serviceRegistrationResponse.valid()) {
             log.warn("Http call to {} returned a failure response {}", httpUrl, serviceRegistrationResponse);
             Exceptions.illegalState("Error updating state on the server for node data: " + httpUrl);
         }
     }
 
-    private Optional<ServiceRegistrationResponse<T>> registerService(HttpUrl httpUrl, RequestBody requestBody){
+    private Optional<ServiceRegistrationResponse<T>> registerService(HttpUrl httpUrl, RequestBody requestBody) {
         val request = new Request.Builder()
                 .url(httpUrl)
                 .post(requestBody)
@@ -84,19 +84,17 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
                 try (val body = response.body()) {
                     if (null == body) {
                         log.warn("HTTP call to {} returned empty body", httpUrl);
-                    }
-                    else {
+                    } else {
                         return Optional.of(mapper.readValue(body.bytes(),
-                                                            new TypeReference<ServiceRegistrationResponse<T>>() {}));
+                                new TypeReference<ServiceRegistrationResponse<T>>() {
+                                }));
                     }
                 }
-            }
-            else {
+            } else {
                 log.warn("HTTP call to {} has returned: {}", httpUrl, response.code());
             }
-        }
-        catch (IOException e) {
-            log.error("Error updating state on the server with httpUrl {} with exception {} ",  httpUrl, e);
+        } catch (IOException e) {
+            log.error("Error updating state on the server with httpUrl {} with exception {} ", httpUrl, e);
         }
         return Optional.empty();
     }

@@ -51,10 +51,10 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
     @Override
     protected ServiceDataSource getDefaultDataSource() {
         return new HttpServiceDataSource<>(clientConfig,
-                                           Objects.requireNonNullElseGet(getHttpClient(),
-                                                                         () -> RangerHttpUtils.httpClient(
-                                                                                 clientConfig,
-                                                                                 getMapper())));
+                Objects.requireNonNullElseGet(getHttpClient(),
+                        () -> RangerHttpUtils.httpClient(
+                                clientConfig,
+                                getMapper())));
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ServiceRegistrationResponse<T> {
     ServiceNode<T> data;
 
     @JsonIgnore
-    public boolean valid(){
+    public boolean valid() {
         return null != data;
     }
 }

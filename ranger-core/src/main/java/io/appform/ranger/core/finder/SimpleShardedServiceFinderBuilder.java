@@ -23,7 +23,7 @@ import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
 
-public abstract class SimpleShardedServiceFinderBuilder<T, B extends SimpleShardedServiceFinderBuilder<T,B, D>, D extends Deserializer<T>>
+public abstract class SimpleShardedServiceFinderBuilder<T, B extends SimpleShardedServiceFinderBuilder<T, B, D>, D extends Deserializer<T>>
         extends BaseServiceFinderBuilder<T, MapBasedServiceRegistry<T>, SimpleShardedServiceFinder<T>, B, D> {
 
     @Override

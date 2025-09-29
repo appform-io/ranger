@@ -72,8 +72,8 @@ public class DroveCachingCommunicator implements DroveCommunicator {
                 .mapper(mapper)
                 .offsetStore(offsetStore)
                 .pollInterval(Objects.requireNonNullElse(config.getEventPollingInterval(),
-                                                         DroveUpstreamConfig.DEFAULT_EVENT_POLLING_INTERVAL)
-                                      .toJavaDuration())
+                                DroveUpstreamConfig.DEFAULT_EVENT_POLLING_INTERVAL)
+                        .toJavaDuration())
                 .build();
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(45)) //Delete the data after 45 secs. Will lead to sync refresh
@@ -93,9 +93,9 @@ public class DroveCachingCommunicator implements DroveCommunicator {
                 });
         val relevantEvents = EnumSet.of(DroveEventType.APP_STATE_CHANGE, DroveEventType.INSTANCE_STATE_CHANGE);
         Lists.partition(Objects.requireNonNullElse(services(), List.<String>of())
-                                .stream()
-                                .map(name -> new Service(namespace, name))
-                                .toList(), 10)
+                        .stream()
+                        .map(name -> new Service(namespace, name))
+                        .toList(), 10)
                 .forEach(cache::getAll);
         log.info("Batch loading completed");
         listener.onEventReceived().connect(events -> handleEvents(namespace, events, relevantEvents));

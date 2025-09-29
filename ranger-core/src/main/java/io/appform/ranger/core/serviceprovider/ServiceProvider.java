@@ -65,7 +65,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     }
 
     private void handleHealthUpdate(HealthcheckResult result) {
-        if(null == result) {
+        if (null == result) {
             log.debug("No update to health state of node. Skipping data source update.");
             return;
         }

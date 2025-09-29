@@ -45,7 +45,7 @@ public class DropwizardHealthMonitor extends IsolatedHealthMonitor<HealthcheckSt
                 .values()
                 .stream()
                 .allMatch(HealthCheck.Result::isHealthy))
-               ? HealthcheckStatus.healthy
-               : HealthcheckStatus.unhealthy;
+                ? HealthcheckStatus.healthy
+                : HealthcheckStatus.unhealthy;
     }
 }

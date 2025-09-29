@@ -38,11 +38,11 @@ public class RangerTestUtils {
     //Visible outside the class scope
     public static Service service = Service.builder().namespace(TEST_NAMESPACE).serviceName(TEST_SERVICE).build();
 
-    public static Predicate<TestNodeData> getCriteria(final int shardId){
+    public static Predicate<TestNodeData> getCriteria(final int shardId) {
         return nodeData -> nodeData.getShardId() == shardId;
     }
 
-    public static Service getService(String namespace, String serviceName){
+    public static Service getService(String namespace, String serviceName) {
         return Service.builder()
                 .serviceName(serviceName)
                 .namespace(namespace)
@@ -73,7 +73,7 @@ public class RangerTestUtils {
     /*
         Only applicable for initial node population using finder. Works when you intend to start the finder with nodes in 'em.
      */
-    public static <T, R extends ServiceRegistry<T>> void sleepUntilFinderStarts(ServiceFinder<T, R> finder){
+    public static <T, R extends ServiceRegistry<T>> void sleepUntilFinderStarts(ServiceFinder<T, R> finder) {
         await().pollDelay(Duration.ofSeconds(3)).until(() -> finder.getServiceRegistry().isRefreshed());
     }
 }

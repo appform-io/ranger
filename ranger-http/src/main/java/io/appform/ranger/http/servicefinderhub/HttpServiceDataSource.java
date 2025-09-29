@@ -34,7 +34,7 @@ public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> impl
 
     @Override
     public Collection<Service> services() {
-       Objects.requireNonNull(config, "client config has not been set for node data");
+        Objects.requireNonNull(config, "client config has not been set for node data");
         return httpCommunicator.services();
     }
 }

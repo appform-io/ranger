@@ -22,10 +22,10 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
+class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest {
 
     @Test
-    void testSimpleHttpRangerClient(){
+    void testSimpleHttpRangerClient() {
         val httpClientConfig = getHttpClientConfig();
         val client = SimpleRangerHttpClient.<TestNodeData>builder()
                 .clientConfig(httpClientConfig)

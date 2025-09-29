@@ -36,7 +36,7 @@ public class CriteriaUtils {
             Predicate<T> initialCriteria,
             Predicate<T> argCriteria) {
         return null != initialCriteria && null != argCriteria && useInitialCriteria
-               ? initialCriteria.and(argCriteria)
-               : argCriteria;
+                ? initialCriteria.and(argCriteria)
+                : argCriteria;
     }
 }

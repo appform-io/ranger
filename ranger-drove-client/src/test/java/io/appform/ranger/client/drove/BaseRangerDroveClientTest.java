@@ -55,64 +55,64 @@ public abstract class BaseRangerDroveClientTest {
     @BeforeEach
     public void prepareHttpMocks() throws Exception {
         wireMockExtension.stubFor(get(urlPathEqualTo("/apis/v1/endpoints"))
-                                          .willReturn(aResponse()
-                                                              .withBody(objectMapper.writeValueAsBytes(
-                                                                      ApiResponse.success(List.of(new ExposedAppInfo(
-                                                                              "TEST_APP",
-                                                                              "test-0.1",
-                                                                              "test.appform.io",
-                                                                              Map.of(),
-                                                                              List.of(new ExposedAppInfo.ExposedHost(
-                                                                                      "executor001.internal",
-                                                                                      32456,
-                                                                                      PortType.HTTP)))))))
-                                                              .withStatus(200)));
+                .willReturn(aResponse()
+                        .withBody(objectMapper.writeValueAsBytes(
+                                ApiResponse.success(List.of(new ExposedAppInfo(
+                                        "TEST_APP",
+                                        "test-0.1",
+                                        "test.appform.io",
+                                        Map.of(),
+                                        List.of(new ExposedAppInfo.ExposedHost(
+                                                "executor001.internal",
+                                                32456,
+                                                PortType.HTTP)))))))
+                        .withStatus(200)));
 
         val response = ApiResponse.success(Map.of(
                 "TEST_APP-1",
                 new AppSummary("TEST_APP-1",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "TEST_APP-2",
                 new AppSummary("TEST_APP-2",
-                               "TEST_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date()),
+                        "TEST_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date()),
                 "DEAD_APP-2",
                 new AppSummary("DEAD_APP-2",
-                               "DEAD_APP",
-                               0,
-                               0,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.MONITORING,
-                               new Date(),
-                               new Date()),
+                        "DEAD_APP",
+                        0,
+                        0,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.MONITORING,
+                        new Date(),
+                        new Date()),
                 "OTHER_APP-2",
                 new AppSummary("OTHER_APP-2",
-                               "OTHER_APP",
-                               4,
-                               4,
-                               4,
-                               1024,
-                               Map.of(),
-                               ApplicationState.RUNNING,
-                               new Date(),
-                               new Date())));
+                        "OTHER_APP",
+                        4,
+                        4,
+                        4,
+                        1024,
+                        Map.of(),
+                        ApplicationState.RUNNING,
+                        new Date(),
+                        new Date())));
         wireMockExtension.stubFor(get("/apis/v1/applications").willReturn(okJson(objectMapper.writeValueAsString(
                 response))));
 

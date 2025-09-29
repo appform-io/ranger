@@ -23,10 +23,10 @@
     </appender>
 
     <logger name="io.appform">
-        <level value="INFO" />
+        <level value="INFO"/>
     </logger>
     <root>
-        <level value="INFO" />
-        <appender-ref ref="CONSOLE" />
+        <level value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

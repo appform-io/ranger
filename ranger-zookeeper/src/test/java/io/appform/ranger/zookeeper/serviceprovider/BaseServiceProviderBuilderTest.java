@@ -46,7 +46,7 @@ class BaseServiceProviderBuilderTest {
 
     @AfterEach
     void stopTestCluster() throws Exception {
-        if(null != testingCluster) {
+        if (null != testingCluster) {
             testingCluster.close();
         }
     }

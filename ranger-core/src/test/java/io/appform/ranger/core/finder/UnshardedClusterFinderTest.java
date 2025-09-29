@@ -36,8 +36,9 @@ class UnshardedClusterFinderTest {
             return serviceNodes.isEmpty() ? null : serviceNodes.get(0);
         }
     }
+
     @Test
-    void unshardedClusterFinder(){
+    void unshardedClusterFinder() {
         val unshardedRegistry = RegistryTestUtils.getUnshardedRegistry();
         val shardSelector = new ListShardSelector<TestNodeData>();
         val simpleUnshardedServiceFinder = new SimpleUnshardedServiceFinder<>(
