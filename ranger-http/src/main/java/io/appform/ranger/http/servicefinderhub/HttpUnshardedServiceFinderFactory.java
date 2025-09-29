@@ -25,7 +25,7 @@ import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
 import io.appform.ranger.http.servicefinder.HttpCommunicator;
-import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilider;
+import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilder;
 import lombok.Builder;
 import lombok.val;
 
@@ -59,7 +59,7 @@ public class HttpUnshardedServiceFinderFactory<T> implements ServiceFinderFactor
 
     @Override
     public ServiceFinder<T, ListBasedServiceRegistry<T>> buildFinder(Service service) {
-        val serviceFinder = new HttpUnshardedServiceFinderBuilider<T>()
+        val serviceFinder = new HttpUnshardedServiceFinderBuilder<T>()
                 .withClientConfig(clientConfig)
                 .withObjectMapper(mapper)
                 .withHttpClient(httpClient)

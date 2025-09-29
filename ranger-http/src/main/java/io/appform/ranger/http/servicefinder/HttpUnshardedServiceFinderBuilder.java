@@ -26,24 +26,24 @@ import io.appform.ranger.http.utils.RangerHttpUtils;
 
 import java.util.Objects;
 
-public class HttpUnshardedServiceFinderBuilider<T>
-        extends SimpleUnshardedServiceFinderBuilder<T, HttpUnshardedServiceFinderBuilider<T>, HTTPResponseDataDeserializer<T>> {
+public class HttpUnshardedServiceFinderBuilder<T>
+        extends SimpleUnshardedServiceFinderBuilder<T, HttpUnshardedServiceFinderBuilder<T>, HTTPResponseDataDeserializer<T>> {
 
     private HttpClientConfig clientConfig;
     private ObjectMapper mapper;
     private HttpCommunicator<T> httpClient;
 
-    public HttpUnshardedServiceFinderBuilider<T> withClientConfig(final HttpClientConfig clientConfig) {
+    public HttpUnshardedServiceFinderBuilder<T> withClientConfig(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
     }
 
-    public HttpUnshardedServiceFinderBuilider<T> withObjectMapper(final ObjectMapper mapper) {
+    public HttpUnshardedServiceFinderBuilder<T> withObjectMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
         return this;
     }
 
-    public HttpUnshardedServiceFinderBuilider<T> withHttpClient(final HttpCommunicator<T> httpClient) {
+    public HttpUnshardedServiceFinderBuilder<T> withHttpClient(final HttpCommunicator<T> httpClient) {
         this.httpClient = httpClient;
         return this;
     }

@@ -19,15 +19,17 @@ package io.appform.ranger.hub.server.bundle.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)

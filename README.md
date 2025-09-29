@@ -191,8 +191,8 @@ In a distributed architecture, taking care of thousands of servers is a difficul
 As mentioned earlier, the health state of any _ServiceProvider_ is determined by a set of health monitors which are continuously running in the Service Provider.
 All monitors (and at least 1) need to be registered while building the _ServiceProvider_.
 
-You may register any kind of _Monitor_, which could be monitoring any serivce/system level metric. For example, you could have monitors:
-- that monitor the service's heap, to ensure that it doesn't go beyond a threashold
+You may register any kind of _Monitor_, which could be monitoring any service/system level metric. For example, you could have monitors:
+- that monitor the service's heap, to ensure that it doesn't go beyond a threshold
 - that check for any breach in max jetty threads
 - that monitors the systems disk space
 - that does a continuous ping test
@@ -200,7 +200,7 @@ You may register any kind of _Monitor_, which could be monitoring any serivce/sy
 
 If any of the above are breached, the service will automatically be marked as unhealthy.
 
-- _Isolated Monitors_ - Any extention of _IsolatedHealthMonitor_ may be used to register an isolated monitor. Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals.
+- _Isolated Monitors_ - Any extension of _IsolatedHealthMonitor_ may be used to register an isolated monitor. Each of these monitors will be running continuously on separate isolated threads. Each thread holds an independent state of the isolated monitor. The state of all Monitors will be aggregated an updated on Zookeeper at regular intervals.
   - _PingCheckMonitor_ - This monitor can be used to ping a url at regular intervals. It could be a self localhost ping too. You can also add minimum failure counts, to ensure that there are no fluctuations
     ```
         .withIsolatedHealthMonitor(new PingCheckMonitor(new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3, "google.com", 80));  // put in the url here
@@ -350,7 +350,7 @@ hubClient.stop()
 
 If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
 
-#### Dependeny for the bundle
+#### Dependency for the bundle
 
 ```
 <dependency>
@@ -450,7 +450,7 @@ Use GET /instances to see all instances that have been registered to your servic
 
 If you are using a dropwizard project, you could use the service discovery bundle directly instead of having to create your own service provider clients and bind them.
 
-#### Dependeny for the bundle
+#### Dependency for the bundle
 
 ```
 <dependency>

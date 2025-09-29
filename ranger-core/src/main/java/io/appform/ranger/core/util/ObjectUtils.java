@@ -21,7 +21,7 @@ import lombok.experimental.UtilityClass;
 import java.util.Objects;
 
 /**
- * Utility calss . To be removed when we move to J11
+ * Utility class . To be removed when we move to J11
  */
 @UtilityClass
 public class ObjectUtils {

@@ -34,7 +34,6 @@ public class MurmurBasedKeyPartitioner implements KeyPartitioner {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public int partition(Id id) {
         int hashCode = Hashing.murmur3_128().hashString(id.toString(), StandardCharsets.UTF_8).asInt();
         hashCode *= hashCode < 0 ? -1 : 1;

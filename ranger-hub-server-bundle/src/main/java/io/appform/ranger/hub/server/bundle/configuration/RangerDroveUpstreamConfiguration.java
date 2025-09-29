@@ -19,8 +19,9 @@ package io.appform.ranger.hub.server.bundle.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.Valid;
@@ -30,7 +31,8 @@ import java.util.List;
 /**
  *
  */
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)

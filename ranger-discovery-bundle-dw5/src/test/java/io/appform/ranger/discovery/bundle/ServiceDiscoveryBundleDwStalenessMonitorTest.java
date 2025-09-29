@@ -97,7 +97,7 @@ class ServiceDiscoveryBundleDwStalenessMonitorTest {
             @Override
             protected Result check() {
                 if (healthySucceeded.get()) {
-                    return Result.unhealthy("Forced unhealthy as healthy check has succeded");
+                    return Result.unhealthy("Forced unhealthy as healthy check has succeeded");
                 }
                 return Result.healthy();
             }

@@ -61,7 +61,7 @@ public abstract class BaseRangerZKClientTest {
                 .build();
         curatorFramework.start();
         curatorFramework.blockUntilConnected();
-        initilizeProvider();
+        initializeProvider();
         log.debug("Started zk subsystem");
     }
 
@@ -72,16 +72,16 @@ public abstract class BaseRangerZKClientTest {
         if (null != testingCluster) {
             testingCluster.close();
         }
-        if(null != provider){
+        if (null != provider) {
             provider.stop();
         }
     }
 
     protected ServiceNode<TestNodeData> read(final byte[] data) {
         try {
-            return getObjectMapper().readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {});
-        }
-        catch (IOException e) {
+            return getObjectMapper().readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {
+            });
+        } catch (IOException e) {
             Exceptions.illegalState(e);
         }
         return null;
@@ -90,14 +90,13 @@ public abstract class BaseRangerZKClientTest {
     protected byte[] write(final ServiceNode<TestNodeData> node) {
         try {
             return getObjectMapper().writeValueAsBytes(node);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Exceptions.illegalState(e);
         }
         return null;
     }
 
-    protected void initilizeProvider(){
+    protected void initializeProvider() {
         val refreshProviderSignal = new ExternalTriggeredSignal<>(
                 () -> HealthcheckResult.builder()
                         .status(HealthcheckStatus.healthy)

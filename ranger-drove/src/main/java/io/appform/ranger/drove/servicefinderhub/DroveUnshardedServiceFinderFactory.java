@@ -25,7 +25,7 @@ import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.serde.DroveResponseDataDeserializer;
-import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilider;
+import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilder;
 import lombok.Builder;
 import lombok.val;
 
@@ -60,7 +60,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
 
     @Override
     public ServiceFinder<T, ListBasedServiceRegistry<T>> buildFinder(Service service) {
-        val serviceFinder = new DroveUnshardedServiceFinderBuilider<T>()
+        val serviceFinder = new DroveUnshardedServiceFinderBuilder<T>()
                 .withClientConfig(clientConfig)
                 .withDroveCommunicator(droveCommunicator)
                 .withObjectMapper(mapper)

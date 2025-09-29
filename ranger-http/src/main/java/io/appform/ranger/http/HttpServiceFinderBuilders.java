@@ -16,7 +16,7 @@
 package io.appform.ranger.http;
 
 import io.appform.ranger.http.servicefinder.HttpShardedServiceFinderBuilder;
-import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilider;
+import io.appform.ranger.http.servicefinder.HttpUnshardedServiceFinderBuilder;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -27,7 +27,7 @@ public final class HttpServiceFinderBuilders {
         return new HttpShardedServiceFinderBuilder<>();
     }
 
-    public static <T> HttpUnshardedServiceFinderBuilider<T> httpUnshardedServiceFinderBuilider(){
-        return new HttpUnshardedServiceFinderBuilider<>();
+    public static <T> HttpUnshardedServiceFinderBuilder<T> httpUnshardedServiceFinderBuilider(){
+        return new HttpUnshardedServiceFinderBuilder<>();
     }
 }

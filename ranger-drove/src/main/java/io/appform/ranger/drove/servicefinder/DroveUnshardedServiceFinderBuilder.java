@@ -27,25 +27,25 @@ import io.appform.ranger.drove.utils.RangerDroveUtils;
 
 import java.util.Objects;
 
-public class DroveUnshardedServiceFinderBuilider<T>
-        extends SimpleUnshardedServiceFinderBuilder<T, DroveUnshardedServiceFinderBuilider<T>,
+public class DroveUnshardedServiceFinderBuilder<T>
+        extends SimpleUnshardedServiceFinderBuilder<T, DroveUnshardedServiceFinderBuilder<T>,
         DroveResponseDataDeserializer<T>> {
 
     private DroveUpstreamConfig clientConfig;
     private ObjectMapper mapper;
     private DroveCommunicator droveCommunicator;
 
-    public DroveUnshardedServiceFinderBuilider<T> withDroveCommunicator(final DroveCommunicator droveClient) {
+    public DroveUnshardedServiceFinderBuilder<T> withDroveCommunicator(final DroveCommunicator droveClient) {
         this.droveCommunicator = droveClient;
         return this;
     }
 
-    public DroveUnshardedServiceFinderBuilider<T> withClientConfig(final DroveUpstreamConfig clientConfig) {
+    public DroveUnshardedServiceFinderBuilder<T> withClientConfig(final DroveUpstreamConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
     }
 
-    public DroveUnshardedServiceFinderBuilider<T> withObjectMapper(final ObjectMapper mapper) {
+    public DroveUnshardedServiceFinderBuilder<T> withObjectMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
         return this;
     }

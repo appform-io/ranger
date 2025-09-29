@@ -21,7 +21,7 @@ import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import lombok.val;
 
 /**
- * A monitor that can be used as a counting monitor to check if any countable entity breaches a threashhold
+ * A monitor that can be used as a counting monitor to check if any countable entity breaches a threshold
  * Eg:
  * 1. this could be used to check the heap of your java service, if heap goes beyond a threshold,
  * after which, you would want your service to be marked as unhealthy

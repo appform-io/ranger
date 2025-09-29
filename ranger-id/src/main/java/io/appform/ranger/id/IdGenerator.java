@@ -103,7 +103,7 @@ public class IdGenerator {
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -116,9 +116,9 @@ public class IdGenerator {
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     * The evaluation of constraints will take its toll on id generation rates. Tun rests to check speed.
      *
      * @param prefix     String prefix
      * @param domain     Domain for constraint selection

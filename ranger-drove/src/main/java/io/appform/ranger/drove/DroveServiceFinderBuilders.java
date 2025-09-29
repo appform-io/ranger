@@ -16,7 +16,7 @@
 package io.appform.ranger.drove;
 
 import io.appform.ranger.drove.servicefinder.DroveShardedServiceFinderBuilder;
-import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilider;
+import io.appform.ranger.drove.servicefinder.DroveUnshardedServiceFinderBuilder;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -27,7 +27,7 @@ public final class DroveServiceFinderBuilders {
         return new DroveShardedServiceFinderBuilder<>();
     }
 
-    public static <T> DroveUnshardedServiceFinderBuilider<T> droveUnshardedServiceFinderBuilider(){
-        return new DroveUnshardedServiceFinderBuilider<>();
+    public static <T> DroveUnshardedServiceFinderBuilder<T> droveUnshardedServiceFinderBuilider(){
+        return new DroveUnshardedServiceFinderBuilder<>();
     }
 }
