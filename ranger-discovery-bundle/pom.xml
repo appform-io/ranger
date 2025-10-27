@@ -21,12 +21,12 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-discovery-bundle</artifactId>
-    <name>Dropwizard bundle for Ranger dicovery</name>
+    <name>Dropwizard bundle for Ranger discovery</name>
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
@@ -54,10 +54,6 @@
                 <exclusion>
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
