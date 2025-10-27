@@ -54,7 +54,7 @@ import java.util.Optional;
 public class DroveCachingCommunicator implements DroveCommunicator {
     private final DroveCommunicator root;
     private final DroveRemoteEventListener listener;
-    //Zombie check is 60 secs .. so this provides about 10 secs
+    //Zombie check is 60 secs. So, this provides about 10 secs
     // for nodes to be refreshed
     private final LoadingCache<Service, List<ExposedAppInfo>> cache;
 

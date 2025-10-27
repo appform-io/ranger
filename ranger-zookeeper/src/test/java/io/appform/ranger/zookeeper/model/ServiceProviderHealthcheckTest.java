@@ -28,6 +28,7 @@ import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 class ServiceProviderHealthcheckTest {
 
     private TestingCluster testingCluster;
@@ -72,7 +74,7 @@ class ServiceProviderHealthcheckTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -143,7 +145,7 @@ class ServiceProviderHealthcheckTest {
                         try {
                             return objectMapper.writeValueAsBytes(data);
                         } catch (JsonProcessingException e) {
-                            e.printStackTrace();
+                            log.error("Serialization error", e);
                         }
                         return null;
                     })
@@ -158,7 +160,7 @@ class ServiceProviderHealthcheckTest {
         }
     }
 
-    private void registerService(String host, int port, int shardId) throws Exception {
+    private void registerService(String host, int port, int shardId) {
         val serviceProvider = new TestServiceProvider(objectMapper, testingCluster.getConnectString(), host, port, shardId);
         serviceProvider.start();
         serviceProviders.put(host, serviceProvider);

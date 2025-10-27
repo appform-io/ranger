@@ -6,7 +6,7 @@ Ranger is a high level service discovery framework built on Zookeeper. The frame
 - Support for monitoring of service provider nodes
 - Provides type-safe generic interface for integration with support for custom serializers and deserializers
 - Provides simple ways to plug in custom shard and node selection
-- Fault tolerant client side discovery with a combination of watchers and polling on watched nodes
+- Fault-tolerant client side discovery with a combination of watchers and polling on watched nodes
 
 ## Why?
 
@@ -479,7 +479,7 @@ public class App extends Application<AppConfig> {
 }
 ```
 
-That's it .. your service will register to zookeeper when it starts up.
+That's it. Your service will register to zookeeper when it starts up.
 
 #### Sample Configuration
 
@@ -580,7 +580,7 @@ public class App extends Application<AppConfig> {
 }
 ```
 
-That's it .. your service will register to zookeeper when it starts up.
+That's it. Your service will register to zookeeper when it starts up.
 
 #### Sample Configuration
 
@@ -658,7 +658,7 @@ Ranger uses Apache Curator:
 
 # Contribution, Bugs and Feedback
 
-For bugs, questions and discussions please use the [Github Issues](https://github.com/appform-io/ranger/issues).
+For bugs, questions and discussions please use the [GitHub Issues](https://github.com/appform-io/ranger/issues).
 
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request.
 

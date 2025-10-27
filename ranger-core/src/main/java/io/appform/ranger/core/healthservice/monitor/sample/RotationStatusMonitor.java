@@ -71,7 +71,7 @@ public class RotationStatusMonitor extends IsolatedHealthMonitor<HealthcheckStat
     /**
      * checks if the rotation file exists or not
      *
-     * @return {@link HealthcheckStatus#healthy} if file exists else {@link HealthcheckStatus#unhealthy} when file doesnt exist
+     * @return {@link HealthcheckStatus#healthy} if file exists else {@link HealthcheckStatus#unhealthy} when file doesn't exist
      */
     @Override
     public HealthcheckStatus monitor() {

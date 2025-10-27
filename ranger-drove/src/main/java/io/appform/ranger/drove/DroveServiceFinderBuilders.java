@@ -27,7 +27,7 @@ public final class DroveServiceFinderBuilders {
         return new DroveShardedServiceFinderBuilder<>();
     }
 
-    public static <T> DroveUnshardedServiceFinderBuilder<T> droveUnshardedServiceFinderBuilider() {
+    public static <T> DroveUnshardedServiceFinderBuilder<T> droveUnshardedServiceFinderBuilder() {
         return new DroveUnshardedServiceFinderBuilder<>();
     }
 }

@@ -43,6 +43,7 @@ import static org.awaitility.Awaitility.await;
 /**
  *
  */
+@SuppressWarnings("ALL")
 @WireMockTest
 class DroveShardedServiceFinderBuilderTest {
 

@@ -31,7 +31,7 @@ Ranger server bundle is a common dropwizard bundle atop which we could implement
      rangerServerBundle.start()   
 ```
 
-#### Using a server bundle to initialize a HTTP backend.
+#### Using a server bundle to initialize an HTTP backend.
 
 ```
        val rangerServerBundle = new RangerServerBundle<ShardInfo, Criteria<ShardInfo>, HTTPResponseDataDeserializer<ShardInfo>,

@@ -21,37 +21,40 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class RollingWindowHealthQueueTest {
 
     @Test
     void testCheckInRollingWindow1() {
         val rollingWindowHealthQueue = new RollingWindowHealthQueue(5, 3);
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
     }
 
     @Test
     void testCheckInRollingWindowEdge() {
         try {
             val rollingWindowHealthQueue = new RollingWindowHealthQueue(1, 3);
-            Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+            assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         } catch (Exception u) {
-            Assertions.assertTrue(u instanceof UnsupportedOperationException);
+            assertInstanceOf(UnsupportedOperationException.class, u);
         }
     }
 
     @Test
     void testCheckInRollingWindowEdge2() {
         val rollingWindowHealthQueue = new RollingWindowHealthQueue(3, 3);
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
     }
 
@@ -65,7 +68,7 @@ class RollingWindowHealthQueueTest {
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
     }
 
@@ -73,23 +76,23 @@ class RollingWindowHealthQueueTest {
     @Test
     void testCheckInRollingWindow2() {
         val rollingWindowHealthQueue = new RollingWindowHealthQueue(5, 3);
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
     }
 
 
     @Test
     void testCheckInRollingWindow3() {
         val rollingWindowHealthQueue = new RollingWindowHealthQueue(5, 3);
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
@@ -99,16 +102,16 @@ class RollingWindowHealthQueueTest {
     @Test
     void testCheckInRollingWindow4() {
         val rollingWindowHealthQueue = new RollingWindowHealthQueue(5, 3);
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
         Assertions.assertFalse(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
-        Assertions.assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.healthy));
+        assertTrue(rollingWindowHealthQueue.checkInRollingWindow(HealthcheckStatus.unhealthy));
     }
 }

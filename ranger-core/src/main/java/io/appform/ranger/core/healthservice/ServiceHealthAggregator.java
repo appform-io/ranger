@@ -97,7 +97,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
 
     /**
      * start monitoring all registered monitors
-     * (triggers a scheduled execution of all registered monitors) and saves their futures for later reference)
+     * (triggers a scheduled execution of all registered monitors) and saves their futures for later reference
      */
     @Override
     public void start() {

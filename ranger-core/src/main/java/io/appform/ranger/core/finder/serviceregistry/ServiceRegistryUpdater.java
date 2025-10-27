@@ -122,7 +122,7 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         }
     }
 
-    private void updateRegistry() throws InterruptedException {
+    private void updateRegistry() {
         log.debug("Checking for updates on data source for service: {}",
                 serviceRegistry.getService().getServiceName());
         var callFailed = false;

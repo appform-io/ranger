@@ -24,6 +24,7 @@ import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.stream.LongStream;
 
+@Slf4j
 class SimpleServiceProviderTest {
 
     private TestingCluster testingCluster;
@@ -82,7 +84,7 @@ class SimpleServiceProviderTest {
                                 new TypeReference<ServiceNode<UnshardedInfo>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -112,7 +114,7 @@ class SimpleServiceProviderTest {
                     try {
                         return objectMapper.writeValueAsBytes(data);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

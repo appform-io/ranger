@@ -17,7 +17,7 @@
 package io.appform.ranger.core.healthservice.monitor;
 
 /**
- * An generic interface to monitor any entity
+ * A generic interface to monitor any entity
  *
  * @param <T> Type of monitor
  */

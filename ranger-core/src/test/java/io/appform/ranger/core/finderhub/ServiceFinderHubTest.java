@@ -42,6 +42,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 class ServiceFinderHubTest {
 
     private final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub = new ServiceFinderHub<>(
@@ -60,13 +64,13 @@ class ServiceFinderHubTest {
         val preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
         val node = preRegisteredServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
-        Assertions.assertTrue(node.isPresent());
+        assertTrue(node.isPresent());
         Assertions.assertEquals("HOST", node.get().getHost());
         Assertions.assertEquals(0, node.get().getPort());
 
         val dynamicServiceFinder = serviceFinderHub.buildFinder(new Service("NS", "SERVICE")).join();
         val dynamicServiceNode = dynamicServiceFinder.get(null, (criteria, serviceRegistry) -> serviceRegistry.nodeList());
-        Assertions.assertTrue(dynamicServiceNode.isPresent());
+        assertTrue(dynamicServiceNode.isPresent());
         Assertions.assertEquals("HOST", dynamicServiceNode.get().getHost());
         Assertions.assertEquals(0, dynamicServiceNode.get().getPort());
     }
@@ -83,7 +87,7 @@ class ServiceFinderHubTest {
 
         try {
             Exception exception = Assertions.assertThrows(IllegalStateException.class, testServiceFinderHub::start);
-            Assertions.assertTrue(exception.getMessage()
+            assertTrue(exception.getMessage()
                     .contains("Couldn't perform service hub refresh at this time. Refresh exceeded the start up time specified"));
         } finally {
             testServiceFinderHub.stop();
@@ -110,7 +114,7 @@ class ServiceFinderHubTest {
                         .withSleepDuration(1)
                         .build(), 5_000, 5_000, Set.of());
         serviceFinderHub.start();
-        Assertions.assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
+        assertTrue(serviceFinderHub.finder(new Service("NS", "SERVICE")).isPresent());
     }
 
 
@@ -125,9 +129,9 @@ class ServiceFinderHubTest {
         serviceFinderHub.start();
         try {
             serviceFinderHub.buildFinder(new Service("NS", "SERVICE_NAME")).join();
-            Assertions.fail("Exception should have been thrown");
+            fail("Exception should have been thrown");
         } catch (Exception exception) {
-            Assertions.assertTrue(exception instanceof UnsupportedOperationException, "Unsupported exception should be thrown");
+            assertInstanceOf(UnsupportedOperationException.class, exception, "Unsupported exception should be thrown");
         }
     }
 

@@ -119,9 +119,7 @@ class ServiceDiscoveryBundleRotationTest {
 
         DnsCacheManipulator.setDnsCache("TestHost", "127.0.0.1");
         ConfigurationUtils.resolveZookeeperHosts(serviceDiscoveryConfiguration.getZookeeper())
-                .forEach(zkHost -> {
-                    DnsCacheManipulator.setDnsCache(zkHost, "127.0.0.1");
-                });
+                .forEach(zkHost -> DnsCacheManipulator.setDnsCache(zkHost, "127.0.0.1"));
         bundle.initialize(bootstrap);
         bundle.run(configuration, environment);
         rotationStatus = bundle.getRotationStatus();

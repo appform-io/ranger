@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.jupiter.api.AfterEach;
@@ -27,11 +28,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author tushar.naik
  * @version 1.0
- * @date 12/03/16 - 7:40 PM
+ * {@code @date} 12/03/16 - 7:40 PM
  */
+@Slf4j
 class BaseServiceProviderBuilderTest {
 
     private TestingCluster testingCluster;
@@ -65,7 +70,7 @@ class BaseServiceProviderBuilderTest {
                         try {
                             return objectMapper.writeValueAsBytes(data);
                         } catch (JsonProcessingException e) {
-                            e.printStackTrace();
+                            log.error("Serialization error", e);
                         }
                         return null;
                     })
@@ -77,8 +82,7 @@ class BaseServiceProviderBuilderTest {
         } catch (Exception e) {
             exception = e;
         }
-        Assertions.assertTrue(exception instanceof IllegalArgumentException);
-
+        assertInstanceOf(IllegalArgumentException.class, exception);
         val serviceProvider = ServiceProviderBuilders.unshardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -87,7 +91,7 @@ class BaseServiceProviderBuilderTest {
                     try {
                         return objectMapper.writeValueAsBytes(data);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

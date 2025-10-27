@@ -108,7 +108,7 @@ class CustomShardSelectorTest {
                                 new TypeReference<ServiceNode<TestShardInfo>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -139,7 +139,7 @@ class CustomShardSelectorTest {
                     try {
                         return objectMapper.writeValueAsBytes(data);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

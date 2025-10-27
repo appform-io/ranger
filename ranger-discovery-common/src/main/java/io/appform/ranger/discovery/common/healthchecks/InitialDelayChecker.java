@@ -21,7 +21,7 @@ import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 
 /**
  * The following will return healthy only after stipulated time
- * This will give other bundles etc to startup properly
+ * This will give other bundles etc. To startup properly
  * By the time the node joins the cluster
  */
 public class InitialDelayChecker implements Healthcheck {

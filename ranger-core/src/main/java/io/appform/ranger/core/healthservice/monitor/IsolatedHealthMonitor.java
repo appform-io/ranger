@@ -90,7 +90,7 @@ public abstract class IsolatedHealthMonitor<T> implements Runnable, Monitor<T> {
     }
 
     /**
-     * disable the monitor, and dont use this monitor to track the aggregated health of the system
+     * disable the monitor, and don't use this monitor to track the aggregated health of the system
      * monitor is enabled by default
      */
     public void disable() {

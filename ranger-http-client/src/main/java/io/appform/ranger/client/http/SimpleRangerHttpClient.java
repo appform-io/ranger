@@ -55,7 +55,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
 
-        this.serviceFinder = HttpServiceFinderBuilders.<T>httpUnshardedServiceFinderBuilider()
+        this.serviceFinder = HttpServiceFinderBuilders.<T>httpUnshardedServiceFinderBuilder()
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
                 .withNamespace(namespace)

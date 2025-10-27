@@ -107,9 +107,7 @@ class ServiceDiscoveryBundleHierarchicalSelectorTest {
                 .initialRotationStatus(true)
                 .build();
         ConfigurationUtils.resolveZookeeperHosts(serviceDiscoveryConfiguration.getZookeeper())
-                .forEach(zkHost -> {
-                    DnsCacheManipulator.setDnsCache(zkHost, "127.0.0.1");
-                });
+                .forEach(zkHost -> DnsCacheManipulator.setDnsCache(zkHost, "127.0.0.1"));
         val testConfig = new TestConfig(serviceDiscoveryConfiguration);
         testConfig.setServerFactory(serverFactory);
         bundle.initialize(bootstrap);

@@ -188,7 +188,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
      * To block till rangerHub is ready to discover service wait for future completion
      *
      * @return CompletableFuture which waits for hub to be ready for discovering the new service
-     * @throws UnsupportedOperationException for any datasource which doesnt support
+     * @throws UnsupportedOperationException for any datasource which doesn't support
      *                                       dynamic addition of services
      * @throws IllegalStateException         if called before hub is started
      */

@@ -48,7 +48,7 @@ public abstract class BaseRangerDroveClientTest {
     private DroveUpstreamConfig clientConfig;
 
     @RegisterExtension
-    static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
+    static final WireMockExtension wireMockExtension = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .build();
 

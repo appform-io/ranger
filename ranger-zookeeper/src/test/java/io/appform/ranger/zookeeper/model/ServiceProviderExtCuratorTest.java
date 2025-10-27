@@ -86,7 +86,7 @@ class ServiceProviderExtCuratorTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -107,7 +107,7 @@ class ServiceProviderExtCuratorTest {
             Assertions.assertNotNull(node);
             Assertions.assertEquals(2, node.getNodeData().getShardId());
         });
-        log.info("PERF::RandomSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
+        log.info("PERF::RandomSelector::Took (ms): {}", (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99)).orElse(null);
             Assertions.assertNull(node);
@@ -124,7 +124,7 @@ class ServiceProviderExtCuratorTest {
                     try {
                         return objectMapper.writeValueAsBytes(data);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

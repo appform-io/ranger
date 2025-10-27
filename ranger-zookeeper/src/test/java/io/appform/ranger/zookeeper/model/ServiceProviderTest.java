@@ -78,7 +78,7 @@ class ServiceProviderTest {
                         return objectMapper.readValue(data, new TypeReference<ServiceNode<TestNodeData>>() {
                         });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -99,7 +99,7 @@ class ServiceProviderTest {
             Assertions.assertNotNull(node);
             Assertions.assertEquals(2, node.getNodeData().getShardId());
         });
-        log.info("PERF::RandomSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
+        log.info("PERF::RandomSelector::Took (ms): {}", (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99)).orElse(null);
             Assertions.assertNull(node);
@@ -121,7 +121,7 @@ class ServiceProviderTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -142,7 +142,7 @@ class ServiceProviderTest {
             Assertions.assertTrue(node.isPresent());
             Assertions.assertEquals(2, node.get().getNodeData().getShardId());
         });
-        log.info("PERF::RoundRobinSelector::Took (ms):" + (System.currentTimeMillis() - startTime));
+        log.info("PERF::RoundRobinSelector::Took (ms): {}", (System.currentTimeMillis() - startTime));
         {
             val node = serviceFinder.get(RangerTestUtils.getCriteria(99));
             Assertions.assertFalse(node.isPresent());
@@ -164,7 +164,7 @@ class ServiceProviderTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -187,7 +187,7 @@ class ServiceProviderTest {
                     try {
                         return objectMapper.writeValueAsBytes(data);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

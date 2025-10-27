@@ -22,6 +22,7 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.zookeeper.ServiceFinderBuilders;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+@Slf4j
 class ServiceNoProviderTest {
 
     private TestingCluster testingCluster;
@@ -62,7 +64,7 @@ class ServiceNoProviderTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })
@@ -87,7 +89,7 @@ class ServiceNoProviderTest {
                                 new TypeReference<ServiceNode<TestNodeData>>() {
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Serialization error", e);
                     }
                     return null;
                 })

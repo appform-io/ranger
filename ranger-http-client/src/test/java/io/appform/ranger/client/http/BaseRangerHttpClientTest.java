@@ -49,7 +49,7 @@ public abstract class BaseRangerHttpClientTest {
     private HttpClientConfig httpClientConfig;
 
     @RegisterExtension
-    static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
+    final static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .build();
 

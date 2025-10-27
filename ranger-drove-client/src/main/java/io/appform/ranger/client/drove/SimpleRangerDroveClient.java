@@ -53,7 +53,7 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
         Preconditions.checkNotNull(namespace, "namespace can't be null");
         Preconditions.checkNotNull(deserializer, "deserializer can't be null");
 
-        this.serviceFinder = DroveServiceFinderBuilders.<T>droveUnshardedServiceFinderBuilider()
+        this.serviceFinder = DroveServiceFinderBuilders.<T>droveUnshardedServiceFinderBuilder()
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
                 .withNamespace(namespace)

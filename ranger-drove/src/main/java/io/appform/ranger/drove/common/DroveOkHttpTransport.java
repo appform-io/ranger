@@ -96,7 +96,7 @@ public class DroveOkHttpTransport implements DroveHttpTransport {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         //Nothing to do here
     }
 }

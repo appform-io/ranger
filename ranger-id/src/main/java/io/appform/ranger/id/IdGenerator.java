@@ -105,7 +105,7 @@ public class IdGenerator {
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     * The evaluation of constraints will take its toll on id generation rates. Tun rests to check speed.
      *
      * @param prefix String prefix
      * @param domain Domain for constraint selection
@@ -132,7 +132,7 @@ public class IdGenerator {
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     * The evaluation of constraints will take its toll on id generation rates. Tun rests to check speed.
      *
      * @param prefix        String prefix
      * @param inConstraints Constraints that need to be validated.
@@ -157,10 +157,10 @@ public class IdGenerator {
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     * The evaluation of constraints will take its toll on id generation rates. Tun rests to check speed.
      *
      * @param prefix        String prefix
-     * @param inConstraints Constraints that need to be validate.
+     * @param inConstraints Constraints that need to be validated.
      * @param skipGlobal    Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
@@ -179,7 +179,7 @@ public class IdGenerator {
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
+     * The evaluation of constraints will take its toll on id generation rates. Tun rests to check speed.
      *
      * @param prefix     String prefix
      * @param skipGlobal Skip global constrains and use only passed ones

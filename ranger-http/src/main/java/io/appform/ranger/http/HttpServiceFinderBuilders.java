@@ -27,7 +27,7 @@ public final class HttpServiceFinderBuilders {
         return new HttpShardedServiceFinderBuilder<>();
     }
 
-    public static <T> HttpUnshardedServiceFinderBuilder<T> httpUnshardedServiceFinderBuilider() {
+    public static <T> HttpUnshardedServiceFinderBuilder<T> httpUnshardedServiceFinderBuilder() {
         return new HttpUnshardedServiceFinderBuilder<>();
     }
 }

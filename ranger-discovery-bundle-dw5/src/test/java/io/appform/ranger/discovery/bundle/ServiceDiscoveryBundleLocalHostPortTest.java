@@ -136,10 +136,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
                 .build();
         bundle.initialize(bootstrap);
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            bundle.run(configuration, environment);
-
-        });
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> bundle.run(configuration, environment));
 
         assertTrue(thrown.getMessage()
                 .contains("Couldn't resolve host address for zkHost"));
@@ -277,19 +274,14 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     }
 
     private void assertLocalHostNotAllowed() {
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            bundle.run(configuration, environment);
-
-        });
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> bundle.run(configuration, environment));
         assertTrue(thrown.getMessage()
                 .contains("Not allowed to publish localhost address to remote zookeeper"));
     }
 
 
     private void assertDoesNotThrow() {
-        Assertions.assertDoesNotThrow(() -> {
-            bundle.run(configuration, environment);
-        });
+        Assertions.assertDoesNotThrow(() -> bundle.run(configuration, environment));
     }
 
 }
