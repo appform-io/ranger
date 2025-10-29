@@ -48,6 +48,12 @@ public class CollisionChecker {
         dataLock.lock();
         try {
             long resolvedTime = resolution.convert(timeInMillis, TimeUnit.MILLISECONDS);
+            // if currentInstant > resolvedTime then it means that bitset is already cleared for that particular resolvedTime
+            // which increases the chances of getting duplicated id generation
+            if (currentInstant > resolvedTime) {
+                return false;
+            }
+
             if (currentInstant != resolvedTime) {
                 currentInstant = resolvedTime;
                 bitSet.clear();

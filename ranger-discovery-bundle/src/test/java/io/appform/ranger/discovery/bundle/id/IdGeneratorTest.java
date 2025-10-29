@@ -22,6 +22,7 @@ import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedK
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.awaitility.Awaitility;
@@ -31,11 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 /**
@@ -233,6 +231,26 @@ class IdGeneratorTest {
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
+    }
+
+    @Test
+    @SneakyThrows
+    void testConcurrentIdGenerators() {
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        ConcurrentSkipListSet<String> concurrentIds = new ConcurrentSkipListSet<>();
+        Long startTime = System.currentTimeMillis();
+        List<CompletableFuture> futures = new ArrayList<>();
+        for (int numThreads = 0; numThreads < 32; numThreads++) {
+            futures.add(CompletableFuture.runAsync(() -> {
+                for (int hits = 0; hits < 1000; hits++) {
+                    Id id = IdGenerator.generate("0E");
+                    concurrentIds.add(id.getId());
+                }
+            }, executorService));
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[32])).get();
+        Assertions.assertEquals(32000, concurrentIds.size());
+
     }
 
 
