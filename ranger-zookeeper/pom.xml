@@ -21,12 +21,12 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-zookeeper</artifactId>
-    <name>Zookeeper based dicovery for Ranger</name>
+    <name>Zookeeper based discovery for Ranger</name>
 
     <dependencies>
         <dependency>
