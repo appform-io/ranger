@@ -24,6 +24,11 @@ public class HubConstants {
     public static final long REFRESH_FREQUENCY_MS = 10_000;
     public static final int CONNECTION_RETRY_TIME_MS = 5_000;
     public static final int MINIMUM_REFRESH_TIME_MS = 5_000;
+    public static final int MAXIMUM_REFRESH_TIME_MS = 10_000;
     public static final int MINIMUM_SERVICE_REFRESH_TIMEOUT_MS = 1_000;
     public static final int MINIMUM_HUB_START_TIMEOUT_MS = 5_000;
+    public static final int MAX_ELAPSED_TIME_MS = 10_000;
+    public static final int MIN_ELAPSED_TIME_MS = 2_000;
+    public static final int SLEEP_MS_BETWEEN_RETRIES = 1_000;
+
 }
