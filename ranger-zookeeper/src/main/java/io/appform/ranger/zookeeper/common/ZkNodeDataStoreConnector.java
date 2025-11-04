@@ -72,26 +72,53 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     @Override
     public void start() {
-        if (storeType == ZkStoreType.SOURCE) {
-            log.info(
-                    "Start called on a data source will not do anything, since we don't have to create paths for services found in source. Ignoring after setting started");
-            started.set(true);
-            return;
-        }
-
         if (started.get()) {
             log.info("Start called on already initialized data source for service {}. Ignoring.",
                      service.getServiceName());
             return;
         }
+
+        switch (storeType){
+            case SOURCE:
+                startSource();
+                break;
+            case SINK:
+                startSink();
+                break;
+            default:
+                Exceptions.illegalState("Unknown store type: " + storeType + " for service: " + service.getServiceName());
+        }
+        started.set(true);
+    }
+
+    private void startSource() {
+        log.info(
+                "Start called on a data source. Will ensure connection to zk cluster for service: {}",service.getServiceName());
+        try {
+            curatorFramework.blockUntilConnected();
+            log.info("ZK Node Data Source is connected to zookeeper cluster for {}", service.getServiceName());
+        } catch (InterruptedException e) {
+            log.error("Thread interrupted while connecting to zk for data source");
+            Thread.currentThread().interrupt();
+            Exceptions.illegalState("Could not start ZK data source for service: "
+                + service.getServiceName()
+                + " as thread was interrupted");
+        } catch (Exception e) {
+            Exceptions.illegalState(
+                "Could not start ZK data source for service: " + service.getServiceName(), e);
+        }
+    }
+
+    private void startSink() {
         val path = PathBuilder.servicePath(service);
         try {
             curatorFramework.blockUntilConnected();
-            log.info("Connected to zookeeper cluster for {}", service.getServiceName());
+            log.info("ZK Node Data Sink is connected to zookeeper cluster for {}", service.getServiceName());
             curatorFramework
                     .create()
                     .creatingParentContainersIfNeeded()
                     .forPath(path);
+            log.info("Successfully created parent containers for path : {}", path);
         }
         catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
@@ -99,16 +126,15 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             }
         }
         catch (InterruptedException e) {
-            log.error("Thread interrupted");
+            log.error("Thread interrupted while connecting to zk for data sink");
             Thread.currentThread().interrupt();
-            Exceptions.illegalState("Could not start ZK data source for service: "
+            Exceptions.illegalState("Could not start ZK data sink for service: "
                                             + service.getServiceName()
                                             + " as thread was interrupted");
         }
         catch (Exception e) {
-            Exceptions.illegalState("Could not start ZK data source for service: " + service.getServiceName(), e);
+            Exceptions.illegalState("Could not start ZK data sink for service: " + service.getServiceName(), e);
         }
-        started.set(true);
     }
 
     @Override
@@ -137,8 +163,8 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     @Override
     public boolean isActive() {
-        return curatorFramework != null
-                && (curatorFramework.getState() == CuratorFrameworkState.STARTED);
+        return curatorFramework != null && curatorFramework.getZookeeperClient() != null
+                && curatorFramework.getZookeeperClient().isConnected();
     }
 
     protected boolean isStarted() {

@@ -16,7 +16,10 @@
 package io.appform.ranger.hub.server.bundle.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -36,6 +39,10 @@ public class RangerZkUpstreamConfiguration extends RangerUpstreamConfiguration {
   private List<String> zookeepers;
 
   private boolean disablePushUpdaters;
+
+  @Max(HubConstants.MAX_ELAPSED_TIME_MS)
+  @Min(HubConstants.MIN_ELAPSED_TIME_MS)
+  private int maxElapsedTimeMs = HubConstants.MAX_ELAPSED_TIME_MS;
 
   protected RangerZkUpstreamConfiguration() {
     super(BackendType.ZK);
