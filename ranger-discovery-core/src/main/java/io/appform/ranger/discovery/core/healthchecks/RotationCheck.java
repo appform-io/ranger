@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.rotationstatus;
+package io.appform.ranger.discovery.core.healthchecks;
 
+import io.appform.ranger.core.healthcheck.Healthcheck;
+import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
-import io.dropwizard.servlets.tasks.Task;
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
 
 /**
- * Admin task to take node oor in ranger
+ * This allows the node to be taken offline in the cluster but still keep running
  */
-@Slf4j
-public class OORTask extends Task {
+public class RotationCheck implements Healthcheck {
+
     private final RotationStatus rotationStatus;
-    public OORTask(RotationStatus rotationStatus) {
-        super("ranger-oor");
+
+    public RotationCheck(RotationStatus rotationStatus) {
         this.rotationStatus = rotationStatus;
     }
 
     @Override
-    public void execute(Map<String, List<String>> map, PrintWriter printWriter) {
-        rotationStatus.oor();
-        log.info("Taking node out of rotation on ranger");
+    public HealthcheckStatus check() {
+        return (rotationStatus.status())
+               ? HealthcheckStatus.healthy
+               : HealthcheckStatus.unhealthy;
     }
 }

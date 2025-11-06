@@ -42,7 +42,7 @@
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
         <module>ranger-http-model</module>
-        <module>ranger-discovery-common</module>
+        <module>ranger-discovery-core</module>
         <module>ranger-discovery-bundle</module>
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>

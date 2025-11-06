@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
-
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
-import io.dropwizard.Configuration;
+package io.appform.ranger.discovery.core.resolvers;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a portScheme basis the server {@link Configuration}
+ * CriteriaResolver.java
+ * Interface to help resolve from an argument A to the typed object T.
+ * Keeping this as the qualified class instead of using Function so that in the future if all criteria resolvers were to
+ * be fetched to register using reflections et. al, there is a qualified naming.
  */
 @FunctionalInterface
-public interface PortSchemeResolver<T extends Configuration> extends CriteriaResolver<String, T> {
+public interface CriteriaResolver<T, A> {
+
+    T resolve(A args);
 
 }

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
+package io.appform.ranger.discovery.core.resolvers;
 
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
-import io.dropwizard.Configuration;
+import io.appform.ranger.common.server.ShardInfo;
+import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 
 /**
  * NodeInfoResolver.java
- * Interface to help build a portScheme basis the server {@link Configuration}
+ * Interface to help build a node to be saved in the discovery backend while building the serviceProvider.
+ * To define your custom nodeData {@link ShardInfo}, please define your own implementation.
  */
 @FunctionalInterface
-public interface PortSchemeResolver<T extends Configuration> extends CriteriaResolver<String, T> {
+public interface NodeInfoResolver extends CriteriaResolver<ShardInfo, ServiceDiscoveryConfiguration> {
 
 }

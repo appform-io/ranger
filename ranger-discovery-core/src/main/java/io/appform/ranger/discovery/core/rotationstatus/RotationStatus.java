@@ -13,16 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
-import io.dropwizard.Configuration;
+package io.appform.ranger.discovery.core.rotationstatus;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a portScheme basis the server {@link Configuration}
+ * Current rotation status
  */
-@FunctionalInterface
-public interface PortSchemeResolver<T extends Configuration> extends CriteriaResolver<String, T> {
+public class RotationStatus {
+    private final AtomicBoolean inRotation;
 
+    public RotationStatus(boolean initialStatus) {
+        inRotation = new AtomicBoolean(initialStatus);
+    }
+
+    public void oor() {
+        inRotation.set(false);
+    }
+
+    public void bir() {
+        inRotation.set(true);
+    }
+
+    public boolean status() {
+        return inRotation.get();
+    }
 }

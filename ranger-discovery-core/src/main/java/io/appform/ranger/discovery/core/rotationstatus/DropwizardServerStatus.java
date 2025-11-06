@@ -13,16 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
-import io.dropwizard.Configuration;
+package io.appform.ranger.discovery.core.rotationstatus;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a portScheme basis the server {@link Configuration}
+ * Current server startup started
  */
-@FunctionalInterface
-public interface PortSchemeResolver<T extends Configuration> extends CriteriaResolver<String, T> {
+@SuppressWarnings("unused")
+public class DropwizardServerStatus {
 
+    private final AtomicBoolean serverStarted;
+
+    public DropwizardServerStatus(boolean initialStatus) {
+        serverStarted = new AtomicBoolean(initialStatus);
+    }
+
+    public void markStarted() {
+        serverStarted.set(true);
+    }
+
+    public void markStopped() {
+        serverStarted.set(false);
+    }
+
+    public boolean started() {
+        return serverStarted.get();
+    }
 }

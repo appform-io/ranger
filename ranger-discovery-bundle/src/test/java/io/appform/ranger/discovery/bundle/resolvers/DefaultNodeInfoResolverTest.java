@@ -15,8 +15,8 @@
  */
 package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.discovery.common.ServiceDiscoveryConfiguration;
-import io.appform.ranger.discovery.common.resolvers.DefaultNodeInfoResolver;
+import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

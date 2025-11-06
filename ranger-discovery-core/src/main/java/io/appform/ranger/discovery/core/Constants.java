@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
 
-import io.appform.ranger.discovery.core.resolvers.CriteriaResolver;
-import io.dropwizard.Configuration;
+package io.appform.ranger.discovery.core;
+
+import lombok.experimental.UtilityClass;
 
 /**
- * NodeInfoResolver.java
- * Interface to help build a portScheme basis the server {@link Configuration}
+ * Constants
  */
-@FunctionalInterface
-public interface PortSchemeResolver<T extends Configuration> extends CriteriaResolver<String, T> {
+@UtilityClass
+public class Constants {
+    public static final String DEFAULT_NAMESPACE = "default";
+    public static final String DEFAULT_HOST = "__DEFAULT_SERVICE_HOST";
+    public static final int DEFAULT_PORT = -1;
+    public static final int DEFAULT_DW_CHECK_INTERVAL = 15;
+    public static final int DEFAULT_RETRY_CONN_INTERVAL = 5000;
+
+    public static final String ZOOKEEPER_HOST_DELIMITER = ",";
+    public static final String HOST_PORT_DELIMITER = ":";
+    public static final String PATH_DELIMITER = "/";
 
 }
