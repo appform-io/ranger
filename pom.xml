@@ -122,6 +122,7 @@
         <dropwizard.version>2.1.12</dropwizard.version>
         <logback.version>1.2.12</logback.version>
         <metrics.version>4.2.0</metrics.version>
+
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
