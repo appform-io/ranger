@@ -9,14 +9,18 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector<T> {
+
+    public static final long DEFAULT_MIN_NODE_AGE = 60000L;
+    public static final double DEFAULT_BOOST_FACTOR = 1.0;
+    public static final int DEFAULT_WEIGHTED_SELECTION_MIN_NODES_THRESHOLD = 10;
     private final long minNodeAgeMs;
-    private final double boostFactor;
+    private final double weightBoostMultiplier;
     private final int weightedSelectionThreshold;
 
     public WeightedRandomServiceNodeSelector(final WeightedNodeSelectorConfig weightedNodeSelectorConfig) {
         weightedNodeSelectorConfig.validate();
         this.minNodeAgeMs = weightedNodeSelectorConfig.getMinNodeAgeMs();
-        this.boostFactor = weightedNodeSelectorConfig.getBoostFactor();
+        this.weightBoostMultiplier = weightedNodeSelectorConfig.getWeightBoostMultiplier();
         this.weightedSelectionThreshold = weightedNodeSelectorConfig.getWeightedSelectionThreshold();
     }
 
@@ -63,7 +67,7 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
             double adjustedWeight = node.getRoutingWeight();
 
             if ((currentTime - node.getHealthySinceTimeStamp()) > minNodeAgeMs) {
-                adjustedWeight *= boostFactor;
+                adjustedWeight *= weightBoostMultiplier;
             }
 
             totalWeight += adjustedWeight;

@@ -33,7 +33,6 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,7 +139,7 @@ class ServiceFinderHubTest {
                                         .withServiceName(service.getServiceName())
                                         .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
                                                 WeightedNodeSelectorConfig.builder()
-                                                        .boostFactor(1.5f)
+                                                        .weightBoostMultiplier(1.5f)
                                                         .minNodeAgeMs(60_000)
                                                         .weightedSelectionThreshold(10)
                                                         .build()))
@@ -234,7 +233,7 @@ class ServiceFinderHubTest {
                                         .withServiceName(service.getServiceName())
                                         .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
                                                 WeightedNodeSelectorConfig.builder()
-                                                        .boostFactor(1.5f)
+                                                        .weightBoostMultiplier(1.5f)
                                                         .minNodeAgeMs(60_000)
                                                         .weightedSelectionThreshold(10)
                                                         .build()))
