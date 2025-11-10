@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
+import javax.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -39,6 +40,7 @@ public abstract class RangerUpstreamConfiguration {
   private BackendType type;
 
   @Min(HubConstants.MINIMUM_REFRESH_TIME_MS)
+  @Max(HubConstants.MAXIMUM_REFRESH_TIME_MS)
   private int nodeRefreshTimeMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
 
   @Min(HubConstants.MINIMUM_SERVICE_REFRESH_TIMEOUT_MS)
