@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.rotationstatus;
+package io.appform.ranger.discovery.core;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.experimental.UtilityClass;
 
 /**
- * Current server startup started
+ * Constants
  */
-@SuppressWarnings("unused")
-public class DropwizardServerStatus {
+@UtilityClass
+public class Constants {
+    public static final String DEFAULT_NAMESPACE = "default";
+    public static final String DEFAULT_HOST = "__DEFAULT_SERVICE_HOST";
+    public static final int DEFAULT_PORT = -1;
+    public static final int DEFAULT_DW_CHECK_INTERVAL = 15;
+    public static final int DEFAULT_RETRY_CONN_INTERVAL = 5000;
 
-    private final AtomicBoolean serverStarted;
+    public static final String ZOOKEEPER_HOST_DELIMITER = ",";
+    public static final String HOST_PORT_DELIMITER = ":";
+    public static final String PATH_DELIMITER = "/";
 
-    public DropwizardServerStatus(boolean initialStatus) {
-        serverStarted = new AtomicBoolean(initialStatus);
-    }
-
-    public void markStarted() {
-        serverStarted.set(true);
-    }
-
-    public void markStopped() {
-        serverStarted.set(false);
-    }
-
-    public boolean started() {
-        return serverStarted.get();
-    }
 }

@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.resolvers;
+
+package io.appform.ranger.discovery.core.rotationstatus;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * CriteriaResolver.java
- * Interface to help resolve from an argument A to the typed object T.
- * Keeping this as the qualified class instead of using Function so that in the future if all criteria resolvers were to
- * be fetched to register using reflections et. al, there is a qualified naming.
+ * Current rotation status
  */
-@FunctionalInterface
-public interface CriteriaResolver<T, A> {
+public class RotationStatus {
+    private final AtomicBoolean inRotation;
 
-    T resolve(A args);
+    public RotationStatus(boolean initialStatus) {
+        inRotation = new AtomicBoolean(initialStatus);
+    }
 
+    public void oor() {
+        inRotation.set(false);
+    }
+
+    public void bir() {
+        inRotation.set(true);
+    }
+
+    public boolean status() {
+        return inRotation.get();
+    }
 }

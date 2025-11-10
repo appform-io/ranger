@@ -32,21 +32,22 @@ import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
-import io.appform.ranger.discovery.bundle.healthchecks.InitialDelayChecker;
-import io.appform.ranger.discovery.bundle.healthchecks.InternalHealthChecker;
-import io.appform.ranger.discovery.bundle.healthchecks.RotationCheck;
-import io.appform.ranger.discovery.bundle.monitors.DropwizardHealthMonitor;
+import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.core.healthchecks.InitialDelayChecker;
+import io.appform.ranger.discovery.core.healthchecks.InternalHealthChecker;
+import io.appform.ranger.discovery.core.healthchecks.RotationCheck;
+import io.appform.ranger.discovery.core.monitors.DropwizardHealthMonitor;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardServerStartupCheck;
-import io.appform.ranger.discovery.bundle.resolvers.DefaultNodeInfoResolver;
+import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.DefaultPortSchemeResolver;
-import io.appform.ranger.discovery.bundle.resolvers.NodeInfoResolver;
+import io.appform.ranger.discovery.core.resolvers.NodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.PortSchemeResolver;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
-import io.appform.ranger.discovery.bundle.rotationstatus.DropwizardServerStatus;
+import io.appform.ranger.discovery.core.rotationstatus.DropwizardServerStatus;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
-import io.appform.ranger.discovery.bundle.rotationstatus.RotationStatus;
-import io.appform.ranger.discovery.bundle.selectors.HierarchicalEnvironmentAwareShardSelector;
-import io.appform.ranger.discovery.bundle.util.ConfigurationUtils;
+import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
+import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
+import io.appform.ranger.discovery.core.util.ConfigurationUtils;
 import io.appform.ranger.id.IdGenerator;
 import io.appform.ranger.id.NodeIdManager;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
@@ -294,7 +295,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 .withHealthcheck(new DropwizardServerStartupCheck(environment, serverStatus))
                 .withIsolatedHealthMonitor(new DropwizardHealthMonitor(
                         new TimeEntity(initialDelayForMonitor, dwMonitoringInterval, TimeUnit.SECONDS),
-                        dwMonitoringStaleness * 1_000L, environment))
+                        dwMonitoringStaleness * 1_000L, environment.healthChecks()))
                 .withHealthUpdateIntervalMs(serviceDiscoveryConfiguration.getRefreshTimeMs())
                 .withStaleUpdateThresholdMs(10000);
 

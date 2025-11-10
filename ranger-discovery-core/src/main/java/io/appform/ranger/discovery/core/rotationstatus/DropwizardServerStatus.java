@@ -14,23 +14,31 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle;
+package io.appform.ranger.discovery.core.rotationstatus;
 
-import com.google.common.collect.ImmutableSet;
-import lombok.experimental.UtilityClass;
-
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Constants
+ * Current server startup started
  */
-@UtilityClass
-public class Constants {
-    public static final String DEFAULT_NAMESPACE = "default";
-    public static final String DEFAULT_HOST = "__DEFAULT_SERVICE_HOST";
+@SuppressWarnings("unused")
+public class DropwizardServerStatus {
 
-    public static final int DEFAULT_PORT = -1;
-    public static final int DEFAULT_DW_CHECK_INTERVAL = 15;
-    public static final Set<String> LOCAL_ADDRESSES = ImmutableSet.of("127.0.0.1", "127.0.1.1", "localhost");
+    private final AtomicBoolean serverStarted;
 
+    public DropwizardServerStatus(boolean initialStatus) {
+        serverStarted = new AtomicBoolean(initialStatus);
+    }
+
+    public void markStarted() {
+        serverStarted.set(true);
+    }
+
+    public void markStopped() {
+        serverStarted.set(false);
+    }
+
+    public boolean started() {
+        return serverStarted.get();
+    }
 }

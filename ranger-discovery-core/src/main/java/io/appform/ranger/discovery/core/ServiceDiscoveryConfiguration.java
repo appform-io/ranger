@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle;
+package io.appform.ranger.discovery.core;
 
 import com.google.common.base.Strings;
 import lombok.Builder;

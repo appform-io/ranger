@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.healthchecks;
+package io.appform.ranger.discovery.core.healthchecks;
 
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
-
-import java.util.List;
+import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 
 /**
- * Evaluates all registered healthchecks
+ * This allows the node to be taken offline in the cluster but still keep running
  */
-public class InternalHealthChecker implements Healthcheck {
-    private final List<Healthcheck> healthchecks;
+public class RotationCheck implements Healthcheck {
 
-    public InternalHealthChecker(List<Healthcheck> healthchecks) {
-        this.healthchecks = healthchecks;
+    private final RotationStatus rotationStatus;
+
+    public RotationCheck(RotationStatus rotationStatus) {
+        this.rotationStatus = rotationStatus;
     }
 
     @Override
     public HealthcheckStatus check() {
-        return healthchecks.stream()
-                .map(Healthcheck::check)
-                .filter(healthcheckStatus -> healthcheckStatus == HealthcheckStatus.unhealthy)
-                .findFirst()
-                .orElse(HealthcheckStatus.healthy);
+        return (rotationStatus.status())
+               ? HealthcheckStatus.healthy
+               : HealthcheckStatus.unhealthy;
     }
 }
