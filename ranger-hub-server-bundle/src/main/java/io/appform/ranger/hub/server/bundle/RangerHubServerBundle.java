@@ -44,11 +44,11 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryForever;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.curator.retry.RetryUntilElapsed;
 
 @Slf4j
 @SuppressWarnings("unused")
@@ -96,7 +96,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
             val curatorFramework = CuratorFrameworkFactory.builder()
                     .connectString(zookeeper)
                     .namespace(namespace)
-                    .retryPolicy(new RetryForever(HubConstants.CONNECTION_RETRY_TIME_MS))
+                    .retryPolicy(new RetryUntilElapsed(zkConfiguration.getMaxElapsedTimeMs(), HubConstants.SLEEP_MS_BETWEEN_RETRIES))
                     .build();
             curatorFrameworks.add(curatorFramework);
             return UnshardedRangerZKHubClient.<ShardInfo>builder()

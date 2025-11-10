@@ -1,0 +1,106 @@
+io.appform.ranger:ranger-drove-client:jar:2.0.0-SNAPSHOT
++- io.appform.ranger:ranger-drove:jar:2.0.0-SNAPSHOT:compile
+|  +- io.appform.ranger:ranger-core:jar:2.0.0-SNAPSHOT:compile
+|  +- com.phonepe.drove:drove-models:jar:1.30:compile
+|  |  \- io.dropwizard:dropwizard-validation:jar:2.1.12:compile
+|  |     +- com.fasterxml:classmate:jar:1.7.0:compile
+|  |     +- jakarta.validation:jakarta.validation-api:jar:2.0.2:compile
+|  |     +- org.hibernate.validator:hibernate-validator:jar:6.2.5.Final:compile
+|  |     |  \- org.jboss.logging:jboss-logging:jar:3.4.1.Final:compile
+|  |     \- org.glassfish:jakarta.el:jar:3.0.4:runtime
+|  +- com.phonepe.drove:drove-client:jar:1.30:compile
+|  +- com.phonepe.drove:drove-events-client:jar:1.30:compile
+|  |  \- io.appform.signals:signals:jar:1.4:compile
+|  \- com.squareup.okhttp3:okhttp:jar:4.9.3:compile
+|     +- com.squareup.okio:okio:jar:2.8.0:compile
+|     |  \- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.0:compile
+|     \- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.10:compile
+|        \- org.jetbrains:annotations:jar:13.0:compile
++- io.appform.ranger:ranger-client:jar:2.0.0-SNAPSHOT:compile
++- org.wiremock:wiremock:jar:3.3.1:test
+|  +- org.eclipse.jetty:jetty-server:jar:11.0.18:test
+|  |  +- org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:jar:5.0.2:test
+|  |  +- org.eclipse.jetty:jetty-http:jar:11.0.18:test
+|  |  \- org.eclipse.jetty:jetty-io:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-servlet:jar:11.0.18:test
+|  |  \- org.eclipse.jetty:jetty-security:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-servlets:jar:11.0.18:test
+|  |  \- org.eclipse.jetty:jetty-util:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-webapp:jar:11.0.18:test
+|  |  \- org.eclipse.jetty:jetty-xml:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-proxy:jar:11.0.18:test
+|  |  \- org.eclipse.jetty:jetty-client:jar:11.0.18:test
+|  +- org.eclipse.jetty.http2:http2-server:jar:11.0.18:test
+|  |  \- org.eclipse.jetty.http2:http2-common:jar:11.0.18:test
+|  |     \- org.eclipse.jetty.http2:http2-hpack:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-alpn-server:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-alpn-java-server:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-alpn-java-client:jar:11.0.18:test
+|  +- org.eclipse.jetty:jetty-alpn-client:jar:11.0.18:test
+|  +- com.fasterxml.jackson.core:jackson-core:jar:2.15.3:compile
+|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.15.3:compile
+|  +- com.fasterxml.jackson.core:jackson-databind:jar:2.15.3:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.3:compile
+|  +- org.apache.httpcomponents.client5:httpclient5:jar:5.2.1:test
+|  |  +- org.apache.httpcomponents.core5:httpcore5:jar:5.2:test
+|  |  \- org.apache.httpcomponents.core5:httpcore5-h2:jar:5.2:test
+|  +- org.xmlunit:xmlunit-core:jar:2.9.1:test
+|  |  \- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+|  |     \- jakarta.activation:jakarta.activation-api:jar:1.2.2:test
+|  +- org.xmlunit:xmlunit-legacy:jar:2.9.1:test
+|  +- org.xmlunit:xmlunit-placeholders:jar:2.9.1:test
+|  +- net.javacrumbs.json-unit:json-unit-core:jar:2.38.0:test
+|  |  \- org.hamcrest:hamcrest-core:jar:2.2:test
+|  +- com.jayway.jsonpath:json-path:jar:2.8.0:test
+|  |  \- net.minidev:json-smart:jar:2.4.10:test
+|  |     \- net.minidev:accessors-smart:jar:2.4.9:test
+|  +- org.ow2.asm:asm:jar:9.6:test
+|  +- net.sf.jopt-simple:jopt-simple:jar:5.0.4:test
+|  +- org.apache.commons:commons-lang3:jar:3.13.0:test
+|  +- com.github.jknack:handlebars:jar:4.3.1:test
+|  +- com.github.jknack:handlebars-helpers:jar:4.3.1:test
+|  +- commons-io:commons-io:jar:2.15.0:test
+|  \- com.networknt:json-schema-validator:jar:1.0.87:test
+|     +- com.ethlo.time:itu:jar:1.7.0:test
+|     \- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.15.2:test
+|        \- org.yaml:snakeyaml:jar:2.0:test
++- io.appform.ranger:ranger-core:test-jar:tests:2.0.0-SNAPSHOT:test
+|  \- org.apache.httpcomponents:httpclient:jar:4.5.13:compile
+|     +- org.apache.httpcomponents:httpcore:jar:4.4.13:compile
+|     +- commons-logging:commons-logging:jar:1.2:compile
+|     \- commons-codec:commons-codec:jar:1.11:compile
++- ch.qos.logback:logback-classic:jar:1.2.12:test
+|  \- ch.qos.logback:logback-core:jar:1.2.12:test
++- org.mockito:mockito-core:jar:4.2.0:test
+|  +- net.bytebuddy:byte-buddy:jar:1.12.4:test
+|  +- net.bytebuddy:byte-buddy-agent:jar:1.12.4:test
+|  \- org.objenesis:objenesis:jar:3.2:test
++- org.projectlombok:lombok:jar:1.18.30:provided
++- com.google.code.findbugs:annotations:jar:3.0.1u2:compile
+|  +- net.jcip:jcip-annotations:jar:1.0:compile
+|  \- com.google.code.findbugs:jsr305:jar:3.0.1:compile
++- com.google.guava:guava:jar:33.3.0-jre:compile
+|  +- com.google.guava:failureaccess:jar:1.0.2:compile
+|  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile
+|  +- org.checkerframework:checker-qual:jar:3.43.0:compile
+|  +- com.google.errorprone:error_prone_annotations:jar:2.28.0:compile
+|  \- com.google.j2objc:j2objc-annotations:jar:3.0.0:compile
++- org.slf4j:slf4j-api:jar:1.7.32:compile
++- io.dropwizard:dropwizard-jackson:jar:2.1.12:compile
+|  +- com.github.ben-manes.caffeine:caffeine:jar:2.9.3:compile
+|  +- io.dropwizard:dropwizard-util:jar:2.1.12:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-guava:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.module:jackson-module-blackbird:jar:2.13.5:compile
+|  \- com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.13.5:compile
+|     \- joda-time:joda-time:jar:2.10.8:compile
++- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+|  +- org.opentest4j:opentest4j:jar:1.2.0:test
+|  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+|  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
++- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+|  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
++- com.github.rholder:guava-retrying:jar:2.0.0:compile
+\- org.awaitility:awaitility:jar:4.1.1:test
+   \- org.hamcrest:hamcrest:jar:2.1:test

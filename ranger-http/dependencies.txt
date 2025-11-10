@@ -1,0 +1,49 @@
+io.appform.ranger:ranger-http:jar:2.0.0-SNAPSHOT
++- io.appform.ranger:ranger-core:jar:2.0.0-SNAPSHOT:compile
+|  \- org.apache.httpcomponents:httpclient:jar:4.5.13:compile
+|     +- org.apache.httpcomponents:httpcore:jar:4.4.13:compile
+|     +- commons-logging:commons-logging:jar:1.2:compile
+|     \- commons-codec:commons-codec:jar:1.11:compile
++- io.appform.ranger:ranger-http-model:jar:2.0.0-SNAPSHOT:compile
++- com.squareup.okhttp3:okhttp:jar:4.9.3:compile
+|  +- com.squareup.okio:okio:jar:2.8.0:compile
+|  |  \- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.0:compile
+|  \- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.10:compile
+|     \- org.jetbrains:annotations:jar:13.0:compile
++- org.wiremock:wiremock-standalone:jar:3.3.1:test
++- io.appform.ranger:ranger-core:test-jar:tests:2.0.0-SNAPSHOT:compile
++- ch.qos.logback:logback-classic:jar:1.2.12:test
+|  \- ch.qos.logback:logback-core:jar:1.2.12:test
++- org.projectlombok:lombok:jar:1.18.30:provided
++- com.google.code.findbugs:annotations:jar:3.0.1u2:compile
+|  +- net.jcip:jcip-annotations:jar:1.0:compile
+|  \- com.google.code.findbugs:jsr305:jar:3.0.1:compile
++- com.google.guava:guava:jar:33.3.0-jre:compile
+|  +- com.google.guava:failureaccess:jar:1.0.2:compile
+|  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile
+|  +- org.checkerframework:checker-qual:jar:3.43.0:compile
+|  +- com.google.errorprone:error_prone_annotations:jar:2.28.0:compile
+|  \- com.google.j2objc:j2objc-annotations:jar:3.0.0:compile
++- org.slf4j:slf4j-api:jar:1.7.32:compile
++- io.dropwizard:dropwizard-jackson:jar:2.1.12:compile
+|  +- com.github.ben-manes.caffeine:caffeine:jar:2.9.3:compile
+|  +- io.dropwizard:dropwizard-util:jar:2.1.12:compile
+|  +- com.fasterxml.jackson.core:jackson-core:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.core:jackson-databind:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-guava:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.13.5:compile
+|  +- com.fasterxml.jackson.module:jackson-module-blackbird:jar:2.13.5:compile
+|  \- com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.13.5:compile
+|     \- joda-time:joda-time:jar:2.10.8:compile
++- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+|  +- org.opentest4j:opentest4j:jar:1.2.0:test
+|  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+|  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
++- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+|  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
++- com.github.rholder:guava-retrying:jar:2.0.0:compile
+\- org.awaitility:awaitility:jar:4.1.1:test
+   \- org.hamcrest:hamcrest:jar:2.1:test
