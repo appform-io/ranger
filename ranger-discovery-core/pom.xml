@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>ranger-discovery-core</artifactId>
+    <name>Core libraries for Ranger Discovery</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

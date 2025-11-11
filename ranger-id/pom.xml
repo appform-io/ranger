@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ranger-id</artifactId>
+    <name>Distributed ID Generator built on Ranger</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

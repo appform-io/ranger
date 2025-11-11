@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-discovery-bundle</artifactId>
-    <name>Dropwizard bundle for Ranger dicovery</name>
+    <name>Dropwizard bundle for Ranger discovery</name>
 
     <properties>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>

@@ -26,5 +26,5 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-server-common</artifactId>
-    <name>Common libraries for Ranger</name>
+    <name>Common Server libraries for Ranger</name>
 </project>
