@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>ranger-discovery-core</artifactId>
-
+    <name>Ranger Service Discovery Core</name>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
