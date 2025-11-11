@@ -386,21 +386,22 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>${maven.enforcer.version}</version> <executions>
-                <execution>
-                    <id>enforce-rules</id>
-                    <goals>
-                        <goal>enforce</goal>
-                    </goals>
-                    <configuration>
-                        <rules>
-                            <reactorModuleConvergence>
-                                <message>The reactor is not valid</message>
-                            </reactorModuleConvergence>
-                        </rules>
-                    </configuration>
-                </execution>
-            </executions>
+                <version>${maven.enforcer.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-rules</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <reactorModuleConvergence>
+                                    <message>The reactor is not valid</message>
+                                </reactorModuleConvergence>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

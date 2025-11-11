@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryUntilElapsed;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,7 +60,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.curator.retry.RetryUntilElapsed;
 
 @Slf4j
 @SuppressWarnings("unused")

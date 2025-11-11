@@ -15,7 +15,13 @@
  */
 package io.appform.ranger.zookeeper.common;
 
-import com.github.rholder.retry.*;
+import com.github.rholder.retry.Attempt;
+import com.github.rholder.retry.AttemptTimeLimiters;
+import com.github.rholder.retry.BlockStrategies;
+import com.github.rholder.retry.RetryListener;
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.WaitStrategies;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.util.Exceptions;
@@ -25,7 +31,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.concurrent.TimeUnit;
@@ -74,11 +79,11 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     public void start() {
         if (started.get()) {
             log.info("Start called on already initialized data source for service {}. Ignoring.",
-                     service.getServiceName());
+                    service.getServiceName());
             return;
         }
 
-        switch (storeType){
+        switch (storeType) {
             case SOURCE:
                 startSource();
                 break;
@@ -93,7 +98,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     private void startSource() {
         log.info(
-                "Start called on a data source. Will ensure connection to zk cluster for service: {}",service.getServiceName());
+                "Start called on a data source. Will ensure connection to zk cluster for service: {}", service.getServiceName());
         try {
             curatorFramework.blockUntilConnected();
             log.info("ZK Node Data Source is connected to zookeeper cluster for {}", service.getServiceName());
@@ -101,11 +106,11 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             log.error("Thread interrupted while connecting to zk for data source");
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Could not start ZK data source for service: "
-                + service.getServiceName()
-                + " as thread was interrupted");
+                    + service.getServiceName()
+                    + " as thread was interrupted");
         } catch (Exception e) {
             Exceptions.illegalState(
-                "Could not start ZK data source for service: " + service.getServiceName(), e);
+                    "Could not start ZK data source for service: " + service.getServiceName(), e);
         }
     }
 
@@ -119,20 +124,17 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
                     .creatingParentContainersIfNeeded()
                     .forPath(path);
             log.info("Successfully created parent containers for path : {}", path);
-        }
-        catch (KeeperException e) {
+        } catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
                 log.info("Service node {} already exists for service: {}", path, service.getServiceName());
             }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("Thread interrupted while connecting to zk for data sink");
             Thread.currentThread().interrupt();
             Exceptions.illegalState("Could not start ZK data sink for service: "
-                                            + service.getServiceName()
-                                            + " as thread was interrupted");
-        }
-        catch (Exception e) {
+                    + service.getServiceName()
+                    + " as thread was interrupted");
+        } catch (Exception e) {
             Exceptions.illegalState("Could not start ZK data sink for service: " + service.getServiceName(), e);
         }
     }
@@ -141,8 +143,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     public void ensureConnected() {
         try {
             discoveryRetrier.call(this::isActive);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Exceptions.illegalState("Could not get zk connection", e);
         }
     }
@@ -157,7 +158,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             log.warn("Shutdown called for service: {}, but data source is not started.", service.getServiceName());
         }
         log.info("Shutting down data source for service: {}.  (It's a no-op.)",
-                 service.getServiceName());
+                service.getServiceName());
         stopped.set(true);
     }
 
