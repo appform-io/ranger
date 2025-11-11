@@ -15,14 +15,7 @@
  */
 package io.appform.ranger.zookeeper.common;
 
-
-import com.github.rholder.retry.Attempt;
-import com.github.rholder.retry.AttemptTimeLimiters;
-import com.github.rholder.retry.BlockStrategies;
-import com.github.rholder.retry.RetryListener;
-import com.github.rholder.retry.Retryer;
-import com.github.rholder.retry.RetryerBuilder;
-import com.github.rholder.retry.WaitStrategies;
+import com.github.rholder.retry.*;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.util.Exceptions;
@@ -79,47 +72,77 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     @Override
     public void start() {
-        if (storeType == ZkStoreType.SOURCE) {
-            log.info(
-                    "Start called on a data source will not do anything, since we don't have to create paths for services found in source. Ignoring after setting started");
-            started.set(true);
+        if (started.get()) {
+            log.info("Start called on already initialized data source for service {}. Ignoring.",
+                     service.getServiceName());
             return;
         }
 
-        if (started.get()) {
-            log.info("Start called on already initialized data source for service {}. Ignoring.",
-                    service.getServiceName());
-            return;
+        switch (storeType){
+            case SOURCE:
+                startSource();
+                break;
+            case SINK:
+                startSink();
+                break;
+            default:
+                Exceptions.illegalState("Unknown store type: " + storeType + " for service: " + service.getServiceName());
         }
+        started.set(true);
+    }
+
+    private void startSource() {
+        log.info(
+                "Start called on a data source. Will ensure connection to zk cluster for service: {}",service.getServiceName());
+        try {
+            curatorFramework.blockUntilConnected();
+            log.info("ZK Node Data Source is connected to zookeeper cluster for {}", service.getServiceName());
+        } catch (InterruptedException e) {
+            log.error("Thread interrupted while connecting to zk for data source");
+            Thread.currentThread().interrupt();
+            Exceptions.illegalState("Could not start ZK data source for service: "
+                + service.getServiceName()
+                + " as thread was interrupted");
+        } catch (Exception e) {
+            Exceptions.illegalState(
+                "Could not start ZK data source for service: " + service.getServiceName(), e);
+        }
+    }
+
+    private void startSink() {
         val path = PathBuilder.servicePath(service);
         try {
             curatorFramework.blockUntilConnected();
-            log.info("Connected to zookeeper cluster for {}", service.getServiceName());
+            log.info("ZK Node Data Sink is connected to zookeeper cluster for {}", service.getServiceName());
             curatorFramework
                     .create()
                     .creatingParentContainersIfNeeded()
                     .forPath(path);
-        } catch (KeeperException e) {
+            log.info("Successfully created parent containers for path : {}", path);
+        }
+        catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
                 log.info("Service node {} already exists for service: {}", path, service.getServiceName());
             }
-        } catch (InterruptedException e) {
-            log.error("Thread interrupted");
-            Thread.currentThread().interrupt();
-            Exceptions.illegalState("Could not start ZK data source for service: "
-                    + service.getServiceName()
-                    + " as thread was interrupted");
-        } catch (Exception e) {
-            Exceptions.illegalState("Could not start ZK data source for service: " + service.getServiceName(), e);
         }
-        started.set(true);
+        catch (InterruptedException e) {
+            log.error("Thread interrupted while connecting to zk for data sink");
+            Thread.currentThread().interrupt();
+            Exceptions.illegalState("Could not start ZK data sink for service: "
+                                            + service.getServiceName()
+                                            + " as thread was interrupted");
+        }
+        catch (Exception e) {
+            Exceptions.illegalState("Could not start ZK data sink for service: " + service.getServiceName(), e);
+        }
     }
 
     @Override
     public void ensureConnected() {
         try {
             discoveryRetrier.call(this::isActive);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Exceptions.illegalState("Could not get zk connection", e);
         }
     }
@@ -134,14 +157,14 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             log.warn("Shutdown called for service: {}, but data source is not started.", service.getServiceName());
         }
         log.info("Shutting down data source for service: {}.  (It's a no-op.)",
-                service.getServiceName());
+                 service.getServiceName());
         stopped.set(true);
     }
 
     @Override
     public boolean isActive() {
-        return curatorFramework != null
-                && (curatorFramework.getState() == CuratorFrameworkState.STARTED);
+        return curatorFramework != null && curatorFramework.getZookeeperClient() != null
+                && curatorFramework.getZookeeperClient().isConnected();
     }
 
     protected boolean isStarted() {

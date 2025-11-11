@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
+import javax.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -28,28 +29,29 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = RangerHttpUpstreamConfiguration.class, name = "HTTP"),
-        @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK"),
-        @JsonSubTypes.Type(value = RangerDroveUpstreamConfiguration.class, name = "DROVE"),
+    @JsonSubTypes.Type(value = RangerHttpUpstreamConfiguration.class, name = "HTTP"),
+    @JsonSubTypes.Type(value = RangerZkUpstreamConfiguration.class, name = "ZK"),
+    @JsonSubTypes.Type(value = RangerDroveUpstreamConfiguration.class, name = "DROVE"),
 })
 @Getter
 public abstract class RangerUpstreamConfiguration {
 
-    @NotNull
-    private BackendType type;
+  @NotNull
+  private BackendType type;
 
-    @Min(HubConstants.MINIMUM_REFRESH_TIME_MS)
-    private int nodeRefreshTimeMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
+  @Min(HubConstants.MINIMUM_REFRESH_TIME_MS)
+  @Max(HubConstants.MAXIMUM_REFRESH_TIME_MS)
+  private int nodeRefreshTimeMs = HubConstants.MINIMUM_REFRESH_TIME_MS;
 
-    @Min(HubConstants.MINIMUM_SERVICE_REFRESH_TIMEOUT_MS)
-    private int serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
+  @Min(HubConstants.MINIMUM_SERVICE_REFRESH_TIMEOUT_MS)
+  private int serviceRefreshTimeoutMs = HubConstants.SERVICE_REFRESH_TIMEOUT_MS;
 
-    @Min(HubConstants.MINIMUM_HUB_START_TIMEOUT_MS)
-    private int hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
+  @Min(HubConstants.MINIMUM_HUB_START_TIMEOUT_MS)
+  private int hubStartTimeoutMs = HubConstants.HUB_START_TIMEOUT_MS;
 
-    protected RangerUpstreamConfiguration(BackendType type) {
-        this.type = type;
-    }
+  protected RangerUpstreamConfiguration(BackendType type) {
+    this.type = type;
+  }
 
-    public abstract <T> T accept(final RangerConfigurationVisitor<T> visitor);
+  public abstract <T> T accept(final RangerConfigurationVisitor<T> visitor);
 }

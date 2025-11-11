@@ -16,35 +16,40 @@
 package io.appform.ranger.hub.server.bundle.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RangerZkUpstreamConfiguration extends RangerUpstreamConfiguration {
 
-    @NotEmpty
-    @Valid
-    private List<String> zookeepers;
+  @NotEmpty
+  @Valid
+  private List<String> zookeepers;
 
-    private boolean disablePushUpdaters;
+  private boolean disablePushUpdaters;
 
-    protected RangerZkUpstreamConfiguration() {
-        super(BackendType.ZK);
-    }
+  @Max(HubConstants.MAX_ELAPSED_TIME_MS)
+  @Min(HubConstants.MIN_ELAPSED_TIME_MS)
+  private int maxElapsedTimeMs = HubConstants.MAX_ELAPSED_TIME_MS;
 
-    @Override
-    public <T> T accept(RangerConfigurationVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
+  protected RangerZkUpstreamConfiguration() {
+    super(BackendType.ZK);
+  }
+
+  @Override
+  public <T> T accept(RangerConfigurationVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

@@ -32,22 +32,22 @@ import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
+import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.core.healthchecks.InitialDelayChecker;
+import io.appform.ranger.discovery.core.healthchecks.InternalHealthChecker;
+import io.appform.ranger.discovery.core.healthchecks.RotationCheck;
+import io.appform.ranger.discovery.core.monitors.DropwizardHealthMonitor;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardServerStartupCheck;
+import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.DefaultPortSchemeResolver;
+import io.appform.ranger.discovery.core.resolvers.NodeInfoResolver;
 import io.appform.ranger.discovery.bundle.resolvers.PortSchemeResolver;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
+import io.appform.ranger.discovery.core.rotationstatus.DropwizardServerStatus;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
-import io.appform.ranger.discovery.common.ServiceDiscoveryConfiguration;
-import io.appform.ranger.discovery.common.healthchecks.InitialDelayChecker;
-import io.appform.ranger.discovery.common.healthchecks.InternalHealthChecker;
-import io.appform.ranger.discovery.common.healthchecks.RotationCheck;
-import io.appform.ranger.discovery.common.monitors.DropwizardHealthMonitor;
-import io.appform.ranger.discovery.common.resolvers.DefaultNodeInfoResolver;
-import io.appform.ranger.discovery.common.resolvers.NodeInfoResolver;
-import io.appform.ranger.discovery.common.rotationstatus.DropwizardServerStatus;
-import io.appform.ranger.discovery.common.rotationstatus.RotationStatus;
-import io.appform.ranger.discovery.common.selectors.HierarchicalEnvironmentAwareShardSelector;
-import io.appform.ranger.discovery.common.util.ConfigurationUtils;
+import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
+import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
+import io.appform.ranger.discovery.core.util.ConfigurationUtils;
 import io.appform.ranger.id.IdGenerator;
 import io.appform.ranger.id.NodeIdManager;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
@@ -107,8 +107,8 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
 
     protected ServiceDiscoveryBundle(List<IdValidationConstraint> globalIdConstraints) {
         this.globalIdConstraints = globalIdConstraints != null
-                ? globalIdConstraints
-                : Collections.emptyList();
+                                   ? globalIdConstraints
+                                   : Collections.emptyList();
     }
 
     @Override
@@ -266,11 +266,11 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
         val nodeInfoResolver = createNodeInfoResolver();
         val nodeInfo = nodeInfoResolver.resolve(serviceDiscoveryConfiguration);
         val initialDelayForMonitor = serviceDiscoveryConfiguration.getInitialDelaySeconds() > 1
-                ? serviceDiscoveryConfiguration.getInitialDelaySeconds() - 1
-                : 0;
+                                     ? serviceDiscoveryConfiguration.getInitialDelaySeconds() - 1
+                                     : 0;
         val dwMonitoringInterval = serviceDiscoveryConfiguration.getDropwizardCheckInterval() == 0
-                ? Constants.DEFAULT_DW_CHECK_INTERVAL
-                : serviceDiscoveryConfiguration.getDropwizardCheckInterval();
+                                   ? Constants.DEFAULT_DW_CHECK_INTERVAL
+                                   : serviceDiscoveryConfiguration.getDropwizardCheckInterval();
         val dwMonitoringStaleness = Math.max(serviceDiscoveryConfiguration.getDropwizardCheckStaleness(),
                 dwMonitoringInterval + 1);
         val serviceProviderBuilder = ServiceProviderBuilders.<ShardInfo>shardedServiceProviderBuilder()
