@@ -22,7 +22,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
-import io.appform.ranger.discovery.common.ServiceDiscoveryConfiguration;
+import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.dropwizard.core.Configuration;
 import io.dropwizard.core.server.DefaultServerFactory;
 import io.dropwizard.core.setup.AdminEnvironment;
