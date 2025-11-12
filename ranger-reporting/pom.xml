@@ -10,12 +10,16 @@
     </parent>
 
     <artifactId>ranger-reporting</artifactId>
+    <name>Ranger Reporting Module</name>
+    <description>Module used for aggregating report for coverage</description>
+    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.tests/>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
