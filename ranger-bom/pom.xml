@@ -50,12 +50,12 @@
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
-        <artifactId>ranger-discovery-core</artifactId>
+        <artifactId>ranger-discovery-bundle</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
-        <artifactId>ranger-discovery-bundle</artifactId>
+        <artifactId>ranger-discovery-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -86,6 +86,11 @@
       <dependency>
         <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-hub-server-bundle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-id</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
