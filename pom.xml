@@ -47,6 +47,7 @@
         <module>ranger-hub-server-bundle</module>
         <module>ranger-server</module>
         <module>ranger-bom</module>
+        <module>ranger-reporting</module>
     </modules>
 
     <distributionManagement>
@@ -125,7 +126,7 @@
         <maven.compiler.version>3.14.1</maven.compiler.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <maven-surefire-junit5-tree-reporter.version>1.4.0</maven-surefire-junit5-tree-reporter.version>
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
@@ -334,8 +335,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

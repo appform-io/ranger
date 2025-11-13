@@ -90,6 +90,11 @@
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-id</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-server</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -116,100 +121,8 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-discovery-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-drove</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-drove-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-http</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-http-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-http-model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-hub-server-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-server</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-server-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-server-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-zk-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.appform.ranger</groupId>
-      <artifactId>ranger-zookeeper</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
-
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>report-aggregate</goal>
-            </goals>
-            <configuration>
-              <dataFileIncludes>
-                <dataFileInclude>**/jacoco.exec</dataFileInclude>
-              </dataFileIncludes>
-              <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
