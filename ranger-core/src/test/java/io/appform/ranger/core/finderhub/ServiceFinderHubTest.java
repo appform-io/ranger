@@ -17,7 +17,6 @@
 package io.appform.ranger.core.finderhub;
 
 
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.BaseServiceFinderBuilder;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
@@ -40,7 +39,7 @@ import java.util.Set;
 class ServiceFinderHubTest {
 
     private final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub = new ServiceFinderHub<>(
-            new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
+            new DynamicDataSource(List.of(new Service("NS", "PRE_REGISTERED_SERVICE"))),
             service ->
                     new TestServiceFinderBuilder()
                             .withNamespace(service.getNamespace())
@@ -69,7 +68,7 @@ class ServiceFinderHubTest {
     @Test
     void testTimeoutOnHubStartup() {
         var testServiceFinderHub = new TestServiceFinderHubBuilder()
-                .withServiceDataSource(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))))
+                .withServiceDataSource(new DynamicDataSource(List.of(new Service("NS", "SERVICE"))))
                 .withServiceFinderFactory(new TestServiceFinderFactory())
                 .withRefreshFrequencyMs(5_000)
                 .withHubStartTimeout(1_000)
@@ -87,7 +86,7 @@ class ServiceFinderHubTest {
 
     @Test
     void testDelayedServiceAddition() {
-        val delayedHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
+        val delayedHub = new ServiceFinderHub<>(new DynamicDataSource(List.of(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
                         .withNamespace(service.getNamespace())
                         .withServiceName(service.getServiceName())
@@ -95,7 +94,7 @@ class ServiceFinderHubTest {
                         .withSleepDuration(5)
                         .build(), 1_000, 5_000, Set.of());
         Assertions.assertThrows(IllegalStateException.class, delayedHub::start);
-        val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(Lists.newArrayList(new Service("NS", "SERVICE"))),
+        val serviceFinderHub = new ServiceFinderHub<>(new DynamicDataSource(List.of(new Service("NS", "SERVICE"))),
                 service ->  new TestServiceFinderBuilder()
                         .withNamespace(service.getNamespace())
                         .withServiceName(service.getServiceName())

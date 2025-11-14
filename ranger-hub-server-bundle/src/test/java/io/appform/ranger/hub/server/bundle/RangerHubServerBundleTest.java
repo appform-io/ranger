@@ -20,7 +20,6 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.common.server.ShardInfo;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
@@ -31,7 +30,6 @@ import io.appform.ranger.http.model.ServiceDataSourceResponse;
 import io.appform.ranger.http.model.ServiceNodesResponse;
 import io.appform.ranger.hub.server.bundle.configuration.RangerHttpUpstreamConfiguration;
 import io.appform.ranger.hub.server.bundle.configuration.RangerServerConfiguration;
-import io.appform.ranger.hub.server.bundle.configuration.RangerUpstreamConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -66,13 +64,14 @@ class RangerHubServerBundleTest {
         class TestConfig extends Configuration {
             private final RangerServerConfiguration upstreams = RangerServerConfiguration.builder()
                     .namespace("test")
-                    .upstreams(ImmutableList.<RangerUpstreamConfiguration>builder()
-                                       .add(new RangerHttpUpstreamConfiguration()
-                                                    .setHttpClientConfigs(List.of(HttpClientConfig.builder()
-                                                                                          .host("localhost")
-                                                                                          .port(wm.getHttpPort())
-                                                                                          .build())))
-                                       .build())
+                    .upstreams(List.of(
+                            new RangerHttpUpstreamConfiguration()
+                                    .setHttpClientConfigs(List.of(HttpClientConfig.builder()
+                                            .host("localhost")
+                                            .port(wm.getHttpPort())
+                                            .build()))
+                            )
+                    )
                     .build();
 
         }
@@ -101,37 +100,37 @@ class RangerHubServerBundleTest {
             }
         };
         val services = IntStream.rangeClosed(1, 10)
-                        .mapToObj(i -> Service.builder()
-                                .namespace("test")
-                                .serviceName("service-" + i)
-                                .build())
-                                .collect(Collectors.toUnmodifiableSet());
+                .mapToObj(i -> Service.builder()
+                        .namespace("test")
+                        .serviceName("service-" + i)
+                        .build())
+                .collect(Collectors.toUnmodifiableSet());
         stubFor(get(urlPathEqualTo("/ranger/services/v1"))
-                        .willReturn(okJson(environment.getObjectMapper()
-                                               .writeValueAsString(ServiceDataSourceResponse.builder()
-                                                                                .data(services)
-                                                               .build()))));
+                .willReturn(okJson(environment.getObjectMapper()
+                        .writeValueAsString(ServiceDataSourceResponse.builder()
+                                .data(services)
+                                .build()))));
         stubFor(any(urlPathMatching("/ranger/nodes/v1/test/service-[0-9]+"))
-                        .willReturn(okJson(mapper.writeValueAsString(
-                                ServiceNodesResponse.builder()
-                                        .data(IntStream.rangeClosed(1, 5)
-                                                      .mapToObj(i -> ServiceNode.builder()
-                                                              .host("host-" + i)
-                                                              .port(5000)
-                                                              .nodeData(ShardInfo.builder()
-                                                                                .environment("blah")
-                                                                                .region("reg")
-                                                                                .build())
-                                                              .healthcheckStatus(HealthcheckStatus.healthy)
-                                                              .lastUpdatedTimeStamp(System.currentTimeMillis())
-                                                              .build())
-                                                      .toList())
-                                        .build()))));
+                .willReturn(okJson(mapper.writeValueAsString(
+                        ServiceNodesResponse.builder()
+                                .data(IntStream.rangeClosed(1, 5)
+                                        .mapToObj(i -> ServiceNode.builder()
+                                                .host("host-" + i)
+                                                .port(5000)
+                                                .nodeData(ShardInfo.builder()
+                                                        .environment("blah")
+                                                        .region("reg")
+                                                        .build())
+                                                .healthcheckStatus(HealthcheckStatus.healthy)
+                                                .lastUpdatedTimeStamp(System.currentTimeMillis())
+                                                .build())
+                                        .toList())
+                                .build()))));
 
         bundle.initialize(bootstrap);
         bundle.run(testConfig, environment);
         bundle.getHubs().forEach(RangerHubClient::start);
-        IntStream.rangeClosed(1,10)
+        IntStream.rangeClosed(1, 10)
                 .forEach(i -> {
                     val nodes = bundle.getHubs()
                             .stream()

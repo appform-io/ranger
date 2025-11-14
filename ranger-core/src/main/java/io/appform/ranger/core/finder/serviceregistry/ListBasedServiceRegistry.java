@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.core.finder.serviceregistry;
 
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
@@ -43,6 +42,6 @@ public class ListBasedServiceRegistry<T> extends ServiceRegistry<T> {
 
     @Override
     public void update(List<ServiceNode<T>> serviceNodes) {
-        nodes.set(ImmutableList.copyOf(serviceNodes));
+        nodes.set(List.of(serviceNodes));
     }
 }

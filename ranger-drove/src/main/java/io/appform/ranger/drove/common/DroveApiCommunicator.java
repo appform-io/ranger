@@ -19,7 +19,6 @@ package io.appform.ranger.drove.common;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.models.api.ApiErrorCode;
 import com.phonepe.drove.models.api.ApiResponse;
@@ -129,7 +128,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
     @Override
     @SuppressWarnings("java:S1168")
     public Map<Service, List<ExposedAppInfo>> listNodes(Iterable<? extends Service> services) {
-        log.debug("Loading nodes list for services: {}", Lists.newArrayList(services));
+        log.debug("Loading nodes list for services: {}", List.of(services));
         val url = String.format("/apis/v1/endpoints?%s", String.join("&", StreamSupport.stream(services.spliterator(), false)
                               .map(service -> "app=" + service.getServiceName())
                               .toList()));

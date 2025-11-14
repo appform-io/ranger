@@ -20,7 +20,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.dropwizard.Configuration;
@@ -42,6 +41,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodeAbsence;
@@ -105,7 +105,7 @@ class ServiceDiscoveryBundleDwMonitorTest {
             }
         });
 
-        when(serverFactory.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
+        when(serverFactory.getApplicationConnectors()).thenReturn(List.of(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);

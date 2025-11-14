@@ -18,7 +18,6 @@ package io.appform.ranger.client.http;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
@@ -34,8 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -61,7 +59,7 @@ public abstract class BaseRangerHttpClientTest {
         node.setLastUpdatedTimeStamp(System.currentTimeMillis());
         val payload = objectMapper.writeValueAsBytes(
                 ServiceNodesResponse.<TestNodeData>builder()
-                        .data(Lists.newArrayList(node))
+                        .data(List.of(node))
                         .build());
         wireMockExtension.stubFor(get(urlPathEqualTo("/ranger/nodes/v1/test-n/test-s"))
                 .willReturn(aResponse()

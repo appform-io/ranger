@@ -18,7 +18,6 @@ package io.appform.ranger.http.servicefinderhub;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.google.common.collect.Sets;
 import io.appform.ranger.core.utils.RangerTestUtils;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.model.ServiceDataSourceResponse;
@@ -28,8 +27,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
