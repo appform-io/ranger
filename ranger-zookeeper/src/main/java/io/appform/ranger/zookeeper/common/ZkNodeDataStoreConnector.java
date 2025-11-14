@@ -49,6 +49,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
             .handle(IllegalStateException.class)
             .handleResultIf(aBoolean -> !aBoolean)
             .withDelay(java.time.Duration.ofSeconds(1))
+            .withMaxAttempts(-1)
             .onRetry(event -> log.debug("Retrying with attempt: {}", event.getAttemptCount()))
             .build();
 

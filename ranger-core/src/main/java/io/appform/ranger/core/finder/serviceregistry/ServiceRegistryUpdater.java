@@ -76,9 +76,8 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
                     .handleResultIf(result -> result == null || !result)
                     .withMaxAttempts(Integer.MAX_VALUE)
                     .build();
-
             Failsafe.with(retryPolicy)
-                    .get(() -> serviceRegistry.isRefreshed());
+                    .get(serviceRegistry::isRefreshed);
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not perform initial state for service: " + serviceName, e);
