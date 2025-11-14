@@ -31,7 +31,6 @@
     <properties>
         <dropwizard.version>5.0.0</dropwizard.version>
         <dns.cache.manipulator.version>1.8.1</dns.cache.manipulator.version>
-        <joda-time.version>2.12.7</joda-time.version>
     </properties>
 
     <dependencyManagement>
@@ -64,11 +63,7 @@
             <artifactId>dropwizard-jackson</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-discovery-core</artifactId>
