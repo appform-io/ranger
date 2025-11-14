@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.zookeeper.serviceprovider;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -29,6 +28,8 @@ import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -48,7 +49,7 @@ public class ZkNodeDataSink<T, S extends ZkNodeDataSerializer<T>> extends ZkNode
                      service.getServiceName());
             return;
         }
-        Preconditions.checkNotNull(serializer, "Serializer has not been set for node data");
+        requireNonNull(serializer, "Serializer has not been set for node data");
         val path = PathBuilder.instancePath(service, serviceNode);
         try {
             if (null == curatorFramework.checkExists().forPath(path)) {

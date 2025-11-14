@@ -28,6 +28,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -39,7 +42,7 @@ class HttpServiceDataSourceTest {
     @Test
     void testServiceDataSource(WireMockRuntimeInfo wireMockRuntimeInfo) throws IOException {
         val responseObjReplicated = ServiceDataSourceResponse.builder()
-                .data(Sets.newHashSet(
+                .data(Set.of(
                         RangerTestUtils.getService("test-n", "test-s"),
                         RangerTestUtils.getService("test-n", "test-s1"),
                         RangerTestUtils.getService("test-n", "test-s2")
@@ -50,7 +53,7 @@ class HttpServiceDataSourceTest {
                         .withBody(MAPPER.writeValueAsBytes(responseObjReplicated))
                         .withStatus(200)));
         val responseObjReplicationSkipped = ServiceDataSourceResponse.builder()
-                .data(Sets.newHashSet(
+                .data(Set.of(
                         RangerTestUtils.getService("test-n", "test-s"),
                         RangerTestUtils.getService("test-n", "test-s1")))
                 .build();

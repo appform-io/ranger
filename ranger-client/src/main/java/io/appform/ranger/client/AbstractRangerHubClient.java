@@ -16,7 +16,6 @@
 package io.appform.ranger.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.client.utils.CriteriaUtils;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.finderhub.ServiceFinderFactory;
@@ -30,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Getter
@@ -59,9 +60,9 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
     @Override
     public void start() {
-        Preconditions.checkNotNull(mapper, "Mapper can't be null");
-        Preconditions.checkNotNull(namespace, "namespace can't be null");
-        Preconditions.checkNotNull(deserializer, "deserializer can't be null");
+        requireNonNull(mapper, "Mapper can't be null");
+        requireNonNull(namespace, "namespace can't be null");
+        requireNonNull(deserializer, "deserializer can't be null");
 
         if (this.nodeRefreshTimeMs < HubConstants.MINIMUM_REFRESH_TIME_MS) {
             log.warn("Node info update interval too low: {} ms. Has been upgraded to {} ms ",

@@ -16,7 +16,6 @@
 package io.appform.ranger.drove.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
@@ -25,6 +24,8 @@ import io.appform.ranger.drove.common.DroveCommunicator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> implements ServiceDataSource {
@@ -41,8 +42,8 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
 
     @Override
     public Collection<Service> services() {
-        Preconditions.checkNotNull(config, "client config has not been set for node data");
-        Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
+        requireNonNull(config, "client config has not been set for node data");
+        requireNonNull(mapper, "mapper has not been set for node data");
         return droveClient.services()
                 .stream()
                 .map(serviceName -> new Service(namespace, serviceName))

@@ -16,8 +16,6 @@
 
 package io.appform.ranger.core.finder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.ServiceRegistryUpdater;
 import io.appform.ranger.core.finder.serviceregistry.signal.ScheduledRegistryUpdateSignal;
@@ -31,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @SuppressWarnings({"unchecked", "unused", "UnusedReturnValue"})
@@ -50,8 +50,8 @@ public abstract class BaseServiceFinderBuilder
     protected ShardSelector<T, R> shardSelector;
     protected ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
     protected final List<Signal<T>> additionalRefreshSignals = new ArrayList<>();
-    protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
-    protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
+    protected final List<Consumer<Void>> startSignalHandlers = new ArrayList<>();
+    protected final List<Consumer<Void>> stopSignalHandlers = new ArrayList<>();
 
     public B withNamespace(final String namespace) {
         this.namespace = namespace;
@@ -131,9 +131,9 @@ public abstract class BaseServiceFinderBuilder
     public abstract F build();
 
     protected F buildFinder() {
-        Preconditions.checkNotNull(namespace);
-        Preconditions.checkNotNull(serviceName);
-        Preconditions.checkNotNull(deserializer);
+        requireNonNull(namespace);
+        requireNonNull(serviceName);
+        requireNonNull(deserializer);
 
         if (nodeRefreshIntervalMs < 1000) {
             log.warn("Node refresh interval for {} is too low: {} ms. Has been upgraded to 1000ms ",

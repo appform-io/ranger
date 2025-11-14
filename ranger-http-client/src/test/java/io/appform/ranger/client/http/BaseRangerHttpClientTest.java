@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.units.TestNodeData;
@@ -35,6 +34,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -67,9 +69,7 @@ public abstract class BaseRangerHttpClientTest {
                         .withStatus(200)));
 
         val responseObj = ServiceDataSourceResponse.builder()
-                .data(Sets.newHashSet(
-                        RangerTestUtils.getService("test-n", "test-s")
-                ))
+                .data(Set.of(RangerTestUtils.getService("test-n", "test-s")))
                 .build();
         val response = objectMapper.writeValueAsBytes(responseObj);
         wireMockExtension.stubFor(get(urlPathEqualTo("/ranger/services/v1"))

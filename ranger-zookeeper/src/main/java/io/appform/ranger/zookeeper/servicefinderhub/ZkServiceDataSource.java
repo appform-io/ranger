@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.zookeeper.servicefinderhub;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.zookeeper.util.PathBuilder;
@@ -29,6 +28,8 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -63,7 +64,7 @@ public class ZkServiceDataSource implements ServiceDataSource {
     @Override
     public void start() {
         if(null == curatorFramework){
-            Preconditions.checkNotNull(connectionString);
+            requireNonNull(connectionString);
             log.info("Building custom curator framework");
             curatorFramework = CuratorFrameworkFactory.builder()
                     .namespace(namespace)
