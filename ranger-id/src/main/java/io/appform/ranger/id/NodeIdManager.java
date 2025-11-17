@@ -16,9 +16,8 @@
 
 package io.appform.ranger.id;
 
-import com.github.rholder.retry.RetryException;
-import com.github.rholder.retry.RetryerBuilder;
-import com.github.rholder.retry.StopStrategies;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -28,7 +27,6 @@ import org.apache.zookeeper.KeeperException;
 
 import java.security.SecureRandom;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by santanu on 2/5/16.
@@ -58,13 +56,13 @@ public class NodeIdManager {
             log.error("Wait for curator start interrupted", e);
             Thread.currentThread().interrupt();
         }
-        val retryer = RetryerBuilder.<Boolean>newBuilder()
-                .retryIfResult(aBoolean -> Objects.equals(aBoolean, false))
-                .retryIfException()
-                .withStopStrategy(StopStrategies.neverStop())
+        val retryPolicy = RetryPolicy.<Boolean>builder()
+                .handleResultIf(aBoolean -> Objects.equals(aBoolean, false))
+                .handle(Exception.class)
+                .withMaxAttempts(-1) // Infinite retries
                 .build();
         try {
-            retryer.call(() -> {
+            Failsafe.with(retryPolicy).get(() -> {
                 node = secureRandom.nextInt(Constants.MAX_NUM_NODES);
                 val path = pathUtils.path(node);
                 try {
@@ -79,10 +77,8 @@ public class NodeIdManager {
                 log.info("Node will be set to node id {}", node);
                 return true;
             });
-        } catch (RetryException e) {
+        } catch (Exception e) {
             log.error("Error creating node", e);
-        } catch (ExecutionException e) {
-            log.error("Execution exception while creating node", e);
         }
         return node;
     }

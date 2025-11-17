@@ -15,10 +15,9 @@
  */
 package io.appform.ranger.core.finderhub;
 
-import com.github.rholder.retry.RetryerBuilder;
-import com.github.rholder.retry.StopStrategies;
-import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Stopwatch;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.Service;
@@ -276,12 +275,14 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
 
     private void waitTillServiceIsReady(Service service) {
         try {
-            RetryerBuilder.<Boolean>newBuilder()
-                    .retryIfResult(r -> !r)
-                    .withStopStrategy(StopStrategies.stopAfterDelay(serviceRefreshTimeoutMs, TimeUnit.MILLISECONDS))
-                    .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
-                    .build()
-                    .call(() -> Optional.ofNullable(getFinders().get().get(service))
+            RetryPolicy<Boolean> retryPolicy = RetryPolicy.<Boolean>builder()
+                    .handleResultIf(r -> !r)
+                    .withMaxDuration(java.time.Duration.ofMillis(serviceRefreshTimeoutMs))
+                    .withDelay(java.time.Duration.ofSeconds(1))
+                    .build();
+
+            Failsafe.with(retryPolicy)
+                    .get(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)
                             .map(ServiceRegistry::isRefreshed)
                             .orElse(false));

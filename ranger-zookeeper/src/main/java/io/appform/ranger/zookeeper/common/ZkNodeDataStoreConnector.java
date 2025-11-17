@@ -15,7 +15,8 @@
  */
 package io.appform.ranger.zookeeper.common;
 
-import com.github.rholder.retry.*;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.util.Exceptions;
@@ -25,10 +26,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.zookeeper.KeeperException;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,19 +45,12 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
 
-    @SuppressWarnings({"UnstableApiUsage", "ConstantConditions"})
-    private final Retryer<Boolean> discoveryRetrier = RetryerBuilder.<Boolean>newBuilder()
-            .retryIfException(e -> IllegalStateException.class.isAssignableFrom(e.getClass()))
-            .retryIfResult(aBoolean -> false)
-            .withAttemptTimeLimiter(AttemptTimeLimiters.noTimeLimit())
-            .withWaitStrategy(WaitStrategies.fixedWait(1, TimeUnit.SECONDS))
-            .withBlockStrategy(BlockStrategies.threadSleepStrategy())
-            .withRetryListener(new RetryListener() {
-                @Override
-                public <V> void onRetry(Attempt<V> attempt) {
-                    log.debug("Retrying with attempt: {}", attempt);
-                }
-            })
+    private final RetryPolicy<Boolean> discoveryRetryPolicy = RetryPolicy.<Boolean>builder()
+            .handle(IllegalStateException.class)
+            .handleResultIf(aBoolean -> !aBoolean)
+            .withDelay(java.time.Duration.ofSeconds(1))
+            .withMaxAttempts(-1)
+            .onRetry(event -> log.debug("Retrying with attempt: {}", event.getAttemptCount()))
             .build();
 
     protected ZkNodeDataStoreConnector(
@@ -140,7 +132,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     @Override
     public void ensureConnected() {
         try {
-            discoveryRetrier.call(this::isActive);
+            Failsafe.with(discoveryRetryPolicy).get(this::isActive);
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not get zk connection", e);
