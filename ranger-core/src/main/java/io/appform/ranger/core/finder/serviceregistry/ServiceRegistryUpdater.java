@@ -15,9 +15,10 @@
  */
 package io.appform.ranger.core.finder.serviceregistry;
 
-import com.github.rholder.retry.RetryerBuilder;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.Deserializer;
 import io.appform.ranger.core.model.NodeDataSource;
@@ -71,11 +72,12 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         log.info("Waiting for initial update to complete for: {}", serviceName);
         val stopwatch = Stopwatch.createStarted();
         try {
-            RetryerBuilder.<Boolean>newBuilder()
-                    .retryIfResult(r -> null == r || !r)
-                    .retryIfException()
-                    .build()
-                    .call(serviceRegistry::isRefreshed);
+            RetryPolicy<Boolean> retryPolicy = RetryPolicy.<Boolean>builder()
+                    .handleResultIf(result -> result == null || !result)
+                    .withMaxAttempts(Integer.MAX_VALUE)
+                    .build();
+            Failsafe.with(retryPolicy)
+                    .get(serviceRegistry::isRefreshed);
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not perform initial state for service: " + serviceName, e);
