@@ -54,17 +54,7 @@
     <dependencies>
         <dependency>
             <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-http-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-zk-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.appform.ranger</groupId>
-            <artifactId>ranger-drove-client</artifactId>
+            <artifactId>ranger-hub-server-bundle-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
