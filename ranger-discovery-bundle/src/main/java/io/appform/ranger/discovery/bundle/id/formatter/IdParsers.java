@@ -77,6 +77,7 @@ public class IdParsers {
      * @see Id
      * @see IdFormatter
      * @see IdFormatters#original()
+     * @see IdFormatters#suffix()
      * @since 1.0
      */
     public Optional<Id> parse(final String idString) {
