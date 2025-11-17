@@ -41,7 +41,7 @@ public class IdParsersTest {
     void testParseSuccessAfterGenerationWithSuffix() {
         val idGenerator = new DefaultIdGenerator(IdFormatters.suffix());
         val prefix = "TEST";
-        val suffix = "007";
+        val suffix = "000007";
         val generatedId = idGenerator.generate(prefix, suffix);
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
@@ -57,14 +57,14 @@ public class IdParsersTest {
     void testParseSuccessAfterGenerationWithConstraintsSuffix() {
         val idGenerator = new DefaultIdGenerator(IdFormatters.suffix());
         val prefix = "TEST";
-        val suffix = "007";
+        val suffix = "000007";
         val domain = "TEST";
 
         idGenerator.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
         Optional<Id> id = idGenerator.generateWithConstraints(prefix, suffix, Collections.emptyList());
 
         Assertions.assertTrue(id.isPresent());
-        Assertions.assertEquals(31, id.get().getId().length());
+        Assertions.assertEquals(34, id.get().getId().length());
 
         val parsedId = IdGenerator.parse(id.get().getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
