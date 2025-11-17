@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.2]
+- Check if Zookeeper Client is connected to consider ZkNodeDataSource as active
+- Change RetryPolicy from RetryForever to bounded RetryUntilElapsed for curator corresponding to zk upstreams in RangerHubServerBundle
+
+## [1.1.1]
+- Added fallback in IdParsers.parse() for original formatter 
+
+## [1.1.0]
+- Added bill of materials for ranger, for clients who intend to use ranger.
+- Updated version to release version 1.1.0
+
 ## [1.1-RC5]
 Server to server replication implemented
 

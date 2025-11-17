@@ -27,6 +27,17 @@ public class IdParsersTest {
     }
 
     @Test
+    void testDefaultIdWithNumericPrefix() throws ParseException {
+        val id = "0M00002507241535374297496628";
+        val parsedId = IdParsers.parse(id).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(id, parsedId.getId());
+        Assertions.assertEquals(628, parsedId.getExponent());
+        Assertions.assertEquals(7496, parsedId.getNode());
+        assertDate("250724153537429", parsedId.getGeneratedDate());
+    }
+
+    @Test
     void testParseSuccessAfterGenerationWithSuffix() {
         val idGenerator = new DefaultIdGenerator(IdFormatters.suffix());
         val prefix = "TEST";

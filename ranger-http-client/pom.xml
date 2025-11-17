@@ -21,11 +21,12 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1-RC5</version>
+        <version>1.1.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-http-client</artifactId>
+    <name>Client for Ranger HTTP Discovery</name>
 
     <dependencies>
         <dependency>

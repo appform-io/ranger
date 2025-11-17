@@ -21,11 +21,12 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <version>1.1-RC5</version>
+        <version>1.1.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ranger-drove-client</artifactId>
+    <name>Ranger Drove discovery Client</name>
 
     <dependencies>
         <dependency>
@@ -40,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
-            <artifactId>wiremock</artifactId>
+            <artifactId>wiremock-standalone</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
             <exclusions>

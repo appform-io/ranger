@@ -26,6 +26,7 @@ import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.dropwizard.logback.shaded.guava.annotations.VisibleForTesting;
 import lombok.NonNull;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -35,6 +36,7 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 @Slf4j
+@UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
 
@@ -53,6 +55,7 @@ public class IdGenerator {
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
+
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
