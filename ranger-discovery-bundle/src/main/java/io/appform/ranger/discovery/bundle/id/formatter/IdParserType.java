@@ -5,8 +5,7 @@ import lombok.Getter;
 @Getter
 public enum IdParserType {
     DEFAULT (00),
-    SUFFIX (01),
-    BASE36_SUFFIX(02);
+    SUFFIX (01);
 
     private final int value;
 
