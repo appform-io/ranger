@@ -25,30 +25,29 @@ import java.util.Collections;
 @Slf4j
 public class CuratorLifecycle extends Signal<ShardInfo> {
 
-  private final CuratorFramework curatorFramework;
+    private final CuratorFramework curatorFramework;
 
-  public CuratorLifecycle(CuratorFramework curatorFramework) {
-    super(() -> null, Collections.emptyList());
-    this.curatorFramework = curatorFramework;
-  }
-
-  @Override
-  public void start() {
-    log.info("Starting the curator");
-
-    curatorFramework.start();
-    try {
-      curatorFramework.blockUntilConnected();
+    public CuratorLifecycle(CuratorFramework curatorFramework) {
+        super(() -> null, Collections.emptyList());
+        this.curatorFramework = curatorFramework;
     }
-    catch (InterruptedException e) {
-      log.error("Curator block interrupted", e);
-      Thread.currentThread().interrupt();
-    }
-    log.info("Started the curator");
-  }
 
-  @Override
-  public void stop() {
-    curatorFramework.close();
-  }
+    @Override
+    public void start() {
+        log.info("Starting the curator");
+
+        curatorFramework.start();
+        try {
+            curatorFramework.blockUntilConnected();
+        } catch (InterruptedException e) {
+            log.error("Curator block interrupted", e);
+            Thread.currentThread().interrupt();
+        }
+        log.info("Started the curator");
+    }
+
+    @Override
+    public void stop() {
+        curatorFramework.close();
+    }
 }
