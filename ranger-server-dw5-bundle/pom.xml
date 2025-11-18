@@ -32,7 +32,7 @@
         <dropwizard.version>5.0.0</dropwizard.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
-        <javax.el.version>3.0.0</javax.el.version>
+        <wiremock-standalone.version>3.13.1</wiremock-standalone.version>
     </properties>
 
     <dependencyManagement>
@@ -82,17 +82,6 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate-validator.version}</version>
         </dependency>
-        <!-- javax.el dependencies are required for javax.validation support -->
-<!--        <dependency>-->
-<!--            <groupId>javax.el</groupId>-->
-<!--            <artifactId>javax.el-api</artifactId>-->
-<!--            <version>${javax.el.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.glassfish</groupId>-->
-<!--            <artifactId>javax.el</artifactId>-->
-<!--            <version>${javax.el.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
@@ -107,7 +96,7 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
-            <version>3.13.1</version>
+            <version>${wiremock-standalone.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
