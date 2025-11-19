@@ -48,7 +48,6 @@
         <module>ranger-server</module>
         <module>ranger-bom</module>
         <module>ranger-reporting</module>
-        <module>ranger-dependencies</module>
     </modules>
 
     <distributionManagement>
