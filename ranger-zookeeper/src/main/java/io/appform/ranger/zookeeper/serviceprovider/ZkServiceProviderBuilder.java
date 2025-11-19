@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.zookeeper.serviceprovider;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.serviceprovider.BaseServiceProviderBuilder;
@@ -25,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -47,7 +48,7 @@ public class ZkServiceProviderBuilder<T> extends BaseServiceProviderBuilder<T, Z
     @Override
     public ServiceProvider<T, ZkNodeDataSerializer<T>> build() {
         if (null == curatorFramework) {
-            Preconditions.checkNotNull(connectionString);
+            requireNonNull(connectionString);
             log.info("Building custom curator framework");
             curatorFramework = CuratorFrameworkFactory.builder()
                     .namespace(namespace)

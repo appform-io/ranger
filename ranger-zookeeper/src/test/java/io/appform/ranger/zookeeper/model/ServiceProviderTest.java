@@ -19,7 +19,6 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
@@ -38,6 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
 
@@ -46,7 +46,7 @@ class ServiceProviderTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestNodeData, ZkNodeDataSerializer<TestNodeData>>> serviceProviders = new ArrayList<>();
 
     @BeforeEach
     public void startTestCluster() throws Exception {

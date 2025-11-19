@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.zookeeper.servicefinder;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinderBuilder;
 import io.appform.ranger.core.model.NodeDataSource;
@@ -31,6 +30,8 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -55,7 +56,7 @@ public class ZkSimpleUnshardedServiceFinderBuilder<T>
     public SimpleUnshardedServiceFinder<T> build() {
         val curatorProvided = curatorFramework != null;
         if (!curatorProvided) {
-            Preconditions.checkNotNull(connectionString);
+            requireNonNull(connectionString);
             curatorFramework = CuratorFrameworkFactory.builder()
                     .namespace(namespace)
                     .connectString(connectionString)

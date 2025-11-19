@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.zookeeper.servicefinderhub;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.finderhub.ServiceFinderHub;
 import io.appform.ranger.core.finderhub.ServiceFinderHubBuilder;
 import io.appform.ranger.core.model.ServiceRegistry;
@@ -23,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -51,7 +52,7 @@ public class ZkServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> extends 
     @Override
     protected void preBuild() {
         if (null == curatorFramework) {
-            Preconditions.checkNotNull(connectionString);
+            requireNonNull(connectionString);
             log.info("Building custom curator framework");
             curatorFramework = CuratorFrameworkFactory.builder()
                     .namespace(namespace)

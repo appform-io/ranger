@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.client.stubs;
 
-import com.google.common.collect.Sets;
 import io.appform.ranger.client.AbstractRangerHubClient;
 import io.appform.ranger.client.utils.RangerHubTestUtils;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
@@ -24,6 +23,8 @@ import io.appform.ranger.core.units.TestNodeData;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Set;
 
 @Getter
 @SuperBuilder
@@ -52,7 +53,7 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
 
     @Override
     protected ServiceDataSource getDefaultDataSource() {
-        return new StaticDataSource(Sets.newHashSet(RangerHubTestUtils.service));
+        return new StaticDataSource(Set.of(RangerHubTestUtils.service));
     }
 
     @Override

@@ -15,8 +15,6 @@
  */
 package io.appform.ranger.zookeeper.servicefinder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -30,9 +28,12 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -62,7 +63,7 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
                      service.getServiceName());
             return Optional.empty();
         }
-        Preconditions.checkNotNull(deserializer, "Deserializer has not been set for node data");
+        requireNonNull(deserializer, "Deserializer has not been set for node data");
         try {
             val serviceName = service.getServiceName();
             if (!isActive()) {
@@ -73,7 +74,7 @@ public class ZkNodeDataSource<T, D extends ZkNodeDataDeserializer<T>> extends Zk
             val parentPath = PathBuilder.servicePath(service);
             log.debug("Looking for node list of [{}]", serviceName);
             val children = curatorFramework.getChildren().forPath(parentPath);
-            List<ServiceNode<T>> nodes = Lists.newArrayListWithCapacity(children.size());
+            List<ServiceNode<T>> nodes = new ArrayList<>(children.size());
             log.debug("Found {} nodes for [{}]", children.size(), serviceName);
             for (val child : children) {
                 byte[] data = readChild(parentPath, child).orElse(null);

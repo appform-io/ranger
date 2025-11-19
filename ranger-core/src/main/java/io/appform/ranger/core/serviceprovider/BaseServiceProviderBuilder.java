@@ -18,7 +18,6 @@ package io.appform.ranger.core.serviceprovider;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthChecker;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
@@ -37,9 +36,12 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -56,13 +58,13 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
-    protected final List<Healthcheck> healthchecks = Lists.newArrayList();
-    protected final List<Consumer<Void>> startSignalHandlers = Lists.newArrayList();
-    protected final List<Consumer<Void>> stopSignalHandlers = Lists.newArrayList();
-    protected final List<Signal<HealthcheckResult>> additionalRefreshSignals = Lists.newArrayList();
+    protected final List<Healthcheck> healthchecks = new ArrayList<>();
+    protected final List<Consumer<Void>> startSignalHandlers = new ArrayList<>();
+    protected final List<Consumer<Void>> stopSignalHandlers = new ArrayList<>();
+    protected final List<Signal<HealthcheckResult>> additionalRefreshSignals = new ArrayList<>();
 
     /* list of isolated monitors */
-    private final List<IsolatedHealthMonitor<HealthcheckStatus>> isolatedMonitors = Lists.newArrayList();
+    private final List<IsolatedHealthMonitor<HealthcheckStatus>> isolatedMonitors = new ArrayList<>();
 
     public BaseServiceProviderBuilder<T, B, S> withNamespace(final String namespace) {
         this.namespace = namespace;
@@ -164,10 +166,10 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     }
 
     protected final ServiceProvider<T, S> buildProvider() {
-        Preconditions.checkNotNull(namespace);
-        Preconditions.checkNotNull(serviceName);
-        Preconditions.checkNotNull(serializer);
-        Preconditions.checkNotNull(hostname);
+        requireNonNull(namespace);
+        requireNonNull(serviceName);
+        requireNonNull(serializer);
+        requireNonNull(hostname);
         Preconditions.checkArgument(port > 0);
         Preconditions.checkArgument(!healthchecks.isEmpty() || !isolatedMonitors.isEmpty());
 
