@@ -29,24 +29,20 @@
     <name>Ranger Zookeeper Based ID Generator</name>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failsafe.version>3.2.4</failsafe.version>
-        <joda-time.version>2.12.7</joda-time.version>
         <jmh.version>1.35</jmh.version>
+        <joda.time.version>2.14.0</joda.time.version>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda.time.version}</version>
+        </dependency>
+        <dependency>
             <groupId>dev.failsafe</groupId>
             <artifactId>failsafe</artifactId>
             <version>${failsafe.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
