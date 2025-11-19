@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.appform.ranger.client.RangerClient;
 import io.appform.ranger.client.zk.SimpleRangerZKClient;
 import io.appform.ranger.common.server.ShardInfo;
@@ -69,6 +68,7 @@ import org.apache.curator.retry.RetryForever;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +76,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.appform.ranger.discovery.bundle.Constants.LOCAL_ADDRESSES;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -85,7 +86,7 @@ import static io.appform.ranger.discovery.bundle.Constants.LOCAL_ADDRESSES;
 @Slf4j
 public abstract class ServiceDiscoveryBundle<T extends Configuration> implements ConfiguredBundle<T> {
 
-    private final List<Healthcheck> healthchecks = Lists.newArrayList();
+    private final List<Healthcheck> healthchecks = new ArrayList<>();
     private final List<IdValidationConstraint> globalIdConstraints;
     private ServiceDiscoveryConfiguration serviceDiscoveryConfiguration;
     private ServiceProvider<ShardInfo, ZkNodeDataSerializer<ShardInfo>> serviceProvider;
@@ -120,7 +121,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
     public void run(T configuration,
                     Environment environment) throws Exception {
         val portSchemeResolver = createPortSchemeResolver();
-        Preconditions.checkNotNull(portSchemeResolver, "Port scheme resolver can't be null");
+        requireNonNull(portSchemeResolver, "Port scheme resolver can't be null");
         val portScheme = portSchemeResolver.resolve(configuration);
         serviceDiscoveryConfiguration = getRangerConfiguration(configuration);
         val objectMapper = environment.getObjectMapper();

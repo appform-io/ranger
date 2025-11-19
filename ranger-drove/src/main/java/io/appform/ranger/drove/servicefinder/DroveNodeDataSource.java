@@ -16,7 +16,6 @@
 package io.appform.ranger.drove.servicefinder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -31,6 +30,8 @@ import lombok.val;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -51,8 +52,8 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
 
     @Override
     public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
-        Preconditions.checkNotNull(config, "client config has not been set for node data");
-        Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
+        requireNonNull(config, "client config has not been set for node data");
+        requireNonNull(mapper, "mapper has not been set for node data");
         try {
             val exposedAppInfos = droveClient.listNodes(service);
             val nodes = deserializer.deserialize(

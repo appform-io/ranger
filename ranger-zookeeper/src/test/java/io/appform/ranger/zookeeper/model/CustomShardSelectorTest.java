@@ -18,7 +18,6 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.model.ServiceNode;
@@ -46,7 +45,7 @@ import java.util.function.Predicate;
 class CustomShardSelectorTest {
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private final List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = Lists.newArrayList();
+    private final List<ServiceProvider<TestShardInfo, ZkNodeDataSerializer<TestShardInfo>>> serviceProviders = new ArrayList<>();
 
     @BeforeEach
     public void startTestCluster() throws Exception {

@@ -16,7 +16,6 @@
 
 package io.appform.ranger.core.healthservice;
 
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
@@ -25,6 +24,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -58,8 +58,8 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
 
     public ServiceHealthAggregator() {
         this.healthcheckStatus = new AtomicReference<>();
-        this.isolatedHealthMonitorList = Lists.newArrayList();
-        this.inlineHealthMonitorList = Lists.newArrayList();
+        this.isolatedHealthMonitorList = new ArrayList<>();
+        this.inlineHealthMonitorList = new ArrayList<>();
         this.running = new AtomicBoolean(false);
     }
 
@@ -107,7 +107,7 @@ public class ServiceHealthAggregator implements HealthService<HealthcheckStatus>
             return;
         }
         val scheduledExecutorService = Executors.newScheduledThreadPool(isolatedHealthMonitorList.size());
-        scheduledFutureList = Lists.newArrayListWithCapacity(isolatedHealthMonitorList.size());
+        scheduledFutureList = new ArrayList<>(isolatedHealthMonitorList.size());
         isolatedHealthMonitorList.stream().map(isolatedHealthMonitor -> scheduledExecutorService.scheduleWithFixedDelay(
                 isolatedHealthMonitor,
                 isolatedHealthMonitor.getRunInterval()

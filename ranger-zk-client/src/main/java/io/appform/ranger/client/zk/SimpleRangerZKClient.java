@@ -16,7 +16,6 @@
 package io.appform.ranger.client.zk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
@@ -32,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Getter
@@ -54,9 +55,9 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     public void start() {
         log.info("Starting the service finder");
 
-        Preconditions.checkNotNull(mapper, "Mapper can't be null");
-        Preconditions.checkNotNull(namespace, "namespace can't be null");
-        Preconditions.checkNotNull(deserializer, "deserializer can't be null");
+        requireNonNull(mapper, "Mapper can't be null");
+        requireNonNull(namespace, "namespace can't be null");
+        requireNonNull(deserializer, "deserializer can't be null");
 
         int effectiveRefreshTime = nodeRefreshIntervalMs;
 
@@ -68,7 +69,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
         }
 
         if (null == curatorFramework) {
-            Preconditions.checkNotNull(connectionString, "Connection string can't be null");
+            requireNonNull(connectionString, "Connection string can't be null");
             curatorFramework = CuratorFrameworkFactory.builder()
                     .connectString(connectionString)
                     .namespace(namespace)

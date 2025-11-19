@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.core.finderhub;
 
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.ScheduledSignal;
@@ -29,6 +28,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -93,8 +94,8 @@ public abstract class ServiceFinderHubBuilder<T, R extends ServiceRegistry<T>> {
 
     public ServiceFinderHub<T, R> build() {
         preBuild();
-        Preconditions.checkNotNull(serviceDataSource, "Provide a non-null service data source");
-        Preconditions.checkNotNull(serviceFinderFactory, "Provide a non-null service finder factory");
+        requireNonNull(serviceDataSource, "Provide a non-null service data source");
+        requireNonNull(serviceFinderFactory, "Provide a non-null service finder factory");
 
         val hub = new ServiceFinderHub<>(serviceDataSource, serviceFinderFactory, serviceRefreshTimeoutMs,
                 hubStartTimeoutMs, excludedServices);
