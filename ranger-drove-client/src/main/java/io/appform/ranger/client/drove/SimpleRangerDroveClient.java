@@ -16,7 +16,6 @@
 package io.appform.ranger.client.drove;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
@@ -29,6 +28,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @SuperBuilder
@@ -49,9 +50,9 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     @Override
     public void start() {
         log.info("Starting the service finder");
-        Preconditions.checkNotNull(mapper, "Mapper can't be null");
-        Preconditions.checkNotNull(namespace, "namespace can't be null");
-        Preconditions.checkNotNull(deserializer, "deserializer can't be null");
+        requireNonNull(mapper, "Mapper can't be null");
+        requireNonNull(namespace, "namespace can't be null");
+        requireNonNull(deserializer, "deserializer can't be null");
 
         this.serviceFinder = DroveServiceFinderBuilders.<T>droveUnshardedServiceFinderBuilider()
                 .withClientConfig(clientConfig)

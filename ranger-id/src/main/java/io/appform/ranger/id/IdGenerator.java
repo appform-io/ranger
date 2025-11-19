@@ -16,7 +16,6 @@
 
 package io.appform.ranger.id;
 
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.id.formatter.IdFormatter;
 import io.appform.ranger.id.formatter.IdFormatters;
@@ -65,7 +64,7 @@ public class IdGenerator {
     }
 
     public static synchronized void registerGlobalConstraints(IdValidationConstraint... constraints) {
-        registerGlobalConstraints(ImmutableList.copyOf(constraints));
+        registerGlobalConstraints(List.of(constraints));
     }
 
     public static synchronized void registerGlobalConstraints(List<IdValidationConstraint> constraints) {
@@ -75,7 +74,7 @@ public class IdGenerator {
     public static synchronized void registerDomainSpecificConstraints(
             String domain,
             IdValidationConstraint... validationConstraints) {
-        registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
+        registerDomainSpecificConstraints(domain, List.of(validationConstraints));
     }
 
     public static synchronized void registerDomainSpecificConstraints(

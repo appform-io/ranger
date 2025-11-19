@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.core.utils;
 
-import com.google.common.collect.ImmutableList;
 import io.appform.ranger.core.finder.serviceregistry.ListBasedServiceRegistry;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.model.ServiceNode;
@@ -23,12 +22,14 @@ import io.appform.ranger.core.units.TestNodeData;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.util.List;
+
 @UtilityClass
 public class RegistryTestUtils {
 
     public static MapBasedServiceRegistry<TestNodeData> getServiceRegistry(){
         val serviceRegistry = new MapBasedServiceRegistry<TestNodeData>(RangerTestUtils.service);
-        val serviceNodes = ImmutableList.of(
+        val serviceNodes = List.of(
                 ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build(),
                 ServiceNode.<TestNodeData>builder().host("localhost-2").port(9001).nodeData(TestNodeData.builder().shardId(2).build()).build(),
                 ServiceNode.<TestNodeData>builder().host("localhost-3").port(9002).nodeData(TestNodeData.builder().shardId(3).build()).build()
@@ -39,7 +40,7 @@ public class RegistryTestUtils {
 
     public static ListBasedServiceRegistry<TestNodeData> getUnshardedRegistry(){
         val serviceRegistry = new ListBasedServiceRegistry<TestNodeData>(RangerTestUtils.service);
-        val serviceNodes = ImmutableList.of(
+        val serviceNodes = List.of(
                 ServiceNode.<TestNodeData>builder().host("localhost-1").port(9000).nodeData(TestNodeData.builder().shardId(1).build()).build(),
                 ServiceNode.<TestNodeData>builder().host("localhost-2").port(9001).nodeData(TestNodeData.builder().shardId(2).build()).build(),
                 ServiceNode.<TestNodeData>builder().host("localhost-3").port(9002).nodeData(TestNodeData.builder().shardId(3).build()).build()

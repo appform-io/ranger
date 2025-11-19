@@ -15,7 +15,9 @@
  */
 package io.appform.ranger.core.healthservice;
 
-import com.google.common.base.MoreObjects;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +25,9 @@ import java.util.concurrent.TimeUnit;
  * A simple time unit wrapper for any task, with initialDelay, interval and unit
  */
 @SuppressWarnings("unused")
+@ToString
+@Getter
+@Setter
 public class TimeEntity {
 
     private long initialDelay;
@@ -78,36 +83,4 @@ public class TimeEntity {
         return new TimeEntity(0, 1, TimeUnit.DAYS);
     }
 
-    public long getTimeInterval() {
-        return timeInterval;
-    }
-
-    public void setTimeInterval(long timeInterval) {
-        this.timeInterval = timeInterval;
-    }
-
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
-
-    public void setTimeUnit(TimeUnit timeUnit) {
-        this.timeUnit = timeUnit;
-    }
-
-    public long getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(long initialDelay) {
-        this.initialDelay = initialDelay;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("initialDelay", initialDelay)
-                .add("timeInterval", timeInterval)
-                .add("timeUnit", timeUnit)
-                .toString();
-    }
 }

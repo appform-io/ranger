@@ -17,7 +17,6 @@ package io.appform.ranger.http.serviceprovider;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
@@ -36,6 +35,8 @@ import okhttp3.RequestBody;
 import java.io.IOException;
 import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSink<T, S> {
 
@@ -50,8 +51,8 @@ public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends
 
     @Override
     public void updateState(S serializer, ServiceNode<T> serviceNode) {
-        Preconditions.checkNotNull(config, "client config has not been set for node data");
-        Preconditions.checkNotNull(mapper, "mapper has not been set for node data");
+        requireNonNull(config, "client config has not been set for node data");
+        requireNonNull(mapper, "mapper has not been set for node data");
 
         val url = String.format("/ranger/nodes/v1/add/%s/%s", service.getNamespace(), service.getServiceName());
         log.debug("Updating state at the url {}", url);

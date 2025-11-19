@@ -19,7 +19,6 @@ package io.appform.ranger.zookeeper.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.ServiceNode;
@@ -36,13 +35,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 class ServiceProviderHealthcheckTest {
 
     private TestingCluster testingCluster;
     private ObjectMapper objectMapper;
-    private final Map<String, TestServiceProvider> serviceProviders = Maps.newHashMap();
+    private final Map<String, TestServiceProvider> serviceProviders = new HashMap<>();
 
     @BeforeEach
     public void startTestCluster() throws Exception {
