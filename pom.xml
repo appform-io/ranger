@@ -50,7 +50,6 @@
         <module>ranger-hub-server-bundle</module>
         <module>ranger-hub-server-dw5-bundle</module>
         <module>ranger-server</module>
-        <module>ranger-dw5-server</module>
         <module>ranger-bom</module>
         <module>ranger-reporting</module>
     </modules>
