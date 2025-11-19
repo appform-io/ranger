@@ -41,10 +41,14 @@
         <module>ranger-drove-client</module>
         <module>ranger-server-common</module>
         <module>ranger-server-bundle</module>
+        <module>ranger-server-dw5-bundle</module>
         <module>ranger-http-model</module>
         <module>ranger-discovery-core</module>
         <module>ranger-discovery-bundle</module>
+        <module>ranger-discovery-dw5-bundle</module>
+        <module>ranger-hub-server-bundle-core</module>
         <module>ranger-hub-server-bundle</module>
+        <module>ranger-hub-server-dw5-bundle</module>
         <module>ranger-server</module>
         <module>ranger-bom</module>
         <module>ranger-reporting</module>

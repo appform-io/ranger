@@ -26,7 +26,8 @@
     </parent>
 
     <artifactId>ranger-discovery-core</artifactId>
-    <name>Ranger Service Discovery Core</name>
+    <name>Core libraries for Ranger Discovery</name>
+
     <properties>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
     </properties>
