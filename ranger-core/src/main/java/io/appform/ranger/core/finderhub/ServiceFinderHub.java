@@ -279,6 +279,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
                     .handleResultIf(r -> !r)
                     .withMaxDuration(java.time.Duration.ofMillis(serviceRefreshTimeoutMs))
                     .withDelay(java.time.Duration.ofSeconds(1))
+                    .withMaxAttempts(-1)
                     .build();
 
             Failsafe.with(retryPolicy)
