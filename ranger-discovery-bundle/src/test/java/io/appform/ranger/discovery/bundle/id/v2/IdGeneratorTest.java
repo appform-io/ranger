@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.id;
+package io.appform.ranger.discovery.bundle.id.v2;
 
 import com.google.common.collect.ImmutableList;
+import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.v2.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -58,7 +61,7 @@ class IdGeneratorTest {
         @Override
         public Long call() {
             while (!stop) {
-                val id = IdGenerator.generate("X");
+                val id = IdGenerator.generate("X", "Y", IdFormatters.suffixed());
                 count++;
             }
             return count;
@@ -78,7 +81,7 @@ class IdGeneratorTest {
         @Override
         public Long call() {
             while (!stop) {
-                Optional<Id> id = IdGenerator.generateWithConstraints("X", Collections.singletonList(constraint));
+                Optional<Id> id = IdGenerator.generateWithConstraints("X", "Y", Collections.singletonList(constraint), IdFormatters.suffixed());
                 Assertions.assertTrue(id.isPresent());
                 count++;
             }
@@ -88,7 +91,7 @@ class IdGeneratorTest {
 
     @BeforeEach
     void setup() {
-        IdGenerator.initialize();
+        NodeUtils.setNode(nodeId);
     }
 
     @AfterEach
@@ -114,44 +117,110 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testGenerateOriginal() {
-        String id = IdGenerator.generate("TEST", IdFormatters.original()).getId();
-        Assertions.assertEquals(26, id.length());
+    void testGenerateOriginalId() {
+        val id = IdGenerator.generate("TEST", "", IdFormatters.original());
+        Assertions.assertEquals(28, id.getId().length());
+    }
+    
+    @Test
+    void testGenerateSuffixedId() {
+        val id = IdGenerator.generate("TEST", "001XYZ001", IdFormatters.suffixed());
+        Assertions.assertEquals(37, id.getId().length());
     }
 
     @Test
-    void testGenerateBase36() {
-        String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
-        Assertions.assertEquals(18, id.length());
+    void testGenerateBase36SuffixedId() {
+        val id = IdGenerator.generate("TEST", "001XYZ001", IdFormatters.base36Suffixed());
+        Assertions.assertEquals(31, id.getId().length());
     }
 
     @Test
-    void testGenerateWithConstraints() {
+    void testGenerateWithOriginalIdConstraints() {
         IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
-        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "", "TEST", IdFormatters.original());
 
         Assertions.assertTrue(id.isPresent());
-        Assertions.assertEquals(26, id.get().getId().length());
+        Assertions.assertEquals(28, id.get().getId().length());
 
         // Unregistered Domain
-        id = IdGenerator.generateWithConstraints("TEST", "TEST1");
+        id = IdGenerator.generateWithConstraints("TEST", "", "TEST1", IdFormatters.original());
         Assertions.assertTrue(id.isPresent());
-        Assertions.assertEquals(26, id.get().getId().length());
+        Assertions.assertEquals(28, id.get().getId().length());
+    }
+    
+    @Test
+    void testGenerateWithSuffixedIdConstraints() {
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "001XYZ001", "TEST", IdFormatters.suffixed());
+        
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(37, id.get().getId().length());
+        
+        // Unregistered Domain
+        id = IdGenerator.generateWithConstraints("TEST", "001XYZ001", "TEST1", IdFormatters.suffixed());
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(37, id.get().getId().length());
+    }
+    
+    @Test
+    void testGenerateWithBase36SuffixedIdConstraints() {
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "001001", "TEST", IdFormatters.base36Suffixed());
+        
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(28, id.get().getId().length());
+        
+        // Unregistered Domain
+        id = IdGenerator.generateWithConstraints("TEST", "001XYZ001", "TEST1", IdFormatters.base36Suffixed());
+        Assertions.assertTrue(id.isPresent());
+        Assertions.assertEquals(31, id.get().getId().length());
     }
 
     @Test
-    void testGenerateWithConstraintsFailedWithLocalConstraint() {
+    void testGenerateOriginalIdWithConstraintsFailedWithLocalConstraint() {
         IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
         IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
-        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "", "TEST", IdFormatters.original());
+        Assertions.assertFalse(id.isPresent());
+    }
+    
+    @Test
+    void testGenerateSuffixedIdWithConstraintsFailedWithLocalConstraint() {
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "00AA00A", "TEST", IdFormatters.suffixed());
+        Assertions.assertFalse(id.isPresent());
+    }
+    
+    @Test
+    void testGenerateBase36SuffixedIdWithConstraintsFailedWithLocalConstraint() {
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "00AA0", "TEST", IdFormatters.base36Suffixed());
         Assertions.assertFalse(id.isPresent());
     }
 
     @Test
-    void testGenerateWithConstraintsFailedWithGlobalConstraint() {
+    void testGenerateOriginalIdWithConstraintsFailedWithGlobalConstraint() {
         IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
         IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
-        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST", false);
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "", "TEST", IdFormatters.original(), false);
+        Assertions.assertFalse(id.isPresent());
+    }
+    
+    @Test
+    void testGenerateSuffixedIdWithConstraintsFailedWithGlobalConstraint() {
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "00AA00A", "TEST", IdFormatters.suffixed(), false);
+        Assertions.assertFalse(id.isPresent());
+    }
+    
+    @Test
+    void testGenerateBase36SuffixedIdWithConstraintsFailedWithGlobalConstraint() {
+        IdGenerator.registerGlobalConstraints(Collections.singletonList(id -> false));
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> false));
+        Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "00AA00A", "TEST", IdFormatters.base36Suffixed(), false);
         Assertions.assertFalse(id.isPresent());
     }
 
@@ -179,16 +248,10 @@ class IdGeneratorTest {
     void testConstraintFailure() {
         Assertions.assertFalse(IdGenerator.generateWithConstraints(
                 "TST",
+                "TEST1",
                 ImmutableList.of(id -> false),
+                IdFormatters.original(),
                 false).isPresent());
-    }
-
-    @Test
-    void testNodeId() {
-        val generatedId = IdGenerator.generate("TEST");
-        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
-        Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(parsedId.getNode(), nodeId);
     }
 
     @Test
@@ -218,7 +281,7 @@ class IdGeneratorTest {
 
     @Test
     void testParseSuccess() {
-        val idString = "ABC2011250959030643972247";
+        val idString = "ABC012011250959030643972247";
         val id = IdGenerator.parse(idString).orElse(null);
         Assertions.assertNotNull(id);
         Assertions.assertEquals(idString, id.getId());
@@ -229,14 +292,50 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testParseSuccessAfterGeneration() {
-        val generatedId = IdGenerator.generate("TEST");
+    void testOriginalIdParseSuccessAfterGeneration() {
+        val generatedId = IdGenerator.generate("TEST", "", IdFormatters.original());
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
+    }
+    
+    @Test
+    void testSuffixedIdParseSuccessAfterGeneration() {
+        val generatedId = IdGenerator.generate("TEST", "00AA001", IdFormatters.suffixed());
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
+        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
+        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
+    }
+    
+    @Test
+    void testBase36SuffixedIdParseSuccessAfterGeneration() {
+        val generatedId = IdGenerator.generate("TEST", "00AA001", IdFormatters.base36Suffixed());
+        val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
+        Assertions.assertNotNull(parsedId);
+        Assertions.assertEquals(parsedId.getId(), generatedId.getId());
+        Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
+        Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
+    }
+    
+    @Test
+    void testGenerateWithNumericalPrefix() {
+        val prefix = "10";
+        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGenerator.generate(prefix, "", IdFormatters.original()));
+        Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
+    }
+    
+    @Test
+    void testGenerateWithBlankPrefix() {
+        val prefix = "";
+        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGenerator.generate(prefix, "", IdFormatters.original()));
+        Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
     }
 
 
@@ -253,6 +352,4 @@ class IdGeneratorTest {
                             )
                         );
     }
-
-
 }

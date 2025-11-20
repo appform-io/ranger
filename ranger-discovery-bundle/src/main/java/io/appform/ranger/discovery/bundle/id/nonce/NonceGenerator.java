@@ -35,7 +35,10 @@ public abstract class NonceGenerator {
     public abstract NonceInfo generate(final String namespace);
 
     public abstract NonceInfo generateWithConstraints(final IdGenerationInput request);
+    
+    public abstract NonceInfo generateWithConstraints(final io.appform.ranger.discovery.bundle.id.v2.request.IdGenerationInput request);
 
     public abstract void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event);
-
+    
+    public abstract void retryEventListenerV2(final ExecutionAttemptedEvent<io.appform.ranger.discovery.bundle.id.v2.GenerationResult> event);
 }

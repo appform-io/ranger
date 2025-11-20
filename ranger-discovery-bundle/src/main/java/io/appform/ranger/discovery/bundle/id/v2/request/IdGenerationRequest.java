@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
+package io.appform.ranger.discovery.bundle.id.v2.request;
 
-import io.appform.ranger.discovery.bundle.id.Id;
-import org.joda.time.DateTime;
+import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
+import lombok.Builder;
+import lombok.Value;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface IdFormatter {
+@Value
+@Builder
+public class IdGenerationRequest {
 
-    IdParserType getType();
-
-    String format(final DateTime dateTime,
-                  final int nodeId,
-                  final int randomNonce,
-                  final String suffix);
-
-    Optional<Id> parse(final String idString);
-
+    String prefix;
+    String suffix;
+    String domain;
+    boolean skipGlobal;
+    List<IdValidationConstraint> constraints;
+    IdFormatter idFormatter;
 }

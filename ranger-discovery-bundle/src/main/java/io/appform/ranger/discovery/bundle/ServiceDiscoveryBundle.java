@@ -320,6 +320,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
             val nodeIdManager = new NodeIdManager(curator, serviceName);
             NodeUtils.setNode(nodeIdManager.fixNodeId());
             IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
+            io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
             log.debug("Discovery manager has been successfully started.");
         }
 

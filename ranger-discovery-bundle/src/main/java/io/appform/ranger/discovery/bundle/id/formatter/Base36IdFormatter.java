@@ -37,8 +37,9 @@ public class Base36IdFormatter implements IdFormatter {
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
-                         final int randomNonce) {
-        return toBase36(idFormatter.format(dateTime, nodeId, randomNonce));
+                         final int randomNonce,
+                         final String suffix) {
+        return toBase36(idFormatter.format(dateTime, nodeId, randomNonce, suffix));
     }
 
     @Override

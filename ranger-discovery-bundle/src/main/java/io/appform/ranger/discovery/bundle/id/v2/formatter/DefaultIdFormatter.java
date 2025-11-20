@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
+package io.appform.ranger.discovery.bundle.id.v2.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
+import io.appform.ranger.discovery.bundle.id.formatter.IdParserType;
 import lombok.val;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -25,12 +27,12 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DefaultIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([0-9]{15})([0-9]{4})([0-9]{3})");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
     public IdParserType getType() {
-        return IdParserType.DEFAULT;
+        return IdParserType.DEFAULT_V2;
     }
 
     @Override
@@ -38,9 +40,23 @@ public class DefaultIdFormatter implements IdFormatter {
                          final int nodeId,
                          final int randomNonce,
                          final String suffix) {
-        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
+        return String.format("%02d%s%04d%03d", getType().getValue(), DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
     }
-
+    
+    /**
+     * Parses the provided id string into an {@link Id}.
+     * <p>
+     * The expected id format is matched by {@link #PATTERN} and contains:
+     * - an optional alphabetic prefix,
+     * - a timestamp in `yyMMddHHmmssSSS` format,
+     * - a 4-digit node id,
+     * - a 3-digit exponent/random nonce.
+     * <p>
+     * If the input does not match the expected pattern, an empty {@link Optional} is returned.
+     *
+     * @param idString the id string to parse
+     * @return an {@link Optional} containing the parsed {@link Id} on success, otherwise {@link Optional#empty()}
+     */
     @Override
     public Optional<Id> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
@@ -49,9 +65,10 @@ public class DefaultIdFormatter implements IdFormatter {
         }
         return Optional.of(Id.builder()
                 .id(idString)
-                .node(Integer.parseInt(matcher.group(3)))
-                .exponent(Integer.parseInt(matcher.group(4)))
-                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())
+                .prefix(matcher.group(1))
+                .node(Integer.parseInt(matcher.group(4)))
+                .exponent(Integer.parseInt(matcher.group(5)))
+                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(3)).toDate())
                 .build());
     }
 }

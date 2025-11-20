@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
+package io.appform.ranger.discovery.bundle.id.v2.formatter;
 
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class IdFormatters {
 
-    private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
-    private static final IdFormatter base36IdFormatter = new Base36IdFormatter(originalIdFormatter);
-
+    private static final IdFormatter defaultIdFormatter = new DefaultIdFormatter();
+    private static final IdFormatter suffixedIdFormatter = new SuffixedIdFormatter();
+    private static final IdFormatter base36SuffixedIdFormatter = new Base36SuffixedIdFormatter();
+    
     public static IdFormatter original() {
-        return originalIdFormatter;
+        return defaultIdFormatter;
     }
-
-    public static IdFormatter base36() {
-        return base36IdFormatter;
+    
+    public static IdFormatter suffixed() {
+        return suffixedIdFormatter;
     }
-
+    
+    public static IdFormatter base36Suffixed() {
+        return base36SuffixedIdFormatter;
+    }
 }

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
+package io.appform.ranger.discovery.bundle.id.v2.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
+import io.appform.ranger.discovery.bundle.id.formatter.IdParserType;
 import lombok.val;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -24,22 +26,35 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class SuffixIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})([0-9]{2}([0-9]{6}))");
+public class SuffixedIdFormatter implements IdFormatter {
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([0-9]{15})([0-9]{4})([0-9]{3})(.*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
     public IdParserType getType() {
-        return IdParserType.SUFFIX;
+        return IdParserType.SUFFIXED;
     }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
-                         final int randomNonce) {
-        return String.format("%s%04d%03d%02d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, getType().getValue());
+                         final int randomNonce,
+                         final String suffix) {
+        return String.format("%02d%s%04d%03d%s", getType().getValue(), DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, suffix);
     }
-
+    
+    /**
+     * Parses the given id string produced by this formatter.
+     * <p>
+     * Expected format: alphabetic prefix followed by a 15-digit timestamp in the
+     * pattern `yyMMddHHmmssSSS`, a 4-digit node id and a 3-digit exponent.
+     * Example: `AB2301011234567890001002` (prefix `AB`, timestamp `230101123456789`,
+     * node `0001`, exponent `002`).
+     *
+     * @param idString the id string to parse
+     * @return an Optional containing the parsed {@link Id} when parsing succeeds;
+     * Optional.empty() if the input does not match the expected pattern
+     */
     @Override
     public Optional<Id> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
@@ -50,9 +65,9 @@ public class SuffixIdFormatter implements IdFormatter {
                 .id(idString)
                 .prefix(matcher.group(1))
                 .suffix(matcher.group(6))
-                .node(Integer.parseInt(matcher.group(3)))
-                .exponent(Integer.parseInt(matcher.group(4)))
-                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())
+                .node(Integer.parseInt(matcher.group(4)))
+                .exponent(Integer.parseInt(matcher.group(5)))
+                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(3)).toDate())
                 .build());
     }
 }

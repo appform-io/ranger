@@ -29,12 +29,10 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class IdParsers {
     private static final int MINIMUM_ID_LENGTH = 22;
-    private static final Pattern DEFAULT_PATTERN = Pattern.compile("(.*)([0-9]{22})");
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{22})([0-9]{2})([0-9]{6})");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
 
     private final Map<Integer, IdFormatter> parserRegistry = Map.of(
-            IdFormatters.original().getType().getValue(), IdFormatters.original(),
-            IdFormatters.suffix().getType().getValue(), IdFormatters.suffix()
+            IdFormatters.original().getType().getValue(), IdFormatters.original()
     );
 
     /**
@@ -77,7 +75,6 @@ public class IdParsers {
      * @see Id
      * @see IdFormatter
      * @see IdFormatters#original()
-     * @see IdFormatters#suffix()
      * @since 1.0
      */
     public Optional<Id> parse(final String idString) {
@@ -86,16 +83,21 @@ public class IdParsers {
         }
         try {
             val matcher = PATTERN.matcher(idString);
-            if (matcher.find()) {
-                val parser = parserRegistry.get(Integer.parseInt(matcher.group(3)));
-                return parser.parse(idString);
-            }
-            
-            val default_matcher = DEFAULT_PATTERN.matcher(idString);
-            if (!default_matcher.find()) {
+            if (!matcher.find()) {
                 return Optional.empty();
             }
-            return IdFormatters.original().parse(idString);
+
+            val parserType = matcher.group(3);
+            if (parserType == null) {
+                return IdFormatters.original().parse(idString);
+            }
+
+            val parser = parserRegistry.get(Integer.parseInt(matcher.group(3)));
+            if (parser == null) {
+                log.warn("Could not parse idString {}, Invalid formatter type {}, Falling back to evaluate using default formatter (legacy format of ID)", idString, parserType);
+                return IdFormatters.original().parse(idString);
+            }
+            return parser.parse(idString);
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();
