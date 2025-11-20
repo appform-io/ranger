@@ -1,17 +1,13 @@
 package io.appform.ranger.discovery.bundle.id;
 
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
-import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
 
 public class IdParsersTest {
 

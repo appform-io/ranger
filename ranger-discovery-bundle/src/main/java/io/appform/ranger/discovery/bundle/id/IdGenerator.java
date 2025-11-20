@@ -39,7 +39,7 @@ import java.util.*;
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
-    
+
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
