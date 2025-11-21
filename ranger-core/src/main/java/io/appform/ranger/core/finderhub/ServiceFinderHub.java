@@ -290,7 +290,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private void waitTillServiceIsReady(Service service) {
         try {
             Fallback<Boolean> throwOnFailure = Fallback.<Boolean>builder(() -> {
-                        throw new RuntimeException("Service refresh failed for " + service.getServiceName() +": Timeout or Retries Exhausted");
+                        throw new IllegalStateException("Service refresh failed for " + service.getServiceName() +": Timeout or Retries Exhausted");
                     })
                     .handleResultIf(r -> !r) // Trigger this fallback if the result is false
                     .build();
