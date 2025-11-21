@@ -18,6 +18,7 @@ package io.appform.ranger.core.finder.serviceregistry;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import dev.failsafe.Failsafe;
+import dev.failsafe.Fallback;
 import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.model.Deserializer;
@@ -72,11 +73,16 @@ public class ServiceRegistryUpdater<T, D extends Deserializer<T>> {
         log.info("Waiting for initial update to complete for: {}", serviceName);
         val stopwatch = Stopwatch.createStarted();
         try {
-            RetryPolicy<Boolean> retryPolicy = RetryPolicy.<Boolean>builder()
+            final Fallback<Boolean> throwOnFailure = Fallback.<Boolean>builder(() -> {
+                        throw new IllegalStateException("Initial update failed for " + serviceName +". Timeout or Retries Exhausted.");
+                    })
+                    .handleResultIf(r -> !r) // Trigger this fallback if the result is false
+                    .build();
+            final RetryPolicy<Boolean> retryPolicy = RetryPolicy.<Boolean>builder()
                     .handleResultIf(result -> result == null || !result)
                     .withMaxAttempts(Integer.MAX_VALUE)
                     .build();
-            Failsafe.with(retryPolicy)
+            Failsafe.with(throwOnFailure, retryPolicy)
                     .get(serviceRegistry::isRefreshed);
         }
         catch (Exception e) {
