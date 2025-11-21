@@ -67,11 +67,15 @@ class ServiceFinderHubTest {
 
     @Test
     void testTimeoutOnHubStartup() {
+        /*
+        This is intentionally set to 5 seconds to allow for failsafe's default attempt count (2 + 1 = 3) to be over
+        (Assuming hardcoded delay of 1 second per attempt).
+         */
         var testServiceFinderHub = new TestServiceFinderHubBuilder()
                 .withServiceDataSource(new DynamicDataSource(List.of(new Service("NS", "SERVICE"))))
                 .withServiceFinderFactory(new TestServiceFinderFactory())
-                .withRefreshFrequencyMs(5_000)
-                .withHubStartTimeout(1_000)
+                .withRefreshFrequencyMs(10_000)
+                .withHubStartTimeout(5_000)
                 .withServiceRefreshTimeout(10_000)
                 .build();
 

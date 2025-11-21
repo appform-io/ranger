@@ -17,6 +17,7 @@ package io.appform.ranger.core.finderhub;
 
 import com.google.common.base.Stopwatch;
 import dev.failsafe.Failsafe;
+import dev.failsafe.Fallback;
 import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.finder.ServiceFinder;
 import io.appform.ranger.core.model.HubConstants;
@@ -31,8 +32,21 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -275,13 +289,23 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
 
     private void waitTillServiceIsReady(Service service) {
         try {
+            Fallback<Boolean> throwOnFailure = Fallback.<Boolean>builder(() -> {
+                        throw new IllegalStateException("Service refresh failed for " + service.getServiceName() +". Timeout or Retries Exhausted.");
+                    })
+                    .handleResultIf(r -> !r) // Trigger this fallback if the result is false
+                    .build();
+
             RetryPolicy<Boolean> retryPolicy = RetryPolicy.<Boolean>builder()
                     .handleResultIf(r -> !r)
                     .withMaxDuration(java.time.Duration.ofMillis(serviceRefreshTimeoutMs))
                     .withDelay(java.time.Duration.ofSeconds(1))
+                    .withMaxAttempts(-1)
+                    .onRetry(
+                            event ->
+                                    log.info("Attempting service {} refresh. Attempt Count {}", service, event.getAttemptCount()))
                     .build();
 
-            Failsafe.with(retryPolicy)
+            Failsafe.with(throwOnFailure, retryPolicy)
                     .get(() -> Optional.ofNullable(getFinders().get().get(service))
                             .map(ServiceFinder::getServiceRegistry)
                             .map(ServiceRegistry::isRefreshed)

@@ -16,6 +16,7 @@
 package io.appform.ranger.zookeeper.common;
 
 import dev.failsafe.Failsafe;
+import dev.failsafe.Fallback;
 import dev.failsafe.RetryPolicy;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
 import io.appform.ranger.core.model.Service;
@@ -44,6 +45,12 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
+
+    private final Fallback<Boolean> throwOnFailure = Fallback.<Boolean>builder(() -> {
+                throw new IllegalStateException("Could not get zk connection");
+            })
+            .handleResultIf(r -> !r) // Trigger this fallback if the result is false
+            .build();
 
     private final RetryPolicy<Boolean> discoveryRetryPolicy = RetryPolicy.<Boolean>builder()
             .handle(IllegalStateException.class)
@@ -132,7 +139,7 @@ public class ZkNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
     @Override
     public void ensureConnected() {
         try {
-            Failsafe.with(discoveryRetryPolicy).get(this::isActive);
+            Failsafe.with(throwOnFailure, discoveryRetryPolicy).get(this::isActive);
         }
         catch (Exception e) {
             Exceptions.illegalState("Could not get zk connection", e);
