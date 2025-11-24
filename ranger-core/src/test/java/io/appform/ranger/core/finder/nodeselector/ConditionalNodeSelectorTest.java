@@ -6,7 +6,7 @@ import io.appform.ranger.core.units.TestNodeData;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +21,7 @@ public class ConditionalNodeSelectorTest {
     @Test
     void usesPrimarySelectorWhenConditionIsTrue() {
 
-        final BooleanSupplier condition = () -> true;
+        final Predicate<List<ServiceNode<TestNodeData>>> condition = nodes -> true;
         final ServiceNodeSelector<TestNodeData> primary = mock(ServiceNodeSelector.class);
         final ServiceNodeSelector<TestNodeData> secondary = mock(ServiceNodeSelector.class);
         final ServiceNode<TestNodeData> serviceNode = ServiceNode.<TestNodeData>builder()
@@ -43,7 +43,7 @@ public class ConditionalNodeSelectorTest {
     @Test
     void usesSecondarySelectorWhenConditionIsFalse() {
 
-        final BooleanSupplier condition = () -> false;
+        final Predicate<List<ServiceNode<TestNodeData>>> condition = nodes -> false;
         final ServiceNodeSelector<TestNodeData> primary = mock(ServiceNodeSelector.class);
         final ServiceNodeSelector<TestNodeData> secondary = mock(ServiceNodeSelector.class);
         final ServiceNode<TestNodeData> serviceNode = ServiceNode.<TestNodeData>builder()

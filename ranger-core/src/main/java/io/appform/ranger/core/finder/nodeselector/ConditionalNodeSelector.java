@@ -4,15 +4,15 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 
 import java.util.List;
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 public class ConditionalNodeSelector<T> implements ServiceNodeSelector<T> {
 
-    private final BooleanSupplier condition;
+    private final Predicate<List<ServiceNode<T>>> condition;
     private final ServiceNodeSelector<T> primarySelector;
     private final ServiceNodeSelector<T> secondarySelector;
 
-    public ConditionalNodeSelector(final BooleanSupplier condition,
+    public ConditionalNodeSelector(final Predicate<List<ServiceNode<T>>> condition,
                                    final ServiceNodeSelector<T> primarySelector,
                                    final ServiceNodeSelector<T> secondarySelector) {
         this.condition = condition;
@@ -22,7 +22,7 @@ public class ConditionalNodeSelector<T> implements ServiceNodeSelector<T> {
 
     @Override
     public ServiceNode<T> select(final List<ServiceNode<T>> serviceNodes) {
-        if (condition.getAsBoolean()) {
+        if (condition.test(serviceNodes)) {
             return primarySelector.select(serviceNodes);
         } else {
             return secondarySelector.select(serviceNodes);
