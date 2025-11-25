@@ -189,7 +189,9 @@ public class IdGeneratorBase {
     }
 
     public final void setNodeId(int nodeId) {
+        System.out.println("bf;bkf " + nodeId);
         if (this.nodeId > 0) {
+            System.out.println("bf;lensbs'rb " + nodeId);
             throw new RuntimeException("Node ID already set");
         }
         this.nodeId = nodeId;

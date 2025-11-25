@@ -134,7 +134,7 @@ public class IdGeneratorBase {
     public final Id generate(final String namespace,
                              final String suffix,
                              final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(namespace, Domain.getDefault(DomainVersion.V2));
+        val idInfo = nonceGenerator.generate(namespace, DEFAULT_DOMAIN);
         return getIdFromIdInfo(idInfo, namespace, suffix, idFormatter);
     }
     
@@ -188,7 +188,9 @@ public class IdGeneratorBase {
     }
 
     public final void setNodeId(int nodeId) {
+        System.out.println("vjdfgbfb " + nodeId);
         if (this.nodeId > 0) {
+            System.out.println("lfkeeen " + nodeId);
             throw new RuntimeException("Node ID already set");
         }
         this.nodeId = nodeId;

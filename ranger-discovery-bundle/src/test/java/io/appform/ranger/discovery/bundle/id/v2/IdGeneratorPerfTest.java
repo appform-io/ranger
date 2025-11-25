@@ -22,6 +22,7 @@ import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
@@ -43,6 +44,7 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
         @Setup(Level.Trial)
         public void setUp() throws IOException {
             NodeUtils.setNode(23);
+            IdGenerator.initialize();
         }
     }
 

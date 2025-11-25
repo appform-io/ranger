@@ -21,6 +21,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -88,6 +89,8 @@ class ServiceDiscoveryBundleCustomHostPortTest {
 
     @BeforeEach
     void setup() throws Exception {
+        io.appform.ranger.discovery.bundle.id.IdGenerator.cleanUp();
+        IdGenerator.cleanUp();
         when(serverFactory.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());

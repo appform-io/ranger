@@ -21,6 +21,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.RotationStatus;
@@ -84,6 +85,8 @@ class ServiceDiscoveryBundleRotationTest {
 
     @BeforeEach
     void setup() throws Exception {
+        io.appform.ranger.discovery.bundle.id.IdGenerator.cleanUp();
+        IdGenerator.cleanUp();
         when(serverFactory.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
