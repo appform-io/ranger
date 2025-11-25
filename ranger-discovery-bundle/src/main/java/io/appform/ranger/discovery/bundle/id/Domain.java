@@ -32,11 +32,14 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class Domain {
     public static final String DEFAULT_DOMAIN_NAME = "__DEFAULT_DOMAIN__";
-    public static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,
+    private static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,
                                                     List.of(),
                                                     new DefaultIdFormatter(),
                                                     TimeUnit.MILLISECONDS);
-
+    private static final Domain DEFAULT_V2 = new Domain(DEFAULT_DOMAIN_NAME,
+                                                    List.of(),
+                                                    new io.appform.ranger.discovery.bundle.id.v2.formatter.DefaultIdFormatter(),
+                                                    TimeUnit.MILLISECONDS);
     private final String domain;
     private final List<IdValidationConstraint> constraints;
     private final IdFormatter idFormatter;
@@ -53,5 +56,11 @@ public class Domain {
         this.idFormatter = Objects.requireNonNullElse(idFormatter, IdFormatters.original());
         this.collisionChecker = new CollisionChecker(Objects.requireNonNullElse(resolution, TimeUnit.MILLISECONDS));
     }
-
+    
+    public static Domain DEFAULT(final DomainVersion domainVersion) {
+        return switch (domainVersion) {
+            case V1 -> DEFAULT;
+            case V2 -> DEFAULT_V2;
+        };
+    }
 }

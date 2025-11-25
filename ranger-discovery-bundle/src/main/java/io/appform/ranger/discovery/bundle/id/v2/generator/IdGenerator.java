@@ -17,11 +17,13 @@
 package io.appform.ranger.discovery.bundle.id.v2.generator;
 
 import com.google.common.collect.ImmutableList;
+import io.appform.ranger.discovery.bundle.id.Domain;
+import io.appform.ranger.discovery.bundle.id.DomainVersion;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.v2.Domain;
+import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.v2.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.id.v2.formatter.IdParsers;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
@@ -35,7 +37,7 @@ import java.util.Optional;
 @Slf4j
 @UtilityClass
 public class IdGenerator {
-    private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(new RandomNonceGenerator(), Domain.DEFAULT(DomainVersion.V2));
 
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();

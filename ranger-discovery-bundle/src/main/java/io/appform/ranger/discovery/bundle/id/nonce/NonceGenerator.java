@@ -1,6 +1,7 @@
 package io.appform.ranger.discovery.bundle.id.nonce;
 
 import dev.failsafe.event.ExecutionAttemptedEvent;
+import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
@@ -32,13 +33,9 @@ public abstract class NonceGenerator {
      * @param namespace String namespace for ID to be generated
      * @return Generated IdInfo
      */
-    public abstract NonceInfo generate(final String namespace);
+    public abstract NonceInfo generate(final String namespace, final Domain domain);
 
-    public abstract NonceInfo generateWithConstraints(final IdGenerationInput request);
-    
-    public abstract NonceInfo generateWithConstraints(final io.appform.ranger.discovery.bundle.id.v2.request.IdGenerationInput request);
+    public abstract NonceInfo generateWithConstraints(final IdGenerationInput request, final Domain domain);
 
-    public abstract void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event);
-    
-    public abstract void retryEventListenerV2(final ExecutionAttemptedEvent<io.appform.ranger.discovery.bundle.id.v2.GenerationResult> event);
+    public abstract void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event, final Domain domain);
 }

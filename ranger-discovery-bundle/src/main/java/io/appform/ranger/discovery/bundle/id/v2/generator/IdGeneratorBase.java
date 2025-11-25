@@ -4,16 +4,17 @@ import com.google.common.base.Preconditions;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
+import io.appform.ranger.discovery.bundle.id.Domain;
+import io.appform.ranger.discovery.bundle.id.DomainVersion;
+import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.v2.Domain;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
-import io.appform.ranger.discovery.bundle.id.v2.GenerationResult;
-import io.appform.ranger.discovery.bundle.id.v2.request.IdGenerationInput;
-import io.appform.ranger.discovery.bundle.id.v2.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.Getter;
 import lombok.val;
@@ -36,23 +37,26 @@ public class IdGeneratorBase {
     @Getter
     private int nodeId;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
-    private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
+    private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT(DomainVersion.V2)));
     private final FailsafeExecutor<GenerationResult> retryer;
     private final String ID_REGEX = "^[a-zA-Z]+$";
+    private final Domain DEFAULT_DOMAIN;
     
     protected final NonceGenerator nonceGenerator;
 
-    protected IdGeneratorBase(final NonceGenerator nonceGenerator) {
+    public IdGeneratorBase(final NonceGenerator nonceGenerator,
+                           final Domain domain) {
         this.nonceGenerator = nonceGenerator;
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
                 .withMaxAttempts(nonceGenerator.readRetryCount())
                 .handleIf(throwable -> true)
                 .handleResultIf(Objects::isNull)
                 .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
-                .onRetry(nonceGenerator::retryEventListenerV2)
+                .onRetry(event -> nonceGenerator.retryEventListener(event, domain))
                 .build();
         this.nodeId = NodeUtils.getNode();
         this.retryer = Failsafe.with(Collections.singletonList(retryPolicy));
+        this.DEFAULT_DOMAIN = domain;
     }
 
     public final synchronized void cleanUp() {
@@ -134,7 +138,7 @@ public class IdGeneratorBase {
     public final Id generate(final String namespace,
                              final String suffix,
                              final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(namespace);
+        val idInfo = nonceGenerator.generate(namespace, Domain.DEFAULT(DomainVersion.V2));
         return getIdFromIdInfo(idInfo, namespace, suffix, idFormatter);
     }
     
@@ -155,7 +159,7 @@ public class IdGeneratorBase {
                                                       final String domain,
                                                       final IdFormatter idFormatter,
                                                       final boolean skipGlobal) {
-        val registeredDomain = registeredDomains.getOrDefault(domain, Domain.DEFAULT);
+        val registeredDomain = registeredDomains.getOrDefault(domain, DEFAULT_DOMAIN);
         val request = IdGenerationRequest.builder()
                 .prefix(namespace)
                 .suffix(suffix)
@@ -168,7 +172,7 @@ public class IdGeneratorBase {
     }
 
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), DEFAULT_DOMAIN) : DEFAULT_DOMAIN;
         val idGenerationInput = IdGenerationInput.builder()
                 .prefix(request.getPrefix())
                 .suffix(request.getSuffix())
@@ -176,7 +180,7 @@ public class IdGeneratorBase {
                 .build();
         return Optional.ofNullable(retryer.get(
                         () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
+                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput, DEFAULT_DOMAIN);
                             val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getSuffix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,

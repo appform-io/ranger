@@ -1,10 +1,13 @@
 package io.appform.ranger.discovery.bundle.id.v2;
 
+import io.appform.ranger.discovery.bundle.id.Domain;
+import io.appform.ranger.discovery.bundle.id.DomainVersion;
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.v2.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.v2.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.v2.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.v2.generator.IdGeneratorBase;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,7 +44,7 @@ public class IdParsersTest {
 
     @Test
     void testParseSuccessAfterGenerationWithSuffix() {
-        val idGenerator = new DefaultIdGenerator();
+        val idGenerator = new IdGeneratorBase(new RandomNonceGenerator(), Domain.DEFAULT(DomainVersion.V2));
         val prefix = "TEST";
         val suffix = "000007";
         val generatedId = idGenerator.generate(prefix, suffix, IdFormatters.suffixed());
@@ -57,7 +60,7 @@ public class IdParsersTest {
 
     @Test
     void testParseSuccessAfterGenerationWithConstraintsSuffix() {
-        val idGenerator = new DefaultIdGenerator();
+        val idGenerator = new IdGeneratorBase(new RandomNonceGenerator(), Domain.DEFAULT(DomainVersion.V2));
         val prefix = "TEST";
         val suffix = "000007";
         val domain = "TEST";
@@ -80,7 +83,7 @@ public class IdParsersTest {
     
     @Test
     void testParseSuccessAfterGenerationWithBase36Suffix() {
-        val idGenerator = new DefaultIdGenerator();
+        val idGenerator = new IdGeneratorBase(new RandomNonceGenerator(), Domain.DEFAULT(DomainVersion.V2));
         val prefix = "TEST";
         val suffix = "007";
         val generatedId = idGenerator.generate(prefix, suffix, IdFormatters.base36Suffixed());
