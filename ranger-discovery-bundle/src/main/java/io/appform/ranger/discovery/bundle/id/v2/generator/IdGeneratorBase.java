@@ -13,6 +13,7 @@ import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
+import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
@@ -37,26 +38,22 @@ public class IdGeneratorBase {
     @Getter
     private int nodeId;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
-    private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT(DomainVersion.V2)));
+    private final Domain DEFAULT_DOMAIN = Domain.getDefault(DomainVersion.V2);
+    private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, DEFAULT_DOMAIN));
     private final FailsafeExecutor<GenerationResult> retryer;
-    private final String ID_REGEX = "^[a-zA-Z]+$";
-    private final Domain DEFAULT_DOMAIN;
     
     protected final NonceGenerator nonceGenerator;
 
-    public IdGeneratorBase(final NonceGenerator nonceGenerator,
-                           final Domain domain) {
-        this.nonceGenerator = nonceGenerator;
+    public IdGeneratorBase() {
+        this.nonceGenerator = new RandomNonceGenerator();
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
                 .withMaxAttempts(nonceGenerator.readRetryCount())
                 .handleIf(throwable -> true)
                 .handleResultIf(Objects::isNull)
                 .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
-                .onRetry(event -> nonceGenerator.retryEventListener(event, domain))
+                .onRetry(event -> nonceGenerator.retryEventListener(event, DEFAULT_DOMAIN))
                 .build();
-        this.nodeId = NodeUtils.getNode();
         this.retryer = Failsafe.with(Collections.singletonList(retryPolicy));
-        this.DEFAULT_DOMAIN = domain;
     }
 
     public final synchronized void cleanUp() {
@@ -138,7 +135,7 @@ public class IdGeneratorBase {
     public final Id generate(final String namespace,
                              final String suffix,
                              final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(namespace, Domain.DEFAULT(DomainVersion.V2));
+        val idInfo = nonceGenerator.generate(namespace, Domain.getDefault(DomainVersion.V2));
         return getIdFromIdInfo(idInfo, namespace, suffix, idFormatter);
     }
     
@@ -199,8 +196,9 @@ public class IdGeneratorBase {
     }
     
     private void validateIdRegex(final String namespace) {
+        val idRegex = "^[a-zA-Z]+$";
         Preconditions.checkArgument(
-                namespace.matches(ID_REGEX),
-                "Prefix does not match the required regex: " + ID_REGEX);
+                namespace.matches(idRegex),
+                "Prefix does not match the required regex: " + idRegex);
     }
 }

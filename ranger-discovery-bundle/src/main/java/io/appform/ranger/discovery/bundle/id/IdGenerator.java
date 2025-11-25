@@ -22,7 +22,6 @@ import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
-import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.NonNull;
@@ -38,8 +37,7 @@ import java.util.*;
 @Slf4j
 @UtilityClass
 public class IdGenerator {
-    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase(IdFormatters.original(), new RandomNonceGenerator(),
-            Domain.DEFAULT(DomainVersion.V1));
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
 
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
@@ -52,6 +50,7 @@ public class IdGenerator {
     public static synchronized void initialize(
             List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
+        initialize();
         if(null != globalConstraints && !globalConstraints.isEmpty() ) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }

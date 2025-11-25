@@ -57,7 +57,7 @@ public class Domain {
         this.collisionChecker = new CollisionChecker(Objects.requireNonNullElse(resolution, TimeUnit.MILLISECONDS));
     }
     
-    public static Domain DEFAULT(final DomainVersion domainVersion) {
+    public static Domain getDefault(final DomainVersion domainVersion) {
         return switch (domainVersion) {
             case V1 -> DEFAULT;
             case V2 -> DEFAULT_V2;
