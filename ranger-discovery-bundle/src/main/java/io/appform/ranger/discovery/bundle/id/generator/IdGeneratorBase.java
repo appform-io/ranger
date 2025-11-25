@@ -137,13 +137,13 @@ public class IdGeneratorBase {
      * @return Generated Id
      */
     public final Id generate(final String namespace) {
-        val idInfo = nonceGenerator.generate(namespace, Domain.getDefault(DomainVersion.V1));
+        val idInfo = nonceGenerator.generate(namespace, DEFAULT_DOMAIN);
         return getIdFromIdInfo(idInfo, namespace);
     }
 
 
     public final Id generate(final String namespace, final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(namespace, Domain.getDefault(DomainVersion.V1));
+        val idInfo = nonceGenerator.generate(namespace, DEFAULT_DOMAIN);
         return getIdFromIdInfo(idInfo, namespace, idFormatter);
     }
 
@@ -158,7 +158,7 @@ public class IdGeneratorBase {
      * @return ID if it could be generated
      */
     public final Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        val registeredDomain = registeredDomains.getOrDefault(domain, Domain.getDefault(DomainVersion.V1));
+        val registeredDomain = registeredDomains.getOrDefault(domain, DEFAULT_DOMAIN);
         val request = IdGenerationRequest.builder()
                 .prefix(namespace)
                 .constraints(registeredDomain.getConstraints())
@@ -170,14 +170,14 @@ public class IdGeneratorBase {
     }
 
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.getDefault(DomainVersion.V1)) : Domain.getDefault(DomainVersion.V1);
+        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), DEFAULT_DOMAIN) : DEFAULT_DOMAIN;
         val idGenerationInput = IdGenerationInput.builder()
                 .prefix(request.getPrefix())
                 .domain(domain)
                 .build();
         return Optional.ofNullable(retryer.get(
                         () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput, Domain.getDefault(DomainVersion.V1));
+                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput, DEFAULT_DOMAIN);
                             val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
                             return new GenerationResult(
                                     idInfoOptional,
