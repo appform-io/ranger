@@ -1,37 +1,26 @@
 package io.appform.ranger.core.finder.nodeselector;
 
+import io.appform.ranger.core.finder.nodeselector.weightenricher.WeightEnricher;
 import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.ServiceNodeSelector;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class IterativeWeightedSelector<T> implements ServiceNodeSelector<T> {
+public class IterativeWeightedSelector<T> extends AbstractWeightedSelector<T> {
 
-    private final long minNodeAgeMs;
-    private final double weightBoostMultiplier;
-
-    public IterativeWeightedSelector(final long minNodeAgeMs,
-                                     final double weightBoostMultiplier) {
-        this.minNodeAgeMs = minNodeAgeMs;
-        this.weightBoostMultiplier = weightBoostMultiplier;
+    public IterativeWeightedSelector(final List<WeightEnricher<T>> weightAdjusters) {
+        super(weightAdjusters);
     }
 
     @Override
     public ServiceNode<T> select(final List<ServiceNode<T>> serviceNodes) {
-        final long currentTime = System.currentTimeMillis();
         final double[] cumulativeWeights = new double[serviceNodes.size()];
         double totalWeight = 0.0;
 
         for (int i = 0; i < serviceNodes.size(); i++) {
             final ServiceNode<T> node = serviceNodes.get(i);
-            double adjustedWeight = node.getRoutingWeight();
-
-            if ((currentTime - node.getHealthySinceTimeStamp()) > minNodeAgeMs) {
-                adjustedWeight *= weightBoostMultiplier;
-            }
-
+            double adjustedWeight = adjustWeight(node);
             totalWeight += adjustedWeight;
             cumulativeWeights[i] = totalWeight;
         }

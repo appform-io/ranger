@@ -1,5 +1,8 @@
 package io.appform.ranger.core.finder.nodeselector;
 
+import io.appform.ranger.core.finder.nodeselector.weightenricher.RoutingWeightEnricher;
+import io.appform.ranger.core.finder.nodeselector.weightenricher.TimeBasedWeightEnricher;
+import io.appform.ranger.core.finder.nodeselector.weightenricher.WeightEnricher;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.WeightedNodeSelectorConfig;
@@ -18,12 +21,16 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
         weightedNodeSelectorConfig.validate();
         final Predicate<List<ServiceNode<T>>> condition = serviceNodes ->
                 serviceNodes.size() <= weightedNodeSelectorConfig.getWeightedSelectionThreshold();
+        final List<WeightEnricher<T>> weightEnrichers = List.of(
+                new RoutingWeightEnricher<>(),
+                new TimeBasedWeightEnricher<>(weightedNodeSelectorConfig.getMinNodeAgeMs(),
+                                              weightedNodeSelectorConfig.getWeightBoostMultiplier())
+                                                               );
 
         this.conditionalSelector = new ConditionalNodeSelector<>(
                 condition,
-                new IterativeWeightedSelector<>(weightedNodeSelectorConfig.getMinNodeAgeMs(),
-                                                weightedNodeSelectorConfig.getWeightBoostMultiplier()),
-                new TwoNodeComparisonWeightedSelector<>(weightedNodeSelectorConfig.getMinNodeAgeMs())
+                new IterativeWeightedSelector<>(weightEnrichers),
+                new TwoNodeComparisonWeightedSelector<>(weightEnrichers)
         );
     }
 
