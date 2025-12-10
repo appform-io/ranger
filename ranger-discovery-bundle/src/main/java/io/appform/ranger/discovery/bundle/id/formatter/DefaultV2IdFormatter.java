@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.v2.formatter;
+package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdParserType;
 import lombok.val;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -26,21 +24,22 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class SuffixedIdFormatter implements IdFormatter {
+public class DefaultV2IdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([0-9]{15})([0-9]{4})([0-9]{3})(.*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
     @Override
-    public IdParserType getType() {
-        return IdParserType.SUFFIXED;
+    public IdGenerationFormatters.IdFormatterType getType() {
+        return IdGenerationFormatters.IdFormatterType.DEFAULT_V2;
     }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce,
-                         final String suffix) {
-        return String.format("%02d%s%04d%03d%s", getType().getValue(), DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, suffix);
+                         final String suffix,
+                         final int idGenerationFormatters) {
+        return String.format("%02d%s%04d%03d%s", idGenerationFormatters, DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce, suffix);
     }
     
     /**
@@ -61,13 +60,9 @@ public class SuffixedIdFormatter implements IdFormatter {
         if (!matcher.find()) {
             return Optional.empty();
         }
+        
         return Optional.of(Id.builder()
                 .id(idString)
-                .prefix(matcher.group(1))
-                .suffix(matcher.group(6))
-                .node(Integer.parseInt(matcher.group(4)))
-                .exponent(Integer.parseInt(matcher.group(5)))
-                .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(3)).toDate())
                 .build());
     }
 }

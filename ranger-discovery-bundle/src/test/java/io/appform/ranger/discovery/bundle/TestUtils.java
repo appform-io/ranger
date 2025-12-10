@@ -16,11 +16,13 @@
 
 package io.appform.ranger.discovery.bundle;
 
+import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
 import io.dropwizard.Configuration;
 import lombok.experimental.UtilityClass;
 import org.awaitility.Awaitility;
 
 import java.time.Duration;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -46,5 +48,13 @@ public class TestUtils {
                 .untilAsserted(() -> assertNull(bundle.getServiceDiscoveryClient()
                                                            .getNode()
                                                            .orElse(null)));
+    }
+    
+    public int getFormatters(final Set<IdGenerationFormatters.IdFormatterType> types) {
+        int formatter = 0;
+        for (IdGenerationFormatters.IdFormatterType type : types) {
+            formatter = IdGenerationFormatters.setFormatter(formatter, type);
+        }
+        return formatter;
     }
 }

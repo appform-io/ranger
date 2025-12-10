@@ -21,7 +21,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.IdGenerator;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.RotationStatus;

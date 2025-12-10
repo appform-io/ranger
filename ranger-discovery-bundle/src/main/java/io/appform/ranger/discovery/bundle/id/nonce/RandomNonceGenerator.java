@@ -18,23 +18,23 @@ public class RandomNonceGenerator extends NonceGenerator {
     private final SecureRandom secureRandom = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
 
     @Override
-    public NonceInfo generate(final String namespace, final Domain domain) {
+    public NonceInfo generate(final String namespace) {
+        return random(Domain.DEFAULT.getCollisionChecker());
+    }
+
+    @Override
+    public NonceInfo generateWithConstraints(final IdGenerationInput request) {
+        val domain = request.getDomain() != null ? request.getDomain() : Domain.DEFAULT;
         return random(domain.getCollisionChecker());
     }
 
     @Override
-    public NonceInfo generateWithConstraints(final IdGenerationInput request, final Domain domain) {
-        val requestDomain = request.getDomain() != null ? request.getDomain() : domain;
-        return random(requestDomain.getCollisionChecker());
-    }
-    
-    @Override
-    public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event, final Domain domain) {
+    public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {
             val idInfo = result.getNonceInfo();
-            val resultDomain = result.getDomain() != null ? result.getDomain() : domain;
-            val collisionChecker = resultDomain.getCollisionChecker();
+            val domain = result.getDomain() != null ? result.getDomain() : Domain.DEFAULT;
+            val collisionChecker = domain.getCollisionChecker();
             collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
         }
     }

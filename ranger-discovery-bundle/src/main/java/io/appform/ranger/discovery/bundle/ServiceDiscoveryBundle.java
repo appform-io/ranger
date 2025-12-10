@@ -36,6 +36,7 @@ import io.appform.ranger.discovery.bundle.healthchecks.InitialDelayChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.InternalHealthChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.RotationCheck;
 import io.appform.ranger.discovery.bundle.id.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorV2;
 import io.appform.ranger.discovery.bundle.id.NodeIdManager;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardHealthMonitor;
@@ -318,10 +319,9 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
             serviceProvider.start();
             serviceDiscoveryClient.start();
             val nodeIdManager = new NodeIdManager(curator, serviceName);
-            System.out.println("blknfbf" + nodeIdManager.fixNodeId());
             NodeUtils.setNode(nodeIdManager.fixNodeId());
             IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
-            io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
+            IdGeneratorV2.initialize(globalIdConstraints, Collections.emptyMap());
             log.debug("Discovery manager has been successfully started.");
         }
 

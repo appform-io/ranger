@@ -22,7 +22,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
-import io.appform.ranger.discovery.bundle.id.v2.generator.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.IdGenerator;
 import io.appform.ranger.discovery.bundle.util.ConfigurationUtils;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;

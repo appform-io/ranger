@@ -28,16 +28,16 @@ public class DefaultIdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
 
-    @Override
-    public IdParserType getType() {
-        return IdParserType.DEFAULT;
+    public IdGenerationFormatters.IdFormatterType getType() {
+        return IdGenerationFormatters.IdFormatterType.DEFAULT;
     }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce,
-                         final String suffix) {
+                         final String suffix,
+                         final int idGenerationFormatters) {
         return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
     }
 

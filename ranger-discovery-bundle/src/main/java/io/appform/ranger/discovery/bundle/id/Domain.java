@@ -18,9 +18,6 @@ package io.appform.ranger.discovery.bundle.id;
 
 
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.formatter.DefaultIdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,35 +29,21 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class Domain {
     public static final String DEFAULT_DOMAIN_NAME = "__DEFAULT_DOMAIN__";
-    private static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,
+    public static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,
                                                     List.of(),
-                                                    new DefaultIdFormatter(),
                                                     TimeUnit.MILLISECONDS);
-    private static final Domain DEFAULT_V2 = new Domain(DEFAULT_DOMAIN_NAME,
-                                                    List.of(),
-                                                    new io.appform.ranger.discovery.bundle.id.v2.formatter.DefaultIdFormatter(),
-                                                    TimeUnit.MILLISECONDS);
+
     private final String domain;
     private final List<IdValidationConstraint> constraints;
-    private final IdFormatter idFormatter;
     private final CollisionChecker collisionChecker;
 
 
     @Builder
     public Domain(@NonNull String domain,
                   @NonNull List<IdValidationConstraint> constraints,
-                  IdFormatter idFormatter,
                   TimeUnit resolution) {
         this.domain = domain;
         this.constraints = constraints;
-        this.idFormatter = Objects.requireNonNullElse(idFormatter, IdFormatters.original());
         this.collisionChecker = new CollisionChecker(Objects.requireNonNullElse(resolution, TimeUnit.MILLISECONDS));
-    }
-    
-    public static Domain getDefault(final DomainVersion domainVersion) {
-        return switch (domainVersion) {
-            case V1 -> DEFAULT;
-            case V2 -> DEFAULT_V2;
-        };
     }
 }

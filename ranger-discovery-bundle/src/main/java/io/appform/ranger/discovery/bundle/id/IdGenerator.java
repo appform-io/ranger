@@ -18,8 +18,7 @@ package io.appform.ranger.discovery.bundle.id;
 
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
@@ -38,6 +37,7 @@ import java.util.*;
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
+    private static final int DEFAULT_ID_GENERATION_FORMATTERS = getDefaultGenerationFormatters();
 
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
@@ -90,14 +90,8 @@ public class IdGenerator {
      * @param prefix String prefix with will be used to blindly merge
      * @return Generated Id
      */
-    public static Id generate(String prefix) {
-        return baseGenerator.generate(prefix);
-    }
-
-    public static Id generate(
-            final String prefix,
-            final IdFormatter idFormatter) {
-        return baseGenerator.generate(prefix, idFormatter);
+    public static Id generate(final String prefix) {
+        return baseGenerator.generate(prefix, "", DEFAULT_ID_GENERATION_FORMATTERS);
     }
 
     /**
@@ -124,7 +118,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain, boolean skipGlobal) {
-        return baseGenerator.generateWithConstraints(prefix, domain, skipGlobal);
+        return baseGenerator.generateWithConstraints(prefix, "", domain, skipGlobal, DEFAULT_ID_GENERATION_FORMATTERS);
     }
 
     /**
@@ -168,37 +162,21 @@ public class IdGenerator {
             boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
                                 .prefix(prefix)
+                                .suffix("")
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)
-                                .idFormatter(IdFormatters.original())
-                                .build());
-    }
-
-    /**
-     * Generate id that matches all passed constraints.
-     * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
-     *
-     * @param prefix     String prefix
-     * @param skipGlobal Skip global constrains and use only passed ones
-     * @param domain     Domain
-     * @return Id if it could be generated
-     */
-    private static Optional<Id> generateWithConstraints(
-            String prefix,
-            final Domain domain,
-            boolean skipGlobal) {
-        return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .constraints(domain.getConstraints())
-                                .skipGlobal(skipGlobal)
-                                .domain(domain.getDomain())
-                                .idFormatter(domain.getIdFormatter())
+                                .idGenerationFormatters(DEFAULT_ID_GENERATION_FORMATTERS)
                                 .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {
         return baseGenerator.generateWithConstraints(request);
     }
-
+    
+    private int getDefaultGenerationFormatters() {
+        return IdGenerationFormatters.setFormatter(
+                0,
+                IdGenerationFormatters.IdFormatterType.DEFAULT
+        );
+    }
 }

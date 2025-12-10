@@ -16,7 +16,6 @@
 package io.appform.ranger.discovery.bundle.id.request;
 
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import lombok.Builder;
 import lombok.Value;
 
@@ -31,6 +30,5 @@ public class IdGenerationRequest {
     String domain;
     boolean skipGlobal;
     List<IdValidationConstraint> constraints;
-    IdFormatter idFormatter;
-
+    int idGenerationFormatters;
 }

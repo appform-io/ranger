@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -115,14 +114,8 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateOriginal() {
-        String id = IdGenerator.generate("TEST", IdFormatters.original()).getId();
+        String id = IdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
-    }
-
-    @Test
-    void testGenerateBase36() {
-        String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
-        Assertions.assertEquals(18, id.length());
     }
 
     @Test

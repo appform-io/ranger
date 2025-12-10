@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package io.appform.ranger.discovery.bundle.id.v2.generator;
+package io.appform.ranger.discovery.bundle.id;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.appform.ranger.discovery.bundle.id.Domain;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
-import io.appform.ranger.discovery.bundle.id.v2.formatter.IdParsers;
+import io.appform.ranger.discovery.bundle.id.v2.formatter.IdParsersV2;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Slf4j
 @UtilityClass
-public class IdGenerator {
+public class IdGeneratorV2 {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
     
     public static void initialize() {
@@ -88,13 +88,14 @@ public class IdGenerator {
      *
      * @param prefix String prefix with will be used to blindly merge
      * @param suffix String suffix with will be appended at end
-     * @param idFormatter Formatter to use for id generation
+     * @param idGenerationFormatters Formatter to use for id generation
      * @return Generated Id
      */
     public static Id generate(final String prefix,
                               final String suffix,
-                              final IdFormatter idFormatter) {
-        return baseGenerator.generate(prefix, suffix, idFormatter);
+                              final int idGenerationFormatters) {
+        validateIdRegex(prefix);
+        return baseGenerator.generate(prefix, suffix, idGenerationFormatters);
     }
 
     /**
@@ -105,14 +106,14 @@ public class IdGenerator {
      * @param prefix String prefix
      * @param suffix String suffix
      * @param domain Domain for constraint selection
-     * @param idFormatter Formatter to use for id generation
+     * @param idGenerationFormatters Formatter to use for id generation
      * @return Return generated id or empty if it was impossible to satisfy constraints and generate
      */
     public static Optional<Id> generateWithConstraints(final String prefix,
                                                        final String suffix,
                                                        final @NonNull String domain,
-                                                       final IdFormatter idFormatter) {
-        return generateWithConstraints(prefix, suffix, domain, idFormatter, true);
+                                                       final int idGenerationFormatters) {
+        return generateWithConstraints(prefix, suffix, domain, true, idGenerationFormatters);
     }
 
     /**
@@ -123,16 +124,17 @@ public class IdGenerator {
      * @param prefix     String prefix
      * @param suffix     String suffix
      * @param domain     Domain for constraint selection
-     * @param idFormatter Formatter to use for id generation
+     * @param idGenerationFormatters Formatter to use for id generation
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(final String prefix,
                                                        final String suffix,
                                                        final @NonNull String domain,
-                                                       final IdFormatter idFormatter,
-                                                       final boolean skipGlobal) {
-        return baseGenerator.generateWithConstraints(prefix, suffix, domain, idFormatter, skipGlobal);
+                                                       final boolean skipGlobal,
+                                                       final int idGenerationFormatters) {
+        validateIdRegex(prefix);
+        return baseGenerator.generateWithConstraints(prefix, suffix, domain, skipGlobal, idGenerationFormatters);
     }
     
     /**
@@ -143,15 +145,15 @@ public class IdGenerator {
      * @param prefix        String prefix
      * @param suffix        String suffix
      * @param inConstraints Constraints that need to be validated.
-     * @param idFormatter Formatter to use for id generation
+     * @param idGenerationFormatters Formatter to use for id generation
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(
             final String prefix,
             final String suffix,
             final List<IdValidationConstraint> inConstraints,
-            final IdFormatter idFormatter) {
-        return generateWithConstraints(prefix, suffix, inConstraints, idFormatter, false);
+            final int idGenerationFormatters) {
+        return generateWithConstraints(prefix, suffix, inConstraints, false, idGenerationFormatters);
     }
 
     /**
@@ -161,7 +163,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> parse(final String idString) {
-        return IdParsers.parse(idString);
+        return IdParsersV2.parse(idString);
     }
 
     /**
@@ -173,52 +175,33 @@ public class IdGenerator {
      * @param suffix        String suffix
      * @param inConstraints Constraints that need to be validate.
      * @param skipGlobal    Skip global constrains and use only passed ones
-     * @param idFormatter Formatter to use for id generation
+     * @param idGenerationFormatters Formatter to use for id generation
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(
             final String prefix,
             final String suffix,
             final List<IdValidationConstraint> inConstraints,
-            final IdFormatter idFormatter,
-            boolean skipGlobal) {
+            final boolean skipGlobal,
+            final int idGenerationFormatters) {
         return generate(IdGenerationRequest.builder()
                                 .prefix(prefix)
                                 .suffix(suffix)
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)
-                                .idFormatter(idFormatter)
-                                .build());
-    }
-
-    /**
-     * Generate id that matches all passed constraints.
-     * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
-     *
-     * @param prefix     String prefix
-     * @param suffix     String suffix
-     * @param skipGlobal Skip global constrains and use only passed ones
-     * @param domain     Domain
-     * @return Id if it could be generated
-     */
-    private static Optional<Id> generateWithConstraints(
-            final String prefix,
-            final String suffix,
-            final Domain domain,
-            final boolean skipGlobal) {
-        return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .suffix(suffix)
-                                .constraints(domain.getConstraints())
-                                .skipGlobal(skipGlobal)
-                                .domain(domain.getDomain())
-                                .idFormatter(domain.getIdFormatter())
+                                .idGenerationFormatters(idGenerationFormatters)
                                 .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {
+        validateIdRegex(request.getPrefix());
         return baseGenerator.generateWithConstraints(request);
     }
-
+    
+    private void validateIdRegex(final String namespace) {
+        val idRegex = "^[a-zA-Z]+$";
+        Preconditions.checkArgument(
+                namespace.matches(idRegex),
+                "Prefix does not match the required regex: " + idRegex);
+    }
 }
