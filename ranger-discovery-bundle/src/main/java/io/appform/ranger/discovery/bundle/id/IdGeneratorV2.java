@@ -82,12 +82,12 @@ public class IdGeneratorV2 {
             List<IdValidationConstraint> validationConstraints) {
         baseGenerator.registerDomainSpecificConstraints(domain, validationConstraints);
     }
-
+    
     /**
      * Generate id with given prefix
      *
-     * @param prefix String prefix with will be used to blindly merge
-     * @param suffix String suffix with will be appended at end
+     * @param prefix                 String prefix with will be used to blindly merge
+     * @param suffix                 String suffix with will be appended at end
      * @param idGenerationFormatters Formatter to use for id generation
      * @return Generated Id
      */
@@ -97,15 +97,15 @@ public class IdGeneratorV2 {
         validateIdRegex(prefix);
         return baseGenerator.generate(prefix, suffix, idGenerationFormatters);
     }
-
+    
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
-     * @param prefix String prefix
-     * @param suffix String suffix
-     * @param domain Domain for constraint selection
+     * @param prefix                 String prefix
+     * @param suffix                 String suffix
+     * @param domain                 Domain for constraint selection
      * @param idGenerationFormatters Formatter to use for id generation
      * @return Return generated id or empty if it was impossible to satisfy constraints and generate
      */
@@ -115,17 +115,17 @@ public class IdGeneratorV2 {
                                                        final int idGenerationFormatters) {
         return generateWithConstraints(prefix, suffix, domain, true, idGenerationFormatters);
     }
-
+    
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
-     * @param prefix     String prefix
-     * @param suffix     String suffix
-     * @param domain     Domain for constraint selection
+     * @param prefix                 String prefix
+     * @param suffix                 String suffix
+     * @param domain                 Domain for constraint selection
+     * @param skipGlobal             Skip global constrains and use only passed ones
      * @param idGenerationFormatters Formatter to use for id generation
-     * @param skipGlobal Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(final String prefix,
@@ -142,9 +142,9 @@ public class IdGeneratorV2 {
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
-     * @param prefix        String prefix
-     * @param suffix        String suffix
-     * @param inConstraints Constraints that need to be validated.
+     * @param prefix                 String prefix
+     * @param suffix                 String suffix
+     * @param inConstraints          Constraints that need to be validated.
      * @param idGenerationFormatters Formatter to use for id generation
      * @return Id if it could be generated
      */
@@ -174,8 +174,8 @@ public class IdGeneratorV2 {
      * @param prefix        String prefix
      * @param suffix        String suffix
      * @param inConstraints Constraints that need to be validate.
-     * @param skipGlobal    Skip global constrains and use only passed ones
      * @param idGenerationFormatters Formatter to use for id generation
+     * @param skipGlobal    Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(

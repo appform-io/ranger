@@ -47,15 +47,11 @@ public class Base36IdFormatter implements IdFormatter {
     }
     
     /**
-     * Formats an identifier using the BASE_36_SUFFIXED scheme.
+     * Formats an identifier using the BASE_36 scheme.
      * <p>
      * The resulting id has the structure:
      * {typeValue(2 digits)}{base36(padded to 16 chars of yyMMddHHmmssSSS + nodeId(4 digits) + randomNonce(3 digits))}{suffix}
      * <p>
-     * dateTime the timestamp to encode (formatted with {@code DATE_TIME_FORMATTER})
-     * nodeId the node identifier (zero-padded to 4 digits)
-     * randomNonce the random nonce (zero-padded to 3 digits)
-     * suffix an optional trailing suffix appended after the base36 portion
      *
      * @return the formatted identifier string
      */
