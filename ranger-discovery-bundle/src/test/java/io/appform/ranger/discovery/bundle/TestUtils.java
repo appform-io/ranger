@@ -16,12 +16,18 @@
 
 package io.appform.ranger.discovery.bundle;
 
-import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
+import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
+import io.appform.ranger.discovery.bundle.id.decorators.IdDecorators;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.request.IdGeneratorRequest;
 import io.dropwizard.Configuration;
 import lombok.experimental.UtilityClass;
 import org.awaitility.Awaitility;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,11 +56,22 @@ public class TestUtils {
                                                            .orElse(null)));
     }
     
-    public int getFormatters(final Set<IdGenerationFormatters.IdFormatterType> types) {
-        int formatter = 0;
-        for (IdGenerationFormatters.IdFormatterType type : types) {
-            formatter = IdGenerationFormatters.setFormatter(formatter, type);
-        }
-        return formatter;
+    public IdGeneratorRequest getBase36Formatter(final String prefix,
+                                                 final String suffix) {
+        return IdGeneratorRequest.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeBase36()
+                .includeRandomNonce()
+                .build();
+    }
+    
+    public IdGeneratorRequest getDefaultV2Formatter(final String prefix,
+                                                    final String suffix) {
+        return IdGeneratorRequest.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeRandomNonce()
+                .build();
     }
 }

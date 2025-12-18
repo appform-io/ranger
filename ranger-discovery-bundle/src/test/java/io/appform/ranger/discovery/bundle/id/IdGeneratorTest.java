@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -87,6 +88,7 @@ class IdGeneratorTest {
 
     @BeforeEach
     void setup() {
+        NodeUtils.setNode(nodeId);
         IdGenerator.initialize();
     }
 
@@ -181,7 +183,7 @@ class IdGeneratorTest {
         val generatedId = IdGenerator.generate("TEST");
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(parsedId.getNode(), nodeId);
+        Assertions.assertEquals(nodeId, parsedId.getNode());
     }
 
     @Test

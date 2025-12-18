@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.v2.formatter;
+package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
+import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -34,10 +34,18 @@ public class IdParsersV2 {
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})(.*)");
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})(.*)");
     
-    private final Map<Integer, IdFormatter> parserRegistry = Map.of(
-            IdFormatters.defaultV2().getType().getOffset(), IdFormatters.defaultV2(),
-            IdFormatters.base36().getType().getOffset(), IdFormatters.base36(),
-            IdFormatters.randomNonce().getType().getOffset(), IdFormatters.randomNonce()
+    private final Map<Integer, IdFormatter> formattersParserRegistry = Map.of(
+            IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
+                    IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue()),
+            IdGenerationType.BASE_36_RANDOM_NONCE.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
+                    IdGenerationType.BASE_36_RANDOM_NONCE.getValue())
+    );
+    
+    private final Map<Integer, List<IdDecorator>> decoratorsParserRegistry = Map.of(
+            IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGenerationType.DECORATOR_PARSE_VALUE_MAP.get(
+                    IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue()),
+            IdGenerationType.BASE_36_RANDOM_NONCE.getValue(), IdGenerationType.DECORATOR_PARSE_VALUE_MAP.get(
+                    IdGenerationType.BASE_36_RANDOM_NONCE.getValue())
     );
     
     /**
@@ -78,9 +86,8 @@ public class IdParsersV2 {
      * parsing isn't possible or an error occurs
      * @see Id
      * @see IdFormatter
-     * @see IdFormatters#defaultV2()
-     * @see IdFormatters#base36()
      * @see IdFormatters#randomNonce()
+     * @see io.appform.ranger.discovery.bundle.id.decorators.IdDecorators#base36()
      * @since 1.0
      * @since 1.0
      */
@@ -102,28 +109,19 @@ public class IdParsersV2 {
             if (!matcher.find() || matcher.group(2).isEmpty()) {
                 return Optional.empty();
             }
-            val formatters = Integer.parseInt(matcher.group(2));
-            val formatterTypes = IdGenerationFormatters.getFormatterTypes(formatters);
-            
-            Optional<Id> parsedId = Optional.empty();
-            for (var formatterType : formatterTypes) {
-                switch (formatterType) {
-                    case DEFAULT_V2, BASE_36 -> {
-                        parsedId = parserRegistry.get(formatterType.getOffset()).parse(idString);
-                    }
-                    case RANDOM_NONCE -> {
-                        if (parsedId.isPresent()) {
-                            parsedId = parserRegistry.get(formatterType.getOffset())
-                                    .parse(parsedId.get().getId());
-                        } else {
-                            throw new RuntimeException("RANDOM_NONCE formatter requires prior formatter to parse id");
-                        }
-                    }
-                    default -> throw new UnsupportedOperationException();
-                }
+            val generators = Integer.parseInt(matcher.group(2));
+            String parsedIdString = idString;
+            for (IdDecorator idDecorator: decoratorsParserRegistry.get(generators)) {
+                parsedIdString = idDecorator.parse(idString).orElse(null);
             }
-            parsedId.get().setId(idString);
-            return parsedId;
+            
+            if (parsedIdString == null) {
+                throw new RuntimeException(String.format("Decorator parsing failed for idString: %s", idString));
+            }
+            val parsedId = formattersParserRegistry.get(generators).parse(parsedIdString)
+                    .orElseThrow(() -> new RuntimeException(String.format("Parsing failed with formatter for idString: %s", idString)));
+            parsedId.setId(idString);
+            return Optional.of(parsedId);
         } catch (Exception e) {
             log.warn("Could not parse idString {}", e.getMessage());
             return Optional.empty();

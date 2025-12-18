@@ -21,20 +21,10 @@ import lombok.experimental.UtilityClass;
 public class IdFormatters {
 
     private static final IdFormatter originalIdFormatter = new DefaultIdFormatter();
-    private static final IdFormatter base36IdFormatter = new Base36IdFormatter();
-    private static final IdFormatter defaultV2IdFormatter = new DefaultV2IdFormatter();
     private static final IdFormatter randomNonceIdFormatter = new RandomNonceIdFormatter();
 
     public static IdFormatter original() {
         return originalIdFormatter;
-    }
-
-    public static IdFormatter base36() {
-        return base36IdFormatter;
-    }
-    
-    public static IdFormatter defaultV2() {
-        return defaultV2IdFormatter;
     }
     
     public static IdFormatter randomNonce() {

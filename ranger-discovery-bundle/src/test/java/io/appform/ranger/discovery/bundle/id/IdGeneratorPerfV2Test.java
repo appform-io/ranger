@@ -17,7 +17,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.TestUtils;
-import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * Test performance between different constructs
@@ -49,22 +47,13 @@ public class IdGeneratorPerfV2Test extends BenchmarkTest {
 
     @SneakyThrows
     @Benchmark
-    public void testGenerateDefaultId(Blackhole blackhole, BenchmarkState state) {
-        IdGeneratorV2.generate("X", "Y",
-                TestUtils.getFormatters(Set.of(IdGenerationFormatters.IdFormatterType.DEFAULT_V2, IdGenerationFormatters.IdFormatterType.RANDOM_NONCE)));
-    }
-
-    @SneakyThrows
-    @Benchmark
     public void testGenerateSuffixedId(Blackhole blackhole, BenchmarkState state) {
-        IdGeneratorV2.generate("X", "Y",
-                TestUtils.getFormatters(Set.of(IdGenerationFormatters.IdFormatterType.DEFAULT_V2, IdGenerationFormatters.IdFormatterType.RANDOM_NONCE)));
+        IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y"));
     }
     
     @SneakyThrows
     @Benchmark
     public void testGenerateBase36Id(Blackhole blackhole, BenchmarkState state) {
-        IdGeneratorV2.generate("X", "Y",
-                TestUtils.getFormatters(Set.of(IdGenerationFormatters.IdFormatterType.BASE_36, IdGenerationFormatters.IdFormatterType.RANDOM_NONCE)));
+        IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y"));
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.discovery.bundle.id.formatter;
 
+import com.google.common.base.Preconditions;
 import io.appform.ranger.discovery.bundle.id.Id;
 import lombok.val;
 import org.joda.time.DateTime;
@@ -25,19 +26,16 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DefaultIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("(.*)([0-9]{15})([0-9]{4})([0-9]{3})");
+    private static final Pattern PATTERN = Pattern.compile("(.*)([\\d]{15})([0-9]{4})([0-9]{3})");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
-
-    public IdGenerationFormatters.IdFormatterType getType() {
-        return IdGenerationFormatters.IdFormatterType.DEFAULT;
-    }
 
     @Override
     public String format(final DateTime dateTime,
                          final int nodeId,
                          final int randomNonce,
                          final String suffix,
-                         final int idGenerationFormatters) {
+                         final int idGenerators) {
+        Preconditions.checkArgument(suffix == null, "Suffix cannot be non null");
         return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
     }
 

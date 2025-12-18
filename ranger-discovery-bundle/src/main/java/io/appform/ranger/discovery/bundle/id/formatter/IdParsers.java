@@ -16,6 +16,7 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.IdGenerationType;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -32,7 +33,8 @@ public class IdParsers {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
 
     private final Map<Integer, IdFormatter> parserRegistry = Map.of(
-            IdFormatters.original().getType().getOffset(), IdFormatters.original()
+            IdGenerationType.DEFAULT.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
+                    IdGenerationType.DEFAULT.getValue())
     );
 
     /**

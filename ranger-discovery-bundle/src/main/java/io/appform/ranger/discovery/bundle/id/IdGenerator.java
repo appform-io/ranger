@@ -18,7 +18,6 @@ package io.appform.ranger.discovery.bundle.id;
 
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
@@ -29,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+import static io.appform.ranger.discovery.bundle.id.IdGenerationType.DECORATOR_VALUE_MAP;
+import static io.appform.ranger.discovery.bundle.id.IdGenerationType.FORMATTER_VALUE_MAP;
+
 /**
  * Id generation
  */
@@ -37,7 +39,9 @@ import java.util.*;
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
-    private static final int DEFAULT_ID_GENERATION_FORMATTERS = getDefaultGenerationFormatters();
+    private static final int DEFAULT_GENERATION_TYPE = IdGenerationType.DEFAULT.getValue();
+    private static final int DEFAULT_ID_GENERATION_FORMATTERS = IdGenerationType.findValue(FORMATTER_VALUE_MAP.get(DEFAULT_GENERATION_TYPE),
+            DECORATOR_VALUE_MAP.get(DEFAULT_GENERATION_TYPE)).orElseThrow(() -> new RuntimeException("Default Id generation type not found"));
 
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
@@ -91,7 +95,7 @@ public class IdGenerator {
      * @return Generated Id
      */
     public static Id generate(final String prefix) {
-        return baseGenerator.generate(prefix, "", DEFAULT_ID_GENERATION_FORMATTERS);
+        return baseGenerator.generate(prefix, null, DEFAULT_ID_GENERATION_FORMATTERS);
     }
 
     /**
@@ -118,7 +122,7 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain, boolean skipGlobal) {
-        return baseGenerator.generateWithConstraints(prefix, "", domain, skipGlobal, DEFAULT_ID_GENERATION_FORMATTERS);
+        return baseGenerator.generateWithConstraints(prefix, null, domain, skipGlobal, DEFAULT_ID_GENERATION_FORMATTERS);
     }
 
     /**
@@ -162,21 +166,13 @@ public class IdGenerator {
             boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
                                 .prefix(prefix)
-                                .suffix("")
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)
-                                .idGenerationFormatters(DEFAULT_ID_GENERATION_FORMATTERS)
+                                .idGenerationType(DEFAULT_ID_GENERATION_FORMATTERS)
                                 .build());
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {
         return baseGenerator.generateWithConstraints(request);
-    }
-    
-    private int getDefaultGenerationFormatters() {
-        return IdGenerationFormatters.setFormatter(
-                0,
-                IdGenerationFormatters.IdFormatterType.DEFAULT
-        );
     }
 }

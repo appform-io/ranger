@@ -7,12 +7,13 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.IdGenerationType;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import io.appform.ranger.discovery.bundle.id.formatter.IdGenerationFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
 import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Base Id Generator
@@ -81,10 +83,10 @@ public class IdGeneratorBase {
                 .build());
     }
 
-    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final String suffix, final int idGenerationFormatters) {
+    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final String suffix, final int idGenerators) {
         val dateTime = new DateTime(nonceInfo.getTime());
-        val idFormatter = getIdGenerationFormatters(idGenerationFormatters);
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent(), suffix, idGenerationFormatters));
+        val idFormatter = getIdFormatter(idGenerators);
+        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent(), suffix, idGenerators));
         return Id.builder()
                 .id(id)
                 .exponent(nonceInfo.getExponent())
@@ -129,9 +131,9 @@ public class IdGeneratorBase {
      * @param namespace String namespace for ID to be generated
      * @return Generated Id
      */
-    public final Id generate(final String namespace, final String suffix, final int idGenerationFormatters) {
-        val idInfo = getNonceGenerator(idGenerationFormatters).generate(namespace);
-        return getIdFromIdInfo(idInfo, namespace, suffix, idGenerationFormatters);
+    public final Id generate(final String namespace, final String suffix, final int idGenerators) {
+        val idInfo = getNonceGenerator(idGenerators).generate(namespace);
+        return getIdFromIdInfo(idInfo, namespace, suffix, idGenerators);
     }
 
 
@@ -149,7 +151,7 @@ public class IdGeneratorBase {
                                                       final String suffix,
                                                       final String domain,
                                                       final boolean skipGlobal,
-                                                      final int idGenerationFormatters) {
+                                                      final int idGenerators) {
         val registeredDomain = registeredDomains.getOrDefault(domain, Domain.DEFAULT);
         val request = IdGenerationRequest.builder()
                 .prefix(namespace)
@@ -157,15 +159,15 @@ public class IdGeneratorBase {
                 .constraints(registeredDomain.getConstraints())
                 .skipGlobal(skipGlobal)
                 .domain(registeredDomain.getDomain())
-                .idGenerationFormatters(idGenerationFormatters)
+                .idGenerationType(idGenerators)
                 .build();
         return generateWithConstraints(request);
     }
 
     public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val idGenerationFormatters = request.getIdGenerationFormatters();
-        val nonceGenerator = getNonceGenerator(idGenerationFormatters);
-        val failSafeRetryer = getFailSafeRetryer(idGenerationFormatters);
+        val idGenerators = request.getIdGenerationType();
+        val nonceGenerator = getNonceGenerator(idGenerators);
+        val failSafeRetryer = getFailSafeRetryer(idGenerators);
         val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()
                 .prefix(request.getPrefix())
@@ -175,14 +177,14 @@ public class IdGeneratorBase {
         return Optional.ofNullable(failSafeRetryer.get(
                         () -> {
                             val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getSuffix(), idGenerationFormatters);
+                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getSuffix(), idGenerators);
                             return new GenerationResult(
                                     idInfoOptional,
                                     validateId(request.getConstraints(), id, request.isSkipGlobal()),
                                     domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getSuffix(), idGenerationFormatters));
+                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getSuffix(), idGenerators));
     }
 
     public final void setNodeId(int nodeId) {
@@ -192,28 +194,21 @@ public class IdGeneratorBase {
         this.nodeId = nodeId;
     }
     
-    private IdFormatter getIdGenerationFormatters(final int idGenerationFormatters) {
-        if (IdGenerationFormatters.isFormatterSet(idGenerationFormatters, IdGenerationFormatters.IdFormatterType.DEFAULT)) {
-            return IdFormatters.original();
-        }
-        if (IdGenerationFormatters.isFormatterSet(idGenerationFormatters, IdGenerationFormatters.IdFormatterType.DEFAULT_V2)) {
-            return IdFormatters.defaultV2();
-        }
-        if (IdGenerationFormatters.isFormatterSet(idGenerationFormatters, IdGenerationFormatters.IdFormatterType.BASE_36)) {
-            return IdFormatters.base36();
-        }
-        throw new RuntimeException("No valid nonce set for Id Generation");
+    private IdFormatter getIdFormatter(final int idGenerators) {
+        return IdGenerationType.FORMATTER_VALUE_MAP.get(idGenerators);
     }
     
-    private NonceGenerator getNonceGenerator(final int idGenerationFormatters) {
-        if (IdGenerationFormatters.isFormatterSet(idGenerationFormatters, IdGenerationFormatters.IdFormatterType.RANDOM_NONCE)) {
+    private NonceGenerator getNonceGenerator(final int idGenerators) {
+        if (IdGenerationType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGenerationType.FORMATTER_VALUE_MAP
+                .get(idGenerators) == IdFormatters.randomNonce()) {
             return randomNonceGenerator;
         }
         return randomNonceGenerator;
     }
     
-    private FailsafeExecutor<GenerationResult> getFailSafeRetryer(final int idGenerationFormatters) {
-        if (IdGenerationFormatters.isFormatterSet(idGenerationFormatters, IdGenerationFormatters.IdFormatterType.RANDOM_NONCE)) {
+    private FailsafeExecutor<GenerationResult> getFailSafeRetryer(final int idGenerators) {
+        if (IdGenerationType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGenerationType.FORMATTER_VALUE_MAP
+                .get(idGenerators) == IdFormatters.randomNonce()) {
             return randomNonceRetryer;
         }
         return randomNonceRetryer;

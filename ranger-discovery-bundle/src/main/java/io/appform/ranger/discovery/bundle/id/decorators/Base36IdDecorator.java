@@ -13,37 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
+package io.appform.ranger.discovery.bundle.id.decorators;
 
 import io.appform.ranger.discovery.bundle.id.Id;
 import lombok.val;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigInteger;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-
-public class Base36IdFormatter implements IdFormatter {
+public class Base36IdDecorator implements IdDecorator {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([A-Z0-9]{16})(.*)");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
     private static final Integer BASE36_MAX_LENGTH = 16;
-
-    @Override
-    public IdGenerationFormatters.IdFormatterType getType() {
-        return IdGenerationFormatters.IdFormatterType.BASE_36;
-    }
     
     @Override
-    public String format(final DateTime dateTime,
-                         final int nodeId,
-                         final int randomNonce,
-                         final String suffix,
-                         final int idGenerationFormatters) {
-        return String.format("%02d%s%s", idGenerationFormatters,
-                toBase36(String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce)), suffix);
+    public String format(final String idString) {
+        return toBase36(idString);
     }
     
     /**
@@ -56,7 +41,7 @@ public class Base36IdFormatter implements IdFormatter {
      * @return the formatted identifier string
      */
     @Override
-    public Optional<Id> parse(final String idString) {
+    public Optional<String> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
         if (!matcher.find()) {
             return Optional.empty();
@@ -64,9 +49,7 @@ public class Base36IdFormatter implements IdFormatter {
         val base36Data = matcher.group(3);
         val base10Data = toBase10(base36Data);
         
-        return Optional.of(Id.builder()
-                .id(String.format("%s%s%s%s", matcher.group(1), matcher.group(2), base10Data, matcher.group(4)))
-                .build());
+        return Optional.of(String.format("%s%s%s%s", matcher.group(1), matcher.group(2), base10Data, matcher.group(4)));
     }
     
     private static String toBase36(final String payload) {
