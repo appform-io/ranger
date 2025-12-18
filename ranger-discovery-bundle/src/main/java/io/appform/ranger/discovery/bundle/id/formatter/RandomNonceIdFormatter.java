@@ -16,7 +16,7 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import lombok.val;
 import org.joda.time.DateTime;
@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class RandomNonceIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([0-9]{15})([0-9]{4})([0-9]{3})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([\\d]{15})([\\d]{4})([\\d]{3})(.*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
     
     @Override
@@ -37,7 +37,7 @@ public class RandomNonceIdFormatter implements IdFormatter {
                          final String suffix,
                          final int idGenerators) {
         String nonceId = String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
-        for (IdDecorator idDecorator: IdGenerationType.DECORATOR_VALUE_MAP.get(idGenerators)) {
+        for (IdDecorator idDecorator: IdGeneratorType.DECORATOR_VALUE_MAP.get(idGenerators)) {
             nonceId = idDecorator.format(nonceId);
         }
         return String.format("%02d%s%s", idGenerators, nonceId, suffix);

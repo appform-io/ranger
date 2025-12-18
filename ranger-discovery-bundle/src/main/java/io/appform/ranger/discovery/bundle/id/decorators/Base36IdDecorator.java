@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Base36IdDecorator implements IdDecorator {
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})([A-Z0-9]{16})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([A-Z0-9]{16})(.*)");
     private static final Integer BASE36_MAX_LENGTH = 16;
     
     @Override
@@ -35,7 +35,7 @@ public class Base36IdDecorator implements IdDecorator {
      * Formats an identifier using the BASE_36 scheme.
      * <p>
      * The resulting id has the structure:
-     * {typeValue(2 digits)}{base36(padded to 16 chars of yyMMddHHmmssSSS + nodeId(4 digits) + randomNonce(3 digits))}{suffix}
+     * {base36(padded to 16 chars of [yyMMddHHmmssSSS(15 digits) + nodeId(4 digits) + randomNonce(3 digits)])}
      * <p>
      *
      * @return the formatted identifier string

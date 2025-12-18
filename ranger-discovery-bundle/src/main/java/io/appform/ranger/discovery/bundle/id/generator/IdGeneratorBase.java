@@ -7,11 +7,10 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
-import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
@@ -30,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Base Id Generator
@@ -195,11 +193,11 @@ public class IdGeneratorBase {
     }
     
     private IdFormatter getIdFormatter(final int idGenerators) {
-        return IdGenerationType.FORMATTER_VALUE_MAP.get(idGenerators);
+        return IdGeneratorType.FORMATTER_VALUE_MAP.get(idGenerators);
     }
     
     private NonceGenerator getNonceGenerator(final int idGenerators) {
-        if (IdGenerationType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGenerationType.FORMATTER_VALUE_MAP
+        if (IdGeneratorType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGeneratorType.FORMATTER_VALUE_MAP
                 .get(idGenerators) == IdFormatters.randomNonce()) {
             return randomNonceGenerator;
         }
@@ -207,7 +205,7 @@ public class IdGeneratorBase {
     }
     
     private FailsafeExecutor<GenerationResult> getFailSafeRetryer(final int idGenerators) {
-        if (IdGenerationType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGenerationType.FORMATTER_VALUE_MAP
+        if (IdGeneratorType.FORMATTER_VALUE_MAP.containsKey(idGenerators) && IdGeneratorType.FORMATTER_VALUE_MAP
                 .get(idGenerators) == IdFormatters.randomNonce()) {
             return randomNonceRetryer;
         }

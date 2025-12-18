@@ -2,7 +2,7 @@ package io.appform.ranger.discovery.bundle.id.request;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorators;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
@@ -20,14 +20,14 @@ public class IdGeneratorRequest {
     final String suffix;
     final boolean includeBase36;
     final boolean includeRandomNonce;
-    final int idGenerationType;
+    final int idGenerators;
     
     private IdGeneratorRequest(IdGeneratorRequestBuilder builder) {
         this.prefix = builder.prefix;
         this.suffix = builder.suffix;
         this.includeBase36 = builder.includeBase36;
         this.includeRandomNonce = builder.includeRandomNonce;
-        this.idGenerationType = builder.idGenerationType;
+        this.idGenerators = builder.idGenerationType;
     }
     
     public static IdGeneratorRequestBuilder builder() {
@@ -69,7 +69,7 @@ public class IdGeneratorRequest {
         }
         
         public IdGeneratorRequest build() {
-            this.idGenerationType = IdGenerationType.findValue(
+            this.idGenerationType = IdGeneratorType.findValue(
                     idFormatter, idDecorators)
                     .orElseThrow(() -> new RuntimeException("Invalid combination of formatter and decorators"));
             return new IdGeneratorRequest(this);

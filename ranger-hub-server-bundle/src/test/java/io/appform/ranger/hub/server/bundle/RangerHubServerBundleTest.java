@@ -111,7 +111,7 @@ class RangerHubServerBundleTest {
                                                .writeValueAsString(ServiceDataSourceResponse.builder()
                                                                                 .data(services)
                                                                .build()))));
-        stubFor(any(urlPathMatching("/ranger/nodes/v1/test/service-[0-9]+"))
+        stubFor(any(urlPathMatching("/ranger/nodes/v1/test/service-[\\d]+"))
                         .willReturn(okJson(mapper.writeValueAsString(
                                 ServiceNodesResponse.builder()
                                         .data(IntStream.rangeClosed(1, 5)

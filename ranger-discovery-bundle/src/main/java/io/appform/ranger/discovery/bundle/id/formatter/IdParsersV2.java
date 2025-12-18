@@ -16,7 +16,7 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -31,64 +31,50 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class IdParsersV2 {
     private static final int DATE_ID_LENGTH = 22;
-    private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})(.*)");
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{2})(.*)");
+    private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})(.*)");
     
     private final Map<Integer, IdFormatter> formattersParserRegistry = Map.of(
-            IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
-                    IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue()),
-            IdGenerationType.BASE_36_RANDOM_NONCE.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
-                    IdGenerationType.BASE_36_RANDOM_NONCE.getValue())
+            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.FORMATTER_VALUE_MAP.get(
+                    IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue()),
+            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.FORMATTER_VALUE_MAP.get(
+                    IdGeneratorType.BASE_36_RANDOM_NONCE.getValue())
     );
     
     private final Map<Integer, List<IdDecorator>> decoratorsParserRegistry = Map.of(
-            IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGenerationType.DECORATOR_PARSE_VALUE_MAP.get(
-                    IdGenerationType.DEFAULT_V2_RANDOM_NONCE.getValue()),
-            IdGenerationType.BASE_36_RANDOM_NONCE.getValue(), IdGenerationType.DECORATOR_PARSE_VALUE_MAP.get(
-                    IdGenerationType.BASE_36_RANDOM_NONCE.getValue())
+            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_PARSE_VALUE_MAP.get(
+                    IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue()),
+            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_PARSE_VALUE_MAP.get(
+                    IdGeneratorType.BASE_36_RANDOM_NONCE.getValue())
     );
     
     /**
-     * Parses a string representation of an ID and converts it into an {@link Id} object.
-     *
-     * <p>Method logic:</p>
+     * Parses the provided string representation of an identifier into an {@link Id} object.
+     * <p>
+     * This method attempts to parse the {@code idString} using the following strategy:
      * <ol>
-     *   <li>If {@code idString} is {@code null} returns {@link Optional#empty()}.</li>
-     *   <li>Try to match {@code DEFAULT_PATTERN} (expects a 22-digit numeric core). If it matches and
-     *       the trailing group is empty, treat the matched 22-digit value as a legacy date-style ID:
-     *       <ul>
-     *         <li>If the matched date length equals {@value #DATE_ID_LENGTH}, delegate parsing to
-     *             {@code io.appform.ranger.discovery.bundle.id.formatter.IdParsers.parse(idString)} and
-     *             return its result.</li>
-     *         <li>Otherwise return {@link Optional#empty()}.</li>
-     *       </ul>
-     *   </li>
-     *   <li>If not a legacy date-style ID, try to match {@code PATTERN} to extract a two-digit parser
-     *       type identifier from group(2). If no match or group(2) is empty, return
-     *       {@link Optional#empty()}.</li>
-     *   <li>Convert the extracted two-digit parser type to an integer, lookup the corresponding
-     *       {@link IdFormatter} from the internal registry and delegate parsing to it. The formatter's
-     *       {@code parse} result is returned.</li>
-     *   <li>Any exception during matching, conversion, lookup or delegated parsing is caught, a warning
-     *       is logged and {@link Optional#empty()} is returned.</li>
+     * <li>Checks if the string matches the {@code DEFAULT_PATTERN}. If matched and valid,
+     * it delegates to the default {@code IdParsers}.</li>
+     * <li>If the default pattern does not match, it attempts to extract a generator ID
+     * (via {@code PATTERN}).</li>
+     * <li>Based on the generator ID, it applies a chain of {@code IdDecorator}s to
+     * transform the string.</li>
+     * <li>Finally, it uses a registered formatter to produce the final {@link Id} object.</li>
      * </ol>
+     * <p>
+     * If parsing fails at any stage or if an exception occurs, the error is logged,
+     * and an empty {@link Optional} is returned.
      *
-     * <p>Notes:</p>
-     * <ul>
-     *   <li>The method supports legacy 22-digit date IDs (delegated) and formatter-specific IDs
-     *       identified by a two-digit numeric type.</li>
-     *   <li>If a formatter is not found in the registry or a parsing error occurs the method will
-     *       return {@link Optional#empty()} after logging a warning.</li>
-     * </ul>
-     *
-     * @param idString the string representation of the ID to parse; may be {@code null}
-     * @return an {@link Optional} containing the parsed {@link Id} or {@link Optional#empty()} when
+     * @param idString the string representation of the ID to parse; can be {@code null}.
+     * {@code Optional.empty()} if the input is null, invalid, or if parsing fails.
+     * @return an {@link Optional} containing the parsed {@link Id} if successful |
+       an {@link Optional} containing the parsed {@link Id} or {@link Optional#empty()} when
      * parsing isn't possible or an error occurs
      * @see Id
      * @see IdFormatter
+     * @see IdDecorator
      * @see IdFormatters#randomNonce()
      * @see io.appform.ranger.discovery.bundle.id.decorators.IdDecorators#base36()
-     * @since 1.0
      * @since 1.0
      */
     public Optional<Id> parse(final String idString) {
@@ -111,6 +97,7 @@ public class IdParsersV2 {
             }
             val generators = Integer.parseInt(matcher.group(2));
             String parsedIdString = idString;
+            // Running through decorators
             for (IdDecorator idDecorator: decoratorsParserRegistry.get(generators)) {
                 parsedIdString = idDecorator.parse(idString).orElse(null);
             }

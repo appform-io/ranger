@@ -16,7 +16,6 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
 import org.joda.time.DateTime;
 
 import java.util.Optional;

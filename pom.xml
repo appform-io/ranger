@@ -48,14 +48,14 @@
     </modules>
 
     <distributionManagement>
-        <repository>
-            <id>phonepe-snapshots</id>
-            <url>https://artifactory.phonepe.com/repository/snapshots</url>
-        </repository>
         <snapshotRepository>
-            <id>phonepe-snapshots</id>
-            <url>https://artifactory.phonepe.com/repository/snapshots</url>
+            <id>ossrh</id>
+            <url>https://ossrh-staging-api.central.sonatype.com</url>
         </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://ossrh-staging-api.central.sonatype.com</url>
+        </repository>
     </distributionManagement>
 
     <scm>
@@ -73,7 +73,7 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
             <comments>A business-friendly OSS license</comments>
         </license>
@@ -361,6 +361,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${nexus-staging-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://ossrh-staging-api.central.sonatype.com</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -16,7 +16,7 @@
 package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGenerationType;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -30,18 +30,18 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class IdParsers {
     private static final int MINIMUM_ID_LENGTH = 22;
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})([\\d]{2})?(.*)");
 
     private final Map<Integer, IdFormatter> parserRegistry = Map.of(
-            IdGenerationType.DEFAULT.getValue(), IdGenerationType.FORMATTER_VALUE_MAP.get(
-                    IdGenerationType.DEFAULT.getValue())
+            IdGeneratorType.DEFAULT.getValue(), IdGeneratorType.FORMATTER_VALUE_MAP.get(
+                    IdGeneratorType.DEFAULT.getValue())
     );
 
     /**
      * Parses a string representation of an ID and converts it into an {@link Id} object.
      *
      * <p>This method attempts to parse the input string using a predefined regex pattern that expects
-     * the following format: {@code ([A-Za-z]*)([0-9]{22})([0-9]{2})?(.*)}</p>
+     * the following format: {@code ([A-Za-z]*)([\\d]{22})([\\d]{2})?(.*)}</p>
      *
      * <p>The parsing process follows these steps:</p>
      * <ol>

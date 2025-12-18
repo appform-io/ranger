@@ -89,7 +89,7 @@ public class IdGeneratorV2 {
      * @return Generated Id
      */
     public static Id generate(final IdGeneratorRequest request) {
-        return baseGenerator.generate(request.getPrefix(), request.getSuffix(), request.getIdGenerationType());
+        return baseGenerator.generate(request.getPrefix(), request.getSuffix(), request.getIdGenerators());
     }
     
     /**
@@ -119,7 +119,7 @@ public class IdGeneratorV2 {
     public static Optional<Id> generateWithConstraints(final @NonNull String domain,
                                                        final boolean skipGlobal,
                                                        final IdGeneratorRequest request) {
-        return baseGenerator.generateWithConstraints(request.getPrefix(), request.getSuffix(), domain, skipGlobal, request.getIdGenerationType());
+        return baseGenerator.generateWithConstraints(request.getPrefix(), request.getSuffix(), domain, skipGlobal, request.getIdGenerators());
     }
     
     /**
@@ -166,7 +166,7 @@ public class IdGeneratorV2 {
                 .suffix(request.getSuffix())
                 .constraints(inConstraints)
                 .skipGlobal(skipGlobal)
-                .idGenerationType(request.getIdGenerationType())
+                .idGenerationType(request.getIdGenerators())
                 .build());
     }
 

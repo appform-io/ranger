@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public enum IdGenerationType {
+public enum IdGeneratorType {
     
     DEFAULT(0, IdFormatters.original(), List.of()),
     DEFAULT_V2_RANDOM_NONCE(01, IdFormatters.randomNonce(), List.of()),
@@ -26,23 +26,23 @@ public enum IdGenerationType {
     private final IdFormatter idFormatter;
     private final List<IdDecorator> idDecorators;
     
-    IdGenerationType(final int value,
-                     final IdFormatter idFormatter,
-                     final List<IdDecorator> idDecorators) {
+    IdGeneratorType(final int value,
+                    final IdFormatter idFormatter,
+                    final List<IdDecorator> idDecorators) {
         this.value = value;
         this.idFormatter = idFormatter;
         this.idDecorators = idDecorators;
     }
     
     public static final Map<Integer, IdFormatter> FORMATTER_VALUE_MAP = Arrays.stream(values())
-            .collect(Collectors.toMap(IdGenerationType::getValue, type -> type.idFormatter));
+            .collect(Collectors.toMap(IdGeneratorType::getValue, type -> type.idFormatter));
     
     public static final Map<Integer, List<IdDecorator>> DECORATOR_VALUE_MAP = Arrays.stream(values())
-            .collect(Collectors.toMap(IdGenerationType::getValue, type -> type.idDecorators));
+            .collect(Collectors.toMap(IdGeneratorType::getValue, type -> type.idDecorators));
     
     public static final Map<Integer, List<IdDecorator>> DECORATOR_PARSE_VALUE_MAP = Arrays.stream(values())
             .collect(Collectors.toMap(
-                    IdGenerationType::getValue,
+                    IdGeneratorType::getValue,
                     type -> {
                         List<IdDecorator> reversed = new ArrayList<>(type.idDecorators);
                         Collections.reverse(reversed);
@@ -56,7 +56,7 @@ public enum IdGenerationType {
                             type -> type.idFormatter,
                             Collectors.toMap(
                                     type -> type.idDecorators,
-                                    IdGenerationType::getValue
+                                    IdGeneratorType::getValue
                             )
                     ));
     

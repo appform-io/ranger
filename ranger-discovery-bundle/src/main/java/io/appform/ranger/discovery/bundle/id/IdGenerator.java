@@ -28,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
-import static io.appform.ranger.discovery.bundle.id.IdGenerationType.DECORATOR_VALUE_MAP;
-import static io.appform.ranger.discovery.bundle.id.IdGenerationType.FORMATTER_VALUE_MAP;
+import static io.appform.ranger.discovery.bundle.id.IdGeneratorType.DECORATOR_VALUE_MAP;
+import static io.appform.ranger.discovery.bundle.id.IdGeneratorType.FORMATTER_VALUE_MAP;
 
 /**
  * Id generation
@@ -39,55 +39,55 @@ import static io.appform.ranger.discovery.bundle.id.IdGenerationType.FORMATTER_V
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
-    private static final int DEFAULT_GENERATION_TYPE = IdGenerationType.DEFAULT.getValue();
-    private static final int DEFAULT_ID_GENERATION_FORMATTERS = IdGenerationType.findValue(FORMATTER_VALUE_MAP.get(DEFAULT_GENERATION_TYPE),
+    private static final int DEFAULT_GENERATION_TYPE = IdGeneratorType.DEFAULT.getValue();
+    private static final int DEFAULT_ID_GENERATION_FORMATTERS = IdGeneratorType.findValue(FORMATTER_VALUE_MAP.get(DEFAULT_GENERATION_TYPE),
             DECORATOR_VALUE_MAP.get(DEFAULT_GENERATION_TYPE)).orElseThrow(() -> new RuntimeException("Default Id generation type not found"));
-
+    
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
-
+    
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
     }
-
+    
     public static synchronized void initialize(
             List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize();
-        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
+        if (null != globalConstraints && !globalConstraints.isEmpty()) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
-
+        
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
     }
-
+    
     public static void registerDomain(Domain domain) {
         baseGenerator.registerDomain(domain);
     }
-
+    
     public static synchronized void registerGlobalConstraints(IdValidationConstraint... constraints) {
         registerGlobalConstraints(ImmutableList.copyOf(constraints));
     }
-
+    
     public static synchronized void registerGlobalConstraints(List<IdValidationConstraint> constraints) {
         baseGenerator.registerGlobalConstraints(constraints);
     }
-
+    
     public static synchronized void registerDomainSpecificConstraints(
             String domain,
             IdValidationConstraint... validationConstraints) {
         registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
     }
-
+    
     public static synchronized void registerDomainSpecificConstraints(
             String domain,
             List<IdValidationConstraint> validationConstraints) {
         baseGenerator.registerDomainSpecificConstraints(domain, validationConstraints);
     }
-
+    
     /**
      * Generate id with given prefix
      *
@@ -97,7 +97,7 @@ public class IdGenerator {
     public static Id generate(final String prefix) {
         return baseGenerator.generate(prefix, null, DEFAULT_ID_GENERATION_FORMATTERS);
     }
-
+    
     /**
      * Generate id that mathces all passed constraints.
      * NOTE: There are performance implications for this.
@@ -110,7 +110,7 @@ public class IdGenerator {
     public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain) {
         return generateWithConstraints(prefix, domain, true);
     }
-
+    
     /**
      * Generate id that mathces all passed constraints.
      * NOTE: There are performance implications for this.
@@ -124,7 +124,7 @@ public class IdGenerator {
     public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain, boolean skipGlobal) {
         return baseGenerator.generateWithConstraints(prefix, null, domain, skipGlobal, DEFAULT_ID_GENERATION_FORMATTERS);
     }
-
+    
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
@@ -139,7 +139,7 @@ public class IdGenerator {
             final List<IdValidationConstraint> inConstraints) {
         return generateWithConstraints(prefix, inConstraints, false);
     }
-
+    
     /**
      * Generate id by parsing given string
      *
@@ -149,7 +149,7 @@ public class IdGenerator {
     public static Optional<Id> parse(final String idString) {
         return IdParsers.parse(idString);
     }
-
+    
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
@@ -165,13 +165,13 @@ public class IdGenerator {
             final List<IdValidationConstraint> inConstraints,
             boolean skipGlobal) {
         return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .constraints(inConstraints)
-                                .skipGlobal(skipGlobal)
-                                .idGenerationType(DEFAULT_ID_GENERATION_FORMATTERS)
-                                .build());
+                .prefix(prefix)
+                .constraints(inConstraints)
+                .skipGlobal(skipGlobal)
+                .idGenerationType(DEFAULT_ID_GENERATION_FORMATTERS)
+                .build());
     }
-
+    
     public static Optional<Id> generate(final IdGenerationRequest request) {
         return baseGenerator.generateWithConstraints(request);
     }
