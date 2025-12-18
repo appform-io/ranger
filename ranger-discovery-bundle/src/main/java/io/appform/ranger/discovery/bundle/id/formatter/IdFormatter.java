@@ -22,11 +22,11 @@ import java.util.Optional;
 
 public interface IdFormatter {
 
-    IdParserType getType();
-
     String format(final DateTime dateTime,
                   final int nodeId,
-                  final int randomNonce);
+                  final int randomNonce,
+                  final String suffix,
+                  final int idGenerationFormatters);
 
     Optional<Id> parse(final String idString);
 

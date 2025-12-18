@@ -16,6 +16,7 @@
 
 package io.appform.ranger.discovery.bundle;
 
+import io.appform.ranger.discovery.bundle.id.request.IdGeneratorRequest;
 import io.dropwizard.Configuration;
 import lombok.experimental.UtilityClass;
 import org.awaitility.Awaitility;
@@ -46,5 +47,24 @@ public class TestUtils {
                 .untilAsserted(() -> assertNull(bundle.getServiceDiscoveryClient()
                                                            .getNode()
                                                            .orElse(null)));
+    }
+    
+    public IdGeneratorRequest getBase36Formatter(final String prefix,
+                                                 final String suffix) {
+        return IdGeneratorRequest.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeBase36()
+                .includeRandomNonce()
+                .build();
+    }
+    
+    public IdGeneratorRequest getDefaultV2Formatter(final String prefix,
+                                                    final String suffix) {
+        return IdGeneratorRequest.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeRandomNonce()
+                .build();
     }
 }
