@@ -22,7 +22,7 @@ You could use the ranger-bom using the following in your dependency management.
 
 ```
 <dependency>
-    <groupId>io.appform.ranger.id.test</groupId>
+    <groupId>io.appform.ranger</groupId>
     <artifactId>ranger-bom</artifactId>
     <version>${ranger.version}</version>
     <type>pom</type>
@@ -43,7 +43,7 @@ You could use the ranger-bom using the following in your dependency management.
 Use the following maven dependency:
 ```
 <dependency>
-    <groupId>io.appform.ranger.id.test</groupId>
+    <groupId>io.appform.ranger</groupId>
     <artifactId>ranger</artifactId>
 </dependency>
 ```
@@ -354,7 +354,7 @@ If you are using a dropwizard project, you could use the service discovery bundl
 
 ```
 <dependency>
-    <groupId>io.appform.ranger.id.test</groupId>
+    <groupId>io.appform.ranger</groupId>
     <artifactId>ranger-discovery-bundle</artifactId>
     <version>${ranger.version}</version>
 </dependency>
@@ -454,7 +454,7 @@ If you are using a dropwizard project, you could use the service discovery bundl
 
 ```
 <dependency>
-    <groupId>io.appform.ranger.id.test</groupId>
+    <groupId>io.appform.ranger</groupId>
     <artifactId>ranger-discovery-bundle</artifactId>
     <version>${ranger.version}</version>
 </dependency>
