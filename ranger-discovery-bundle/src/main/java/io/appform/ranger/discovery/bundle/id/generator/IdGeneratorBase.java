@@ -133,6 +133,11 @@ public class IdGeneratorBase {
         val idInfo = getNonceGenerator(idGenerators).generate(namespace);
         return getIdFromIdInfo(idInfo, namespace, suffix, idGenerators);
     }
+    
+//    public final Id generate(final String namespace) {
+//        val idInfo = getNonceGenerator(idGenerators).generate(namespace);
+//        return getIdFromIdInfo(idInfo, namespace, suffix, idGenerators);
+//    }
 
 
     /**
