@@ -21,7 +21,4 @@ public abstract class AbstractWeightedSelector<T> implements ServiceNodeSelector
         }
         return adjustedWeight;
     }
-
-    @Override
-    public abstract ServiceNode<T> select(List<ServiceNode<T>> serviceNodes);
 }

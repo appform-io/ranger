@@ -67,7 +67,7 @@ public abstract class DroveResponseDataDeserializer<T> implements Deserializer<T
 
     protected abstract T translate(final ExposedAppInfo appInfo, final ExposedAppInfo.ExposedHost host);
 
-    private <T> T resolveTagValue(Map<String, String> tags, String tagKey, T defaultValue, Function<String, T> parser) {
+    private <V> V resolveTagValue(Map<String, String> tags, String tagKey, V defaultValue, Function<String, V> parser) {
         if (tags == null || !tags.containsKey(tagKey)) {
             return defaultValue;
         }

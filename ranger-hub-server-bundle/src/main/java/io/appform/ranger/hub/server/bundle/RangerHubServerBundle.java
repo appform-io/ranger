@@ -62,6 +62,7 @@ public abstract class RangerHubServerBundle<U extends Configuration>
 
     protected abstract RangerServerConfiguration getRangerConfiguration(U configuration);
 
+    @SuppressWarnings("java:S1172")
     protected ServiceNodeSelector<ShardInfo> getServiceNodeSelector(U configuration) {
         return DEFAULT_NODE_SELECTOR;
     }

@@ -166,17 +166,17 @@ class ServiceFinderHubTest {
 
                                             @Override
                                             public void start() {
-
+                                                // No-op: Data source initialization not required for test
                                             }
 
                                             @Override
                                             public void ensureConnected() {
-
+                                                // No-op: Connection management not required for test
                                             }
 
                                             @Override
                                             public void stop() {
-
+                                                // No-op: Cleanup not required for test
                                             }
 
                                             @Override
@@ -224,7 +224,7 @@ class ServiceFinderHubTest {
 
     @Test
     void testWeightedNodeSelectionWithVaryingNodeAge() {
-        final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHub =
+        final ServiceFinderHub<TestNodeData, MapBasedServiceRegistry<TestNodeData>> serviceFinderHubVaryingNodeAge =
                 new ServiceFinderHub<>(
                         new DynamicDataSource(Lists.newArrayList(new Service("NS", "PRE_REGISTERED_SERVICE"))),
                         service ->
@@ -282,8 +282,8 @@ class ServiceFinderHubTest {
                                             }
                                         })
                                         .build());
-        serviceFinderHub.start();
-        final var preRegisteredServiceFinder = serviceFinderHub.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
+        serviceFinderHubVaryingNodeAge.start();
+        final var preRegisteredServiceFinder = serviceFinderHubVaryingNodeAge.finder(new Service("NS", "PRE_REGISTERED_SERVICE"))
                 .orElseThrow(() -> new IllegalStateException("Finder should be present"));
         final var all = preRegisteredServiceFinder.getAll(null);
         Assertions.assertEquals(2, all.size());

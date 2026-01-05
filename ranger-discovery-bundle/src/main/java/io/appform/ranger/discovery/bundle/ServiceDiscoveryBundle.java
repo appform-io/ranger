@@ -164,6 +164,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
         return new HierarchicalEnvironmentAwareShardSelector(getRangerConfiguration(configuration).getEnvironment());
     }
 
+    @SuppressWarnings("java:S1172")
     protected ServiceNodeSelector<ShardInfo> getServiceNodeSelector(T configuration) {
         return new RandomServiceNodeSelector<>();
     }
