@@ -14,6 +14,7 @@ public class IterativeWeightedSelector<T> extends AbstractWeightedSelector<T> {
     }
 
     @Override
+    @SuppressWarnings("java:S2245")
     public ServiceNode<T> select(final List<ServiceNode<T>> serviceNodes) {
         final double[] cumulativeWeights = new double[serviceNodes.size()];
         double totalWeight = 0.0;

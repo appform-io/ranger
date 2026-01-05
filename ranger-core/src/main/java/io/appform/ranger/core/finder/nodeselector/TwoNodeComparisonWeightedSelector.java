@@ -14,6 +14,7 @@ public class TwoNodeComparisonWeightedSelector<T> extends AbstractWeightedSelect
     }
 
     @Override
+    @SuppressWarnings("java:S2245")
     public ServiceNode<T> select(final List<ServiceNode<T>> serviceNodes) {
         if (serviceNodes.size() == 1) {
             return serviceNodes.get(0);
