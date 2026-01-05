@@ -19,9 +19,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ranger</artifactId>
+        <artifactId>ranger-parent</artifactId>
         <groupId>io.appform.ranger</groupId>
         <version>2.0.0-RC3</version>
+        <relativePath>../ranger-parent</relativePath>
     </parent>
     <properties>
         <metrics-healthchecks.version>4.2.37</metrics-healthchecks.version>
@@ -47,22 +48,18 @@
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-http-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-zk-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-drove-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-server-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>

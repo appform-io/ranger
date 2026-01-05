@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.appform.ranger</groupId>
-    <artifactId>ranger</artifactId>
+    <artifactId>ranger-root</artifactId>
     <version>2.0.0-RC3</version>
   </parent>
 
@@ -38,8 +38,20 @@
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-client</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-core</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
@@ -83,6 +95,16 @@
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-hub-server-dw5-bundle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-hub-server-bundle-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-id</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -94,6 +116,11 @@
       <dependency>
         <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-server-bundle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-server-dw5-bundle</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

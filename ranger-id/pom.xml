@@ -20,9 +20,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <artifactId>ranger-parent</artifactId>
         <groupId>io.appform.ranger</groupId>
-        <artifactId>ranger</artifactId>
         <version>2.0.0-RC3</version>
+        <relativePath>../ranger-parent</relativePath>
     </parent>
 
     <artifactId>ranger-id</artifactId>
@@ -47,7 +48,6 @@
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-zk-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>

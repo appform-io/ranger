@@ -44,12 +44,10 @@
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-hub-server-bundle-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-server-bundle</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>

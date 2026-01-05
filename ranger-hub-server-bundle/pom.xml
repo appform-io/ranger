@@ -19,9 +19,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ranger</artifactId>
+        <artifactId>ranger-parent</artifactId>
         <groupId>io.appform.ranger</groupId>
         <version>2.0.0-RC3</version>
+        <relativePath>../ranger-parent</relativePath>
     </parent>
     <build>
         <plugins>
@@ -44,12 +45,10 @@
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-hub-server-bundle-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.appform.ranger</groupId>
             <artifactId>ranger-server-bundle</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
