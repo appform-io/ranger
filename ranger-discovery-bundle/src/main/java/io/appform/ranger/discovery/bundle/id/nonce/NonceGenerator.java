@@ -1,5 +1,6 @@
 package io.appform.ranger.discovery.bundle.id.nonce;
 
+import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
@@ -37,5 +38,6 @@ public abstract class NonceGenerator {
     public abstract NonceInfo generateWithConstraints(final IdGenerationInput request);
 
     public abstract void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event);
-
+    
+    public abstract FailsafeExecutor<GenerationResult> getRetryer();
 }
