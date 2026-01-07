@@ -14,7 +14,6 @@ import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceUtils;
 import lombok.Getter;
 import lombok.val;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,15 +33,19 @@ public class IdGeneratorBase {
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     @Getter
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
-    private final RetryPolicy<GenerationResult> retryPolicy = RetryPolicy.<GenerationResult>builder()
-            .withMaxAttempts(NonceUtils.readRetryCount())
-            .handleIf(throwable -> true)
-            .handleResultIf(Objects::isNull)
-            .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
-            .onRetry(NonceUtils::retryEventListener)
-            .build();
     @Getter
-    private final FailsafeExecutor<GenerationResult> retryer = Failsafe.with(Collections.singletonList(retryPolicy));
+    private final FailsafeExecutor<GenerationResult> retryer;
+
+    protected IdGeneratorBase() {
+        val retryPolicy = RetryPolicy.<GenerationResult>builder()
+                .withMaxAttempts(NonceUtils.readRetryCount())
+                .handleIf(throwable -> true)
+                .handleResultIf(Objects::isNull)
+                .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
+                .onRetry(NonceUtils::retryEventListener)
+                .build();
+        this.retryer = Failsafe.with(Collections.singletonList(retryPolicy));
+    }
 
     public final synchronized void cleanUp() {
         globalConstraints.clear();
