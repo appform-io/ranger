@@ -20,6 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.core.units.TestNodeData;
@@ -116,6 +119,8 @@ class ServiceProviderExtCuratorTest {
     }
 
     private void registerService(String host, int port, int shardId) {
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<TestNodeData>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withCuratorFramework(curatorFramework)
                 .withNamespace("test")
@@ -133,6 +138,7 @@ class ServiceProviderExtCuratorTest {
                 .withNodeData(TestNodeData.builder().shardId(shardId).build())
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withHealthUpdateIntervalMs(1000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
         serviceProviders.add(serviceProvider);

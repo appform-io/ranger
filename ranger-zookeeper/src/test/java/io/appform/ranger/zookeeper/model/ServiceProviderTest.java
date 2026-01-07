@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.finder.nodeselector.RoundRobinServiceNodeSelector;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
 import io.appform.ranger.core.units.TestNodeData;
@@ -180,6 +183,8 @@ class ServiceProviderTest {
     }
 
     private void registerService(String host, int port, int shardId) {
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -197,6 +202,7 @@ class ServiceProviderTest {
                 .withNodeData(TestNodeData.builder().shardId(shardId).build())
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withHealthUpdateIntervalMs(15000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
         serviceProviders.add(serviceProvider);
