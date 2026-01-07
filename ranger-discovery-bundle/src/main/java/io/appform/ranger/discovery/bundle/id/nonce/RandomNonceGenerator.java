@@ -11,18 +11,16 @@ import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.NonceInfo;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
+import lombok.Getter;
 import lombok.val;
-import org.joda.time.DateTime;
 
-import javax.inject.Singleton;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 
-@Singleton
 public class RandomNonceGenerator extends NonceGenerator {
     
+    @Getter
     private final FailsafeExecutor<GenerationResult> retryer;
     private final SecureRandom secureRandom;
     
@@ -58,11 +56,6 @@ public class RandomNonceGenerator extends NonceGenerator {
             val collisionChecker = domain.getCollisionChecker();
             collisionChecker.free(idInfo.getTime(), idInfo.getExponent());
         }
-    }
-    
-    @Override
-    public FailsafeExecutor<GenerationResult> getRetryer() {
-        return retryer;
     }
 
     private NonceInfo random(final CollisionChecker collisionChecker) {
