@@ -19,6 +19,9 @@ package io.appform.ranger.zookeeper.serviceprovider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
@@ -56,6 +59,8 @@ class BaseServiceProviderBuilderTest {
         val host = "localhost";
         val port = 9000;
         Exception exception = null;
+        final HealthUpdateHandler healthUpdateHandler = new LastUpdatedHandler<>()
+                .setNext(new HealthStatusHandler<>());
         try {
             val serviceProvider = ServiceProviderBuilders.unshardedServiceProviderBuilder()
                     .withConnectionString(testingCluster.getConnectString())
@@ -72,6 +77,7 @@ class BaseServiceProviderBuilderTest {
                     .withHostname(host)
                     .withPort(port)
                     .withHealthUpdateIntervalMs(1000)
+                    .healthUpdateHandler(healthUpdateHandler)
                     .build();
             serviceProvider.start();
         } catch (Exception e) {
@@ -95,6 +101,7 @@ class BaseServiceProviderBuilderTest {
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withPort(port)
                 .withHealthUpdateIntervalMs(1000)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
     }

@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.core.finder.nodeselector;
 
-import io.appform.ranger.core.model.ServiceNode;
-import io.appform.ranger.core.model.ServiceNodeSelector;
+package io.appform.ranger.drove;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import lombok.experimental.UtilityClass;
 
-public class RandomServiceNodeSelector<T> implements ServiceNodeSelector<T> {
+/**
+ * Constants
+ */
+@UtilityClass
+public class Constants {
+   public static final String DROVE_ROUTING_WEIGHT_TAG = "drove-routing-weight";
 
-    @Override
-    @SuppressWarnings("java:S2245")
-    public ServiceNode<T> select(List<ServiceNode<T>> serviceNodes) {
-        return serviceNodes.get(ThreadLocalRandom.current().nextInt(serviceNodes.size()));
-    }
+   public static final String DROVE_HEALTHY_SINCE_TAG = "drove-healthy-since";
 }
