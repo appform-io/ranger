@@ -59,7 +59,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     private final Bootstrap<?> bootstrap = mock(Bootstrap.class);
     private final Configuration configuration = mock(Configuration.class);
 
-    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<>() {
+    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<Configuration>() {
         @Override
         protected ServiceDiscoveryConfiguration getRangerConfiguration(Configuration configuration) {
             return serviceDiscoveryConfiguration;
@@ -74,7 +74,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     };
 
     @AfterEach
-    void afterMethod() {
+    public void afterMethod() {
         DnsCacheManipulator.clearDnsCache();
     }
 
@@ -142,7 +142,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         });
 
         assertTrue(thrown.getMessage()
-                           .contains("Couldn't resolve host address for zkHost"));
+                .contains("Couldn't resolve host address for zkHost"));
 
     }
 
@@ -282,7 +282,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
 
         });
         assertTrue(thrown.getMessage()
-                           .contains("Not allowed to publish localhost address to remote zookeeper"));
+                .contains("Not allowed to publish localhost address to remote zookeeper"));
     }
 
 
