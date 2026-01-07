@@ -45,12 +45,6 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
 
     @SneakyThrows
     @Benchmark
-    public void testGenerateBase36(Blackhole blackhole, BenchmarkState state) {
-        IdGenerator.generate("X", IdFormatters.base36());
-    }
-
-    @SneakyThrows
-    @Benchmark
     public void testGenerate(Blackhole blackhole, BenchmarkState state) {
         IdGenerator.generate("X", IdFormatters.original());
     }
