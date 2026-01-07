@@ -22,6 +22,7 @@ import io.appform.ranger.core.healthcheck.HealthChecker;
 import io.appform.ranger.core.healthcheck.Healthcheck;
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
 import io.appform.ranger.core.healthservice.HealthService;
 import io.appform.ranger.core.healthservice.ServiceHealthAggregator;
 import io.appform.ranger.core.healthservice.monitor.IsolatedHealthMonitor;
@@ -39,7 +40,9 @@ import lombok.val;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -58,6 +61,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     protected int healthUpdateIntervalMs;
     protected int staleUpdateThresholdMs;
     protected NodeDataSink<T, S> nodeDataSource = null;
+    protected HealthUpdateHandler<T> healthUpdateHandler;
     protected final List<Healthcheck> healthchecks = new ArrayList<>();
     protected final List<Consumer<Void>> startSignalHandlers = new ArrayList<>();
     protected final List<Consumer<Void>> stopSignalHandlers = new ArrayList<>();
@@ -165,11 +169,17 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         return (B)this;
     }
 
+    public B healthUpdateHandler(final HealthUpdateHandler<T> healthUpdateHandler) {
+        this.healthUpdateHandler = healthUpdateHandler;
+        return (B) this;
+    }
+
     protected final ServiceProvider<T, S> buildProvider() {
-        requireNonNull(namespace);
-        requireNonNull(serviceName);
-        requireNonNull(serializer);
-        requireNonNull(hostname);
+        Preconditions.checkNotNull(namespace);
+        Preconditions.checkNotNull(serviceName);
+        Preconditions.checkNotNull(serializer);
+        Preconditions.checkNotNull(hostname);
+        Preconditions.checkNotNull(healthUpdateHandler);
         Preconditions.checkArgument(port > 0);
         Preconditions.checkArgument(!healthchecks.isEmpty() || !isolatedMonitors.isEmpty());
 
@@ -216,7 +226,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
         val serviceProvider = new ServiceProvider<>(service, serviceNode,
                                                     serializer,
                                                     usableNodeDataSource,
-                                                    signalGenerators);
+                                                    signalGenerators, healthUpdateHandler);
         val startSignal = serviceProvider.getStartSignal();
 
         startSignal
