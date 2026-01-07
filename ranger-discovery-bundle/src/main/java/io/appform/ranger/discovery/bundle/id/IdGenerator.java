@@ -22,15 +22,12 @@ import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
-import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
-import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.joda.time.DateTime;
 
 import java.util.*;
 
@@ -42,7 +39,6 @@ import java.util.*;
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
-    private static final NonceGenerator nonceGenerator = new RandomNonceGenerator();
 
     public static void initialize(int node) {
         baseGenerator.setNodeId(node);
@@ -95,16 +91,14 @@ public class IdGenerator {
      * @param prefix String prefix with will be used to blindly merge
      * @return Generated Id
      */
-    public static Id generate(String prefix) {
-        val idInfo = nonceGenerator.generate(prefix);
-        return getIdFromIdInfo(idInfo, prefix);
+    public static Id generate(final String prefix) {
+        return getIdFromIdInfo(prefix);
     }
 
     public static Id generate(
             final String prefix,
             final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(prefix);
-        return getIdFromIdInfo(idInfo, prefix, idFormatter);
+        return getIdFromIdInfo(prefix, idFormatter);
     }
 
     /**
@@ -121,7 +115,7 @@ public class IdGenerator {
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -222,27 +216,32 @@ public class IdGenerator {
                 .prefix(request.getPrefix())
                 .domain(domain)
                 .build();
-        return Optional.ofNullable(nonceGenerator.getRetryer().get(
+        return Optional.ofNullable(baseGenerator.getRetryer().get(
                         () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
+                            val id = getIdFromIdInfo(request.getPrefix(), request.getIdFormatter(), domain);
                             return new GenerationResult(
-                                    idInfoOptional,
+                                    id.getExponent(), id.getTime(),
                                     baseGenerator.validateId(request.getConstraints(), id, request.isSkipGlobal()),
                                     domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
+                .map(generationResult -> getIdFromIdInfo(request.getPrefix(), request.getIdFormatter(), domain));
     }
     
-    private Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = new DateTime(nonceInfo.getTime());
-        val nodeId = baseGenerator.getNodeId();
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, nodeId, nonceInfo.getExponent()));
-        return baseGenerator.getIdFromIdInfo(id, nonceInfo.getExponent(), dateTime);
+    private Id getIdFromIdInfo(final String namespace) {
+        return getIdFromIdInfo(namespace, IdFormatters.original(), null);
     }
     
-    private Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace) {
-        return getIdFromIdInfo(nonceInfo, namespace, IdFormatters.original());
+    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
+        return getIdFromIdInfo(namespace, idFormatter, null);
+    }
+    
+    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter, final Domain domain) {
+        val idGenerationInput = IdGenerationInput.builder()
+                .domain(domain)
+                .build();
+        val formattedId = idFormatter.format(baseGenerator.getNodeId(), idGenerationInput);
+        val id = String.format("%s%s", namespace, formattedId.getId());
+        return baseGenerator.getIdFromIdInfo(id, formattedId);
     }
 }

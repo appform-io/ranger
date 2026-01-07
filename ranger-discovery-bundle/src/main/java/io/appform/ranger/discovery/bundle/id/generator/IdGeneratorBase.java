@@ -1,18 +1,26 @@
 package io.appform.ranger.discovery.bundle.id.generator;
 
 import com.google.common.base.Preconditions;
+import dev.failsafe.Failsafe;
+import dev.failsafe.FailsafeExecutor;
+import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
+import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.formatter.FormattedId;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.id.nonce.NonceUtils;
 import lombok.Getter;
 import lombok.val;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +34,15 @@ public class IdGeneratorBase {
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     @Getter
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
+    private final RetryPolicy<GenerationResult> retryPolicy = RetryPolicy.<GenerationResult>builder()
+            .withMaxAttempts(NonceUtils.readRetryCount())
+            .handleIf(throwable -> true)
+            .handleResultIf(Objects::isNull)
+            .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
+            .onRetry(NonceUtils::retryEventListener)
+            .build();
+    @Getter
+    private final FailsafeExecutor<GenerationResult> retryer = Failsafe.with(Collections.singletonList(retryPolicy));
 
     public final synchronized void cleanUp() {
         globalConstraints.clear();
@@ -55,12 +72,12 @@ public class IdGeneratorBase {
     }
 
     public final Id getIdFromIdInfo(final String id,
-                                    final int exponent,
-                                    final DateTime dateTime) {
+                                    final FormattedId formattedId) {
         return Id.builder()
                 .id(id)
-                .exponent(exponent)
-                .generatedDate(dateTime.toDate())
+                .exponent(formattedId.getExponent())
+                .time(formattedId.getTime())
+                .generatedDate(formattedId.getDateTime().toDate())
                 .node(getNodeId())
                 .build();
     }

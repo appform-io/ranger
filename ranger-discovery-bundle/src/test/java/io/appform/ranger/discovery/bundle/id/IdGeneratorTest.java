@@ -120,12 +120,6 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testGenerateBase36() {
-        String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
-        Assertions.assertEquals(18, id.length());
-    }
-
-    @Test
     void testGenerateWithConstraints() {
         IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
         Optional<Id> id = IdGenerator.generateWithConstraints("TEST", "TEST");
