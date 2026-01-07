@@ -250,7 +250,8 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                                                                                              String serviceName,
                                                                                              Predicate<ShardInfo> initialCriteria,
                                                                                              boolean mergeWithInitialCriteria,
-                                                                                             ShardSelector<ShardInfo, MapBasedServiceRegistry<ShardInfo>> shardSelector) {
+                                                                                             ShardSelector<ShardInfo, MapBasedServiceRegistry<ShardInfo>> shardSelector,
+                                                                                             final ServiceNodeSelector<ShardInfo> nodeSelector) {
         return SimpleRangerZKClient.<ShardInfo>builder()
                 .curatorFramework(curator)
                 .namespace(namespace)
