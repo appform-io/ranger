@@ -20,23 +20,21 @@ import com.alibaba.dcm.DnsCacheManipulator;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
 import io.appform.ranger.discovery.core.resolvers.NodeInfoResolver;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
-
-import io.dropwizard.core.Configuration;
-import io.dropwizard.core.server.DefaultServerFactory;
-import io.dropwizard.core.setup.AdminEnvironment;
-import io.dropwizard.core.setup.Bootstrap;
-import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.ConnectorFactory;
 import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.server.DefaultServerFactory;
+import io.dropwizard.core.setup.AdminEnvironment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
@@ -45,6 +43,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodeAbsence;
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodePresence;
@@ -88,7 +88,7 @@ class ServiceDiscoveryBundleTest {
 
     @BeforeEach
     void setup() throws Exception {
-        when(serverFactory.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
+        when(serverFactory.getApplicationConnectors()).thenReturn(List.of(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);

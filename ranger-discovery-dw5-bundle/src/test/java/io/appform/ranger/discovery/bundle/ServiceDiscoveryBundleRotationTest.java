@@ -20,22 +20,21 @@ import com.alibaba.dcm.DnsCacheManipulator;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.appform.ranger.discovery.bundle.rotationstatus.BIRTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
-import io.dropwizard.core.Configuration;
-import io.dropwizard.core.server.DefaultServerFactory;
-import io.dropwizard.core.setup.AdminEnvironment;
-import io.dropwizard.core.setup.Bootstrap;
-import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.ConnectorFactory;
 import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.server.DefaultServerFactory;
+import io.dropwizard.core.setup.AdminEnvironment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.curator.test.TestingCluster;
@@ -46,6 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodeAbsence;
 import static io.appform.ranger.discovery.bundle.TestUtils.assertNodePresence;
@@ -69,7 +69,7 @@ class ServiceDiscoveryBundleRotationTest {
     private final ConnectorFactory connectorFactory = mock(HttpConnectorFactory.class);
     private final TestingCluster testingCluster = new TestingCluster(1);
     private ServiceDiscoveryConfiguration serviceDiscoveryConfiguration;
-    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<>() {
+    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<Configuration>() {
         @Override
         protected ServiceDiscoveryConfiguration getRangerConfiguration(Configuration configuration) {
             return serviceDiscoveryConfiguration;
@@ -85,7 +85,7 @@ class ServiceDiscoveryBundleRotationTest {
 
     @BeforeEach
     void setup() throws Exception {
-        when(serverFactory.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
+        when(serverFactory.getApplicationConnectors()).thenReturn(List.of(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);

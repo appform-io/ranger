@@ -22,13 +22,13 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
+import io.dropwizard.jersey.DropwizardResourceConfig;
+import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.core.Configuration;
 import io.dropwizard.core.setup.AdminEnvironment;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
-import io.dropwizard.jersey.DropwizardResourceConfig;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
-import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +59,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     private final Bootstrap<?> bootstrap = mock(Bootstrap.class);
     private final Configuration configuration = mock(Configuration.class);
 
-    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<>() {
+    private final ServiceDiscoveryBundle<Configuration> bundle = new ServiceDiscoveryBundle<Configuration>() {
         @Override
         protected ServiceDiscoveryConfiguration getRangerConfiguration(Configuration configuration) {
             return serviceDiscoveryConfiguration;
@@ -74,7 +74,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
     };
 
     @AfterEach
-    void afterMethod() {
+    public void afterMethod() {
         DnsCacheManipulator.clearDnsCache();
     }
 
@@ -142,7 +142,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         });
 
         assertTrue(thrown.getMessage()
-                           .contains("Couldn't resolve host address for zkHost"));
+                .contains("Couldn't resolve host address for zkHost"));
 
     }
 
@@ -282,7 +282,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
 
         });
         assertTrue(thrown.getMessage()
-                           .contains("Not allowed to publish localhost address to remote zookeeper"));
+                .contains("Not allowed to publish localhost address to remote zookeeper"));
     }
 
 
