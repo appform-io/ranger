@@ -31,7 +31,7 @@ public class Base36IdDecorator implements IdDecorator {
     }
     
     /**
-     * Formats an identifier using the BASE_36 scheme.
+     * Decorates an identifier using the BASE_36 scheme.
      * <p>
      * The resulting id has the structure:
      * {base36(padded to 16 chars of [yyMMddHHmmssSSS(15 digits) + nodeId(4 digits) + randomNonce(3 digits)])}

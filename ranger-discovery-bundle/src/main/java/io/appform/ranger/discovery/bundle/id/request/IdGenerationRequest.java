@@ -31,6 +31,5 @@ public class IdGenerationRequest {
     String domain;
     boolean skipGlobal;
     List<IdValidationConstraint> constraints;
-    int idGenerationType;
     IdFormatter idFormatter;
 }

@@ -37,7 +37,6 @@ public class DefaultIdFormatter implements IdFormatter {
         val nonceInfo = NonceGenerators.randomNonceGenerator().generateWithConstraints(idGenerationInput);
         val dateTime = new DateTime(nonceInfo.getTime());
         val randomNonce = nonceInfo.getExponent();
-//        Preconditions.checkArgument(suffix == null, "Suffix cannot be non null for DefaultIdFormatter");
         val id = String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
         return FormattedId.builder()
                 .id(id)
