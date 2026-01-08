@@ -37,10 +37,7 @@ public enum IdGeneratorType {
     public static final Map<Integer, IdFormatter> FORMATTER_VALUE_MAP = Arrays.stream(values())
             .collect(Collectors.toMap(IdGeneratorType::getValue, type -> type.idFormatter));
     
-    public static final Map<Integer, List<IdDecorator>> DECORATOR_VALUE_MAP = Arrays.stream(values())
-            .collect(Collectors.toMap(IdGeneratorType::getValue, type -> type.idDecorators));
-    
-    public static final Map<Integer, List<IdDecorator>> DECORATOR_PARSE_VALUE_MAP = Arrays.stream(values())
+    public static final Map<Integer, List<IdDecorator>> DECORATOR_REVERSE_VALUE_MAP = Arrays.stream(values())
             .collect(Collectors.toMap(
                     IdGeneratorType::getValue,
                     type -> {

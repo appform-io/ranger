@@ -1,5 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
+import io.appform.ranger.discovery.bundle.TestUtils;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsersV2;
 import lombok.val;
@@ -37,10 +38,9 @@ public class IdParsersV2Test {
 
     @Test
     void testParseSuccessAfterGenerationWithSuffix() {
-        val idGenerator = new IdGeneratorBase();
         val prefix = "TEST";
         val suffix = "000007";
-        val generatedId = idGenerator.generate(prefix, suffix, IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue());
+        val generatedId = IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter(prefix, suffix, "", false, null));
         val parsedId = IdGeneratorV2.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(prefix, parsedId.getPrefix());
@@ -53,13 +53,12 @@ public class IdParsersV2Test {
 
     @Test
     void testParseSuccessAfterGenerationWithConstraintsSuffix() {
-        val idGenerator = new IdGeneratorBase();
         val prefix = "TEST";
         val suffix = "000007";
         val domain = "TEST";
 
-        idGenerator.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
-        val id = idGenerator.generateWithConstraints(prefix, suffix, domain, false, IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue());
+        IdGeneratorV2.registerDomainSpecificConstraints(domain, Collections.singletonList(id -> true));
+        val id = IdGeneratorV2.generateWithConstraints(TestUtils.getDefaultV2Formatter(prefix, suffix, domain, false, null));
 
         Assertions.assertTrue(id.isPresent());
         Assertions.assertEquals(34, id.get().getId().length());
@@ -76,10 +75,9 @@ public class IdParsersV2Test {
     
     @Test
     void testParseSuccessAfterGenerationWithBase36Suffix() {
-        val idGenerator = new IdGeneratorBase();
         val prefix = "TEST";
         val suffix = "007";
-        val generatedId = idGenerator.generate(prefix, suffix, IdGeneratorType.BASE_36_RANDOM_NONCE.getValue());
+        val generatedId = IdGeneratorV2.generate(TestUtils.getBase36Formatter(prefix, suffix, "", false, null));
         val parsedId = IdGeneratorV2.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
         Assertions.assertEquals(prefix, parsedId.getPrefix());

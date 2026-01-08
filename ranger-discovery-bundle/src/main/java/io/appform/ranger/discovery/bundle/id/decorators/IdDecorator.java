@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public interface IdDecorator {
     
-    String format(final String idString);
+    String decorate(final String idString);
     
     Optional<String> parse(final String idString);
 }

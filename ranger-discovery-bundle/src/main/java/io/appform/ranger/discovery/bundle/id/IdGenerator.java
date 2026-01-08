@@ -18,18 +18,19 @@ package io.appform.ranger.discovery.bundle.id;
 
 import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
+import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.util.*;
-
-import static io.appform.ranger.discovery.bundle.id.IdGeneratorType.DECORATOR_VALUE_MAP;
-import static io.appform.ranger.discovery.bundle.id.IdGeneratorType.FORMATTER_VALUE_MAP;
 
 /**
  * Id generation
@@ -39,10 +40,7 @@ import static io.appform.ranger.discovery.bundle.id.IdGeneratorType.FORMATTER_VA
 @UtilityClass
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
-    private static final int DEFAULT_GENERATION_TYPE = IdGeneratorType.DEFAULT.getValue();
-    private static final int DEFAULT_ID_GENERATION_FORMATTERS = IdGeneratorType.findValue(FORMATTER_VALUE_MAP.get(DEFAULT_GENERATION_TYPE),
-            DECORATOR_VALUE_MAP.get(DEFAULT_GENERATION_TYPE)).orElseThrow(() -> new RuntimeException("Default Id generation type not found"));
-    
+
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
@@ -95,11 +93,17 @@ public class IdGenerator {
      * @return Generated Id
      */
     public static Id generate(final String prefix) {
-        return baseGenerator.generate(prefix, null, DEFAULT_ID_GENERATION_FORMATTERS);
+        return getIdFromIdInfo(prefix);
     }
-    
+
+    public static Id generate(
+            final String prefix,
+            final IdFormatter idFormatter) {
+        return getIdFromIdInfo(prefix, idFormatter);
+    }
+
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -110,9 +114,9 @@ public class IdGenerator {
     public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain) {
         return generateWithConstraints(prefix, domain, true);
     }
-    
+
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -121,10 +125,17 @@ public class IdGenerator {
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
-    public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain, boolean skipGlobal) {
-        return baseGenerator.generateWithConstraints(prefix, null, domain, skipGlobal, DEFAULT_ID_GENERATION_FORMATTERS);
+    public static Optional<Id> generateWithConstraints(final String prefix, @NonNull final String domain, final boolean skipGlobal) {
+        val registeredDomain = baseGenerator.getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT);
+        val request = IdGenerationRequest.builder()
+                .prefix(prefix)
+                .constraints(registeredDomain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(registeredDomain.getDomain())
+                .build();
+        return generateWithConstraints(request);
     }
-    
+
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
@@ -139,7 +150,7 @@ public class IdGenerator {
             final List<IdValidationConstraint> inConstraints) {
         return generateWithConstraints(prefix, inConstraints, false);
     }
-    
+
     /**
      * Generate id by parsing given string
      *
@@ -149,7 +160,7 @@ public class IdGenerator {
     public static Optional<Id> parse(final String idString) {
         return IdParsers.parse(idString);
     }
-    
+
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
@@ -168,11 +179,46 @@ public class IdGenerator {
                 .prefix(prefix)
                 .constraints(inConstraints)
                 .skipGlobal(skipGlobal)
-                .idGenerationType(DEFAULT_ID_GENERATION_FORMATTERS)
                 .build());
     }
-    
+
     public static Optional<Id> generate(final IdGenerationRequest request) {
-        return baseGenerator.generateWithConstraints(request);
+        return generateWithConstraints(request);
+    }
+
+    private Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
+        val domain = request.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val idFormatter = request.getIdFormatter() != null ? request.getIdFormatter() : IdFormatters.original();
+        val idGenerationInput = IdGenerationInput.builder()
+                .prefix(request.getPrefix())
+                .domain(domain)
+                .build();
+        return Optional.ofNullable(baseGenerator.getRetryer().get(
+                        () -> {
+                            val id = getIdFromIdInfo(request.getPrefix(), idFormatter, domain);
+                            return new GenerationResult(
+                                    id.getExponent(), id.getTime(),
+                                    baseGenerator.validateId(request.getConstraints(), id, request.isSkipGlobal()),
+                                    domain);
+                        }))
+                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
+                .map(generationResult -> getIdFromIdInfo(request.getPrefix(), idFormatter, domain));
+    }
+    
+    private Id getIdFromIdInfo(final String namespace) {
+        return getIdFromIdInfo(namespace, IdFormatters.original(), null);
+    }
+    
+    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
+        return getIdFromIdInfo(namespace, idFormatter, null);
+    }
+    
+    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter, final Domain domain) {
+        val idGenerationInput = IdGenerationInput.builder()
+                .domain(domain)
+                .build();
+        val formattedId = idFormatter.format(baseGenerator.getNodeId(), idGenerationInput);
+        val id = String.format("%s%s", namespace, formattedId.getId());
+        return baseGenerator.getIdFromIdInfo(id, formattedId);
     }
 }

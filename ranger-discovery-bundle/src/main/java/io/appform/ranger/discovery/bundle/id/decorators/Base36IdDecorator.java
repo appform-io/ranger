@@ -15,7 +15,6 @@
  */
 package io.appform.ranger.discovery.bundle.id.decorators;
 
-import io.appform.ranger.discovery.bundle.id.Id;
 import lombok.val;
 
 import java.math.BigInteger;
@@ -27,7 +26,7 @@ public class Base36IdDecorator implements IdDecorator {
     private static final Integer BASE36_MAX_LENGTH = 16;
     
     @Override
-    public String format(final String idString) {
+    public String decorate(final String idString) {
         return toBase36(idString);
     }
     

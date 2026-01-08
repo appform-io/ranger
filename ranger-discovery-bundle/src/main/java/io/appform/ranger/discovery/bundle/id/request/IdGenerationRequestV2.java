@@ -3,6 +3,7 @@ package io.appform.ranger.discovery.bundle.id.request;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
+import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorators;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
@@ -15,19 +16,29 @@ import java.util.List;
 import java.util.Objects;
 
 @Data
-public class IdGeneratorRequest {
+public class IdGenerationRequestV2 {
     final String prefix;
     final String suffix;
     final boolean includeBase36;
     final boolean includeRandomNonce;
-    final int idGenerators;
+    final boolean skipGlobal;
+    final String domain;
+    private List<IdValidationConstraint> constraints;
+    final IdFormatter idFormatter;
+    final List<IdDecorator> idDecorators;
+    final int idGenerationValue;
     
-    private IdGeneratorRequest(IdGeneratorRequestBuilder builder) {
+    private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
         this.prefix = builder.prefix;
         this.suffix = builder.suffix;
         this.includeBase36 = builder.includeBase36;
         this.includeRandomNonce = builder.includeRandomNonce;
-        this.idGenerators = builder.idGenerationType;
+        this.skipGlobal = builder.skipGlobal;
+        this.domain = builder.domain;
+        this.constraints = builder.constraints;
+        this.idFormatter = builder.idFormatter;
+        this.idDecorators = builder.idDecorators;
+        this.idGenerationValue = builder.idGenerationValue;
     }
     
     public static IdGeneratorRequestBuilder builder() {
@@ -39,9 +50,12 @@ public class IdGeneratorRequest {
         private String suffix;
         private boolean includeBase36;
         private boolean includeRandomNonce;
+        private boolean skipGlobal;
+        private String domain;
+        private List<IdValidationConstraint> constraints;
         private IdFormatter idFormatter;
         private final List<IdDecorator> idDecorators = new ArrayList<>();
-        private int idGenerationType;
+        private int idGenerationValue;
         
         public IdGeneratorRequestBuilder withPrefix(final String prefix) {
             validateIdPrefix(prefix);
@@ -52,6 +66,21 @@ public class IdGeneratorRequest {
         public IdGeneratorRequestBuilder withSuffix(final String suffix) {
             validateIdSuffix(prefix);
             this.suffix = suffix;
+            return this;
+        }
+        
+        public IdGeneratorRequestBuilder skipGlobal(final boolean skipGlobal) {
+            this.skipGlobal = skipGlobal;
+            return this;
+        }
+        
+        public IdGeneratorRequestBuilder domain(final String domain) {
+            this.domain = domain;
+            return this;
+        }
+        
+        public IdGeneratorRequestBuilder constraints(final List<IdValidationConstraint> constraints) {
+            this.constraints = constraints;
             return this;
         }
         
@@ -67,12 +96,12 @@ public class IdGeneratorRequest {
             idFormatter = IdFormatters.randomNonce();
             return this;
         }
-        
-        public IdGeneratorRequest build() {
-            this.idGenerationType = IdGeneratorType.findValue(
-                    idFormatter, idDecorators)
+
+        public IdGenerationRequestV2 build() {
+            this.idGenerationValue = IdGeneratorType.findValue(
+                            idFormatter, idDecorators)
                     .orElseThrow(() -> new RuntimeException("Invalid combination of formatter and decorators"));
-            return new IdGeneratorRequest(this);
+            return new IdGenerationRequestV2(this);
         }
     }
     

@@ -42,9 +42,9 @@ public class IdParsersV2 {
     );
     
     private final Map<Integer, List<IdDecorator>> decoratorsParserRegistry = Map.of(
-            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_PARSE_VALUE_MAP.get(
+            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_REVERSE_VALUE_MAP.get(
                     IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue()),
-            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_PARSE_VALUE_MAP.get(
+            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_REVERSE_VALUE_MAP.get(
                     IdGeneratorType.BASE_36_RANDOM_NONCE.getValue())
     );
     

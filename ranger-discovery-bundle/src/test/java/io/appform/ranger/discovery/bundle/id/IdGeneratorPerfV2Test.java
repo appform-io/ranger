@@ -48,12 +48,12 @@ public class IdGeneratorPerfV2Test extends BenchmarkTest {
     @SneakyThrows
     @Benchmark
     public void testGenerateSuffixedId(Blackhole blackhole, BenchmarkState state) {
-        IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y"));
+        IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y", "", false, null));
     }
     
     @SneakyThrows
     @Benchmark
     public void testGenerateBase36Id(Blackhole blackhole, BenchmarkState state) {
-        IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y"));
+        IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y", "", false, null));
     }
 }
