@@ -47,17 +47,6 @@
         <module>ranger-bom</module>
     </modules>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://ossrh-staging-api.central.sonatype.com</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://ossrh-staging-api.central.sonatype.com</url>
-        </repository>
-    </distributionManagement>
-
     <scm>
         <connection>scm:git:https://github.com/appform-io/ranger.git</connection>
         <developerConnection>scm:git:https://github.com/appform-io/ranger.git</developerConnection>
@@ -127,7 +116,6 @@
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
-        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <!-- Security Patches -->
         <okio.version>3.16.2</okio.version>
         <json-path.version>2.9.0</json-path.version>
@@ -138,6 +126,8 @@
         <jetty-bom.version>9.4.58.v20250814</jetty-bom.version>
         <netty.version>4.1.127.Final</netty.version>
         <snappy.version>1.1.10.8</snappy.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        <maven.enforcer.version>3.6.2</maven.enforcer.version>
     </properties>
 
     <dependencyManagement>
@@ -374,20 +364,60 @@
                     <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-rules</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <reactorModuleConvergence>
+                                    <message>The reactor is not valid</message>
+                                </reactorModuleConvergence>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>central-release</id>
             <activation>
                 <property>
                     <name>release</name>
                     <value>true</value>
                 </property>
             </activation>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://ossrh-staging-api.central.sonatype.com</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://ossrh-staging-api.central.sonatype.com</url>
+                </repository>
+            </distributionManagement>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.5.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>github</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -400,10 +430,10 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <useAgent>true</useAgent>
-                                    <executable>gpg2</executable>
-                                    <!-- Run something like 'gpg2 -ab out' to cache the creds
-                                     on agent before running if needed -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
                                 </configuration>
                             </execution>
                         </executions>
@@ -411,6 +441,7 @@
                 </plugins>
             </build>
         </profile>
+
         <!-- The following are required for dns cache manipulator.
         Ref: https://github.com/alibaba/java-dns-cache-manipulator#jvm-settings-for-java-16 -->
         <profile>
