@@ -17,6 +17,14 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.CENTRAL_GPG_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: Check if secret exists
+              run: |
+                if [[ -z "${{ secrets.CENTRAL_GPG_KEY }}" ]]; then
+                  echo "Secret does not exist"
+                else
+                  echo "Secret exists"
+                  gpg --list-keys
+                fi
       - name: Publish package
         run: mvn --batch-mode deploy -DskipTests -Pcentral-release
         env:
