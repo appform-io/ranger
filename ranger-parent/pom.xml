@@ -11,6 +11,7 @@
 
     <artifactId>ranger-parent</artifactId>
     <packaging>pom</packaging>
+    <name>Ranger Parent</name>
 
     <properties>
         <!-- Global Dependencies -->
