@@ -38,6 +38,7 @@ public class IdGeneratorBase {
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
     private final FailsafeExecutor<GenerationResult> retryer;
+    private final String ID_REGEX = "^[a-zA-Z]+$";
 
     protected final IdFormatter idFormatter;
     protected final NonceGenerator nonceGenerator;
@@ -84,6 +85,7 @@ public class IdGeneratorBase {
     }
 
     public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
+        validateIdRegex(namespace);
         val dateTime = new DateTime(nonceInfo.getTime());
         val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
         return Id.builder()
@@ -191,5 +193,14 @@ public class IdGeneratorBase {
             throw new RuntimeException("Node ID already set");
         }
         this.nodeId = nodeId;
+    }
+
+    private void validateIdRegex(final String namespace) {
+        Preconditions.checkArgument(
+                namespace != null && !namespace.isEmpty(),
+                "Namespace cannot be null or empty");
+        Preconditions.checkArgument(
+                namespace.matches(ID_REGEX),
+                "Prefix does not match the required regex: " + ID_REGEX);
     }
 }
