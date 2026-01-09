@@ -107,6 +107,16 @@
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
+        <!-- Security Patches -->
+        <okio.version>3.16.2</okio.version>
+        <json-path.version>2.9.0</json-path.version>
+        <commons-lang3.version>3.19.0</commons-lang3.version>
+        <commons-codec.version>1.19.0</commons-codec.version>
+        <json-smart.version>2.6.0</json-smart.version>
+        <xmlunit-core.version>2.10.3</xmlunit-core.version>
+        <jetty-bom.version>9.4.58.v20250814</jetty-bom.version>
+        <netty.version>4.1.127.Final</netty.version>
+        <snappy.version>1.1.10.8</snappy.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven.enforcer.version>3.6.2</maven.enforcer.version>
     </properties>
