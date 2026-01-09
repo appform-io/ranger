@@ -117,7 +117,7 @@
         <jetty-bom.version>9.4.58.v20250814</jetty-bom.version>
         <netty.version>4.1.127.Final</netty.version>
         <snappy.version>1.1.10.8</snappy.version>
-        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven.enforcer.version>3.6.2</maven.enforcer.version>
     </properties>
 
