@@ -17,6 +17,7 @@
 package io.appform.ranger.core.serviceprovider;
 
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
 import io.appform.ranger.core.model.NodeDataSink;
 import io.appform.ranger.core.model.Serializer;
 import io.appform.ranger.core.model.Service;
@@ -36,6 +37,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
     private final ServiceNode<T> serviceNode;
     private final S serializer;
     private final NodeDataSink<T, S> dataSink;
+    private final HealthUpdateHandler<T> healthUpdateHandler;
     @Getter
     private final ExternalTriggeredSignal<Void> startSignal = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
     @Getter
@@ -46,11 +48,13 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             ServiceNode<T> serviceNode,
             S serializer,
             NodeDataSink<T, S> dataSink,
-            List<Signal<HealthcheckResult>> signalGenerators) {
+            List<Signal<HealthcheckResult>> signalGenerators,
+            final HealthUpdateHandler<T> healthUpdateHandler) {
         this.service = service;
         this.serviceNode = serviceNode;
         this.serializer = serializer;
         this.dataSink = dataSink;
+        this.healthUpdateHandler = healthUpdateHandler;
         signalGenerators.forEach(signalGenerator -> signalGenerator.registerConsumer(this::handleHealthUpdate));
     }
 
@@ -69,8 +73,7 @@ public class ServiceProvider<T, S extends Serializer<T>> {
             log.debug("No update to health state of node. Skipping data source update.");
             return;
         }
-        serviceNode.setHealthcheckStatus(result.getStatus());
-        serviceNode.setLastUpdatedTimeStamp(result.getUpdatedTime());
+        healthUpdateHandler.handleNext(result, serviceNode);
         dataSink.updateState(serializer, serviceNode);
         log.debug("Updated node with health check result: {}", result);
     }

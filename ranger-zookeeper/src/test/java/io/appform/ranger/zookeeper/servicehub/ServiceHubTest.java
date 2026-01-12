@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.healthcheck.HealthcheckResult;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.signals.ExternalTriggeredSignal;
 import io.appform.ranger.core.units.TestNodeData;
@@ -87,6 +90,8 @@ class ServiceHubTest {
                         .status(HealthcheckStatus.healthy)
                         .updatedTime(new Date().getTime())
                         .build(), Collections.emptyList());
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<>());
         val provider1 = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withHostname("localhost")
                 .withPort(1080)
@@ -97,6 +102,7 @@ class ServiceHubTest {
                 .withHealthcheck(() -> HealthcheckStatus.healthy)
                 .withAdditionalRefreshSignal(refreshProviderSignal)
                 .withCuratorFramework(curatorFramework)
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         provider1.start();
         refreshProviderSignal.trigger();

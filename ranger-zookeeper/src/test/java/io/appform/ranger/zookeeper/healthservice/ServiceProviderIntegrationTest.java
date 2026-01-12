@@ -21,6 +21,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
 import io.appform.ranger.core.healthcheck.Healthchecks;
+import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
+import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
+import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
+import io.appform.ranger.core.healthcheck.updater.StartupTimeHandler;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.RotationStatusMonitor;
 import io.appform.ranger.core.model.ServiceNode;
@@ -128,6 +132,8 @@ class ServiceProviderIntegrationTest {
     }
 
     private void registerService(String host, int port, int shardId, File file) {
+        final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
+                .setNext(new HealthStatusHandler<TestNodeData>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
@@ -145,6 +151,7 @@ class ServiceProviderIntegrationTest {
                 .withPort(port)
                 .withHealthcheck(Healthchecks.defaultHealthyCheck())
                 .withIsolatedHealthMonitor(new RotationStatusMonitor(TimeEntity.everySecond(), file.getAbsolutePath()))
+                .healthUpdateHandler(healthUpdateHandler)
                 .build();
         serviceProvider.start();
     }
