@@ -65,6 +65,11 @@
       </dependency>
       <dependency>
         <groupId>io.appform.ranger</groupId>
+        <artifactId>ranger-discovery-dw5-bundle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.appform.ranger</groupId>
         <artifactId>ranger-drove</artifactId>
         <version>${project.version}</version>
       </dependency>
