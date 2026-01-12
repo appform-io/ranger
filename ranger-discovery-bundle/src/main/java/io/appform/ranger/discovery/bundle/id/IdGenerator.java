@@ -207,15 +207,11 @@ public class IdGenerator {
     }
 
     public static Optional<Id> generate(final IdGenerationRequest request) {
-        return generateWithConstraints(request);
+        return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
 
     private Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
         val domain = request.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
-        val idGenerationInput = IdGenerationInput.builder()
-                .prefix(request.getPrefix())
-                .domain(domain)
-                .build();
         return Optional.ofNullable(baseGenerator.getRetryer().get(
                         () -> {
                             val id = getIdFromIdInfo(request.getPrefix(), request.getIdFormatter(), domain);
