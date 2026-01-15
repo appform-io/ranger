@@ -92,13 +92,13 @@ public class IdGenerator {
      * @return Generated Id
      */
     public static Id generate(final String prefix) {
-        return getIdFromIdInfo(prefix);
+        return baseGenerator.getId(getIdFromIdInfo(prefix));
     }
 
     public static Id generate(
             final String prefix,
             final IdFormatter idFormatter) {
-        return getIdFromIdInfo(prefix, idFormatter);
+        return baseGenerator.getId(getIdFromIdInfo(prefix, idFormatter));
     }
 
     /**
@@ -133,7 +133,7 @@ public class IdGenerator {
                 .domain(registeredDomain.getDomain())
                 .idFormatter(registeredDomain.getIdFormatter())
                 .build();
-        return generateWithConstraints(request);
+        return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo).map(baseGenerator::getId);
     }
 
     /**
@@ -157,7 +157,7 @@ public class IdGenerator {
      * @param idString String idString
      * @return Id if it could be generated
      */
-    public static Optional<Id> parse(final String idString) {
+    public static Optional<InternalId> parse(final String idString) {
         return IdParsers.parse(idString);
     }
 
@@ -180,7 +180,8 @@ public class IdGenerator {
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)
                                 .idFormatter(IdFormatters.original())
-                                .build());
+                                .build())
+                .map(baseGenerator::getId);
     }
 
     /**
@@ -193,7 +194,7 @@ public class IdGenerator {
      * @param domain     Domain
      * @return Id if it could be generated
      */
-    private static Optional<Id> generateWithConstraints(
+    private static Optional<InternalId> generateWithConstraints(
             String prefix,
             final Domain domain,
             boolean skipGlobal) {
@@ -206,33 +207,19 @@ public class IdGenerator {
                                 .build());
     }
 
-    public static Optional<Id> generate(final IdGenerationRequest request) {
+    public static Optional<InternalId> generate(final IdGenerationRequest request) {
         return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
-
-    private Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val domain = request.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
-        return Optional.ofNullable(baseGenerator.getRetryer().get(
-                        () -> {
-                            val id = getIdFromIdInfo(request.getPrefix(), request.getIdFormatter(), domain);
-                            return new GenerationResult(
-                                    id.getExponent(), id.getTime(),
-                                    baseGenerator.validateId(request.getConstraints(), id, request.isSkipGlobal()),
-                                    domain);
-                        }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> getIdFromIdInfo(request.getPrefix(), request.getIdFormatter(), domain));
-    }
     
-    private Id getIdFromIdInfo(final String namespace) {
+    private InternalId getIdFromIdInfo(final String namespace) {
         return getIdFromIdInfo(namespace, IdFormatters.original(), null);
     }
     
-    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
+    private InternalId getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
         return getIdFromIdInfo(namespace, idFormatter, null);
     }
     
-    private Id getIdFromIdInfo(final String namespace, final IdFormatter idFormatter, final Domain domain) {
+    private InternalId getIdFromIdInfo(final String namespace, final IdFormatter idFormatter, final Domain domain) {
         val idGenerationInput = IdGenerationInput.builder()
                 .domain(domain)
                 .build();

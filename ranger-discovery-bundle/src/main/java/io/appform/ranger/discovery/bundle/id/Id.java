@@ -33,5 +33,4 @@ public class Id {
     private Date generatedDate;
     private int node;
     private int exponent;
-    private long time;
 }

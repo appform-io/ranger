@@ -17,7 +17,7 @@
 package io.appform.ranger.discovery.bundle.id.constraints.impl;
 
 
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 
 /**
  *
@@ -31,7 +31,7 @@ public class JavaHashCodeBasedKeyPartitioner implements KeyPartitioner {
     }
 
     @Override
-    public int partition(Id id) {
+    public int partition(InternalId id) {
         var hashCode = id.getId().hashCode();
         hashCode *= hashCode < 0 ? -1 : 1;
         return hashCode % maxPartitions;

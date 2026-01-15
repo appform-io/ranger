@@ -7,6 +7,7 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.FormattedId;
@@ -76,7 +77,7 @@ public class IdGeneratorBase {
                 .build());
     }
     
-    public Optional<Id> generateWithConstraints(final IdGenerationRequest request, final IdProvider idProvider) {
+    public Optional<InternalId> generateWithConstraints(final IdGenerationRequest request, final IdProvider idProvider) {
         val domain = request.getDomain() != null ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         return Optional.ofNullable(getRetryer().get(
                         () -> {
@@ -90,9 +91,9 @@ public class IdGeneratorBase {
                 .map(generationResult -> idProvider.apply(request.getPrefix(), request.getIdFormatter(), domain));
     }
 
-    public final Id getIdFromIdInfo(final String id,
-                                    final FormattedId formattedId) {
-        return Id.builder()
+    public final InternalId getIdFromIdInfo(final String id,
+                                            final FormattedId formattedId) {
+        return InternalId.builder()
                 .id(id)
                 .exponent(formattedId.getExponent())
                 .time(formattedId.getTime())
@@ -100,8 +101,17 @@ public class IdGeneratorBase {
                 .node(getNodeId())
                 .build();
     }
+    
+    public Id getId(final InternalId id) {
+        return Id.builder()
+                .id(id.getId())
+                .exponent(id.getExponent())
+                .generatedDate(id.getGeneratedDate())
+                .node(id.getNode())
+                .build();
+    }
 
-    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
+    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId id, final boolean skipGlobal) {
         // First evaluate global constraints
         val failedGlobalConstraint
                 = skipGlobal
