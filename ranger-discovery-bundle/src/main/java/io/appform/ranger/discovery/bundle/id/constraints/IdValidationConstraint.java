@@ -17,14 +17,14 @@
 package io.appform.ranger.discovery.bundle.id.constraints;
 
 
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 
 /**
  *
  */
 public interface IdValidationConstraint {
 
-    boolean isValid(Id id);
+    boolean isValid(InternalId id);
 
     default boolean failFast() {
         return false;

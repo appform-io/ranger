@@ -15,7 +15,9 @@
  */
 package io.appform.ranger.discovery.bundle.id.formatter;
 
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
+import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerators;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.val;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -34,19 +36,27 @@ public class DefaultIdFormatter implements IdFormatter {
     }
 
     @Override
-    public String format(final DateTime dateTime,
-                         final int nodeId,
-                         final int randomNonce) {
-        return String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
+    public FormattedId format(final int nodeId,
+                              final IdGenerationInput idGenerationInput) {
+        val nonceInfo = NonceGenerators.randomNonceGenerator().generateWithConstraints(idGenerationInput);
+        val dateTime = new DateTime(nonceInfo.getTime());
+        val randomNonce = nonceInfo.getExponent();
+        val id = String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
+        return FormattedId.builder()
+                .id(id)
+                .dateTime(dateTime)
+                .time(nonceInfo.getTime())
+                .exponent(nonceInfo.getExponent())
+                .build();
     }
 
     @Override
-    public Optional<Id> parse(final String idString) {
+    public Optional<InternalId> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
         if (!matcher.find()) {
             return Optional.empty();
         }
-        return Optional.of(Id.builder()
+        return Optional.of(InternalId.builder()
                 .id(idString)
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
