@@ -16,11 +16,14 @@
 
 package io.appform.ranger.discovery.bundle;
 
+import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequestV2;
 import io.dropwizard.Configuration;
 import lombok.experimental.UtilityClass;
 import org.awaitility.Awaitility;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -46,5 +49,36 @@ public class TestUtils {
                 .untilAsserted(() -> assertNull(bundle.getServiceDiscoveryClient()
                                                            .getNode()
                                                            .orElse(null)));
+    }
+    
+    public IdGenerationRequestV2 getBase36Formatter(final String prefix,
+                                                    final String suffix,
+                                                    final String domain,
+                                                    final boolean skipGlobal,
+                                                    final List<IdValidationConstraint> constraints) {
+        return IdGenerationRequestV2.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeBase36()
+                .includeRandomNonce()
+                .domain(domain)
+                .skipGlobal(skipGlobal)
+                .constraints(constraints)
+                .build();
+    }
+    
+    public IdGenerationRequestV2 getDefaultV2Formatter(final String prefix,
+                                                       final String suffix,
+                                                       final String domain,
+                                                       final boolean skipGlobal,
+                                                       final List<IdValidationConstraint> constraints) {
+        return IdGenerationRequestV2.builder()
+                .withPrefix(prefix)
+                .withSuffix(suffix)
+                .includeRandomNonce()
+                .domain(domain)
+                .skipGlobal(skipGlobal)
+                .constraints(constraints)
+                .build();
     }
 }

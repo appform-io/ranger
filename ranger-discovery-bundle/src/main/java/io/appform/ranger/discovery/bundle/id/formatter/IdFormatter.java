@@ -17,12 +17,9 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
-
 import java.util.Optional;
 
 public interface IdFormatter {
-
-    IdParserType getType();
 
     FormattedId format(final int nodeId,
                        final IdGenerationInput idGenerationInput);

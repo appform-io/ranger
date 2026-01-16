@@ -43,6 +43,7 @@ import io.appform.ranger.discovery.bundle.healthchecks.InitialDelayChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.InternalHealthChecker;
 import io.appform.ranger.discovery.bundle.healthchecks.RotationCheck;
 import io.appform.ranger.discovery.bundle.id.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorV2;
 import io.appform.ranger.discovery.bundle.id.NodeIdManager;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardHealthMonitor;
@@ -57,6 +58,7 @@ import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.bundle.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.bundle.selectors.HierarchicalEnvironmentAwareShardSelector;
 import io.appform.ranger.discovery.bundle.util.ConfigurationUtils;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
 import io.dropwizard.Configuration;
@@ -342,7 +344,9 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
             serviceProvider.start();
             serviceDiscoveryClient.start();
             val nodeIdManager = new NodeIdManager(curator, serviceName);
-            IdGenerator.initialize(nodeIdManager.fixNodeId(), globalIdConstraints, Collections.emptyMap());
+            NodeUtils.setNode(nodeIdManager.fixNodeId());
+            IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
+            IdGeneratorV2.initialize(globalIdConstraints, Collections.emptyMap());
             log.debug("Discovery manager has been successfully started.");
         }
 

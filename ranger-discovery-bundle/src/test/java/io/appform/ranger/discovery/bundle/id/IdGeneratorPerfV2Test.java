@@ -16,6 +16,7 @@
 
 package io.appform.ranger.discovery.bundle.id;
 
+import io.appform.ranger.discovery.bundle.TestUtils;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ import java.io.IOException;
  * Test performance between different constructs
  */
 @Slf4j
-public class IdGeneratorPerfTest extends BenchmarkTest {
+public class IdGeneratorPerfV2Test extends BenchmarkTest {
 
     @State(Scope.Benchmark)
     public static class BenchmarkState {
@@ -40,13 +41,19 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
         @Setup(Level.Trial)
         public void setUp() throws IOException {
             NodeUtils.setNode(23);
-            IdGenerator.initialize();
+            IdGeneratorV2.initialize();
         }
     }
 
     @SneakyThrows
     @Benchmark
-    public void testGenerate(Blackhole blackhole, BenchmarkState state) {
-        IdGenerator.generate("X");
+    public void testGenerateSuffixedId(Blackhole blackhole, BenchmarkState state) {
+        IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y", "", false, null));
+    }
+    
+    @SneakyThrows
+    @Benchmark
+    public void testGenerateBase36Id(Blackhole blackhole, BenchmarkState state) {
+        IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y", "", false, null));
     }
 }
