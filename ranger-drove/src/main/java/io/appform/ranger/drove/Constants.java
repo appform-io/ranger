@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.discovery.bundle.id.formatter;
 
-import io.appform.ranger.discovery.bundle.id.InternalId;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
-import java.util.Optional;
+package io.appform.ranger.drove;
 
-public interface IdFormatter {
+import lombok.experimental.UtilityClass;
 
-    FormattedId format(final int nodeId,
-                       final IdGenerationInput idGenerationInput);
+/**
+ * Constants
+ */
+@UtilityClass
+public class Constants {
+   public static final String DROVE_ROUTING_WEIGHT_TAG = "drove-routing-weight";
 
-    Optional<InternalId> parse(final String idString);
-
+   public static final String DROVE_HEALTHY_SINCE_TAG = "drove-healthy-since";
 }

@@ -7,16 +7,14 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
-import io.appform.ranger.discovery.bundle.id.NonceInfo;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.FormattedId;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceUtils;
-import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerator;
-import io.appform.ranger.discovery.bundle.id.nonce.RandomNonceGenerator;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInternalRequest;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import lombok.Getter;
 import lombok.val;
@@ -26,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -78,10 +77,25 @@ public class IdGeneratorBase {
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
     }
+    
+    public Optional<InternalId> generateWithConstraints(final IdGenerationInternalRequest request, final IdProvider idProvider) {
+        val domain = request.getDomain() != null ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val constraints = request.getConstraints() != null ? request.getConstraints() : domain.getConstraints();
+        return Optional.ofNullable(getRetryer().get(
+                        () -> {
+                            val id = idProvider.apply(request);
+                            return new GenerationResult(
+                                    id.getExponent(), id.getTime(),
+                                    validateId(constraints, id, request.isSkipGlobal()),
+                                    domain);
+                        }))
+                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
+                .map(generationResult -> idProvider.apply(request));
+    }
 
-    public final Id getIdFromIdInfo(final String id,
-                                    final FormattedId formattedId) {
-        return Id.builder()
+    public final InternalId getIdFromIdInfo(final String id,
+                                            final FormattedId formattedId) {
+        return InternalId.builder()
                 .id(id)
                 .exponent(formattedId.getExponent())
                 .time(formattedId.getTime())
@@ -89,8 +103,22 @@ public class IdGeneratorBase {
                 .node(getNodeId())
                 .build();
     }
+    
+    public Id getId(final InternalId id) {
+        if (id == null) {
+            return null;
+        }
+        return Id.builder()
+                .id(id.getId())
+                .exponent(id.getExponent())
+                .generatedDate(id.getGeneratedDate())
+                .node(id.getNode())
+                .prefix(id.getPrefix())
+                .suffix(id.getSuffix())
+                .build();
+    }
 
-    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
+    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId id, final boolean skipGlobal) {
         // First evaluate global constraints
         val failedGlobalConstraint
                 = skipGlobal

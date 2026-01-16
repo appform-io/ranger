@@ -15,7 +15,7 @@
  */
 package io.appform.ranger.discovery.bundle.id.formatter;
 
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class IdParsers {
     );
 
     /**
-     * Parses a string representation of an ID and converts it into an {@link Id} object.
+     * Parses a string representation of an ID and converts it into an {@link InternalId} object.
      *
      * <p>This method attempts to parse the input string using a predefined regex pattern that expects
      * the following format: {@code ([A-Za-z]*)([\\d]{22})([\\d]{2})?(.*)}</p>
@@ -65,7 +65,7 @@ public class IdParsers {
      *
      * @param idString the string representation of the ID to parse. Must not be null and should be
      *                 at least {@value #MINIMUM_ID_LENGTH} characters long to be considered valid
-     * @return an {@link Optional} containing the parsed {@link Id} if the string could be successfully
+     * @return an {@link Optional} containing the parsed {@link InternalId} if the string could be successfully
      *         parsed and converted, or {@link Optional#empty()} if:
      *         <ul>
      *           <li>The input string is null</li>
@@ -74,12 +74,12 @@ public class IdParsers {
      *           <li>An exception occurs during parsing</li>
      *         </ul>
      *
-     * @see Id
+     * @see InternalId
      * @see IdFormatter
      * @see IdFormatters#original()
      * @since 1.0
      */
-    public Optional<Id> parse(final String idString) {
+    public Optional<InternalId> parse(final String idString) {
         if (idString == null || idString.length() < MINIMUM_ID_LENGTH) {
             return Optional.empty();
         }

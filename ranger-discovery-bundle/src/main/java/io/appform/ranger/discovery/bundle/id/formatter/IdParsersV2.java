@@ -17,6 +17,7 @@ package io.appform.ranger.discovery.bundle.id.formatter;
 
 import io.appform.ranger.discovery.bundle.id.Id;
 import io.appform.ranger.discovery.bundle.id.IdGeneratorType;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,7 @@ public class IdParsersV2 {
      * @see io.appform.ranger.discovery.bundle.id.decorators.IdDecorators#base36()
      * @since 1.0
      */
-    public Optional<Id> parse(final String idString) {
+    public Optional<InternalId> parse(final String idString) {
         if (idString == null) {
             return Optional.empty();
         }

@@ -15,8 +15,7 @@
  */
 package io.appform.ranger.discovery.bundle.id.formatter;
 
-import com.google.common.base.Preconditions;
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceGenerators;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import lombok.val;
@@ -47,12 +46,12 @@ public class DefaultIdFormatter implements IdFormatter {
     }
 
     @Override
-    public Optional<Id> parse(final String idString) {
+    public Optional<InternalId> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
         if (!matcher.find()) {
             return Optional.empty();
         }
-        return Optional.of(Id.builder()
+        return Optional.of(InternalId.builder()
                 .id(idString)
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
