@@ -57,14 +57,14 @@ public class IdGenerationRequestV2 {
         private final List<IdDecorator> idDecorators = new ArrayList<>();
         private int idGenerationValue;
         
-        public IdGeneratorRequestBuilder withPrefix(final String prefix) {
+        public IdGeneratorRequestBuilder prefix(final String prefix) {
             validateIdPrefix(prefix);
             this.prefix = prefix;
             return this;
         }
         
-        public IdGeneratorRequestBuilder withSuffix(final String suffix) {
-            validateIdSuffix(prefix);
+        public IdGeneratorRequestBuilder suffix(final String suffix) {
+            validateIdSuffix(suffix);
             this.suffix = suffix;
             return this;
         }

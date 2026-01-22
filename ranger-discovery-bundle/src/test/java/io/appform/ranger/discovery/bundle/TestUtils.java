@@ -57,8 +57,8 @@ public class TestUtils {
                                                     final boolean skipGlobal,
                                                     final List<IdValidationConstraint> constraints) {
         return IdGenerationRequestV2.builder()
-                .withPrefix(prefix)
-                .withSuffix(suffix)
+                .prefix(prefix)
+                .suffix(suffix)
                 .includeBase36()
                 .includeRandomNonce()
                 .domain(domain)
@@ -73,8 +73,8 @@ public class TestUtils {
                                                        final boolean skipGlobal,
                                                        final List<IdValidationConstraint> constraints) {
         return IdGenerationRequestV2.builder()
-                .withPrefix(prefix)
-                .withSuffix(suffix)
+                .prefix(prefix)
+                .suffix(suffix)
                 .includeRandomNonce()
                 .domain(domain)
                 .skipGlobal(skipGlobal)

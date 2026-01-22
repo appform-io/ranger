@@ -34,7 +34,10 @@ import lombok.val;
 import java.util.*;
 
 /**
- * Id generation
+ * Id generation utility for creating unique identifiers.
+ * Supports constraint-based validation, domain-specific configurations, and flexible formatting.
+ * 
+ * Note: This class uses {@link NodeUtils} for managing node identifiers in a thread-safe manner.
  */
 @SuppressWarnings("unused")
 @Slf4j
@@ -42,8 +45,22 @@ import java.util.*;
 public class IdGenerator {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
 
+    /**
+     * Initialize the ID generator using the default node ID from {@link NodeUtils}.
+     */
     public static void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
+    }
+
+    /**
+     * Initialize the ID generator with a specific node ID.
+     * This method is provided for backward compatibility and convenience.
+     *
+     * @param node the node identifier to use
+     */
+    public static void initialize(int node) {
+        NodeUtils.setDefaultNode(node);
+        initialize();
     }
     
     public static synchronized void cleanUp() {

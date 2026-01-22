@@ -39,6 +39,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * V2 ID Generator - Enhanced ID generation with support for decorators, custom suffixes, and random nonce formatting.
+ * Provides backward-compatible parallel API to the original {@link IdGenerator}.
+ * 
+ * Uses dynamic node ID initialization via {@link NodeUtils} and supports constraint-based ID validation.
+ */
 @SuppressWarnings("unused")
 @Slf4j
 @UtilityClass
@@ -57,7 +63,7 @@ public class IdGeneratorV2 {
             List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
         initialize();
-        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
+        if (null != globalConstraints && !globalConstraints.isEmpty()) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
 
@@ -152,7 +158,6 @@ public class IdGeneratorV2 {
                 .idFormatter(request.getIdFormatter())
                 .domain(request.getDomain())
                 .suffix(request.getSuffix())
-                .idFormatter(request.getIdFormatter())
                 .idDecorators(request.getIdDecorators())
                 .idGenerationValue(request.getIdGenerationValue())
                 .build();

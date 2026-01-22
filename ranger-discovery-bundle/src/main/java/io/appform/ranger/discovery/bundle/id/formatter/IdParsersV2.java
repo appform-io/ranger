@@ -100,7 +100,7 @@ public class IdParsersV2 {
             String parsedIdString = idString;
             // Running through decorators
             for (IdDecorator idDecorator: decoratorsParserRegistry.get(generators)) {
-                parsedIdString = idDecorator.parse(idString).orElse(null);
+                parsedIdString = idDecorator.parse(parsedIdString).orElse(null);
             }
             
             if (parsedIdString == null) {
