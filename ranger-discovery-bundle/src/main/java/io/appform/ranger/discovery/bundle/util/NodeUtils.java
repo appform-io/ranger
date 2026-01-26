@@ -37,11 +37,4 @@ public class NodeUtils {
         Integer threadNode = NODE_THREAD_LOCAL.get();
         return threadNode != null ? threadNode : defaultNode;
     }
-
-    /**
-     * Clear the thread-local node ID.
-     */
-    public static void clearNode() {
-        NODE_THREAD_LOCAL.remove();
-    }
 }
