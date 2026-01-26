@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.appform.ranger.id.test</groupId>
     <artifactId>ranger</artifactId>
-    <version>976.5-RC9-SUFFFIX-1-SNAPSHOT</version>
+    <version>976.5-RC9-SUFFFIX-2-SNAPSHOT</version>
   </parent>
 
   <artifactId>ranger-bom</artifactId>

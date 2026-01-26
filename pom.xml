@@ -23,7 +23,7 @@
     <groupId>io.appform.ranger.id.test</groupId>
     <artifactId>ranger</artifactId>
     <packaging>pom</packaging>
-    <version>976.5-RC9-SUFFFIX-1-SNAPSHOT</version>
+    <version>976.5-RC9-SUFFFIX-2-SNAPSHOT</version>
     <name>Ranger Service Discovery</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>

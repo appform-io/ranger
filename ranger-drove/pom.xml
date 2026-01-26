@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ranger</artifactId>
         <groupId>io.appform.ranger.id.test</groupId>
-        <version>976.5-RC9-SUFFFIX-1-SNAPSHOT</version>
+        <version>976.5-RC9-SUFFFIX-2-SNAPSHOT</version>
     </parent>
     <properties>
         <drove.version>1.30</drove.version>
