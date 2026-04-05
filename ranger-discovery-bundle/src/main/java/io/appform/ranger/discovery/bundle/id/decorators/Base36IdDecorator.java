@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Base36IdDecorator implements IdDecorator {
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([A-Z0-9]{16})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Z0-9]{16})(.*)");
     private static final Integer BASE36_MAX_LENGTH = 16;
     
     @Override
@@ -45,10 +45,10 @@ public class Base36IdDecorator implements IdDecorator {
         if (!matcher.find()) {
             return Optional.empty();
         }
-        val base36Data = matcher.group(3);
+        val base36Data = matcher.group(1);
         val base10Data = toBase10(base36Data);
         
-        return Optional.of(String.format("%s%s%s%s", matcher.group(1), matcher.group(2), base10Data, matcher.group(4)));
+        return Optional.of(String.format("%s%s", base10Data, matcher.group(2)));
     }
     
     private static String toBase36(final String payload) {

@@ -97,15 +97,14 @@ public class IdParsersV2 {
                 return Optional.empty();
             }
             val generators = Integer.parseInt(matcher.group(2));
-            String parsedIdString = idString;
+            String decoratedIdString = matcher.group(3);
             // Running through decorators
             for (IdDecorator idDecorator: decoratorsParserRegistry.get(generators)) {
-                parsedIdString = idDecorator.parse(parsedIdString).orElse(null);
+                decoratedIdString = idDecorator.parse(decoratedIdString).orElse(null);
             }
             
-            if (parsedIdString == null) {
-                throw new RuntimeException(String.format("Decorator parsing failed for idString: %s", idString));
-            }
+            val parsedIdString = String.format("%s%02d%s", matcher.group(1), generators, decoratedIdString);
+            
             val parsedId = formattersParserRegistry.get(generators).parse(parsedIdString)
                     .orElseThrow(() -> new RuntimeException(String.format("Parsing failed with formatter for idString: %s", idString)));
             parsedId.setId(idString);
