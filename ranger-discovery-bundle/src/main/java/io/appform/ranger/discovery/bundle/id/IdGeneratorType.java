@@ -5,7 +5,6 @@ import io.appform.ranger.discovery.bundle.id.decorators.IdDecorators;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import lombok.Getter;
-import lombok.val;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,8 +57,7 @@ public enum IdGeneratorType {
                     ));
     
     public static Optional<Integer> findValue(final IdFormatter formatter, final List<IdDecorator> decorators) {
-        val safeDecorators = decorators != null ? decorators : List.of();
         return Optional.ofNullable(LOOKUP_MAP.get(formatter))
-                .map(innerMap -> innerMap.get(safeDecorators));
+                .map(innerMap -> innerMap.get(decorators));
     }
 }
