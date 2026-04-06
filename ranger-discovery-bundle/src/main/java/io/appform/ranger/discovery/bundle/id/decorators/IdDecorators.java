@@ -5,9 +5,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class IdDecorators {
     
-    private static final IdDecorator base36IdFormatter = new Base36IdDecorator();
+    private static final IdDecorator base36IdDecorator = new Base36IdDecorator();
     
     public static IdDecorator base36() {
-        return base36IdFormatter;
+        return base36IdDecorator;
     }
 }
