@@ -5,10 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//import javax.validation.constraints.DecimalMax;
-//import javax.validation.constraints.DecimalMin;
-//import javax.validation.constraints.Max;
-//import javax.validation.constraints.Min;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import static io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector.DEFAULT_BOOST_FACTOR;
 import static io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNodeSelector.DEFAULT_MIN_NODE_AGE;
@@ -19,16 +19,16 @@ import static io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNo
 @AllArgsConstructor
 @Builder
 public class WeightedNodeSelectorConfig {
-//    @Min(0)
-//    @Max(600000)
+    @Min(0)
+    @Max(600000)
     private long minNodeAgeMs = DEFAULT_MIN_NODE_AGE;
-//
-//    @DecimalMin("1.0")
-//    @DecimalMax("5.0")
+
+    @DecimalMin("1.0")
+    @DecimalMax("5.0")
     private double weightBoostMultiplier = DEFAULT_BOOST_FACTOR; // Multiplier applied to node weights for boosting older nodes during selection
 
-//    @Min(1)
-//    @Max(50)
+    @Min(1)
+    @Max(50)
     private int weightedSelectionThreshold = DEFAULT_WEIGHTED_SELECTION_MIN_NODES_THRESHOLD;
 
     public void validate() {

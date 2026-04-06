@@ -20,8 +20,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-//import javax.validation.Valid;
-//import javax.validation.constraints.NotEmpty;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -40,8 +40,8 @@ public class DroveUpstreamConfig {
     public static final Duration DEFAULT_OPERATION_TIMEOUT = Duration.seconds(5);
     public static final Duration DEFAULT_EVENT_POLLING_INTERVAL = Duration.seconds(5);
 
-//    @Valid
-//    @NotEmpty
+    @Valid
+    @NotEmpty
     List<String> endpoints;
 
     Duration checkInterval;
