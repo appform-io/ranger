@@ -49,18 +49,6 @@ public class ZkSimpleShardedServiceFinderBuilder<T> extends SimpleShardedService
         this.connectionString = connectionString;
         return this;
     }
-    
-    @Override
-    protected List<Signal<T>> implementationSpecificRefreshSignals(final Service service, final NodeDataSource<T, ZkNodeDataDeserializer<T>> nodeDataSource) {
-        if (!disablePushUpdaters) {
-            return Collections.singletonList(
-                    new ZkWatcherRegistryUpdateSignal<>(service, nodeDataSource, curatorFramework));
-        }
-        else {
-            log.info("Push based signal updater not registered for service: {}", service.getServiceName());
-        }
-        return Collections.emptyList();
-    }
 
     @Override
     public SimpleShardedServiceFinder<T> build() {
@@ -80,5 +68,17 @@ public class ZkSimpleShardedServiceFinderBuilder<T> extends SimpleShardedService
     @Override
     protected NodeDataSource<T, ZkNodeDataDeserializer<T>> dataSource(Service service) {
         return new ZkNodeDataSource<>(service, curatorFramework);
+    }
+
+    @Override
+    protected List<Signal<T>> implementationSpecificRefreshSignals(final Service service, final NodeDataSource<T, ZkNodeDataDeserializer<T>> nodeDataSource) {
+        if (!disablePushUpdaters) {
+            return Collections.singletonList(
+                    new ZkWatcherRegistryUpdateSignal<>(service, nodeDataSource, curatorFramework));
+        }
+        else {
+            log.info("Push based signal updater not registered for service: {}", service.getServiceName());
+        }
+        return Collections.emptyList();
     }
 }
