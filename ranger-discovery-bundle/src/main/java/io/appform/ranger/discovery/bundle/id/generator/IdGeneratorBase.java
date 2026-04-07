@@ -11,9 +11,8 @@ import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.FormattedId;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceUtils;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInternalRequest;
 import lombok.Getter;
 import lombok.val;
 
@@ -72,26 +71,28 @@ public class IdGeneratorBase {
         registeredDomains.computeIfAbsent(domain, key -> Domain.builder()
                 .domain(domain)
                 .constraints(validationConstraints)
-                .idFormatter(IdFormatters.original())
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
     }
     
-    public Optional<InternalId> generateWithConstraints(final IdGenerationRequest request, final IdProvider idProvider) {
+    public Optional<InternalId> generateWithConstraints(final IdGenerationInternalRequest request, final IdProvider idProvider) {
         val domain = request.getDomain() != null ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val constraints = request.getConstraints() != null ? request.getConstraints() : domain.getConstraints();
         return Optional.ofNullable(getRetryer().get(
                         () -> {
-                            val id = idProvider.apply(request.getPrefix(), request.getIdFormatter(), domain);
+                            val id = idProvider.apply(request);
                             return new GenerationResult(
                                     id.getExponent(), id.getTime(),
-                                    validateId(request.getConstraints(), id, request.isSkipGlobal()),
+                                    validateId(constraints, id, request.isSkipGlobal()),
                                     domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> idProvider.apply(request.getPrefix(), request.getIdFormatter(), domain));
+                .map(generationResult -> idProvider.apply(request));
     }
 
     public final InternalId getIdFromIdInfo(final String id,
+                                            final String prefix,
+                                            final String suffix,
                                             final FormattedId formattedId) {
         return InternalId.builder()
                 .id(id)
@@ -99,15 +100,22 @@ public class IdGeneratorBase {
                 .time(formattedId.getTime())
                 .generatedDate(formattedId.getDateTime().toDate())
                 .node(getNodeId())
+                .prefix(prefix)
+                .suffix(suffix)
                 .build();
     }
     
     public Id getId(final InternalId id) {
+        if (id == null) {
+            return null;
+        }
         return Id.builder()
                 .id(id.getId())
                 .exponent(id.getExponent())
                 .generatedDate(id.getGeneratedDate())
                 .node(id.getNode())
+                .prefix(id.getPrefix())
+                .suffix(id.getSuffix())
                 .build();
     }
 

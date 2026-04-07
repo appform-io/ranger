@@ -22,6 +22,8 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.discovery.bundle.id.IdGenerator;
+import io.appform.ranger.discovery.bundle.id.IdGeneratorV2;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -91,6 +93,8 @@ class ServiceDiscoveryBundleDwMonitorTest {
 
     @BeforeEach
     void setup() throws Exception {
+        IdGenerator.cleanUp();
+        IdGeneratorV2.cleanUp();
         healthChecks.register("twice-healthy-only", new HealthCheck() {
             private final AtomicInteger counter = new AtomicInteger(5);
 

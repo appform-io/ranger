@@ -15,4 +15,6 @@ public class FormattedId {
     private DateTime dateTime;
     private int exponent;
     private long time;
+    private String prefix;
+    private String suffix;
 }
