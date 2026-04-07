@@ -35,14 +35,14 @@ public class RandomNonceIdFormatter implements IdFormatter {
     public FormattedId format(final int nodeId,
                               final IdGenerationInput idGenerationInput) {
         val nonceInfo = NonceGenerators.randomNonceGenerator().generateWithConstraints(idGenerationInput);
-        val dateTime = new DateTime(nonceInfo.getTime());
         val randomNonce = nonceInfo.getExponent();
+        val dateTime = new DateTime(nonceInfo.getTime());
         val id = String.format("%s%04d%03d", DATE_TIME_FORMATTER.print(dateTime), nodeId, randomNonce);
         return FormattedId.builder()
                 .id(id)
                 .dateTime(dateTime)
-                .time(nonceInfo.getTime())
                 .exponent(nonceInfo.getExponent())
+                .time(nonceInfo.getTime())
                 .build();
     }
     
