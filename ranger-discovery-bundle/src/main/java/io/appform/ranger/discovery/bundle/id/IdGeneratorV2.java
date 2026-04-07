@@ -58,6 +58,30 @@ public class IdGeneratorV2 {
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
     }
+    
+    public static void registerDomain(Domain domain) {
+        baseGenerator.registerDomain(domain);
+    }
+    
+    public static synchronized void registerGlobalConstraints(IdValidationConstraint... constraints) {
+        registerGlobalConstraints(ImmutableList.copyOf(constraints));
+    }
+    
+    public static synchronized void registerGlobalConstraints(List<IdValidationConstraint> constraints) {
+        baseGenerator.registerGlobalConstraints(constraints);
+    }
+    
+    public static synchronized void registerDomainSpecificConstraints(
+            final String domain,
+            final IdValidationConstraint... validationConstraints) {
+        registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
+    }
+    
+    public static synchronized void registerDomainSpecificConstraints(
+            String domain,
+            List<IdValidationConstraint> validationConstraints) {
+        baseGenerator.registerDomainSpecificConstraints(domain, validationConstraints);
+    }
 
     public static synchronized void initialize(
             List<IdValidationConstraint> globalConstraints,
@@ -70,30 +94,6 @@ public class IdGeneratorV2 {
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
-    }
-
-    public static void registerDomain(Domain domain) {
-        baseGenerator.registerDomain(domain);
-    }
-
-    public static synchronized void registerGlobalConstraints(IdValidationConstraint... constraints) {
-        registerGlobalConstraints(ImmutableList.copyOf(constraints));
-    }
-
-    public static synchronized void registerGlobalConstraints(List<IdValidationConstraint> constraints) {
-        baseGenerator.registerGlobalConstraints(constraints);
-    }
-
-    public static synchronized void registerDomainSpecificConstraints(
-            final String domain,
-            final IdValidationConstraint... validationConstraints) {
-        registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
-    }
-
-    public static synchronized void registerDomainSpecificConstraints(
-            String domain,
-            List<IdValidationConstraint> validationConstraints) {
-        baseGenerator.registerDomainSpecificConstraints(domain, validationConstraints);
     }
     
     /**
