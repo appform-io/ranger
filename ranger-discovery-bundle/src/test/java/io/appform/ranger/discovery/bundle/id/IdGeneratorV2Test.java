@@ -91,6 +91,7 @@ class IdGeneratorV2Test {
     @BeforeEach
     void setup() {
         NodeUtils.setNode(nodeId);
+        IdGeneratorV2.initialize();
     }
 
     @AfterEach
@@ -283,8 +284,8 @@ class IdGeneratorV2Test {
     @Test
     void testGenerateWithNumericalPrefix() {
         val prefix = "10";
-        val exception = Assertions.assertThrows(IllegalArgumentException.class, () ->
-                IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter(prefix, "", "", false, null)));
+        val request = TestUtils.getDefaultV2Formatter(prefix, "", "", false, null);
+        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGeneratorV2.generate(request));
         Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
     }
     

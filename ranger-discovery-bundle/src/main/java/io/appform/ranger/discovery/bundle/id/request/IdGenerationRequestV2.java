@@ -103,31 +103,31 @@ public class IdGenerationRequestV2 {
                     .orElseThrow(() -> new RuntimeException("Invalid combination of formatter and decorators"));
             return new IdGenerationRequestV2(this);
         }
-    }
-    
-    private static void validateIdPrefix(final String namespace) {
-        if (Strings.isNullOrEmpty(namespace)) {
-            return;
+        
+        private static void validateIdPrefix(final String namespace) {
+            if (Strings.isNullOrEmpty(namespace)) {
+                return;
+            }
+            val idRegex = "^[a-zA-Z]+$";
+            Preconditions.checkArgument(
+                    namespace.matches(idRegex),
+                    "Prefix does not match the required regex: " + idRegex);
         }
-        val idRegex = "^[a-zA-Z]+$";
-        Preconditions.checkArgument(
-                namespace.matches(idRegex),
-                "Prefix does not match the required regex: " + idRegex);
-    }
-    
-    private static void validateIdSuffix(final String suffix) {
-        if (Strings.isNullOrEmpty(suffix)) {
-            return;
+        
+        private static void validateIdSuffix(final String suffix) {
+            if (Strings.isNullOrEmpty(suffix)) {
+                return;
+            }
+            val idRegex = "^[a-zA-Z0-9]+$";
+            Preconditions.checkArgument(
+                    suffix.matches(idRegex),
+                    "Suffix does not match the required regex: " + idRegex);
         }
-        val idRegex = "^[a-zA-Z0-9]+$";
-        Preconditions.checkArgument(
-                suffix.matches(idRegex),
-                "Suffix does not match the required regex: " + idRegex);
-    }
-    
-    private static void validateIdFormatterSelection(final IdFormatter idFormatter) {
-        Preconditions.checkArgument(
-                Objects.isNull(idFormatter),
-                "Only one IdFormatter can be selected per request" + idFormatter);
+        
+        private static void validateIdFormatterSelection(final IdFormatter idFormatter) {
+            Preconditions.checkArgument(
+                    Objects.isNull(idFormatter),
+                    "Only one IdFormatter can be selected per request" + idFormatter);
+        }
     }
 }

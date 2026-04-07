@@ -12,21 +12,10 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 
-public class IdParsersV2Test {
+class IdParsersV2Test {
 
     @Test
     void testDefaultId() throws ParseException {
-        val id = "T2407101232336168748798";
-        val parsedId = IdParsersV2.parse(id).orElse(null);
-        Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(id, parsedId.getId());
-        Assertions.assertEquals(798, parsedId.getExponent());
-        Assertions.assertEquals(8748, parsedId.getNode());
-        assertDate("240710123233616", parsedId.getGeneratedDate());
-    }
-    
-    @Test
-    void testDefaultIdWithType() throws ParseException {
         val id = "T2407101232336168748798";
         val parsedId = IdParsersV2.parse(id).orElse(null);
         Assertions.assertNotNull(parsedId);
