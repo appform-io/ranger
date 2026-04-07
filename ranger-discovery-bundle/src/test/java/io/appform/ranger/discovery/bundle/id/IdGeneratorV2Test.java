@@ -256,6 +256,8 @@ class IdGeneratorV2Test {
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getPrefix(), generatedId.getPrefix());
+        Assertions.assertEquals(parsedId.getSuffix(), generatedId.getSuffix());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
     
@@ -267,6 +269,8 @@ class IdGeneratorV2Test {
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getPrefix(), generatedId.getPrefix());
+        Assertions.assertEquals(parsedId.getSuffix(), generatedId.getSuffix());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
     
@@ -278,15 +282,25 @@ class IdGeneratorV2Test {
         Assertions.assertEquals(parsedId.getId(), generatedId.getId());
         Assertions.assertEquals(parsedId.getExponent(), generatedId.getExponent());
         Assertions.assertEquals(parsedId.getNode(), generatedId.getNode());
+        Assertions.assertEquals(parsedId.getPrefix(), generatedId.getPrefix());
+        Assertions.assertEquals(parsedId.getSuffix(), generatedId.getSuffix());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
     
     @Test
     void testGenerateWithNumericalPrefix() {
         val prefix = "10";
-        val request = TestUtils.getDefaultV2Formatter(prefix, "", "", false, null);
-        val exception = Assertions.assertThrows(IllegalArgumentException.class, () -> IdGeneratorV2.generate(request));
+        val exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> TestUtils.getDefaultV2Formatter(prefix, "", "", false, null));
         Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
+    }
+    
+    @Test
+    void testGenerateWithSpecialCharactersSuffix() {
+        val suffix = "10$";
+        val exception = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> TestUtils.getDefaultV2Formatter("", suffix, "", false, null));
+        Assertions.assertEquals("Suffix does not match the required regex: ^[a-zA-Z0-9]+$", exception.getMessage());
     }
     
     @Test

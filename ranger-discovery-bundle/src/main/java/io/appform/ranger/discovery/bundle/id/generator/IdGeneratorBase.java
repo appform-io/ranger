@@ -91,6 +91,8 @@ public class IdGeneratorBase {
     }
 
     public final InternalId getIdFromIdInfo(final String id,
+                                            final String prefix,
+                                            final String suffix,
                                             final FormattedId formattedId) {
         return InternalId.builder()
                 .id(id)
@@ -98,6 +100,8 @@ public class IdGeneratorBase {
                 .time(formattedId.getTime())
                 .generatedDate(formattedId.getDateTime().toDate())
                 .node(getNodeId())
+                .prefix(prefix)
+                .suffix(suffix)
                 .build();
     }
     

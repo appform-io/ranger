@@ -228,6 +228,6 @@ public class IdGenerator {
                 .build();
         val formattedId = idGenerationRequest.getIdFormatter().format(baseGenerator.getNodeId(), idGenerationInput);
         val id = String.format("%s%s", idGenerationRequest.getPrefix(), formattedId.getId());
-        return baseGenerator.getIdFromIdInfo(id, formattedId);
+        return baseGenerator.getIdFromIdInfo(id, idGenerationRequest.getPrefix(), null, formattedId);
     }
 }

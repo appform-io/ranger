@@ -53,6 +53,7 @@ public class DefaultIdFormatter implements IdFormatter {
         }
         return Optional.of(InternalId.builder()
                 .id(idString)
+                .prefix(matcher.group(1))
                 .node(Integer.parseInt(matcher.group(3)))
                 .exponent(Integer.parseInt(matcher.group(4)))
                 .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())

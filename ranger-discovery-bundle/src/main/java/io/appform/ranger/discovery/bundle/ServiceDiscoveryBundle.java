@@ -352,10 +352,11 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
 
         @Override
         public void stop() {
-            serviceDiscoveryClient.stop();
+            serviceDiscoveryClient.stop();``````
             serviceProvider.stop();
             curator.close();
             IdGenerator.cleanUp();
+            IdGeneratorV2.cleanUp();
         }
     }
 

@@ -147,7 +147,7 @@ public class IdGeneratorV2 {
         }
         
         val id = String.format("%s%02d%s%s", request.getPrefix(), request.getIdGenerationValue(), decoratedId, request.getSuffix());
-        return baseGenerator.getIdFromIdInfo(id, formattedId);
+        return baseGenerator.getIdFromIdInfo(id, request.getPrefix(), request.getSuffix(), formattedId);
     }
     
     private IdGenerationInternalRequest getRequest(final IdGenerationRequestV2 request) {
