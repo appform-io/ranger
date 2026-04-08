@@ -48,12 +48,12 @@ public class CollisionChecker {
         dataLock.lock();
         try {
             long resolvedTime = resolution.convert(timeInMillis, TimeUnit.MILLISECONDS);
-            if (currentInstant != resolvedTime) {
+            if (currentInstant < resolvedTime) {
                 currentInstant = resolvedTime;
                 bitSet.clear();
             }
 
-            if (bitSet.get(location)) {
+            if (currentInstant > resolvedTime || bitSet.get(location)) {
                 return false;
             }
             bitSet.set(location);
