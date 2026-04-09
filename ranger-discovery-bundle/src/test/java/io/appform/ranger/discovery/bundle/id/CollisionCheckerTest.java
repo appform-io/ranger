@@ -70,10 +70,7 @@ class CollisionCheckerTest {
         IntStream.range(0, 1000).forEach(i -> {
             long time1 = collisionChecker.checkAndGetTime(i);
             long time2 = collisionChecker.checkAndGetTime(i);
-
-            if (time1 == System.currentTimeMillis()) {
-                Assertions.assertEquals(-1L, time2);
-            }
+            Assertions.assertNotEquals(time2, time1);
         });
     }
 }
