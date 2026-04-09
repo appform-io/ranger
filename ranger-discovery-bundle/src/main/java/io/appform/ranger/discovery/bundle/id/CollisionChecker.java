@@ -44,22 +44,22 @@ public class CollisionChecker {
         this.resolution = resolution;
     }
 
-    public boolean check(long timeInMillis, int location) {
+    public long checkAndGetTime(int location) {
         dataLock.lock();
         try {
-            long resolvedTime = resolution.convert(timeInMillis, TimeUnit.MILLISECONDS);
+            long resolvedTime = resolution.convert(
+                    System.currentTimeMillis(), TimeUnit.MILLISECONDS
+            );
             if (currentInstant != resolvedTime) {
                 currentInstant = resolvedTime;
                 bitSet.clear();
             }
-
             if (bitSet.get(location)) {
-                return false;
+                return -1;
             }
             bitSet.set(location);
-            return true;
-        }
-        finally {
+            return resolvedTime;
+        } finally {
             dataLock.unlock();
         }
     }

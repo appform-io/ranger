@@ -17,10 +17,13 @@
 package io.appform.ranger.discovery.bundle.id;
 
 
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import java.util.stream.IntStream;
+
+import static org.awaitility.Awaitility.await;
+
 
 /**
  * Test on {@link CollisionChecker}
@@ -28,13 +31,49 @@ import java.util.stream.IntStream;
 class CollisionCheckerTest {
 
     @Test
-    void testCheck() {
+    void testCheckAndGetTimeAndCollision() {
         CollisionChecker collisionChecker = new CollisionChecker();
-        Assertions.assertTrue(collisionChecker.check(100, 1));
-        Assertions.assertFalse(collisionChecker.check(100, 1));
+
+        long firstAttempt = collisionChecker.checkAndGetTime(1);
+        long secondAttempt = collisionChecker.checkAndGetTime(1);
+
+        Assertions.assertTrue(firstAttempt > 0, "Should successfully return a valid timestamp");
+
+        // the second attempt MUST be a collision if still we are on same millisecond (-1)
+        if (System.currentTimeMillis() == firstAttempt) {
+            Assertions.assertEquals(-1L, secondAttempt, "Should return -1 on collision");
+        }
+    }
+
+    @Test
+    void testTimeRolloverClearsBitSet() {
+        CollisionChecker collisionChecker = new CollisionChecker();
+
+        long firstTime = collisionChecker.checkAndGetTime(10);
+        Assertions.assertTrue(firstTime > 0);
+        
+        await().atMost(101, TimeUnit.MILLISECONDS)
+                .until(() -> System.currentTimeMillis() > firstTime);
+
+        long secondTime = collisionChecker.checkAndGetTime(10);
+
+        Assertions.assertTrue(secondTime > firstTime, "Time should have moved forward");
+        Assertions.assertNotEquals(-1L, secondTime, "Should successfully acquire location 10 in the new millisecond");
+    }
+
+    @Test
+    void testHighVolumeCheckAndGetTimeInSingleMillisecond() {
+        CollisionChecker collisionChecker = new CollisionChecker();
+
+        // Generate 1000 IDs as fast as possible.
+        // We assert that any duplicate location requested in the exact same ms returns -1
         IntStream.range(0, 1000).forEach(i -> {
-            Assertions.assertTrue(collisionChecker.check(101, i));
-            Assertions.assertFalse(collisionChecker.check(101, i));
+            long time1 = collisionChecker.checkAndGetTime(i);
+            long time2 = collisionChecker.checkAndGetTime(i);
+
+            if (time1 == System.currentTimeMillis()) {
+                Assertions.assertEquals(-1L, time2);
+            }
         });
     }
 }
