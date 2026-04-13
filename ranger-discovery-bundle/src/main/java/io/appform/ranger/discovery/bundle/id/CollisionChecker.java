@@ -31,8 +31,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CollisionChecker {
     private final BitSet bitSet = new BitSet(1000);
     private long currentInstant = 0;
-
     private final Lock dataLock = new ReentrantLock();
+    private static final long NANO_TIME_MS;
+    private static final long CURRENT_TIME_MS;
+    private static final long NANO_TO_EPOCH_OFFSET_MS;
+
+    static {
+        NANO_TIME_MS = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+        CURRENT_TIME_MS = System.currentTimeMillis();
+        NANO_TO_EPOCH_OFFSET_MS = NANO_TIME_MS - CURRENT_TIME_MS;
+        log.info("CollisionChecker init: NANO_TIME_MS={}, CURRENT_TIME_MS={}, NANO_TO_EPOCH_OFFSET_MS={}",
+                NANO_TIME_MS, CURRENT_TIME_MS, NANO_TO_EPOCH_OFFSET_MS);
+    }
 
     private final TimeUnit resolution;
 
@@ -48,8 +58,8 @@ public class CollisionChecker {
         dataLock.lock();
         try {
             long resolvedTime = resolution.convert(
-                    System.currentTimeMillis(), TimeUnit.MILLISECONDS
-            );
+                    System.nanoTime(), TimeUnit.NANOSECONDS
+            ) - resolution.convert(NANO_TO_EPOCH_OFFSET_MS, TimeUnit.MILLISECONDS);
             if (currentInstant != resolvedTime) {
                 currentInstant = resolvedTime;
                 bitSet.clear();
