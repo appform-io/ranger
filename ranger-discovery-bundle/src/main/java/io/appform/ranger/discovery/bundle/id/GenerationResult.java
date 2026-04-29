@@ -8,6 +8,7 @@ import lombok.Value;
 public class GenerationResult {
     int exponent;
     long time;
+    InternalId internalId;
     IdValidationState state;
     Domain domain;
 }

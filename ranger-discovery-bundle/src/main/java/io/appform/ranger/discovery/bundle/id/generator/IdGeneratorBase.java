@@ -82,12 +82,12 @@ public class IdGeneratorBase {
                         () -> {
                             val id = idProvider.apply(request);
                             return new GenerationResult(
-                                    id.getExponent(), id.getTime(),
+                                    id.getExponent(), id.getTime(),id,
                                     validateId(constraints, id, request.isSkipGlobal()),
                                     domain);
                         }))
                 .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> idProvider.apply(request));
+                .map(GenerationResult::getInternalId);
     }
 
     public final InternalId getIdFromIdInfo(final String id,
