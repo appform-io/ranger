@@ -126,7 +126,6 @@
         <netty.version>4.1.127.Final</netty.version>
         <snappy.version>1.1.10.8</snappy.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <gpg.skip>true</gpg.skip>
         <maven.enforcer.version>3.6.2</maven.enforcer.version>
     </properties>
 
@@ -384,9 +383,6 @@
                     <value>true</value>
                 </property>
             </activation>
-            <properties>
-                <gpg.skip>false</gpg.skip>
-            </properties>
             <distributionManagement>
                 <snapshotRepository>
                     <id>ossrh</id>
@@ -421,7 +417,6 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <skip>${gpg.skip}</skip>
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
