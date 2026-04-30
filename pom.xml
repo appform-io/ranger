@@ -20,10 +20,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.appform.ranger</groupId>
-    <artifactId>ranger</artifactId>
+    <parent>
+        <groupId>com.phonepe</groupId>
+        <artifactId>pp-parent-pom</artifactId>
+        <version>0.121</version>
+    </parent>
+    <groupId>io.appform.ranger.neetanshu</groupId>
+    <artifactId>ranger-neetanshu</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.3-ID-V2-RC1</version>
+    <version>1.1.3-SNAPSHOT</version>
     <name>Ranger Service Discovery</name>
     <url>https://github.com/appform-io/ranger</url>
     <description>Service Discovery for Java</description>
