@@ -379,6 +379,17 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>phonepe-snapshots</id>
+            <url>https://artifactory.phonepe.com/repository/maven-snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>phonepe-releases</id>
+            <url>https://artifactory.phonepe.com/repository/maven-releases</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>central-release</id>
