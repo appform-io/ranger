@@ -36,5 +36,5 @@ stages:
   allow_failure: false
   script:
     # This pushes the 1.1.3-SNAPSHOT to PhonePe Artifactory
-    - mvn deploy -U -DskipTests=true -Denforcer.skip
+    - mvn deploy -U -DskipTests=true -Denforcer.skip -Dmaven.deploy.skip=false
   when: manual
