@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>ranger</artifactId>
-        <groupId>io.appform.ranger</groupId>
+        <groupId>io.phonepe.ranger</groupId>
         <version>1.1.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -30,12 +30,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.appform.ranger</groupId>
+            <groupId>io.phonepe.ranger</groupId>
             <artifactId>ranger-http</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.appform.ranger</groupId>
+            <groupId>io.phonepe.ranger</groupId>
             <artifactId>ranger-client</artifactId>
             <version>${project.version}</version>
         </dependency>
