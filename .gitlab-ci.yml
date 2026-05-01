@@ -68,6 +68,8 @@ deploy_snapshot:
   stage: deploy
   <<: *default
   <<: *default_tag
+  needs:
+    - build_snapshot
   script:
     - export MAVEN_OPTS="-Xms3g -Xmx3g"
     - mvn -U clean package deploy -DskipTests -Dmaven.install.skip=true -DsnapshotSuffix="-${CI_COMMIT_BRANCH}"
