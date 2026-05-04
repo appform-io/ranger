@@ -20,8 +20,7 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
-import io.appform.ranger.discovery.bundle.util.NodeUtils;
-import lombok.Getter;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.awaitility.Awaitility;
@@ -168,6 +167,29 @@ class IdGeneratorTest {
         log.debug("Generated ID rate: {}/sec", totalCount / 10);
         Assertions.assertTrue(totalCount > 0);
 
+    }
+
+
+    @Test
+    void testGenerateWithConstraintsReturnsSameIdAsGenerated() {
+        // Capture the InternalId seen during constraint validation
+        val capturedId = new InternalId[1];
+        IdValidationConstraint capturingConstraint = id -> {
+            capturedId[0] = id;
+            return true;
+        };
+        IdGenerator.registerDomainSpecificConstraints("TEST", Collections.singletonList(capturingConstraint));
+
+        Optional<Id> result = IdGenerator.generateWithConstraints("TEST", "TEST");
+
+        Assertions.assertTrue(result.isPresent());
+        // The returned id must be exactly the same as the one seen during constraint validation.
+        // Before the fix, idProvider.apply() was called again on return — producing a NEW nonce —
+        // so the validated id and the returned id had different exponents/timestamps.
+        Assertions.assertEquals(capturedId[0].getId(), result.get().getId(),
+                "Returned ID string must match the one evaluated during constraint validation, not a newly generated one");
+        Assertions.assertEquals(capturedId[0].getExponent(), result.get().getExponent(),
+                "Exponent must match — a fresh nonce generation on return would produce a different exponent");
     }
 
     @Test
