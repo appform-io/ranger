@@ -90,7 +90,7 @@ class IdGeneratorV2Test {
 
     @BeforeEach
     void setup() {
-        NodeUtils.setNode(nodeId);
+        NodeUtils.setDefaultNode(nodeId);
         IdGeneratorV2.initialize();
     }
 

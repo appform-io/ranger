@@ -40,7 +40,7 @@ public class IdGeneratorPerfV2Test extends BenchmarkTest {
 
         @Setup(Level.Trial)
         public void setUp() {
-            NodeUtils.setNode(23);
+            NodeUtils.setDefaultNode(23);
             IdGeneratorV2.initialize();
         }
     }

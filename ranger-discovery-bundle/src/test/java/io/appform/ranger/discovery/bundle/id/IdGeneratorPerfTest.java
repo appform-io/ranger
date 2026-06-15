@@ -39,7 +39,7 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
 
         @Setup(Level.Trial)
         public void setUp() throws IOException {
-            NodeUtils.setNode(23);
+            NodeUtils.setDefaultNode(23);
             IdGenerator.initialize();
         }
     }
