@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public enum IdGeneratorType {
     
     DEFAULT(0, IdFormatters.original(), List.of()),
-    DEFAULT_V2_RANDOM_NONCE(01, IdFormatters.randomNonce(), List.of()),
-    BASE_36_RANDOM_NONCE(02, IdFormatters.randomNonce(), List.of(IdDecorators.base36()));
+    DEFAULT_V2_RANDOM_NONCE(1, IdFormatters.randomNonce(), List.of()),
+    BASE_36_RANDOM_NONCE(2, IdFormatters.randomNonce(), List.of(IdDecorators.base36()));
     
     @Getter
     private final int value;

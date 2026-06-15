@@ -97,9 +97,13 @@ public class IdParsersV2 {
                 return Optional.empty();
             }
             val generators = Integer.parseInt(matcher.group(2));
+            val decorators = decoratorsParserRegistry.getOrDefault(generators, null);
+            if (decorators == null) {
+                return Optional.empty();
+            }
             String decoratedIdString = matcher.group(3);
             // Running through decorators
-            for (IdDecorator idDecorator: decoratorsParserRegistry.get(generators)) {
+            for (IdDecorator idDecorator: decorators) {
                 decoratedIdString = idDecorator.parse(decoratedIdString).orElse(null);
             }
             
@@ -110,7 +114,7 @@ public class IdParsersV2 {
             parsedId.setId(idString);
             return Optional.of(parsedId);
         } catch (Exception e) {
-            log.warn("Could not parse idString {}", e.getMessage());
+            log.warn("Could not parse idString: {}", idString, e);
             return Optional.empty();
         }
     }

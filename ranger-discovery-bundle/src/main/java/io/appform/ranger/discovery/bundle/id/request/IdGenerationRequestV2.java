@@ -19,8 +19,6 @@ import java.util.Objects;
 public class IdGenerationRequestV2 {
     final String prefix;
     final String suffix;
-    final boolean includeBase36;
-    final boolean includeRandomNonce;
     final boolean skipGlobal;
     final String domain;
     private List<IdValidationConstraint> constraints;
@@ -31,8 +29,6 @@ public class IdGenerationRequestV2 {
     private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
         this.prefix = builder.prefix;
         this.suffix = builder.suffix;
-        this.includeBase36 = builder.includeBase36;
-        this.includeRandomNonce = builder.includeRandomNonce;
         this.skipGlobal = builder.skipGlobal;
         this.domain = builder.domain;
         this.constraints = builder.constraints;
@@ -48,8 +44,6 @@ public class IdGenerationRequestV2 {
     public static class IdGeneratorRequestBuilder {
         private String prefix;
         private String suffix;
-        private boolean includeBase36;
-        private boolean includeRandomNonce;
         private boolean skipGlobal;
         private String domain;
         private List<IdValidationConstraint> constraints;
@@ -85,14 +79,12 @@ public class IdGenerationRequestV2 {
         }
         
         public IdGeneratorRequestBuilder includeBase36() {
-            this.includeBase36 = true;
             idDecorators.add(IdDecorators.base36());
             return this;
         }
         
         public IdGeneratorRequestBuilder includeRandomNonce() {
             validateIdFormatterSelection(idFormatter);
-            this.includeRandomNonce = true;
             idFormatter = IdFormatters.randomNonce();
             return this;
         }

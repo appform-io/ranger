@@ -42,8 +42,13 @@ import java.util.Optional;
 /**
  * V2 ID Generator - Enhanced ID generation with support for decorators, custom suffixes, and random nonce formatting.
  * Provides backward-compatible parallel API to the original {@link IdGenerator}.
- * 
+ *
  * Uses dynamic node ID initialization via {@link NodeUtils} and supports constraint-based ID validation.
+ *
+ * <p><b>Important:</b> This class maintains its own internal state (node ID, global constraints,
+ * domain-specific constraints) independent of {@link IdGenerator}. Constraints and domains registered
+ * via {@link IdGenerator} are not visible here, and vice versa. If both generators are used in the
+ * same service, ensure constraints and domains are registered on each independently.
  */
 @SuppressWarnings("unused")
 @Slf4j
@@ -51,7 +56,7 @@ import java.util.Optional;
 public class IdGeneratorV2 {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
     
-    public static void initialize() {
+    public static synchronized void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
 
