@@ -23,10 +23,12 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @UtilityClass
@@ -34,20 +36,27 @@ public class IdParsersV2 {
     private static final int DATE_ID_LENGTH = 22;
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})(.*)");
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})(.*)");
-    
-    private final Map<Integer, IdFormatter> formattersParserRegistry = Map.of(
-            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.FORMATTER_VALUE_MAP.get(
-                    IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue()),
-            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.FORMATTER_VALUE_MAP.get(
-                    IdGeneratorType.BASE_36_RANDOM_NONCE.getValue())
-    );
-    
-    private final Map<Integer, List<IdDecorator>> decoratorsParserRegistry = Map.of(
-            IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_REVERSE_VALUE_MAP.get(
-                    IdGeneratorType.DEFAULT_V2_RANDOM_NONCE.getValue()),
-            IdGeneratorType.BASE_36_RANDOM_NONCE.getValue(), IdGeneratorType.DECORATOR_REVERSE_VALUE_MAP.get(
-                    IdGeneratorType.BASE_36_RANDOM_NONCE.getValue())
-    );
+
+    // Built from IdGeneratorType enum via exhaustive switch — adding a new enum value
+    // without a case here will cause a compilation error, keeping parsers in sync.
+    private final Map<Integer, IdFormatter> formattersParserRegistry =
+            Arrays.stream(IdGeneratorType.values())
+                  .filter(t -> t != IdGeneratorType.DEFAULT)
+                  .collect(Collectors.toMap(IdGeneratorType::getValue, IdParsersV2::formatterForType));
+
+    private final Map<Integer, List<IdDecorator>> decoratorsParserRegistry =
+            Arrays.stream(IdGeneratorType.values())
+                  .filter(t -> t != IdGeneratorType.DEFAULT)
+                  .collect(Collectors.toMap(
+                          IdGeneratorType::getValue,
+                          t -> IdGeneratorType.DECORATOR_REVERSE_VALUE_MAP.get(t.getValue())));
+
+    private static IdFormatter formatterForType(final IdGeneratorType type) {
+        return switch (type) {
+            case DEFAULT -> throw new IllegalArgumentException("DEFAULT is handled by the legacy IdParsers");
+            case DEFAULT_V2_RANDOM_NONCE, BASE_36_RANDOM_NONCE -> IdFormatters.randomNonce();
+        };
+    }
     
     /**
      * Parses the provided string representation of an identifier into an {@link Id} object.

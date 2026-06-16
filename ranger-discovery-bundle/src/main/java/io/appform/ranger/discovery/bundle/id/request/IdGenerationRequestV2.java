@@ -119,7 +119,7 @@ public class IdGenerationRequestV2 {
         private static void validateIdFormatterSelection(final IdFormatter idFormatter) {
             Preconditions.checkArgument(
                     Objects.isNull(idFormatter),
-                    "Only one IdFormatter can be selected per request" + idFormatter);
+                    "Only one IdFormatter can be selected per request");
         }
     }
 }

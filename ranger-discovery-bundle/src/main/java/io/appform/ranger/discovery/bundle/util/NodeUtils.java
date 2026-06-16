@@ -1,40 +1,31 @@
 package io.appform.ranger.discovery.bundle.util;
 
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
 /**
- * Utility class for managing node ID information with thread-safe access.
- * Stores the node identifier used during ID generation.
+ * Utility class for managing the process-level node identifier used during ID generation.
+ * The node ID is a fixed machine/process identifier — it is set once at startup
+ * and shared across all threads.
  */
 @UtilityClass
 public class NodeUtils {
-    private static final ThreadLocal<Integer> NODE_THREAD_LOCAL = new ThreadLocal<>();
-    /**
-     * -- SETTER --
-     *  Set the default node ID used when no thread-local value is set.
-     *
-     * @param node the default node identifier
-     */
-    @Setter
-    private static volatile int defaultNode = 0;
+    private static volatile int node = 0;
 
     /**
-     * Set the node ID for the current thread.
+     * Set the node ID for this process. Typically called once at service startup.
      *
-     * @param node the node identifier to set
+     * @param nodeId the node identifier
      */
-    public static void setNode(int node) {
-        NODE_THREAD_LOCAL.set(node);
+    public static void setNode(int nodeId) {
+        node = nodeId;
     }
-    
+
     /**
-     * Get the node ID for the current thread, or the default if not set.
+     * Get the process-level node ID.
      *
      * @return the node identifier
      */
     public static int getNode() {
-        Integer threadNode = NODE_THREAD_LOCAL.get();
-        return threadNode != null ? threadNode : defaultNode;
+        return node;
     }
 }

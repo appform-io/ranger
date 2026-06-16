@@ -58,7 +58,7 @@ public class IdGenerator {
      * @param node the node identifier to use
      */
     public static void initialize(int node) {
-        NodeUtils.setDefaultNode(node);
+        NodeUtils.setNode(node);
         initialize();
     }
     
@@ -203,7 +203,7 @@ public class IdGenerator {
                 .map(baseGenerator::getId);
     }
     
-    public static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
+    static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
         return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
     
