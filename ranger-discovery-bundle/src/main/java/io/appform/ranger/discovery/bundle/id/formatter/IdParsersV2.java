@@ -54,8 +54,7 @@ public class IdParsersV2 {
     private static IdFormatter formatterForType(final IdGeneratorType type) {
         return switch (type) {
             case DEFAULT -> throw new IllegalArgumentException("DEFAULT is handled by the legacy IdParsers");
-            case DEFAULT_V2_RANDOM_NONCE -> IdFormatters.randomNonce();
-            case BASE_36_RANDOM_NONCE    -> IdFormatters.randomNonce();
+            case DEFAULT_V2_RANDOM_NONCE, BASE_36_RANDOM_NONCE -> IdFormatters.randomNonce();
         };
     }
     
