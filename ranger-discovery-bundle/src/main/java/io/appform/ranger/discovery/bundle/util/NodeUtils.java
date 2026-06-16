@@ -16,7 +16,7 @@ public class NodeUtils {
      *
      * @param nodeId the node identifier
      */
-    public static void setDefaultNode(int nodeId) {
+    public static void setNode(int nodeId) {
         node = nodeId;
     }
 
