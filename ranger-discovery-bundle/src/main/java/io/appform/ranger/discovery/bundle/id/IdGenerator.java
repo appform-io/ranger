@@ -203,7 +203,7 @@ public class IdGenerator {
                 .map(baseGenerator::getId);
     }
     
-    public static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
+    static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
         return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
     
