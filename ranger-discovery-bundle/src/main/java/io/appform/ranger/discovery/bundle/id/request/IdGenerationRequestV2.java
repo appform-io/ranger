@@ -27,8 +27,8 @@ public class IdGenerationRequestV2 {
     final int idGenerationValue;
     
     private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
-        this.prefix = builder.prefix;
-        this.suffix = builder.suffix;
+        this.prefix = Strings.nullToEmpty(builder.prefix);
+        this.suffix = Strings.nullToEmpty(builder.suffix);
         this.skipGlobal = builder.skipGlobal;
         this.domain = builder.domain;
         this.constraints = builder.constraints;

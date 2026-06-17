@@ -23,7 +23,9 @@ import java.util.regex.Pattern;
 
 public class Base36IdDecorator implements IdDecorator {
     private static final Pattern PATTERN = Pattern.compile("([A-Z0-9]{16})(.*)");
-    private static final Integer BASE36_MAX_LENGTH = 16;
+    private static final int BASE36_MAX_LENGTH = 16;
+    // 15-digit timestamp + 4-digit nodeId + 3-digit nonce = 22 digits
+    private static final int BASE10_PAYLOAD_LENGTH = 22;
     
     @Override
     public String decorate(final String idString) {
@@ -57,6 +59,7 @@ public class Base36IdDecorator implements IdDecorator {
     }
     
     private static String toBase10(final String payload) {
-        return new BigInteger(payload, 36).toString();
+        val base10IdStr = new BigInteger(payload, 36).toString();
+        return "0".repeat(Math.max(0, BASE10_PAYLOAD_LENGTH - base10IdStr.length())) + base10IdStr;
     }
 }
