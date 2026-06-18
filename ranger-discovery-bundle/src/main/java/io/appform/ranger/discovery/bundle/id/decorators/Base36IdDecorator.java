@@ -53,11 +53,29 @@ public class Base36IdDecorator implements IdDecorator {
         return Optional.of(String.format("%s%s", base10Data, matcher.group(2)));
     }
     
+    /**
+     * Converts a base-10 numeric string to a zero-padded, uppercased base-36 string of length {@link #BASE36_MAX_LENGTH}.
+     * Leading zeros are added to ensure a fixed-width output, making the encoded ID length predictable
+     * regardless of the magnitude of the input value.
+     *
+     * @param payload base-10 numeric string representing the raw ID payload
+     * @return base-36 encoded string, left-padded with '0's to exactly {@link #BASE36_MAX_LENGTH} characters
+     */
     private static String toBase36(final String payload) {
         val base36IdStr = new BigInteger(payload).toString(36).toUpperCase();
         return "0".repeat(Math.max(0, BASE36_MAX_LENGTH - base36IdStr.length())) + base36IdStr;
     }
-    
+
+    /**
+     * Converts a base-36 encoded string back to a zero-padded base-10 string of length {@link #BASE10_PAYLOAD_LENGTH}.
+     * <p>
+     * Base conversion may drop leading zeros present in the original numeric payload. Zero-padding to
+     * {@link #BASE10_PAYLOAD_LENGTH} restores the fixed-width format expected by downstream consumers
+     * (e.g. {@code yyMMddHHmmssSSS(15) + nodeId(4) + nonce(3) = 22 digits}).
+     *
+     * @param payload base-36 encoded string (16 uppercase alphanumeric characters)
+     * @return base-10 string, left-padded with '0's to exactly {@link #BASE10_PAYLOAD_LENGTH} characters
+     */
     private static String toBase10(final String payload) {
         val base10IdStr = new BigInteger(payload, 36).toString();
         return "0".repeat(Math.max(0, BASE10_PAYLOAD_LENGTH - base10IdStr.length())) + base10IdStr;

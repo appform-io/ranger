@@ -27,6 +27,8 @@ public class IdGenerationRequestV2 {
     final int idGenerationValue;
     
     private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
+        // Convert null prefix/suffix to empty strings.
+        // (e.g. prefix + generatedId + suffix) never produces the literal "null" in the output.
         this.prefix = Strings.nullToEmpty(builder.prefix);
         this.suffix = Strings.nullToEmpty(builder.suffix);
         this.skipGlobal = builder.skipGlobal;
