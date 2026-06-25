@@ -27,8 +27,9 @@ public class IdGenerationRequestV2 {
     final int idGenerationValue;
     
     private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
-        this.prefix = builder.prefix;
-        this.suffix = builder.suffix;
+        // Convert null prefix/suffix to empty strings else concatenation prefix + generatedId + suffix will produce NPE.
+        this.prefix = Strings.nullToEmpty(builder.prefix);
+        this.suffix = Strings.nullToEmpty(builder.suffix);
         this.skipGlobal = builder.skipGlobal;
         this.domain = builder.domain;
         this.constraints = builder.constraints;
