@@ -27,9 +27,9 @@ import java.util.List;
 public class IdGenerationRequest {
 
     String prefix;
+    String suffix;
     String domain;
     boolean skipGlobal;
     List<IdValidationConstraint> constraints;
     IdFormatter idFormatter;
-
 }

@@ -20,4 +20,6 @@ public class InternalId {
     private int node;
     private int exponent;
     private long time;
+    private String prefix;
+    private String suffix;
 }
