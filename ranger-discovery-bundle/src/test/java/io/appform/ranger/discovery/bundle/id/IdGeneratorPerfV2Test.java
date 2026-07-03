@@ -18,7 +18,6 @@ package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.TestUtils;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
@@ -45,13 +44,11 @@ public class IdGeneratorPerfV2Test extends BenchmarkTest {
         }
     }
 
-    @SneakyThrows
     @Benchmark
     public void testGenerateSuffixedId(Blackhole blackhole, BenchmarkState state) {
         IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y", "", false, null));
     }
     
-    @SneakyThrows
     @Benchmark
     public void testGenerateBase36Id(Blackhole blackhole, BenchmarkState state) {
         IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y", "", false, null));

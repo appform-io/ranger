@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 public class DefaultIdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("(.*)([\\d]{15})([\\d]{4})([\\d]{3})");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
+    private static final String ID = "DEFAULT";
 
     @Override
     public FormattedId format(final int nodeId,
@@ -58,5 +59,10 @@ public class DefaultIdFormatter implements IdFormatter {
                 .exponent(Integer.parseInt(matcher.group(4)))
                 .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(2)).toDate())
                 .build());
+    }
+
+    @Override
+    public String id() {
+        return ID;
     }
 }

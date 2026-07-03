@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class RandomNonceIdFormatter implements IdFormatter {
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([\\d]{15})([\\d]{4})([\\d]{3})(.*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
-    
+    private static final String ID = "RANDOM_NONCE";
     @Override
     public FormattedId format(final int nodeId,
                               final IdGenerationInput idGenerationInput) {
@@ -72,5 +72,10 @@ public class RandomNonceIdFormatter implements IdFormatter {
                 .exponent(Integer.parseInt(matcher.group(5)))
                 .generatedDate(DATE_TIME_FORMATTER.parseDateTime(matcher.group(3)).toDate())
                 .build());
+    }
+
+    @Override
+    public String id() {
+        return ID;
     }
 }
