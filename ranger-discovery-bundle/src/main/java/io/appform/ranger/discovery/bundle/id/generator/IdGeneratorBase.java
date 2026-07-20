@@ -120,7 +120,7 @@ public class IdGeneratorBase {
                 .build();
     }
 
-    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId internalId, final boolean skipGlobal) {
+    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId internalId, final boolean skipGlobal) {
         // First evaluate global constraints
         val id = IdConversionUtils.toId(internalId);
         val failedGlobalConstraint
