@@ -18,48 +18,15 @@ package io.appform.ranger.discovery.bundle.id.constraints;
 
 
 import io.appform.ranger.discovery.bundle.id.Id;
-import io.appform.ranger.discovery.bundle.id.InternalId;
 
 /**
  * Validates a generated id.
- * <p>
- * {@code isValid(Id)} remains the abstract method (and thus the binary-compatible contract) so that
- * pre-existing implementations compiled against older versions of this interface continue to work
- * unchanged. {@code isValid(InternalId)} is provided as a default that adapts to the legacy contract;
- * implementations that want to avoid the {@link InternalId} -&gt; {@link Id} conversion (e.g. because
- * they only need fields present on {@link InternalId}) can override it directly.
  */
 public interface IdValidationConstraint {
 
     boolean isValid(final Id id);
 
-    default boolean isValid(final InternalId internalId) {
-        return isValid(toId(internalId));
-    }
-
     default boolean failFast() {
         return false;
-    }
-
-    static Id toId(final InternalId internalId) {
-        return Id.builder()
-                .id(internalId.getId())
-                .prefix(internalId.getPrefix())
-                .suffix(internalId.getSuffix())
-                .generatedDate(internalId.getGeneratedDate())
-                .node(internalId.getNode())
-                .exponent(internalId.getExponent())
-                .build();
-    }
-
-    static InternalId toInternalId(final Id id) {
-        return InternalId.builder()
-                .id(id.getId())
-                .prefix(id.getPrefix())
-                .suffix(id.getSuffix())
-                .generatedDate(id.getGeneratedDate())
-                .node(id.getNode())
-                .exponent(id.getExponent())
-                .build();
     }
 }

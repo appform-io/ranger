@@ -176,15 +176,10 @@ class IdGeneratorTest {
 
     @Test
     void testGenerateWithConstraintsReturnsSameIdAsGenerated() {
-        val lastSeen = new AtomicReference<InternalId>();
+        val lastSeen = new AtomicReference<Id>();
         IdValidationConstraint capturingConstraint = new IdValidationConstraint() {
             @Override
             public boolean isValid(Id id) {
-                return isValid(IdValidationConstraint.toInternalId(id));
-            }
-
-            @Override
-            public boolean isValid(InternalId id) {
                 lastSeen.set(id);
                 return true;
             }
@@ -204,15 +199,10 @@ class IdGeneratorTest {
     @Test
     void testGenerateWithConstraintsReturnsSameIdAsGeneratedAfterRetry() {
         val attemptCount = new AtomicInteger(0);
-        val lastSeen = new AtomicReference<InternalId>();
+        val lastSeen = new AtomicReference<Id>();
         IdValidationConstraint retryingConstraint = new IdValidationConstraint() {
             @Override
             public boolean isValid(Id id) {
-                return isValid(IdValidationConstraint.toInternalId(id));
-            }
-
-            @Override
-            public boolean isValid(InternalId id) {
                 lastSeen.set(id);
                 return attemptCount.incrementAndGet() >= 3;
             }
