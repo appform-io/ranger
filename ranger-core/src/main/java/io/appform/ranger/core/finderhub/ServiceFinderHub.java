@@ -77,6 +77,7 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
     private final ExternalTriggeredSignal<Void> stopSignal
             = new ExternalTriggeredSignal<>(() -> null, Collections.emptyList());
 
+    @Getter
     private final List<Signal<Void>> refreshSignals = new ArrayList<>();
 
     @Getter
@@ -107,14 +108,24 @@ public class ServiceFinderHub<T, R extends ServiceRegistry<T>> {
             long serviceRefreshTimeoutMs,
             long hubStartTimeoutMs,
             final Set<String> excludedServices) {
+         this(serviceDataSource, finderFactory, serviceRefreshTimeoutMs, hubStartTimeoutMs, HubConstants.REFRESH_FREQUENCY_MS, excludedServices);
+    }
+
+    public ServiceFinderHub(
+            ServiceDataSource serviceDataSource,
+            ServiceFinderFactory<T, R> finderFactory,
+            long serviceRefreshTimeoutMs,
+            long hubStartTimeoutMs,
+            long refreshFrequencyMs,
+            final Set<String> excludedServices) {
         this.serviceDataSource = serviceDataSource;
         this.finderFactory = finderFactory;
         this.serviceRefreshTimeoutMs = serviceRefreshTimeoutMs == 0 ? HubConstants.SERVICE_REFRESH_TIMEOUT_MS : serviceRefreshTimeoutMs;
         this.hubStartTimeoutMs = hubStartTimeoutMs == 0 ? HubConstants.HUB_START_TIMEOUT_MS : hubStartTimeoutMs;
-        this.refreshSignals.add(new ScheduledSignal<>("service-hub-updater",
-                                                      () -> null,
-                                                      Collections.emptyList(),
-                                      10_000));
+        this.refreshSignals.add(new ScheduledSignal<>("service-hub-refresh-timer",
+                () -> null,
+                Collections.emptyList(),
+                refreshFrequencyMs));
         this.refresherPool = createRefresherPool();
         this.excludedServices = Objects.requireNonNullElseGet(excludedServices, Set::of);
     }

@@ -8,3 +8,7 @@ out
 dep
 .java-version
 stage.yml
+*.project
+*.settings
+*.classpath
+*.factorypath
