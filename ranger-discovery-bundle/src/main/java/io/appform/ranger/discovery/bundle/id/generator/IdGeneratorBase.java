@@ -7,6 +7,7 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.discovery.bundle.id.Domain;
 import io.appform.ranger.discovery.bundle.id.GenerationResult;
 import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.IdConversionUtils;
 import io.appform.ranger.discovery.bundle.id.InternalId;
 import io.appform.ranger.discovery.bundle.id.IdValidationState;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
@@ -119,8 +120,9 @@ public class IdGeneratorBase {
                 .build();
     }
 
-    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId id, final boolean skipGlobal) {
+    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId internalId, final boolean skipGlobal) {
         // First evaluate global constraints
+        val id = IdConversionUtils.toId(internalId);
         val failedGlobalConstraint
                 = skipGlobal
                 ? null

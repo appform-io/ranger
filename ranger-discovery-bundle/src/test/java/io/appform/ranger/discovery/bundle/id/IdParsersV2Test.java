@@ -1,7 +1,6 @@
 package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.TestUtils;
-import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsersV2;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;

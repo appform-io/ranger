@@ -25,5 +25,4 @@ public interface IdFormatter {
                        final IdGenerationInput idGenerationInput);
 
     Optional<InternalId> parse(final String idString);
-
 }

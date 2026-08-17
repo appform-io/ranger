@@ -64,6 +64,7 @@ public class IdGenerator {
     
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
+        NodeUtils.reset();
     }
     
     public static synchronized void initialize(

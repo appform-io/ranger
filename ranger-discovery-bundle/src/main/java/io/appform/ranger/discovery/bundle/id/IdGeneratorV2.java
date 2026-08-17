@@ -26,7 +26,6 @@ import io.appform.ranger.discovery.bundle.id.generator.IdProvider;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsersV2;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInternalRequest;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequestV2;
 import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.NonNull;
@@ -62,6 +61,7 @@ public class IdGeneratorV2 {
 
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
+        NodeUtils.reset();
     }
     
     public static void registerDomain(Domain domain) {
