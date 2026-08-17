@@ -24,7 +24,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class NodeUtils {
-    private static volatile int node = 0;
+    private static int node = 0;
 
     /**
      * Set the node ID for this process. Typically called once at service startup. Repeating the
@@ -46,7 +46,7 @@ public class NodeUtils {
      *
      * @return the node identifier
      */
-    public static int getNode() {
+    public static synchronized int getNode() {
         return node;
     }
 
@@ -56,7 +56,7 @@ public class NodeUtils {
      * {@code initialize()} isn't silently reused by a subsequent {@code initialize()} that forgets
      * to call {@link #setNode(int)} again.
      */
-    public static void reset() {
+    public static synchronized void reset() {
         node = 0;
     }
 }
