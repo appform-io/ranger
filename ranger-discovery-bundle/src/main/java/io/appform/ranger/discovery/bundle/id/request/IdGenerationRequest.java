@@ -28,7 +28,7 @@ import java.util.List;
  * a source-breaking removal for any external caller that may still reference this type directly;
  * slated for removal in a future major version.
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 @Value
 @Builder
 public class IdGenerationRequest {
