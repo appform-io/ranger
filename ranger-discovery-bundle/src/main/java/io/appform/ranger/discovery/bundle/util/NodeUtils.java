@@ -27,11 +27,17 @@ public class NodeUtils {
     private static volatile int node = 0;
 
     /**
-     * Set the node ID for this process. Typically called once at service startup.
+     * Set the node ID for this process. Typically called once at service startup. Repeating the
+     * same value is allowed, but replacing an already configured node ID is rejected until
+     * {@link #reset()} is called.
      *
      * @param nodeId the node identifier
      */
-    public static void setNode(int nodeId) {
+    public static synchronized void setNode(int nodeId) {
+        if (node != 0 && node != nodeId) {
+            throw new IllegalStateException(
+                    String.format("Node ID already set to %d; cannot change it to %d", node, nodeId));
+        }
         node = nodeId;
     }
 
