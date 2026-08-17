@@ -25,13 +25,4 @@ public interface IdFormatter {
                        final IdGenerationInput idGenerationInput);
 
     Optional<InternalId> parse(final String idString);
-
-    /**
-     * Stable identifier for this formatter "kind", used to key lookups (e.g.
-     * {@code IdGeneratorType.LOOKUP_MAP}) instead of relying on JVM object identity. Object identity
-     * only works reliably if callers always go through the cached singletons in {@link IdFormatters};
-     * a freshly constructed formatter instance of the same kind would otherwise silently fail lookups.
-     */
-    String id();
-
 }

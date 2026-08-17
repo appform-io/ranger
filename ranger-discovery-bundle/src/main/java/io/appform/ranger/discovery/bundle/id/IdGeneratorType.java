@@ -46,10 +46,10 @@ public enum IdGeneratorType {
                     }
             ));
     
-    private static final Map<String, Map<List<IdDecorator>, Integer>> LOOKUP_MAP =
+    private static final Map<Class<? extends IdFormatter>, Map<List<IdDecorator>, Integer>> LOOKUP_MAP =
             Arrays.stream(values())
                     .collect(Collectors.groupingBy(
-                            type -> type.idFormatter.id(),
+                            type -> type.idFormatter.getClass(),
                             Collectors.toMap(
                                     type -> type.idDecorators,
                                     IdGeneratorType::getValue
@@ -57,7 +57,7 @@ public enum IdGeneratorType {
                     ));
     
     public static Optional<Integer> findValue(final IdFormatter formatter, final List<IdDecorator> decorators) {
-        return Optional.ofNullable(LOOKUP_MAP.get(formatter.id()))
+        return Optional.ofNullable(LOOKUP_MAP.get(formatter.getClass()))
                 .map(innerMap -> innerMap.get(decorators));
     }
 }
