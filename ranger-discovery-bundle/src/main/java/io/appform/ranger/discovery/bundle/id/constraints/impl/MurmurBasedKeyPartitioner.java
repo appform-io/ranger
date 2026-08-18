@@ -17,7 +17,7 @@
 package io.appform.ranger.discovery.bundle.id.constraints.impl;
 
 import com.google.common.hash.Hashing;
-import io.appform.ranger.discovery.bundle.id.Id;
+import io.appform.ranger.discovery.bundle.id.InternalId;
 
 import java.nio.charset.StandardCharsets;
 
@@ -35,7 +35,7 @@ public class MurmurBasedKeyPartitioner implements KeyPartitioner {
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public int partition(Id id) {
+    public int partition(InternalId id) {
         int hashCode = Hashing.murmur3_128().hashString(id.toString(), StandardCharsets.UTF_8).asInt();
         hashCode *= hashCode < 0 ? -1 : 1;
         return hashCode % maxPartitions;

@@ -21,40 +21,60 @@ import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
 import io.appform.ranger.discovery.bundle.id.formatter.IdParsers;
-import io.appform.ranger.discovery.bundle.id.generator.DefaultIdGenerator;
 import io.appform.ranger.discovery.bundle.id.generator.IdGeneratorBase;
-import io.appform.ranger.discovery.bundle.id.request.IdGenerationRequest;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInput;
+import io.appform.ranger.discovery.bundle.id.request.IdGenerationInternalRequest;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.util.*;
 
 /**
- * Id generation
+ * Id generation utility for creating unique identifiers.
+ * Supports constraint-based validation, domain-specific configurations, and flexible formatting.
+ * 
+ * Note: This class uses {@link NodeUtils} for managing node identifiers in a thread-safe manner.
  */
 @SuppressWarnings("unused")
 @Slf4j
 @UtilityClass
 public class IdGenerator {
-    private static final IdGeneratorBase baseGenerator = new DefaultIdGenerator();
+    private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
 
-    public static void initialize(int node) {
-        baseGenerator.setNodeId(node);
+    /**
+     * Initialize the ID generator using the default node ID from {@link NodeUtils}.
+     */
+    public static void initialize() {
+        baseGenerator.setNodeId(NodeUtils.getNode());
     }
 
+    /**
+     * Initialize the ID generator with a specific node ID.
+     * This method is provided for backward compatibility and convenience.
+     *
+     * @param node the node identifier to use
+     */
+    public static void initialize(int node) {
+        NodeUtils.setNode(node);
+        initialize();
+    }
+    
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
+        NodeUtils.reset();
     }
-
+    
     public static synchronized void initialize(
-            int node, List<IdValidationConstraint> globalConstraints,
+            List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
-        initialize(node);
-        if(null != globalConstraints && !globalConstraints.isEmpty() ) {
+        initialize();
+        if (null != globalConstraints && !globalConstraints.isEmpty()) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
-
+        
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
@@ -90,18 +110,18 @@ public class IdGenerator {
      * @param prefix String prefix with will be used to blindly merge
      * @return Generated Id
      */
-    public static Id generate(String prefix) {
-        return baseGenerator.generate(prefix);
+    public static Id generate(final String prefix) {
+        return baseGenerator.getId(getIdFromIdInfo(prefix));
     }
 
     public static Id generate(
             final String prefix,
             final IdFormatter idFormatter) {
-        return baseGenerator.generate(prefix, idFormatter);
+        return baseGenerator.getId(getIdFromIdInfo(prefix, idFormatter));
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -114,7 +134,7 @@ public class IdGenerator {
     }
 
     /**
-     * Generate id that mathces all passed constraints.
+     * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
      * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
      *
@@ -123,8 +143,16 @@ public class IdGenerator {
      * @param skipGlobal Skip global constrains and use only passed ones
      * @return Id if it could be generated
      */
-    public static Optional<Id> generateWithConstraints(String prefix, @NonNull String domain, boolean skipGlobal) {
-        return baseGenerator.generateWithConstraints(prefix, domain, skipGlobal);
+    public static Optional<Id> generateWithConstraints(final String prefix, @NonNull final String domain, final boolean skipGlobal) {
+        val registeredDomain = baseGenerator.getRegisteredDomains().getOrDefault(domain, Domain.DEFAULT);
+        val request = IdGenerationInternalRequest.builder()
+                .prefix(prefix)
+                .constraints(registeredDomain.getConstraints())
+                .skipGlobal(skipGlobal)
+                .domain(registeredDomain.getDomain())
+                .idFormatter(IdFormatters.original())
+                .build();
+        return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo).map(baseGenerator::getId);
     }
 
     /**
@@ -149,7 +177,8 @@ public class IdGenerator {
      * @return Id if it could be generated
      */
     public static Optional<Id> parse(final String idString) {
-        return IdParsers.parse(idString);
+        val parsedId = IdParsers.parse(idString).orElse(null);
+        return Optional.ofNullable(baseGenerator.getId(parsedId));
     }
 
     /**
@@ -166,39 +195,40 @@ public class IdGenerator {
             String prefix,
             final List<IdValidationConstraint> inConstraints,
             boolean skipGlobal) {
-        return generate(IdGenerationRequest.builder()
+        return generate(IdGenerationInternalRequest.builder()
                                 .prefix(prefix)
                                 .constraints(inConstraints)
                                 .skipGlobal(skipGlobal)
                                 .idFormatter(IdFormatters.original())
-                                .build());
+                                .build())
+                .map(baseGenerator::getId);
     }
-
-    /**
-     * Generate id that matches all passed constraints.
-     * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take it's toll on id generation rates. Tun rests to check speed.
-     *
-     * @param prefix     String prefix
-     * @param skipGlobal Skip global constrains and use only passed ones
-     * @param domain     Domain
-     * @return Id if it could be generated
-     */
-    private static Optional<Id> generateWithConstraints(
-            String prefix,
-            final Domain domain,
-            boolean skipGlobal) {
-        return generate(IdGenerationRequest.builder()
-                                .prefix(prefix)
-                                .constraints(domain.getConstraints())
-                                .skipGlobal(skipGlobal)
-                                .domain(domain.getDomain())
-                                .idFormatter(domain.getIdFormatter())
-                                .build());
+    
+    static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
+        return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
-
-    public static Optional<Id> generate(final IdGenerationRequest request) {
-        return baseGenerator.generateWithConstraints(request);
+    
+    private InternalId getIdFromIdInfo(final String namespace) {
+        return getIdFromIdInfo(IdGenerationInternalRequest.builder()
+                .prefix(namespace)
+                .idFormatter(IdFormatters.original())
+                .build());
     }
-
+    
+    private InternalId getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
+        return getIdFromIdInfo(IdGenerationInternalRequest.builder()
+                .prefix(namespace)
+                .idFormatter(idFormatter)
+                .build());
+    }
+    
+    private InternalId getIdFromIdInfo(final IdGenerationInternalRequest idGenerationRequest) {
+        val domain = idGenerationRequest.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(idGenerationRequest.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val idGenerationInput = IdGenerationInput.builder()
+                .domain(domain)
+                .build();
+        val formattedId = idGenerationRequest.getIdFormatter().format(baseGenerator.getNodeId(), idGenerationInput);
+        val id = String.format("%s%s", idGenerationRequest.getPrefix(), formattedId.getId());
+        return baseGenerator.getIdFromIdInfo(id, idGenerationRequest.getPrefix(), null, formattedId);
+    }
 }
