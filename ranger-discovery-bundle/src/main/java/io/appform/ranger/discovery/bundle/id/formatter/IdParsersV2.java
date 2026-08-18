@@ -34,13 +34,13 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class IdParsersV2 {
     private static final int DATE_ID_LENGTH = 22;
-    // Matches legacy (V1) ids: optional prefix + 22-digit payload (timestamp+node+exponent) + suffix.
-    // NOTE: a V2 id with no suffix also matches this pattern syntactically (group(3) would just be the
-    // 2-digit generator-type code that legacy ids don't have), which is why matching alone isn't enough
-    // — parse() below additionally requires group(3) to be *empty* before treating it as a V1 id. If
-    // group(3) is non-empty (either a real V1 suffix or a V2 generator-type code + optional suffix),
-    // control falls through to PATTERN, which extracts the 2-digit generator-type code and dispatches
-    // to the matching V2 formatter/decorator chain.
+    // Matches unsuffixed legacy (V1) ids: optional prefix + 22-digit payload
+    // (timestamp+node+exponent). Legacy generation did not support suffixes.
+    // NOTE: an undecorated V2 id also matches this pattern syntactically because its 2-digit
+    // generator-type code is consumed among the first 22 digits, leaving the final payload digits
+    // in group(3). Therefore, only an empty group(3) identifies a V1 id. Otherwise, control falls
+    // through to PATTERN, which extracts the V2 generator-type code and dispatches to the matching
+    // formatter/decorator chain.
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})(.*)");
     private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})(.*)");
 
