@@ -16,6 +16,7 @@
 package io.appform.ranger.drove.config;
 
 import io.dropwizard.util.Duration;
+import javax.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -39,6 +40,9 @@ public class DroveUpstreamConfig {
     public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.seconds(5);
     public static final Duration DEFAULT_OPERATION_TIMEOUT = Duration.seconds(5);
     public static final Duration DEFAULT_EVENT_POLLING_INTERVAL = Duration.seconds(5);
+
+    @NotBlank
+    String id;
 
     @Valid
     @NotEmpty

@@ -80,6 +80,7 @@ class ServiceProviderExtCuratorTest {
     @Test
     void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withCuratorFramework(curatorFramework)
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -122,6 +123,7 @@ class ServiceProviderExtCuratorTest {
         final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
                 .setNext(new HealthStatusHandler<TestNodeData>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
+                .withUpstreamId("test-metric")
                 .withCuratorFramework(curatorFramework)
                 .withNamespace("test")
                 .withServiceName("test-service")

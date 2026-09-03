@@ -16,9 +16,11 @@
 package io.appform.ranger.drove.servicefinder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.drove.common.DroveCommunicationException;
 import io.appform.ranger.drove.common.DroveCommunicator;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
@@ -51,6 +53,16 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
     }
 
     @Override
+    public String getUpstreamId() {
+        return upstreamId;
+    }
+
+    @Override
+    public DataStoreType getDataStoreType() {
+        return DataStoreType.DROVE;
+    }
+
+    @Override
     public Optional<List<ServiceNode<T>>> refresh(D deserializer) {
         requireNonNull(config, "client config has not been set for node data");
         requireNonNull(mapper, "mapper has not been set for node data");
@@ -59,16 +71,17 @@ public class DroveNodeDataSource<T, D extends DroveResponseDataDeserializer<T>> 
             val nodes = deserializer.deserialize(
                     Objects.requireNonNull(exposedAppInfos, "Unexpected empty response from server"));
             return Optional.of(nodes);
-        }
-        catch (DroveCommunicationException e) {
-            log.error("Drove communication error", e);
+        } catch (DroveCommunicationException e) {
+            log.error("Drove communication error while refreshing data for service : {}", service.getServiceName(),  e);
             return Optional.empty(); //In case of refresh failure, maintain old list
         }
     }
 
     @Override
     public boolean isActive() {
-        return droveClient.healthy();
+        var healthy = droveClient.healthy();
+        MetricRecorder.recordNodeDataSourceStatus(DataStoreType.DROVE, upstreamId, healthy);
+        return healthy;
     }
 
 }

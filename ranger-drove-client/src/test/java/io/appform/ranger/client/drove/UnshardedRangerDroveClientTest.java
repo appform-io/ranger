@@ -42,6 +42,7 @@ class UnshardedRangerDroveClientTest extends BaseRangerDroveClientTest {
                 })
                 .mapper(getObjectMapper())
                 .nodeRefreshTimeMs(1000)
+                .upstreamId("test-metric")
                 .build();
         client.start();
         val service = RangerTestUtils.getService(namespace, "TEST_APP");

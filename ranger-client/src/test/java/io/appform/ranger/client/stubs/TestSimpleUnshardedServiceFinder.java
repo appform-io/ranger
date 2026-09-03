@@ -17,10 +17,7 @@ package io.appform.ranger.client.stubs;
 
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinder;
 import io.appform.ranger.core.finder.SimpleUnshardedServiceFinderBuilder;
-import io.appform.ranger.core.model.Deserializer;
-import io.appform.ranger.core.model.NodeDataSource;
-import io.appform.ranger.core.model.Service;
-import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.model.*;
 import io.appform.ranger.core.units.TestNodeData;
 import lombok.Builder;
 
@@ -38,11 +35,21 @@ public class TestSimpleUnshardedServiceFinder <T>
     }
 
     @Override
-    protected NodeDataSource<TestNodeData, Deserializer<TestNodeData>> dataSource(Service service) {
+    protected NodeDataSource<TestNodeData, Deserializer<TestNodeData>> dataSource(String upstreamId, Service service) {
         return new TestDataSource();
     }
 
     static class TestDataSource implements NodeDataSource<TestNodeData, Deserializer<TestNodeData>>{
+
+        @Override
+        public String getUpstreamId() {
+            return "testDataSource";
+        }
+
+        @Override
+        public DataStoreType getDataStoreType() {
+            return DataStoreType.HTTP;
+        }
 
         @Override
         public Optional<List<ServiceNode<TestNodeData>>> refresh(Deserializer<TestNodeData> deserializer) {

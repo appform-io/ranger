@@ -16,8 +16,11 @@
 package io.appform.ranger.drove.servicefinderhub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
+import io.appform.ranger.core.model.DataStoreType;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.drove.common.DroveNodeDataStoreConnector;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import io.appform.ranger.drove.common.DroveCommunicator;
@@ -25,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 
+import static io.appform.ranger.core.util.MetricRecorder.FAILURE;
+import static io.appform.ranger.core.util.MetricRecorder.SUCCESS;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -44,9 +49,17 @@ public class DroveServiceDataSource<T> extends DroveNodeDataStoreConnector<T> im
     public Collection<Service> services() {
         requireNonNull(config, "client config has not been set for node data");
         requireNonNull(mapper, "mapper has not been set for node data");
-        return droveClient.services()
-                .stream()
-                .map(serviceName -> new Service(namespace, serviceName))
-                .toList();
+        try {
+            var result = droveClient.services()
+                    .stream()
+                    .map(serviceName -> new Service(namespace, serviceName))
+                    .toList();
+            MetricRecorder.recordServicesFetchStatus(DataStoreType.DROVE, upstreamId, SUCCESS);
+            return result;
+        } catch (Exception e) {
+            log.error("Error fetching services from drove data source id: {}, namespace: {}", upstreamId, namespace, e);
+            MetricRecorder.recordServicesFetchStatus(DataStoreType.DROVE, upstreamId, FAILURE);
+            throw e;
+        }
     }
 }

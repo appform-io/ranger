@@ -15,7 +15,7 @@ Ranger server bundle is a common dropwizard bundle atop which we could implement
 
             @Override
             protected List<RangerHubClient<ShardInfo, Criteria<ShardInfo>>> withHubs(AppConfiguration configuration) {
-                return Lists.newArrayList(
+                return List.of(
                         RangerServerUtils.buildRangerHub(curatorFramework, rangerConfiguration, environment.getObjectMapper())
                 );
             }

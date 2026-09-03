@@ -60,6 +60,7 @@ public class HttpUnshardedServiceFinderFactory<T> implements ServiceFinderFactor
     @Override
     public ServiceFinder<T, ListBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new HttpUnshardedServiceFinderBuilider<T>()
+                .withUpstreamId(clientConfig.getId())
                 .withClientConfig(clientConfig)
                 .withObjectMapper(mapper)
                 .withHttpClient(httpClient)

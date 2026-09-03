@@ -38,10 +38,14 @@ import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceNodeSelector;
 import io.appform.ranger.core.model.ShardSelector;
 import io.appform.ranger.core.serviceprovider.ServiceProvider;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.appform.ranger.discovery.core.healthchecks.InitialDelayChecker;
 import io.appform.ranger.discovery.core.healthchecks.InternalHealthChecker;
 import io.appform.ranger.discovery.core.healthchecks.RotationCheck;
+import io.appform.ranger.id.IdGenerator;
+import io.appform.ranger.id.NodeIdManager;
+import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.core.monitors.DropwizardHealthMonitor;
 import io.appform.ranger.discovery.bundle.monitors.DropwizardServerStartupCheck;
 import io.appform.ranger.discovery.core.resolvers.DefaultNodeInfoResolver;
@@ -54,9 +58,6 @@ import io.appform.ranger.discovery.bundle.rotationstatus.OORTask;
 import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
-import io.appform.ranger.id.IdGenerator;
-import io.appform.ranger.id.NodeIdManager;
-import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
 import io.dropwizard.Configuration;
@@ -84,6 +85,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.appform.ranger.discovery.bundle.Constants.LOCAL_ADDRESSES;
+import static io.appform.ranger.discovery.core.Constants.DEFAULT_DATA_SINK_ID;
 import static java.util.Objects.requireNonNull;
 
 
@@ -129,7 +131,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
     public void run(T configuration,
                     Environment environment) throws Exception {
         val portSchemeResolver = createPortSchemeResolver();
-        requireNonNull(portSchemeResolver, "Port scheme resolver can't be null");
+        Preconditions.checkNotNull(portSchemeResolver, "Port scheme resolver can't be null");
         val portScheme = portSchemeResolver.resolve(configuration);
         serviceDiscoveryConfiguration = getRangerConfiguration(configuration);
         val objectMapper = environment.getObjectMapper();
@@ -152,6 +154,9 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 portScheme);
         serviceDiscoveryClient = buildDiscoveryClient(environment, namespace, serviceName, initialCriteria,
                 useInitialCriteria, shardSelector, nodeSelector);
+        if (serviceDiscoveryConfiguration.isMetricsEnabled()){
+            MetricRecorder.initialize(environment.metrics());
+        }
         environment.lifecycle()
                 .manage(new ServiceDiscoveryManager(serviceName));
         environment.jersey()
@@ -190,10 +195,12 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
     /**
      * Override the following if you require.
      **/
+    @SuppressWarnings("java:S1172")
     protected Predicate<ShardInfo> getInitialCriteria(T configuration) {
         return shardInfo -> true;
     }
 
+    @SuppressWarnings("java:S1172")
     protected boolean alwaysMergeWithInitialCriteria(T configuration) {
         return false;
     }
@@ -254,6 +261,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                                                                                              ShardSelector<ShardInfo, MapBasedServiceRegistry<ShardInfo>> shardSelector,
                                                                                              final ServiceNodeSelector<ShardInfo> nodeSelector) {
         return SimpleRangerZKClient.<ShardInfo>builder()
+                .upstreamId(DEFAULT_DATA_SINK_ID)
                 .curatorFramework(curator)
                 .namespace(namespace)
                 .serviceName(serviceName)
@@ -299,6 +307,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
                 .setNext(new RoutingWeightHandler<>(getWeightSupplier().get()))
                 .setNext(new StartupTimeHandler<>());
         val serviceProviderBuilder = ServiceProviderBuilders.<ShardInfo>shardedServiceProviderBuilder()
+                .withUpstreamId(DEFAULT_DATA_SINK_ID)
                 .withCuratorFramework(curator)
                 .withNamespace(namespace)
                 .withServiceName(serviceName)

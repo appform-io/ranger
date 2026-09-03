@@ -89,6 +89,7 @@ class HttpShardedServiceProviderBuilderTest {
                 .withNodeData(farmNodeData)
                 .withSerializer(node -> requestBytes)
                 .healthUpdateHandler(healthUpdateHandler)
+                .withUpstreamId("test-metric")
                 .build();
         serviceProvider.start();
         Assertions.assertNotNull(serviceProvider);

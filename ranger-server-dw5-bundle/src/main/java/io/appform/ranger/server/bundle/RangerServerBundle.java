@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.ServiceRegistry;
 import io.appform.ranger.core.signals.Signal;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.server.bundle.resources.RangerResource;
 import io.appform.ranger.server.bundle.rotation.BirTask;
 import io.appform.ranger.server.bundle.rotation.OorTask;
@@ -81,15 +82,17 @@ public abstract class RangerServerBundle<
         return List.of();
     }
 
+    protected boolean withMetricsEnabled(U configuration) {
+        return true;
+    }
+
     protected abstract List<RangerHubClient<T, R>> withHubs(U configuration);
 
     protected abstract List<HealthCheck> withHealthChecks(U configuration);
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
-        /*
-            Nothing to init here!
-        */
+
     }
 
 
@@ -117,6 +120,10 @@ public abstract class RangerServerBundle<
         val rotationStatus = new RotationStatus(withInitialRotationStatus(configuration));
         val lifecycleSignals = withLifecycleSignals(configuration);
         val healthChecks = withHealthChecks(configuration);
+
+        if(withMetricsEnabled(configuration)){
+            MetricRecorder.initialize(environment.metrics());
+        }
 
         environment.admin()
                 .addTask(new OorTask(rotationStatus));

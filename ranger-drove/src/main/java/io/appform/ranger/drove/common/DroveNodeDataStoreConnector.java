@@ -16,7 +16,9 @@
 package io.appform.ranger.drove.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> {
 
+    protected final String upstreamId;
     protected final DroveUpstreamConfig config;
     protected final ObjectMapper mapper;
     protected final DroveCommunicator droveClient;
@@ -35,6 +38,7 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
             final DroveUpstreamConfig config,
             final ObjectMapper mapper,
             final DroveCommunicator droveClient) {
+        this.upstreamId = config.getId();
         this.config = config;
         this.mapper = mapper;
         this.droveClient = droveClient;
@@ -51,7 +55,6 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
     public void ensureConnected() {
         do {
             Thread.sleep(1_000);
-
         } while (droveClient.leader().orElse(null) == null);
     }
 
@@ -62,7 +65,9 @@ public class DroveNodeDataStoreConnector<T> implements NodeDataStoreConnector<T>
 
     @Override
     public boolean isActive() {
-        return droveClient.healthy();
+        var healthy = droveClient.healthy();
+        MetricRecorder.recordNodeDataSourceStatus(DataStoreType.DROVE, upstreamId, healthy);
+        return healthy;
     }
 
 }

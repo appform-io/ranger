@@ -25,6 +25,8 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +36,7 @@ class DefaultPortSchemeResolverTest {
     void testPortSchemeDefaultServerFactory() {
         val server = mock(DefaultServerFactory.class);
         val connectorFactory = mock(HttpConnectorFactory.class);
-        when(server.getApplicationConnectors()).thenReturn(Lists.newArrayList(connectorFactory));
+        when(server.getApplicationConnectors()).thenReturn(List.of(connectorFactory));
         val resolver = new DefaultPortSchemeResolver<>();
         val configuration = mock(Configuration.class);
         when(configuration.getServerFactory()).thenReturn(server);

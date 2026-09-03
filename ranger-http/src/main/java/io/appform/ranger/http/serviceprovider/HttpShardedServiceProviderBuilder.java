@@ -56,8 +56,8 @@ public class HttpShardedServiceProviderBuilder<T> extends BaseServiceProviderBui
     }
 
     @Override
-    protected NodeDataSink<T, HttpRequestDataSerializer<T>> dataSink(Service service) {
-        return new HttpNodeDataSink<>(service, clientConfig, mapper,
+    protected NodeDataSink<T, HttpRequestDataSerializer<T>> dataSink(String upstreamId, Service service) {
+        return new HttpNodeDataSink<>(upstreamId, service, clientConfig, mapper,
                                       Objects.requireNonNullElseGet(httpClient,
                                                                     () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }

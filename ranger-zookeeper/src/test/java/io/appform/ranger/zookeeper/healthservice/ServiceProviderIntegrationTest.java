@@ -24,7 +24,6 @@ import io.appform.ranger.core.healthcheck.Healthchecks;
 import io.appform.ranger.core.healthcheck.updater.HealthStatusHandler;
 import io.appform.ranger.core.healthcheck.updater.HealthUpdateHandler;
 import io.appform.ranger.core.healthcheck.updater.LastUpdatedHandler;
-import io.appform.ranger.core.healthcheck.updater.StartupTimeHandler;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.RotationStatusMonitor;
 import io.appform.ranger.core.model.ServiceNode;
@@ -70,6 +69,7 @@ class ServiceProviderIntegrationTest {
         registerService("localhost-4", 9003, 2, anotherFile);
 
         serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -135,6 +135,7 @@ class ServiceProviderIntegrationTest {
         final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
                 .setNext(new HealthStatusHandler<TestNodeData>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")

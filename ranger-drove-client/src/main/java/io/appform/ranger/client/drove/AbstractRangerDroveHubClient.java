@@ -45,7 +45,7 @@ public abstract class AbstractRangerDroveHubClient<T, R extends ServiceRegistry<
     private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
+    protected ServiceDataSource getDefaultDataSource(String upstreamId) {
         return new DroveServiceDataSource<>(clientConfig, getMapper(), getNamespace(), droveCommunicator);
     }
 

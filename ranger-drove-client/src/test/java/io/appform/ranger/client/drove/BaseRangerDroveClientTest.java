@@ -114,6 +114,7 @@ public abstract class BaseRangerDroveClientTest {
                 response))));
 
         clientConfig = DroveUpstreamConfig.builder()
+                .id("test-metric")
                 .endpoints(List.of("http://localhost:" + wireMockExtension.getPort()))
                 .build();
         log.debug("Started http subsystem. Wiremock port: {}", wireMockExtension.getPort());

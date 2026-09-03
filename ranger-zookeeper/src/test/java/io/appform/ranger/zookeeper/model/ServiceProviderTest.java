@@ -73,6 +73,7 @@ class ServiceProviderTest {
     @Test
     void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -114,6 +115,7 @@ class ServiceProviderTest {
     void testBasicDiscoveryRR() {
         val serviceFinder
                 = ServiceFinderBuilders.<TestNodeData>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -158,6 +160,7 @@ class ServiceProviderTest {
     void testVisibility() {
         val serviceFinder = ServiceFinderBuilders.
                 <TestNodeData>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -186,6 +189,7 @@ class ServiceProviderTest {
         final HealthUpdateHandler<TestNodeData> healthUpdateHandler = new LastUpdatedHandler<TestNodeData>()
                 .setNext(new HealthStatusHandler<>());
         val serviceProvider = ServiceProviderBuilders.<TestNodeData>shardedServiceProviderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")

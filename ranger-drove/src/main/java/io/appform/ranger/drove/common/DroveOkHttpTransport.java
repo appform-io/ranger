@@ -18,12 +18,15 @@ package io.appform.ranger.drove.common;
 
 import com.phonepe.drove.client.DroveClient;
 import com.phonepe.drove.client.DroveHttpTransport;
+import io.appform.ranger.core.model.DataStoreType;
+import io.appform.ranger.core.util.MetricRecorder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.http.client.methods.HttpGet;
 
 import java.net.URI;
 import java.util.List;
@@ -34,9 +37,12 @@ import java.util.Map;
  */
 @Slf4j
 public class DroveOkHttpTransport implements DroveHttpTransport {
+
+    private final String upstreamId;
     private final OkHttpClient httpClient;
 
-    public DroveOkHttpTransport(final OkHttpClient httpClient) {
+    public DroveOkHttpTransport(String upstreamId, final OkHttpClient httpClient) {
+        this.upstreamId = upstreamId;
         this.httpClient = httpClient;
         log.info("Okhttp based transport initialized");
     }
@@ -68,6 +74,7 @@ public class DroveOkHttpTransport implements DroveHttpTransport {
             return responseHandler.handle(droveResponse);
         }
         catch (Exception e) {
+            MetricRecorder.recordRemoteCallUnknownFailure(DataStoreType.DROVE, upstreamId, HttpGet.METHOD_NAME, e.getClass().getSimpleName());
             log.error("Error calling drove: {}. Error: {}", e.getMessage(), e.getClass().getSimpleName());
             throw new DroveCommunicationException(e.getMessage());
         }

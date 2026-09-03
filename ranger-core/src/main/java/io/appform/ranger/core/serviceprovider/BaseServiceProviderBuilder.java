@@ -40,9 +40,7 @@ import lombok.val;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -51,6 +49,7 @@ import static java.util.Objects.requireNonNull;
 @SuppressWarnings({"unchecked", "unused", "UnusedReturnValue"})
 public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProviderBuilder<T, B, S>, S extends Serializer<T>> {
 
+    protected String upstreamId;
     protected String namespace;
     protected String serviceName;
     protected S serializer;
@@ -69,6 +68,11 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
 
     /* list of isolated monitors */
     private final List<IsolatedHealthMonitor<HealthcheckStatus>> isolatedMonitors = new ArrayList<>();
+
+    public B withUpstreamId(final String upstreamId) {
+        this.upstreamId = upstreamId;
+        return (B)this;
+    }
 
     public BaseServiceProviderBuilder<T, B, S> withNamespace(final String namespace) {
         this.namespace = namespace;
@@ -175,10 +179,11 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
     }
 
     protected final ServiceProvider<T, S> buildProvider() {
-        Preconditions.checkNotNull(namespace);
-        Preconditions.checkNotNull(serviceName);
-        Preconditions.checkNotNull(serializer);
-        Preconditions.checkNotNull(hostname);
+        requireNonNull(upstreamId);
+        requireNonNull(namespace);
+        requireNonNull(serviceName);
+        requireNonNull(serializer);
+        requireNonNull(hostname);
         Preconditions.checkNotNull(healthUpdateHandler);
         Preconditions.checkArgument(port > 0);
         Preconditions.checkArgument(!healthchecks.isEmpty() || !isolatedMonitors.isEmpty());
@@ -200,7 +205,7 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
 
         healthchecks.add(serviceHealthAggregator);
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();
-        val usableNodeDataSource = dataSink(service);
+        val usableNodeDataSource = dataSink(upstreamId, service);
 
         val healthcheckUpdateSignalGenerator
                 = new ScheduledSignal<>(
@@ -246,5 +251,5 @@ public abstract class BaseServiceProviderBuilder<T, B extends BaseServiceProvide
 
     public abstract ServiceProvider<T,S> build();
 
-    protected abstract NodeDataSink<T,S> dataSink(final Service service);
+    protected abstract NodeDataSink<T,S> dataSink(String upstreamId, final Service service);
 }

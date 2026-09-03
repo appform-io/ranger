@@ -38,8 +38,10 @@ import static java.util.Objects.requireNonNull;
  */
 @Slf4j
 public class ZkSimpleShardedServiceFinderBuilder<T> extends SimpleShardedServiceFinderBuilder<T, ZkSimpleShardedServiceFinderBuilder<T>, ZkNodeDataDeserializer<T>> {
+
     protected CuratorFramework curatorFramework;
     protected String connectionString;
+
 
     public ZkSimpleShardedServiceFinderBuilder<T> withCuratorFramework(CuratorFramework curatorFramework) {
         this.curatorFramework = curatorFramework;
@@ -67,8 +69,8 @@ public class ZkSimpleShardedServiceFinderBuilder<T> extends SimpleShardedService
     }
 
     @Override
-    protected NodeDataSource<T, ZkNodeDataDeserializer<T>> dataSource(Service service) {
-        return new ZkNodeDataSource<>(service, curatorFramework);
+    protected NodeDataSource<T, ZkNodeDataDeserializer<T>> dataSource(String upstreamId, Service service) {
+        return new ZkNodeDataSource<>(upstreamId, service, curatorFramework);
     }
 
     @Override

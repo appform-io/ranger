@@ -100,6 +100,7 @@ class CustomShardSelectorTest {
     @Test
     void testBasicDiscovery() {
         val serviceFinder = ServiceFinderBuilders.<TestShardInfo>shardedFinderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")
@@ -135,6 +136,7 @@ class CustomShardSelectorTest {
         final HealthUpdateHandler<TestShardInfo> healthUpdateHandler = new LastUpdatedHandler<TestShardInfo>()
                 .setNext(new HealthStatusHandler<TestShardInfo>());
         val serviceProvider = ServiceProviderBuilders.<TestShardInfo>shardedServiceProviderBuilder()
+                .withUpstreamId("test-metric")
                 .withConnectionString(testingCluster.getConnectString())
                 .withNamespace("test")
                 .withServiceName("test-service")

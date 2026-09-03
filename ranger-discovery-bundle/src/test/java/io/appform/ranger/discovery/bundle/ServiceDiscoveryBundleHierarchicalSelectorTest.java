@@ -21,6 +21,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
+import io.appform.ranger.discovery.core.Constants;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
 import io.dropwizard.Configuration;
@@ -89,6 +90,7 @@ class ServiceDiscoveryBundleHierarchicalSelectorTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());

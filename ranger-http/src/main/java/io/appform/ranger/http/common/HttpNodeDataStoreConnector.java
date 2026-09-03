@@ -15,7 +15,9 @@
  */
 package io.appform.ranger.http.common;
 
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.NodeDataStoreConnector;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +62,8 @@ public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> 
 
     @Override
     public boolean isActive() {
-        return true;
+        boolean healthy = httpCommunicator.healthy();
+        MetricRecorder.recordNodeDataSourceStatus(DataStoreType.HTTP, config.getId(), healthy);
+        return healthy;
     }
 }

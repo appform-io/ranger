@@ -203,7 +203,7 @@ public class IdGeneratorBase {
 
     public final void setNodeId(int nodeId) {
         if (this.nodeId > 0) {
-            throw new RuntimeException("Node ID already set");
+            throw new IllegalStateException("Node ID already set");
         }
         this.nodeId = nodeId;
     }

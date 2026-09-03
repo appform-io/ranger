@@ -52,7 +52,7 @@ public class RangerTestHub extends AbstractRangerHubClient<TestNodeData,
     }
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
+    protected ServiceDataSource getDefaultDataSource(String upstreamId) {
         return new StaticDataSource(Set.of(RangerHubTestUtils.service));
     }
 

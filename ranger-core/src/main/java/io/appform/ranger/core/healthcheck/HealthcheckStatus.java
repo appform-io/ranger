@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.core.healthcheck;
 
+@SuppressWarnings("java:S115")
 public enum HealthcheckStatus {
     healthy,
     unhealthy

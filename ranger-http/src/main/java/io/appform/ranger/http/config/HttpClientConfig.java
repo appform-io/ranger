@@ -20,6 +20,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  *
  */
@@ -28,6 +30,9 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @AllArgsConstructor
 public class HttpClientConfig {
+
+    @NotBlank
+    String id;
     String host;
     int port;
     boolean secure;

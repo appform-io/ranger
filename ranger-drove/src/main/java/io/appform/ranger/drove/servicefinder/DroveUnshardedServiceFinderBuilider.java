@@ -56,12 +56,11 @@ public class DroveUnshardedServiceFinderBuilider<T>
     }
 
     @Override
-    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
+    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(String upstreamId, Service service) {
         return new DroveNodeDataSource<>(
                 service,
                 clientConfig,
-                mapper,
-                Objects.requireNonNullElseGet(droveCommunicator,
+                mapper, Objects.requireNonNullElseGet(droveCommunicator,
                                               () -> RangerDroveUtils.buildDroveClient(namespace, clientConfig, mapper)));
     }
 

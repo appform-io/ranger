@@ -61,6 +61,7 @@ public class DroveUnshardedServiceFinderFactory<T> implements ServiceFinderFacto
     @Override
     public ServiceFinder<T, ListBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new DroveUnshardedServiceFinderBuilider<T>()
+                .withUpstreamId(clientConfig.getId())
                 .withClientConfig(clientConfig)
                 .withDroveCommunicator(droveCommunicator)
                 .withObjectMapper(mapper)

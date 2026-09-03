@@ -49,8 +49,8 @@ public abstract class AbstractRangerHttpHubClient<T, R extends ServiceRegistry<T
     private final ServiceNodeSelector<T> nodeSelector = new RandomServiceNodeSelector<>();
 
     @Override
-    protected ServiceDataSource getDefaultDataSource() {
-        return new HttpServiceDataSource<>(clientConfig,
+    protected ServiceDataSource getDefaultDataSource(String upstreamId) {
+        return new HttpServiceDataSource<>(upstreamId, clientConfig,
                                            Objects.requireNonNullElseGet(getHttpClient(),
                                                                          () -> RangerHttpUtils.httpClient(
                                                                                  clientConfig,

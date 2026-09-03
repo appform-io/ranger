@@ -92,6 +92,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());
@@ -120,6 +121,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());
@@ -156,6 +158,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());
@@ -192,6 +195,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());
@@ -227,6 +231,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());
@@ -257,6 +262,7 @@ class ServiceDiscoveryBundleLocalHostPortTest {
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.getObjectMapper()).thenReturn(new ObjectMapper());
+        when(environment.metrics()).thenReturn(metricRegistry);
         AdminEnvironment adminEnvironment = mock(AdminEnvironment.class);
         doNothing().when(adminEnvironment)
                 .addTask(any());

@@ -28,6 +28,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @ToString
+@SuppressWarnings("java:S1700")
 public class Id {
     private String id;
     private Date generatedDate;

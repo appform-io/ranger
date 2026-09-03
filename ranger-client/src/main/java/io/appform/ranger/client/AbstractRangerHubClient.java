@@ -37,6 +37,7 @@ import static java.util.Objects.requireNonNull;
 @SuperBuilder
 public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D extends Deserializer<T>> implements RangerHubClient<T,R> {
 
+    private final String upstreamId;
     private final String namespace;
     private final ObjectMapper mapper;
     private final D deserializer;
@@ -60,6 +61,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
 
     @Override
     public void start() {
+        requireNonNull(upstreamId, "upstreamId can't be null");
         requireNonNull(mapper, "Mapper can't be null");
         requireNonNull(namespace, "namespace can't be null");
         requireNonNull(deserializer, "deserializer can't be null");
@@ -88,7 +90,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
         this.excludedServices = Objects.requireNonNullElseGet(this.excludedServices, Set::of);
 
         if(null == this.serviceDataSource){
-            this.serviceDataSource = getDefaultDataSource();
+            this.serviceDataSource = getDefaultDataSource(upstreamId);
         }
 
         this.hub = buildHub();
@@ -193,7 +195,7 @@ public abstract class AbstractRangerHubClient<T, R extends ServiceRegistry<T>, D
     }
 
 
-    protected abstract ServiceDataSource getDefaultDataSource();
+    protected abstract ServiceDataSource getDefaultDataSource(String upstreamId);
 
     protected abstract ServiceFinderFactory<T, R> getFinderFactory();
 

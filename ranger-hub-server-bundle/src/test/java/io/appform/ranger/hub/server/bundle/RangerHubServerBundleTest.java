@@ -16,6 +16,7 @@
 
 package io.appform.ranger.hub.server.bundle;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
@@ -67,6 +68,7 @@ class RangerHubServerBundleTest {
                     .upstreams(List.of(
                             new RangerHttpUpstreamConfiguration()
                                     .setHttpClientConfigs(List.of(HttpClientConfig.builder()
+                                            .id("test-metric")
                                             .host("localhost")
                                             .port(wm.getHttpPort())
                                             .build()))
@@ -90,6 +92,7 @@ class RangerHubServerBundleTest {
         when(environment.healthChecks()).thenReturn(healthChecks);
         when(environment.admin()).thenReturn(adminEnvironment);
         when(environment.getObjectMapper()).thenReturn(mapper);
+        when(environment.metrics()).thenReturn(new MetricRegistry());
         when(bootstrap.getHealthCheckRegistry()).thenReturn(mock(HealthCheckRegistry.class));
 
         val bundle = new RangerHubServerBundle<TestConfig>() {

@@ -15,26 +15,44 @@
  */
 package io.appform.ranger.http.servicefinderhub;
 
+
 import io.appform.ranger.core.finderhub.ServiceDataSource;
 import io.appform.ranger.core.model.Service;
+import io.appform.ranger.core.model.DataStoreType;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.servicefinder.HttpCommunicator;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.util.Collection;
 import java.util.Objects;
 
+import static io.appform.ranger.core.util.MetricRecorder.FAILURE;
+import static io.appform.ranger.core.util.MetricRecorder.SUCCESS;
+
 @Slf4j
 public class HttpServiceDataSource<T> extends HttpNodeDataStoreConnector<T> implements ServiceDataSource {
 
-    public HttpServiceDataSource(HttpClientConfig config, HttpCommunicator<T> httpClient) {
+    private final String upstreamId;
+
+    public HttpServiceDataSource(String upstreamId, HttpClientConfig config, HttpCommunicator<T> httpClient) {
         super(config, httpClient);
+        this.upstreamId = upstreamId;
     }
 
     @Override
     public Collection<Service> services() {
        Objects.requireNonNull(config, "client config has not been set for node data");
-        return httpCommunicator.services();
+        try {
+            val result = httpCommunicator.services();
+            MetricRecorder.recordServicesFetchStatus(DataStoreType.HTTP, upstreamId, SUCCESS);
+            return result;
+        }
+        catch (Exception e) {
+            MetricRecorder.recordServicesFetchStatus(DataStoreType.HTTP, upstreamId, FAILURE);
+            throw e;
+        }
     }
 }

@@ -76,6 +76,7 @@ public abstract class BaseRangerHttpClientTest {
                         .withStatus(200)));
 
         httpClientConfig = HttpClientConfig.builder()
+                .id("test-metric")
                 .host("127.0.0.1")
                 .port(wireMockExtension.getPort())
                 .connectionTimeoutMs(30_000)

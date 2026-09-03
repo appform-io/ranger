@@ -78,8 +78,7 @@ class DroveNodeDataSourceTest {
         val ds = new DroveNodeDataSource<DNodeData, DNodeDataDeserializer>(
                 service,
                 config,
-                MAPPER,
-                droveClient);
+                MAPPER, droveClient);
         ds.start();
         val res = ds.refresh(new DNodeDataDeserializer()).orElse(null);
         assertNotNull(res);
@@ -104,8 +103,7 @@ class DroveNodeDataSourceTest {
         val ds = new DroveNodeDataSource<DNodeData, DNodeDataDeserializer>(
                 service,
                 config,
-                MAPPER,
-                droveClient);
+                MAPPER, droveClient);
         ds.start();
         val res = ds.refresh(new DNodeDataDeserializer()).orElse(null);
         assertNull(res);

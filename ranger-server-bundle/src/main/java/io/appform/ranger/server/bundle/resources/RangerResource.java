@@ -20,6 +20,7 @@ import io.appform.ranger.client.RangerHubClient;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.model.ServiceRegistry;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.http.response.model.GenericResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -53,12 +54,14 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
     @Timed
     public GenericResponse<Set<Service>> getServices(
             @QueryParam("skipDataFromReplicationSources") @DefaultValue("false") boolean skipDataFromReplicationSources) {
+        val services = rangerHubs.stream()
+                .filter(hub -> !skipDataFromReplicationSources || !hub.isReplicationSource())
+                .map(RangerHubClient::getRegisteredServices)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        MetricRecorder.recordServicesReturned(services.size());
         return GenericResponse.<Set<Service>>builder()
-                .data(rangerHubs.stream()
-                              .filter(hub -> !skipDataFromReplicationSources || !hub.isReplicationSource())
-                              .map(RangerHubClient::getRegisteredServices)
-                              .flatMap(Collection::stream)
-                              .collect(Collectors.toSet()))
+                .data(services)
                 .build();
     }
 
@@ -70,18 +73,20 @@ public class RangerResource<T, R extends ServiceRegistry<T>> {
             @NotNull @NotEmpty @PathParam("serviceName") final String serviceName,
             @QueryParam("skipDataFromReplicationSources") @DefaultValue("false") boolean skipDataFromReplicationSources) {
         val service = Service.builder().namespace(namespace).serviceName(serviceName).build();
+        val serviceNodes = rangerHubs.stream()
+                .filter(hub -> !(skipDataFromReplicationSources && hub.isReplicationSource()))
+                .map(hub -> hub.getAllNodes(service))
+                .flatMap(List::stream)
+                .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),
+                        Function.identity(),
+                        (oldV, newV) ->
+                                oldV.getLastUpdatedTimeStamp() > newV.getLastUpdatedTimeStamp()
+                                        ? oldV
+                                        : newV))
+                .values();
+        MetricRecorder.recordServiceNodesReturned(service.getServiceName(), serviceNodes.size());
         return GenericResponse.<Collection<ServiceNode<T>>>builder()
-                .data(rangerHubs.stream()
-                              .filter(hub -> !(skipDataFromReplicationSources && hub.isReplicationSource()))
-                              .map(hub -> hub.getAllNodes(service))
-                              .flatMap(List::stream)
-                              .collect(Collectors.toMap(node -> node.getHost() + ":" + node.getPort(),
-                                                        Function.identity(),
-                                                        (oldV, newV) ->
-                                                                oldV.getLastUpdatedTimeStamp() > newV.getLastUpdatedTimeStamp()
-                                                                ? oldV
-                                                                : newV))
-                              .values())
+                .data(serviceNodes)
                 .build();
     }
 }

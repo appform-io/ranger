@@ -18,7 +18,6 @@ package io.appform.ranger.client.zk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.client.AbstractRangerClient;
 import io.appform.ranger.core.finder.SimpleShardedServiceFinder;
-import io.appform.ranger.core.finder.nodeselector.RandomServiceNodeSelector;
 import io.appform.ranger.core.finder.serviceregistry.MapBasedServiceRegistry;
 import io.appform.ranger.core.finder.shardselector.MatchingShardSelector;
 import io.appform.ranger.core.model.HubConstants;
@@ -41,6 +40,7 @@ import static java.util.Objects.requireNonNull;
 @SuperBuilder
 public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedServiceRegistry<T>> {
 
+    private String upstreamId;
     private final String serviceName;
     private final String namespace;
     private final ObjectMapper mapper;
@@ -58,6 +58,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
     public void start() {
         log.info("Starting the service finder");
 
+        requireNonNull(upstreamId, "upstreamId can't be null");
         requireNonNull(mapper, "Mapper can't be null");
         requireNonNull(namespace, "namespace can't be null");
         requireNonNull(deserializer, "deserializer can't be null");
@@ -81,6 +82,7 @@ public class SimpleRangerZKClient<T> extends AbstractRangerClient<T, MapBasedSer
         }
 
         this.serviceFinder = ServiceFinderBuilders.<T>shardedFinderBuilder()
+                .withUpstreamId(upstreamId)
                 .withCuratorFramework(curatorFramework)
                 .withNamespace(namespace)
                 .withServiceName(serviceName)

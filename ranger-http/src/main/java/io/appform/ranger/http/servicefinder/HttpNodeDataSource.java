@@ -15,9 +15,12 @@
  */
 package io.appform.ranger.http.servicefinder;
 
+
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.NodeDataSource;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.http.common.HttpNodeDataStoreConnector;
 import io.appform.ranger.http.config.HttpClientConfig;
 import io.appform.ranger.http.serde.HTTPResponseDataDeserializer;
@@ -37,19 +40,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSource<T, D> {
 
+    private final String upstreamId;
     private final Service service;
     private final AtomicBoolean upstreamAvailable = new AtomicBoolean(true);
     private final ScheduledExecutorService resetter = Executors.newSingleThreadScheduledExecutor();
 
     public HttpNodeDataSource(
+            final String upstreamId,
             final Service service,
             final HttpClientConfig config,
             final HttpCommunicator<T> httpCommunicator) {
         super(config, httpCommunicator);
         Objects.requireNonNull(config, "client config has not been set for node data");
         Objects.requireNonNull(httpCommunicator, "http communicator has not been set for node data");
+        this.upstreamId = upstreamId;
         this.service = service;
         resetter.scheduleWithFixedDelay(() -> upstreamAvailable.set(true), 0, 60, TimeUnit.SECONDS);
+    }
+
+    public String getUpstreamId() {
+        return upstreamId;
+    }
+
+    @Override
+    public DataStoreType getDataStoreType() {
+        return DataStoreType.HTTP;
     }
 
     @Override
@@ -59,6 +74,8 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
 
     @Override
     public boolean isActive() {
-        return upstreamAvailable.get();
+        var httpUpstreamAvailable = upstreamAvailable.get();
+        MetricRecorder.recordNodeDataSourceStatus(DataStoreType.HTTP, upstreamId, httpUpstreamAvailable);
+        return httpUpstreamAvailable;
     }
 }

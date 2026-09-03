@@ -41,6 +41,7 @@ public class UnshardedRangerZKHubClient<T>
     @Override
     protected ServiceFinderFactory<T, ListBasedServiceRegistry<T>> getFinderFactory() {
         return ZKUnshardedServiceFinderFactory.<T>builder()
+            .upstreamId(getUpstreamId())
             .curatorFramework(getCuratorFramework())
             .connectionString(getConnectionString())
             .nodeRefreshIntervalMs(getNodeRefreshTimeMs())

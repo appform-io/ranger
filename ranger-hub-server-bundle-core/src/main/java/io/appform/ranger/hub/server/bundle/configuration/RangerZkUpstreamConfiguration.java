@@ -18,15 +18,13 @@ package io.appform.ranger.hub.server.bundle.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.appform.ranger.core.model.HubConstants;
 import io.appform.ranger.hub.server.bundle.models.BackendType;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,9 +32,11 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RangerZkUpstreamConfiguration extends RangerUpstreamConfiguration {
 
-    @NotEmpty
-    @Valid
-    private List<String> zookeepers;
+    @NotBlank
+    private String id;
+
+    @NotBlank
+    private String zookeeper;
 
     private boolean disablePushUpdaters;
 

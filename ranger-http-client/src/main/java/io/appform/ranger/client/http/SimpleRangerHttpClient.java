@@ -57,6 +57,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
         requireNonNull(deserializer, "deserializer can't be null");
 
         this.serviceFinder = HttpServiceFinderBuilders.<T>httpUnshardedServiceFinderBuilider()
+                .withUpstreamId(clientConfig.getId())
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
                 .withNamespace(namespace)

@@ -61,6 +61,7 @@ public class DroveShardedServiceFinderFactory<T> implements ServiceFinderFactory
     @Override
     public ServiceFinder<T, MapBasedServiceRegistry<T>> buildFinder(Service service) {
         val serviceFinder = new DroveShardedServiceFinderBuilder<T>()
+                .withUpstreamId(clientConfig.getId())
                 .withClientConfig(clientConfig)
                 .withDroveClient(droveClient)
                 .withObjectMapper(mapper)

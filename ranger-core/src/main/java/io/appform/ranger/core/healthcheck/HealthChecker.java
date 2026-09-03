@@ -15,6 +15,7 @@
  */
 package io.appform.ranger.core.healthcheck;
 
+import io.appform.ranger.core.util.MetricRecorder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -57,11 +58,13 @@ public class HealthChecker implements Supplier<HealthcheckResult> {
             catch (Exception e) {
                 log.error("Error running healthcheck. Setting node to unhealthy", e);
                 healthcheckStatus = HealthcheckStatus.unhealthy;
+                MetricRecorder.recordHealthcheckFailure();
             }
             if (HealthcheckStatus.unhealthy == healthcheckStatus) {
                 break;
             }
         }
+        MetricRecorder.recordHealthcheckStatus(HealthcheckStatus.healthy == healthcheckStatus);
         //Trigger update only if state change has happened
         //Conditions on which update will be triggered
         //1. First time

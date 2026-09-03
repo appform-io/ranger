@@ -12,7 +12,7 @@ ranger:
       nodeRefreshTimeMs: 5000
       serviceRefreshTimeoutMs: 3000
       hubStartTimeoutMs: 5000
-      zookeepers: [ "localhost:2181" ]
+      zookeeper: "localhost:2181"
       disablePushUpdaters: true
 
 

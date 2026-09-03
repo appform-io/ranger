@@ -28,6 +28,7 @@ public class TestServiceFinderFactory  implements ServiceFinderFactory<TestNodeD
     @Override
     public ServiceFinder<TestNodeData, ListBasedServiceRegistry<TestNodeData>> buildFinder(Service service) {
         val finder = new TestSimpleUnshardedServiceFinder<TestNodeData>()
+                .withUpstreamId("test-metric")
                 .withNamespace(service.getNamespace())
                 .withServiceName(service.getServiceName())
                 .withDeserializer(new Deserializer<>() {

@@ -16,6 +16,7 @@
 
 package io.appform.ranger.drove.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -25,16 +26,15 @@ import com.phonepe.drove.models.api.ApiResponse;
 import com.phonepe.drove.models.api.AppSummary;
 import com.phonepe.drove.models.api.ExposedAppInfo;
 import com.phonepe.drove.models.application.ApplicationState;
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.Service;
+import io.appform.ranger.core.util.MetricRecorder;
 import io.appform.ranger.drove.config.DroveUpstreamConfig;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.http.HttpStatus;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,11 +43,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static io.appform.ranger.core.util.MetricRecorder.LIST_NODES;
+import static io.appform.ranger.core.util.MetricRecorder.SERVICES_LIST;
+
 /**
  *
  */
 @Slf4j
 public class DroveApiCommunicator implements DroveCommunicator {
+    private final String upstreamId;
     private final String namespace;
     private final DroveUpstreamConfig config;
     private final DroveClient droveClient;
@@ -63,6 +67,7 @@ public class DroveApiCommunicator implements DroveCommunicator {
         this.config = config;
         this.droveClient = droveClient;
         this.mapper = mapper;
+        this.upstreamId = config.getId();
         resetter.scheduleWithFixedDelay(() -> upstreamAvailable.set(true), 0, 60, TimeUnit.SECONDS);
     }
 
@@ -98,13 +103,11 @@ public class DroveApiCommunicator implements DroveCommunicator {
 
                     @Override
                     public List<String> handle(DroveClient.Response response) throws Exception {
+                        MetricRecorder.recordRemoteCallStatusCode(DataStoreType.DROVE, upstreamId, SERVICES_LIST, response.statusCode());
                         if (response.statusCode() != HttpStatus.SC_OK) {
                             throw new DroveCommunicationException("Error communicating to drove: " + response);
                         }
-                        val apiResponse = mapper.readValue(
-                                response.body(),
-                                new TypeReference<ApiResponse<Map<String, AppSummary>>>() {
-                                });
+                        final var apiResponse = parseServicesResponse(response);
                         if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
                             log.error("Error calling drove: " + apiResponse.getMessage());
                             throwDroveCommError(response);
@@ -125,6 +128,27 @@ public class DroveApiCommunicator implements DroveCommunicator {
                 }));
     }
 
+    private ApiResponse<Map<String, AppSummary>> parseServicesResponse(DroveClient.Response response) {
+        try {
+            val apiResponse = mapper.readValue(
+                    response.body(),
+                    new TypeReference<ApiResponse<Map<String, AppSummary>>>() {
+                    });
+
+            if(apiResponse == null || apiResponse.getData() == null || apiResponse.getData().isEmpty()) {
+                MetricRecorder.recordNullOrEmptyServicesListResponse(DataStoreType.DROVE, upstreamId);
+                log.warn("Received empty services list from drove. Response body: {}", response.body());
+            }
+
+            return apiResponse;
+        } catch (JsonProcessingException e) {
+            MetricRecorder.recordServicesParseFailure(DataStoreType.DROVE, upstreamId);
+            log.error("Error parsing response from drove: {}. Response body: {}", e.getMessage(), response.body(), e);
+            throw new DroveCommunicationException("Error parsing response from drove: " + e.getMessage());
+        }
+    }
+
+
     @Override
     @SuppressWarnings("java:S1168")
     public Map<Service, List<ExposedAppInfo>> listNodes(Iterable<? extends Service> services) {
@@ -144,13 +168,12 @@ public class DroveApiCommunicator implements DroveCommunicator {
                                        }
 
                                        @Override
-                                       public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) throws Exception {
+                                       public Map<Service, List<ExposedAppInfo>> handle(DroveClient.Response response) {
+                                           MetricRecorder.recordRemoteCallStatusCode(DataStoreType.DROVE, upstreamId, LIST_NODES, response.statusCode());
                                            if (response.statusCode() != HttpStatus.SC_OK) {
                                                throwDroveCommError(response);
                                            }
-                                           val apiResponse = mapper.readValue(response.body(),
-                                                                              new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
-                                                                              });
+                                           final var apiResponse = parseListNodesResponse(services, response);
                                            if (!apiResponse.getStatus().equals(ApiErrorCode.SUCCESS)) {
                                                throwDroveCommError(response);
                                            }
@@ -163,6 +186,27 @@ public class DroveApiCommunicator implements DroveCommunicator {
                                                            Collectors.toList()));
                                        }
                                    }));
+    }
+
+    private ApiResponse<List<ExposedAppInfo>> parseListNodesResponse(Iterable<? extends Service> services, DroveClient.Response response) {
+        try {
+            val apiResponse = mapper.readValue(response.body(),
+                    new TypeReference<ApiResponse<List<ExposedAppInfo>>>() {
+                    });
+
+            if(apiResponse == null || apiResponse.getData() == null || apiResponse.getData().isEmpty()) {
+                MetricRecorder.recordNullOrEmptyListNodeResponse(DataStoreType.DROVE, upstreamId);
+                services.forEach(service -> MetricRecorder.recordNullOrEmptyListNodeResponse(DataStoreType.DROVE, upstreamId, service.getServiceName()));
+                log.warn("Received empty node list from drove. Response body: {}", response.body());
+            }
+
+            return apiResponse;
+        } catch (JsonProcessingException e) {
+            MetricRecorder.recordListNodesParseFailure(DataStoreType.DROVE, upstreamId);
+            services.forEach(service -> MetricRecorder.recordListNodesParseFailure(DataStoreType.DROVE, upstreamId, service.getServiceName()));
+            log.error("Error parsing response from drove: {}. Response body: {}", e.getMessage(), response.body(), e);
+            throw new DroveCommunicationException("Error parsing response from drove: " + e.getMessage());
+        }
     }
 
     private <T> T executeRemoteCall(Supplier<T> executor) {

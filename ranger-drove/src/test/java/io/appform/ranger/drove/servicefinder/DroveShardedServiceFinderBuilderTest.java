@@ -89,6 +89,7 @@ class DroveShardedServiceFinderBuilderTest {
                     .withShardSelector((criteria, registry) -> registry.nodeList())
                     .withNodeRefreshIntervalMs(1000)
                     .withDroveClient(droveClient)
+                    .withUpstreamId("test-metric")
                     .build();
             finder.start();
             await().atMost(Duration.ofSeconds(30))

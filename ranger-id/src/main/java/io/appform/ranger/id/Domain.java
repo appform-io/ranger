@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Getter
+@SuppressWarnings("java:S1700")
 public class Domain {
     public static final String DEFAULT_DOMAIN_NAME = "__DEFAULT_DOMAIN__";
     public static final Domain DEFAULT = new Domain(DEFAULT_DOMAIN_NAME,

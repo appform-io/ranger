@@ -19,5 +19,10 @@ package io.appform.ranger.core.model;
  *
  */
 public interface NodeDataSink<T, S extends Serializer<T>> extends NodeDataStoreConnector<T> {
+
+    DataStoreType getDataStoreType();
+
+    String getUpstreamId();
+    
     void updateState(S serializer, ServiceNode<T> serviceNode);
 }

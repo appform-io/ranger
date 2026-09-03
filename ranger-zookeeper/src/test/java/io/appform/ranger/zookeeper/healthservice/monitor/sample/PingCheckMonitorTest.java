@@ -15,6 +15,8 @@
  */
 package io.appform.ranger.zookeeper.healthservice.monitor.sample;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.core.healthservice.TimeEntity;
 import io.appform.ranger.core.healthservice.monitor.sample.PingCheckMonitor;
@@ -25,12 +27,19 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
+@WireMockTest
 class PingCheckMonitorTest {
 
     @Test
-    void testMonitor() {
+    void testMonitor(WireMockRuntimeInfo wireMockRuntimeInfo) {
+        stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(200)));
+
         val httpRequest = new HttpGet("/");
-        val pingCheckMonitor = new PingCheckMonitor(new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3, "google.com", 80);
+        val pingCheckMonitor = new PingCheckMonitor(
+                new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3,
+                "localhost", wireMockRuntimeInfo.getHttpPort());
         Assertions.assertEquals(HealthcheckStatus.healthy, pingCheckMonitor.monitor());
         Assertions.assertEquals(HealthcheckStatus.healthy, pingCheckMonitor.monitor());
         Assertions.assertEquals(HealthcheckStatus.healthy, pingCheckMonitor.monitor());
@@ -40,9 +49,13 @@ class PingCheckMonitorTest {
     }
 
     @Test
-    void testMonitor2() {
+    void testMonitor2(WireMockRuntimeInfo wireMockRuntimeInfo) {
+        stubFor(get(urlEqualTo("/help")).willReturn(aResponse().withStatus(404)));
+
         val httpRequest = new HttpGet("/help");
-        val pingCheckMonitor = new PingCheckMonitor(new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3, "google.com", 80);
+        val pingCheckMonitor = new PingCheckMonitor(
+                new TimeEntity(2, TimeUnit.SECONDS), httpRequest, 5000, 5, 3,
+                "localhost", wireMockRuntimeInfo.getHttpPort());
         Assertions.assertEquals(HealthcheckStatus.healthy, pingCheckMonitor.monitor());
         Assertions.assertEquals(HealthcheckStatus.healthy, pingCheckMonitor.monitor());
         Assertions.assertEquals(HealthcheckStatus.unhealthy, pingCheckMonitor.monitor());

@@ -62,6 +62,7 @@ public class FinderUtils {
             return false;
         }
         if(serviceNode.getLastUpdatedTimeStamp() < healthcheckZombieCheckThresholdTime) {
+            MetricRecorder.recordZombieNodeFound(service.getServiceName());
             log.warn("Zombie node [{}:{}] found for [{}]",
                       serviceNode.getHost(), serviceNode.getPort(), service.getServiceName());
             return false;
