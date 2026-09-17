@@ -35,7 +35,7 @@ import java.util.*;
 /**
  * Id generation utility for creating unique identifiers.
  * Supports constraint-based validation, domain-specific configurations, and flexible formatting.
- * 
+ *
  * Note: This class uses {@link NodeUtils} for managing node identifiers in a thread-safe manner.
  */
 @SuppressWarnings("unused")
@@ -47,7 +47,7 @@ public class IdGenerator {
     /**
      * Initialize the ID generator using the default node ID from {@link NodeUtils}.
      */
-    public static void initialize() {
+    public static synchronized void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
 
@@ -57,16 +57,14 @@ public class IdGenerator {
      *
      * @param node the node identifier to use
      */
-    public static void initialize(int node) {
-        NodeUtils.setNode(node);
-        initialize();
+    public static synchronized void initialize(int node) {
+        baseGenerator.setNodeId(node);
     }
-    
+
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
-        NodeUtils.reset();
     }
-    
+
     public static synchronized void initialize(
             List<IdValidationConstraint> globalConstraints,
             Map<String, List<IdValidationConstraint>> domainSpecificConstraints) {
@@ -74,7 +72,7 @@ public class IdGenerator {
         if (null != globalConstraints && !globalConstraints.isEmpty()) {
             baseGenerator.registerGlobalConstraints(globalConstraints);
         }
-        
+
         if (null != domainSpecificConstraints) {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
@@ -203,25 +201,25 @@ public class IdGenerator {
                                 .build())
                 .map(baseGenerator::getId);
     }
-    
+
     static Optional<InternalId> generate(final IdGenerationInternalRequest request) {
         return baseGenerator.generateWithConstraints(request, IdGenerator::getIdFromIdInfo);
     }
-    
+
     private InternalId getIdFromIdInfo(final String namespace) {
         return getIdFromIdInfo(IdGenerationInternalRequest.builder()
                 .prefix(namespace)
                 .idFormatter(IdFormatters.original())
                 .build());
     }
-    
+
     private InternalId getIdFromIdInfo(final String namespace, final IdFormatter idFormatter) {
         return getIdFromIdInfo(IdGenerationInternalRequest.builder()
                 .prefix(namespace)
                 .idFormatter(idFormatter)
                 .build());
     }
-    
+
     private InternalId getIdFromIdInfo(final IdGenerationInternalRequest idGenerationRequest) {
         val domain = idGenerationRequest.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(idGenerationRequest.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()

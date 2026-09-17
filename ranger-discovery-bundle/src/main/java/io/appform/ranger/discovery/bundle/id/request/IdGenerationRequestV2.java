@@ -23,40 +23,41 @@ import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorators;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatter;
 import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import lombok.Data;
+import lombok.Value;
 import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Data
+@Value
 public class IdGenerationRequestV2 {
     final String prefix;
     final String suffix;
     final boolean skipGlobal;
     final String domain;
-    private List<IdValidationConstraint> constraints;
+    List<IdValidationConstraint> constraints;
     final IdFormatter idFormatter;
     final List<IdDecorator> idDecorators;
     final int idGenerationValue;
-    
+
     private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
-        // Convert null prefix/suffix to empty strings else concatenation prefix + generatedId + suffix will produce NPE.
+        // Absent prefix/suffix must not become the literal string "null" in generated IDs.
         this.prefix = Strings.nullToEmpty(builder.prefix);
         this.suffix = Strings.nullToEmpty(builder.suffix);
         this.skipGlobal = builder.skipGlobal;
         this.domain = builder.domain;
-        this.constraints = builder.constraints;
+        // Null inherits domain constraints; an empty list explicitly overrides them.
+        this.constraints = builder.constraints == null ? null : List.copyOf(builder.constraints);
         this.idFormatter = builder.idFormatter;
-        this.idDecorators = builder.idDecorators;
+        this.idDecorators = List.copyOf(builder.idDecorators);
         this.idGenerationValue = builder.idGenerationValue;
     }
-    
+
     public static IdGeneratorRequestBuilder builder() {
         return new IdGeneratorRequestBuilder();
     }
-    
+
     public static class IdGeneratorRequestBuilder {
         private String prefix;
         private String suffix;
@@ -66,39 +67,39 @@ public class IdGenerationRequestV2 {
         private IdFormatter idFormatter;
         private final List<IdDecorator> idDecorators = new ArrayList<>();
         private int idGenerationValue;
-        
+
         public IdGeneratorRequestBuilder prefix(final String prefix) {
             validateIdPrefix(prefix);
             this.prefix = prefix;
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder suffix(final String suffix) {
             validateIdSuffix(suffix);
             this.suffix = suffix;
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder skipGlobal(final boolean skipGlobal) {
             this.skipGlobal = skipGlobal;
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder domain(final String domain) {
             this.domain = domain;
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder constraints(final List<IdValidationConstraint> constraints) {
             this.constraints = constraints;
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder includeBase36() {
             idDecorators.add(IdDecorators.base36());
             return this;
         }
-        
+
         public IdGeneratorRequestBuilder includeRandomNonce() {
             validateIdFormatterSelection(idFormatter);
             idFormatter = IdFormatters.randomNonce();
@@ -111,7 +112,7 @@ public class IdGenerationRequestV2 {
                     .orElseThrow(() -> new RuntimeException("Invalid combination of formatter and decorators"));
             return new IdGenerationRequestV2(this);
         }
-        
+
         private static void validateIdPrefix(final String namespace) {
             if (Strings.isNullOrEmpty(namespace)) {
                 return;
@@ -121,7 +122,7 @@ public class IdGenerationRequestV2 {
                     namespace.matches(idRegex),
                     "Prefix does not match the required regex: " + idRegex);
         }
-        
+
         private static void validateIdSuffix(final String suffix) {
             if (Strings.isNullOrEmpty(suffix)) {
                 return;
@@ -131,7 +132,7 @@ public class IdGenerationRequestV2 {
                     suffix.matches(idRegex),
                     "Suffix does not match the required regex: " + idRegex);
         }
-        
+
         private static void validateIdFormatterSelection(final IdFormatter idFormatter) {
             Preconditions.checkArgument(
                     Objects.isNull(idFormatter),

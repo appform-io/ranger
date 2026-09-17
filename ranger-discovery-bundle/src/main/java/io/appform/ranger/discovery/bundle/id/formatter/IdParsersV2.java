@@ -36,13 +36,10 @@ public class IdParsersV2 {
     private static final int DATE_ID_LENGTH = 22;
     // Matches unsuffixed legacy (V1) ids: optional prefix + 22-digit payload
     // (timestamp+node+exponent). Legacy generation did not support suffixes.
-    // NOTE: an undecorated V2 id also matches this pattern syntactically because its 2-digit
-    // generator-type code is consumed among the first 22 digits, leaving the final payload digits
-    // in group(3). Therefore, only an empty group(3) identifies a V1 id. Otherwise, control falls
-    // through to PATTERN, which extracts the V2 generator-type code and dispatches to the matching
-    // formatter/decorator chain.
-    private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})(.*)");
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})(.*)");
+    // An undecorated V2 id has two extra generator-type digits, so it cannot match this
+    // whole-input legacy pattern. It falls through to the formatter/decorator dispatch below.
+    private static final Pattern DEFAULT_PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{22})");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([A-Za-z0-9]*)");
 
     // Built from IdGeneratorType enum via exhaustive switch — adding a new enum value
     // without a case here will cause a compilation error, keeping parsers in sync.
@@ -64,7 +61,7 @@ public class IdParsersV2 {
             case DEFAULT_V2_RANDOM_NONCE, BASE_36_RANDOM_NONCE -> IdFormatters.randomNonce();
         };
     }
-    
+
     /**
      * Parses the provided string representation of an identifier into an {@link Id} object.
      * <p>
@@ -100,16 +97,16 @@ public class IdParsersV2 {
         }
         try {
             val defaultMatcher = DEFAULT_PATTERN.matcher(idString);
-            if (defaultMatcher.find() && defaultMatcher.group(3).isEmpty()) {
+            if (defaultMatcher.matches()) {
                 val date = defaultMatcher.group(2);
                 if (date.length() == DATE_ID_LENGTH) {
                     return io.appform.ranger.discovery.bundle.id.formatter.IdParsers.parse(idString);
                 }
                 return Optional.empty();
             }
-            
+
             val matcher = PATTERN.matcher(idString);
-            if (!matcher.find() || matcher.group(2).isEmpty()) {
+            if (!matcher.matches()) {
                 return Optional.empty();
             }
             val generators = Integer.parseInt(matcher.group(2));
@@ -122,9 +119,9 @@ public class IdParsersV2 {
             for (IdDecorator idDecorator: decorators) {
                 decoratedIdString = idDecorator.parse(decoratedIdString).orElse(null);
             }
-            
+
             val parsedIdString = String.format("%s%02d%s", matcher.group(1), generators, decoratedIdString);
-            
+
             val parsedId = formattersParserRegistry.get(generators).parse(parsedIdString)
                     .orElseThrow(() -> new RuntimeException(String.format("Parsing failed with formatter for idString: %s", idString)));
             parsedId.setId(idString);

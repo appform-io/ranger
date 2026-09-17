@@ -26,7 +26,7 @@ public class IdFormatters {
     public static IdFormatter original() {
         return originalIdFormatter;
     }
-    
+
     public static IdFormatter randomNonce() {
         return randomNonceIdFormatter;
     }

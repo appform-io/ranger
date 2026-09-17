@@ -54,34 +54,33 @@ import java.util.Optional;
 @UtilityClass
 public class IdGeneratorV2 {
     private static final IdGeneratorBase baseGenerator = new IdGeneratorBase();
-    
+
     public static synchronized void initialize() {
         baseGenerator.setNodeId(NodeUtils.getNode());
     }
 
     public static synchronized void cleanUp() {
         baseGenerator.cleanUp();
-        NodeUtils.reset();
     }
-    
+
     public static void registerDomain(Domain domain) {
         baseGenerator.registerDomain(domain);
     }
-    
+
     public static synchronized void registerGlobalConstraints(IdValidationConstraint... constraints) {
         registerGlobalConstraints(ImmutableList.copyOf(constraints));
     }
-    
+
     public static synchronized void registerGlobalConstraints(List<IdValidationConstraint> constraints) {
         baseGenerator.registerGlobalConstraints(constraints);
     }
-    
+
     public static synchronized void registerDomainSpecificConstraints(
             final String domain,
             final IdValidationConstraint... validationConstraints) {
         registerDomainSpecificConstraints(domain, ImmutableList.copyOf(validationConstraints));
     }
-    
+
     public static synchronized void registerDomainSpecificConstraints(
             String domain,
             List<IdValidationConstraint> validationConstraints) {
@@ -100,7 +99,7 @@ public class IdGeneratorV2 {
             domainSpecificConstraints.forEach(baseGenerator::registerDomainSpecificConstraints);
         }
     }
-    
+
     /**
      * Generate id with given prefix
      *
@@ -111,7 +110,7 @@ public class IdGeneratorV2 {
         val internalRequest = getRequest(request);
         return baseGenerator.getId(getIdFromIdInfo(internalRequest));
     }
-    
+
     /**
      * Generate id that matches all passed constraints.
      * NOTE: There are performance implications for this.
@@ -125,7 +124,7 @@ public class IdGeneratorV2 {
         return baseGenerator.generateWithConstraints(internalRequest, IdGeneratorV2::getIdFromIdInfo)
                 .map(baseGenerator::getId);
     }
-    
+
     /**
      * Generate id by parsing given string
      *
@@ -136,13 +135,13 @@ public class IdGeneratorV2 {
         val parsedId = IdParsersV2.parse(idString).orElse(null);
         return Optional.ofNullable(baseGenerator.getId(parsedId));
     }
-    
+
     private InternalId getIdFromIdInfo(final IdGenerationInternalRequest request) {
         val domain = request.getDomain() != null ? baseGenerator.getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val idGenerationInput = IdGenerationInput.builder()
                 .domain(domain)
                 .build();
-        
+
         // FormattedId based on nonce result
         val formattedId = request.getIdFormatter().format(baseGenerator.getNodeId(), idGenerationInput);
         // Applying decorators on formattedId
@@ -150,11 +149,11 @@ public class IdGeneratorV2 {
         for (IdDecorator idDecorator: request.getIdDecorators()) {
             decoratedId = idDecorator.decorate(decoratedId);
         }
-        
+
         val id = String.format("%s%02d%s%s", request.getPrefix(), request.getIdGenerationValue(), decoratedId, request.getSuffix());
         return baseGenerator.getIdFromIdInfo(id, request.getPrefix(), request.getSuffix(), formattedId);
     }
-    
+
     private IdGenerationInternalRequest getRequest(final IdGenerationRequestV2 request) {
         return IdGenerationInternalRequest.builder()
                 .prefix(request.getPrefix())

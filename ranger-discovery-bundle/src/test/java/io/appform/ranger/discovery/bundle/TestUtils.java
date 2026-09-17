@@ -50,7 +50,7 @@ public class TestUtils {
                                                            .getNode()
                                                            .orElse(null)));
     }
-    
+
     public IdGenerationRequestV2 getBase36Formatter(final String prefix,
                                                     final String suffix,
                                                     final String domain,
@@ -66,7 +66,7 @@ public class TestUtils {
                 .constraints(constraints)
                 .build();
     }
-    
+
     public IdGenerationRequestV2 getDefaultV2Formatter(final String prefix,
                                                        final String suffix,
                                                        final String domain,

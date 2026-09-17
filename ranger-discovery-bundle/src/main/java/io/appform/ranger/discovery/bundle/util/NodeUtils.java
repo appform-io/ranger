@@ -25,6 +25,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class NodeUtils {
     private static int node = 0;
+    private static boolean configured;
+    private static int activeGenerators;
 
     /**
      * Set the node ID for this process. Typically called once at service startup. Repeating the
@@ -34,11 +36,12 @@ public class NodeUtils {
      * @param nodeId the node identifier
      */
     public static synchronized void setNode(int nodeId) {
-        if (node != 0 && node != nodeId) {
+        if (configured && node != nodeId) {
             throw new IllegalStateException(
                     String.format("Node ID already set to %d; cannot change it to %d", node, nodeId));
         }
         node = nodeId;
+        configured = true;
     }
 
     /**
@@ -51,12 +54,31 @@ public class NodeUtils {
     }
 
     /**
-     * Reset the process-level node ID back to its default (unset) value. Intended for use by
-     * generator {@code cleanUp()} paths (primarily tests) so that a stale node ID from a previous
-     * {@code initialize()} isn't silently reused by a subsequent {@code initialize()} that forgets
-     * to call {@link #setNode(int)} again.
+     * Reset the process-level node ID when no initialized generators are using it.
+     * The last generator cleanup also resets this state automatically.
      */
     public static synchronized void reset() {
+        if (activeGenerators != 0) {
+            throw new IllegalStateException("Cannot reset node while generators are initialized");
+        }
         node = 0;
+        configured = false;
+    }
+
+    /** Internal lifecycle hook: reserve the node once per generator initialization. */
+    public static synchronized void registerGenerator(final int nodeId) {
+        setNode(nodeId);
+        activeGenerators++;
+    }
+
+    /** Internal lifecycle hook: release one initialized generator's reservation. */
+    public static synchronized void unregisterGenerator() {
+        if (activeGenerators == 0) {
+            throw new IllegalStateException("No initialized generator to unregister");
+        }
+        activeGenerators--;
+        if (activeGenerators == 0) {
+            reset();
+        }
     }
 }

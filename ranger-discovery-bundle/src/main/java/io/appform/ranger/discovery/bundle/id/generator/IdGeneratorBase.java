@@ -14,6 +14,7 @@ import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.formatter.FormattedId;
 import io.appform.ranger.discovery.bundle.id.nonce.NonceUtils;
 import io.appform.ranger.discovery.bundle.id.request.IdGenerationInternalRequest;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.Getter;
 import lombok.val;
 
@@ -32,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class IdGeneratorBase {
 
     @Getter
-    private int nodeId;
+    private volatile int nodeId;
+    private boolean initialized;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
     @Getter
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
@@ -54,6 +56,10 @@ public class IdGeneratorBase {
         globalConstraints.clear();
         registeredDomains.clear();
         nodeId = 0;
+        if (initialized) {
+            NodeUtils.unregisterGenerator();
+            initialized = false;
+        }
     }
 
     public final void registerDomain(final Domain domain) {
@@ -75,7 +81,7 @@ public class IdGeneratorBase {
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
     }
-    
+
     public Optional<InternalId> generateWithConstraints(final IdGenerationInternalRequest request, final IdProvider idProvider) {
         val domain = request.getDomain() != null ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
         val constraints = request.getConstraints() != null ? request.getConstraints() : domain.getConstraints();
@@ -105,7 +111,7 @@ public class IdGeneratorBase {
                 .suffix(suffix)
                 .build();
     }
-    
+
     public Id getId(final InternalId id) {
         if (id == null) {
             return null;
@@ -151,10 +157,13 @@ public class IdGeneratorBase {
         return IdValidationState.VALID;
     }
 
-    public final void setNodeId(int nodeId) {
-        if (this.nodeId > 0) {
-            throw new RuntimeException("Node ID already set");
+    public final synchronized void setNodeId(final int nodeId) {
+        if (initialized) {
+            Preconditions.checkState(this.nodeId == nodeId, "Node ID already set");
+            return;
         }
+        NodeUtils.registerGenerator(nodeId);
         this.nodeId = nodeId;
+        initialized = true;
     }
 }

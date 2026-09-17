@@ -22,16 +22,16 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Base36IdDecorator implements IdDecorator {
-    private static final Pattern PATTERN = Pattern.compile("([A-Z0-9]{16})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Z0-9]{16})([A-Za-z0-9]*)");
     private static final int BASE36_MAX_LENGTH = 16;
     // 15-digit timestamp + 4-digit nodeId + 3-digit nonce = 22 digits
     private static final int BASE10_PAYLOAD_LENGTH = 22;
-    
+
     @Override
     public String decorate(final String idString) {
         return toBase36(idString);
     }
-    
+
     /**
      * Decorates an identifier using the BASE_36 scheme.
      * <p>
@@ -44,15 +44,18 @@ public class Base36IdDecorator implements IdDecorator {
     @Override
     public Optional<String> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
-        if (!matcher.find()) {
+        if (!matcher.matches()) {
             return Optional.empty();
         }
         val base36Data = matcher.group(1);
         val base10Data = toBase10(base36Data);
-        
+        if (base10Data.length() != BASE10_PAYLOAD_LENGTH) {
+            return Optional.empty();
+        }
+
         return Optional.of(String.format("%s%s", base10Data, matcher.group(2)));
     }
-    
+
     /**
      * Converts a base-10 numeric string to a zero-padded, uppercased base-36 string of length {@link #BASE36_MAX_LENGTH}.
      * Leading zeros are added to ensure a fixed-width output, making the encoded ID length predictable

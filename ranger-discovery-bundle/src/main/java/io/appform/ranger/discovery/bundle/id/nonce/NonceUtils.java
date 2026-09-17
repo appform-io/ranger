@@ -24,7 +24,7 @@ import lombok.val;
 
 @UtilityClass
 public class NonceUtils {
-    
+
     public int readRetryCount() {
         try {
             val count = Integer.parseInt(System.getenv().getOrDefault("NUM_ID_GENERATION_RETRIES", "512"));
@@ -38,7 +38,7 @@ public class NonceUtils {
             throw new IllegalArgumentException("Please provide a valid positive integer for NUM_ID_GENERATION_RETRIES");
         }
     }
-    
+
     public void retryEventListener(final ExecutionAttemptedEvent<GenerationResult> event) {
         val result = event.getLastResult();
         if (null != result && !result.getState().equals(IdValidationState.VALID)) {

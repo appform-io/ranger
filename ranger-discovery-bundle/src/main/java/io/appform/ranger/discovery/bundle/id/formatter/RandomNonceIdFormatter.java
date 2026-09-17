@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class RandomNonceIdFormatter implements IdFormatter {
-    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([\\d]{15})([\\d]{4})([\\d]{3})(.*)");
+    private static final Pattern PATTERN = Pattern.compile("([A-Za-z]*)([\\d]{2})([\\d]{15})([\\d]{4})([\\d]{3})([A-Za-z0-9]*)");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmssSSS");
     @Override
     public FormattedId format(final int nodeId,
@@ -44,7 +44,7 @@ public class RandomNonceIdFormatter implements IdFormatter {
                 .time(nonceInfo.getTime())
                 .build();
     }
-    
+
     /**
      * Parses the given id string produced by this formatter.
      * <p>
@@ -60,7 +60,7 @@ public class RandomNonceIdFormatter implements IdFormatter {
     @Override
     public Optional<InternalId> parse(final String idString) {
         val matcher = PATTERN.matcher(idString);
-        if (!matcher.find()) {
+        if (!matcher.matches()) {
             return Optional.empty();
         }
         return Optional.of(InternalId.builder()

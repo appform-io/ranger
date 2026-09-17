@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -55,12 +56,12 @@ class IdGeneratorTest {
 
     @Getter
     private static final class Runner implements Callable<Long> {
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 val id = IdGenerator.generate("X");
                 count++;
             }
@@ -71,7 +72,7 @@ class IdGeneratorTest {
     @Getter
     private static final class ConstraintRunner implements Callable<Long> {
         private final IdValidationConstraint constraint;
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         private ConstraintRunner(IdValidationConstraint constraint) {
@@ -80,7 +81,7 @@ class IdGeneratorTest {
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 Optional<Id> id = IdGenerator.generateWithConstraints("X", Collections.singletonList(constraint));
                 Assertions.assertTrue(id.isPresent());
                 count++;
@@ -101,20 +102,32 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testGenerate() {
+    void testGenerate() throws Exception {
         val numRunners = 20;
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(Runner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
     }
 
     @Test
@@ -155,21 +168,33 @@ class IdGeneratorTest {
 
 
     @Test
-    void testGenerateWithConstraintsNoConstraint() {
+    void testGenerateWithConstraintsNoConstraint() throws Exception {
         int numRunners = 20;
 
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(ConstraintRunner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
 
     }
 

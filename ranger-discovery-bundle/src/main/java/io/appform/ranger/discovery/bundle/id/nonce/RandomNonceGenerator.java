@@ -10,9 +10,9 @@ import lombok.val;
 import java.security.SecureRandom;
 
 public class RandomNonceGenerator extends NonceGenerator {
-    
+
     private final SecureRandom secureRandom;
-    
+
     public RandomNonceGenerator() {
         this.secureRandom = new SecureRandom(Long.toBinaryString(System.currentTimeMillis()).getBytes());
     }

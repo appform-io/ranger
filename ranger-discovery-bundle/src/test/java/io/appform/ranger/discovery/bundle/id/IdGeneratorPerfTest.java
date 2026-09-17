@@ -23,9 +23,9 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
 
 /**
  * Test performance between different constructs
@@ -37,9 +37,14 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
     public static class BenchmarkState {
 
         @Setup(Level.Trial)
-        public void setUp() throws IOException {
+        public void setUp() {
             NodeUtils.setNode(23);
             IdGenerator.initialize();
+        }
+
+        @TearDown(Level.Trial)
+        public void tearDown() {
+            IdGenerator.cleanUp();
         }
     }
 

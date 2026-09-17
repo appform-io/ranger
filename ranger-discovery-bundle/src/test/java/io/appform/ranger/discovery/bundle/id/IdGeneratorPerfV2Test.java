@@ -24,9 +24,9 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
 
 /**
  * Test performance between different constructs
@@ -42,13 +42,18 @@ public class IdGeneratorPerfV2Test extends BenchmarkTest {
             NodeUtils.setNode(23);
             IdGeneratorV2.initialize();
         }
+
+        @TearDown(Level.Trial)
+        public void tearDown() {
+            IdGeneratorV2.cleanUp();
+        }
     }
 
     @Benchmark
     public void testGenerateSuffixedId(Blackhole blackhole, BenchmarkState state) {
         IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y", "", false, null));
     }
-    
+
     @Benchmark
     public void testGenerateBase36Id(Blackhole blackhole, BenchmarkState state) {
         IdGeneratorV2.generate(TestUtils.getBase36Formatter("X", "Y", "", false, null));

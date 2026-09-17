@@ -1,3 +1,18 @@
+/*
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.appform.ranger.discovery.bundle.id;
 
 import io.appform.ranger.discovery.bundle.id.decorators.IdDecorator;
@@ -15,16 +30,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public enum IdGeneratorType {
-    
+
     DEFAULT(0, IdFormatters.original(), List.of()),
     DEFAULT_V2_RANDOM_NONCE(1, IdFormatters.randomNonce(), List.of()),
     BASE_36_RANDOM_NONCE(2, IdFormatters.randomNonce(), List.of(IdDecorators.base36()));
-    
+
     @Getter
     private final int value;
     private final IdFormatter idFormatter;
     private final List<IdDecorator> idDecorators;
-    
+
     IdGeneratorType(final int value,
                     final IdFormatter idFormatter,
                     final List<IdDecorator> idDecorators) {
@@ -32,10 +47,10 @@ public enum IdGeneratorType {
         this.idFormatter = idFormatter;
         this.idDecorators = idDecorators;
     }
-    
+
     public static final Map<Integer, IdFormatter> FORMATTER_VALUE_MAP = Arrays.stream(values())
             .collect(Collectors.toMap(IdGeneratorType::getValue, type -> type.idFormatter));
-    
+
     public static final Map<Integer, List<IdDecorator>> DECORATOR_REVERSE_VALUE_MAP = Arrays.stream(values())
             .collect(Collectors.toMap(
                     IdGeneratorType::getValue,
@@ -45,7 +60,7 @@ public enum IdGeneratorType {
                         return Collections.unmodifiableList(reversed);
                     }
             ));
-    
+
     private static final Map<Class<? extends IdFormatter>, Map<List<IdDecorator>, Integer>> LOOKUP_MAP =
             Arrays.stream(values())
                     .collect(Collectors.groupingBy(
@@ -55,7 +70,7 @@ public enum IdGeneratorType {
                                     IdGeneratorType::getValue
                             )
                     ));
-    
+
     public static Optional<Integer> findValue(final IdFormatter formatter, final List<IdDecorator> decorators) {
         return Optional.ofNullable(LOOKUP_MAP.get(formatter.getClass()))
                 .map(innerMap -> innerMap.get(decorators));

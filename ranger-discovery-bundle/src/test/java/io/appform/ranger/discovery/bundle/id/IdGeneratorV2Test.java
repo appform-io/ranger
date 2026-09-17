@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -53,12 +54,12 @@ class IdGeneratorV2Test {
 
     @Getter
     private static final class Runner implements Callable<Long> {
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 val id = IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("X", "Y", "", false, null));
                 count++;
             }
@@ -69,7 +70,7 @@ class IdGeneratorV2Test {
     @Getter
     private static final class ConstraintRunner implements Callable<Long> {
         private final IdValidationConstraint constraint;
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         private ConstraintRunner(IdValidationConstraint constraint) {
@@ -78,7 +79,7 @@ class IdGeneratorV2Test {
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 Optional<Id> id = IdGeneratorV2.generateWithConstraints(
                         TestUtils.getDefaultV2Formatter("X", "Y", "", false, Collections.singletonList(constraint)));
                 Assertions.assertTrue(id.isPresent());
@@ -91,29 +92,43 @@ class IdGeneratorV2Test {
     @BeforeEach
     void setup() {
         NodeUtils.setNode(nodeId);
+        IdGenerator.initialize();
         IdGeneratorV2.initialize();
     }
 
     @AfterEach
     void cleanup() {
         IdGeneratorV2.cleanUp();
+        IdGenerator.cleanUp();
     }
 
     @Test
-    void testGenerate() {
+    void testGenerate() throws Exception {
         val numRunners = 20;
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(Runner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
     }
 
     @Test
@@ -121,7 +136,7 @@ class IdGeneratorV2Test {
         val id = IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("TEST", "", "", false, null));
         Assertions.assertEquals(28, id.getId().length());
     }
-    
+
     @Test
     void testGenerateSuffixedId() {
         val id = IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("TEST", "001XYZ001", "", false, null));
@@ -133,28 +148,28 @@ class IdGeneratorV2Test {
         val id = IdGeneratorV2.generate(TestUtils.getBase36Formatter("TEST", "001XYZ001", "", false, null));
         Assertions.assertEquals(31, id.getId().length());
     }
-    
+
     @Test
     void testGenerateWithSuffixedIdConstraints() {
         IdGeneratorV2.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
         Optional<Id> id = IdGeneratorV2.generateWithConstraints(TestUtils.getDefaultV2Formatter("TEST", "001XYZ001", "TEST", false, null));
         Assertions.assertTrue(id.isPresent());
         Assertions.assertEquals(37, id.get().getId().length());
-        
+
         // Unregistered Domain
         id = IdGeneratorV2.generateWithConstraints(TestUtils.getDefaultV2Formatter("TEST", "001XYZ001", "TEST1", false, null));
         Assertions.assertTrue(id.isPresent());
         Assertions.assertEquals(37, id.get().getId().length());
     }
-    
+
     @Test
     void testGenerateWithBase36SuffixedIdConstraints() {
         IdGeneratorV2.registerDomainSpecificConstraints("TEST", Collections.singletonList(id -> true));
         Optional<Id> id = IdGeneratorV2.generateWithConstraints(TestUtils.getBase36Formatter("TEST", "001001", "TEST", false, null));
-        
+
         Assertions.assertTrue(id.isPresent());
         Assertions.assertEquals(28, id.get().getId().length());
-        
+
         // Unregistered Domain
         id = IdGeneratorV2.generateWithConstraints(TestUtils.getBase36Formatter("TEST", "001XYZ001", "TEST1", false, null));
         Assertions.assertTrue(id.isPresent());
@@ -168,7 +183,7 @@ class IdGeneratorV2Test {
         Optional<Id> id = IdGeneratorV2.generateWithConstraints(TestUtils.getDefaultV2Formatter("TEST", "", "TEST", false, null));
         Assertions.assertFalse(id.isPresent());
     }
-    
+
     @Test
     void testGenerateSuffixedIdWithConstraintsFailedWithLocalConstraint() {
         IdGeneratorV2.registerGlobalConstraints(Collections.singletonList(id -> false));
@@ -176,7 +191,7 @@ class IdGeneratorV2Test {
         Optional<Id> id = IdGeneratorV2.generateWithConstraints(TestUtils.getDefaultV2Formatter("TEST", "00AA00A", "TEST", false, null));
         Assertions.assertFalse(id.isPresent());
     }
-    
+
     @Test
     void testGenerateBase36SuffixedIdWithConstraintsFailedWithLocalConstraint() {
         IdGeneratorV2.registerGlobalConstraints(Collections.singletonList(id -> false));
@@ -186,21 +201,33 @@ class IdGeneratorV2Test {
     }
 
     @Test
-    void testGenerateWithConstraintsNoConstraint() {
+    void testGenerateWithConstraintsNoConstraint() throws Exception {
         int numRunners = 20;
 
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(ConstraintRunner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
 
     }
 
@@ -280,7 +307,7 @@ class IdGeneratorV2Test {
             Assertions.assertNotEquals(parsedId.getPrefix(), generatedId.getPrefix());
         }
     }
-    
+
     @Test
     void testSuffixedIdParseSuccessAfterGeneration() {
         val generatedId = IdGeneratorV2.generate(TestUtils.getDefaultV2Formatter("TEST", "00AA001", "", false, null));
@@ -293,7 +320,7 @@ class IdGeneratorV2Test {
         Assertions.assertEquals(parsedId.getSuffix(), generatedId.getSuffix());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
-    
+
     @Test
     void testBase36SuffixedIdParseSuccessAfterGeneration() {
         val generatedId = IdGeneratorV2.generate(TestUtils.getBase36Formatter("TEST", "00AA001", "", false, null));
@@ -306,7 +333,7 @@ class IdGeneratorV2Test {
         Assertions.assertEquals(parsedId.getSuffix(), generatedId.getSuffix());
         Assertions.assertEquals(parsedId.getGeneratedDate(), generatedId.getGeneratedDate());
     }
-    
+
     @Test
     void testGenerateWithNumericalPrefix() {
         val prefix = "10";
@@ -314,7 +341,7 @@ class IdGeneratorV2Test {
                 () -> TestUtils.getDefaultV2Formatter(prefix, "", "", false, null));
         Assertions.assertEquals("Prefix does not match the required regex: ^[a-zA-Z]+$", exception.getMessage());
     }
-    
+
     @Test
     void testGenerateWithSpecialCharactersSuffix() {
         val suffix = "10$";
@@ -322,7 +349,7 @@ class IdGeneratorV2Test {
                 () -> TestUtils.getDefaultV2Formatter("", suffix, "", false, null));
         Assertions.assertEquals("Suffix does not match the required regex: ^[a-zA-Z0-9]+$", exception.getMessage());
     }
-    
+
     @Test
     void testGenerateWithBlankPrefix() {
         val prefix = "";
