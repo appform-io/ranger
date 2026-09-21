@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableList;
 import io.appform.ranger.discovery.bundle.id.constraints.IdValidationConstraint;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.JavaHashCodeBasedKeyPartitioner;
 import io.appform.ranger.discovery.bundle.id.constraints.impl.PartitionValidator;
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -37,9 +39,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -52,12 +56,12 @@ class IdGeneratorTest {
 
     @Getter
     private static final class Runner implements Callable<Long> {
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 val id = IdGenerator.generate("X");
                 count++;
             }
@@ -68,7 +72,7 @@ class IdGeneratorTest {
     @Getter
     private static final class ConstraintRunner implements Callable<Long> {
         private final IdValidationConstraint constraint;
-        private boolean stop = false;
+        private volatile boolean stop = false;
         private long count = 0L;
 
         private ConstraintRunner(IdValidationConstraint constraint) {
@@ -77,7 +81,7 @@ class IdGeneratorTest {
 
         @Override
         public Long call() {
-            while (!stop) {
+            while (!stop && !Thread.currentThread().isInterrupted()) {
                 Optional<Id> id = IdGenerator.generateWithConstraints("X", Collections.singletonList(constraint));
                 Assertions.assertTrue(id.isPresent());
                 count++;
@@ -88,7 +92,8 @@ class IdGeneratorTest {
 
     @BeforeEach
     void setup() {
-        IdGenerator.initialize(nodeId);
+        NodeUtils.setNode(nodeId);
+        IdGenerator.initialize();
     }
 
     @AfterEach
@@ -97,32 +102,38 @@ class IdGeneratorTest {
     }
 
     @Test
-    void testGenerate() {
+    void testGenerate() throws Exception {
         val numRunners = 20;
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new Runner()).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(Runner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
     }
 
     @Test
     void testGenerateOriginal() {
-        String id = IdGenerator.generate("TEST", IdFormatters.original()).getId();
+        String id = IdGenerator.generate("TEST").getId();
         Assertions.assertEquals(26, id.length());
-    }
-
-    @Test
-    void testGenerateBase36() {
-        String id = IdGenerator.generate("TEST", IdFormatters.base36()).getId();
-        Assertions.assertEquals(18, id.length());
     }
 
     @Test
@@ -157,22 +168,81 @@ class IdGeneratorTest {
 
 
     @Test
-    void testGenerateWithConstraintsNoConstraint() {
+    void testGenerateWithConstraintsNoConstraint() throws Exception {
         int numRunners = 20;
 
         val runners = IntStream.range(0, numRunners).mapToObj(i -> new ConstraintRunner(new PartitionValidator(4, new JavaHashCodeBasedKeyPartitioner(16)))).toList();
         val executorService = Executors.newFixedThreadPool(numRunners);
-        runners.forEach(executorService::submit);
-        Awaitility.await()
-                .pollInterval(Duration.ofSeconds(10))
-                .timeout(Duration.ofSeconds(11))
-                .until(() -> true);
-        executorService.shutdownNow();
-        val totalCount = runners.stream().mapToLong(ConstraintRunner::getCount).sum();
-        log.debug("Generated ID count: {}", totalCount);
-        log.debug("Generated ID rate: {}/sec", totalCount / 10);
-        Assertions.assertTrue(totalCount > 0);
+        val futures = runners.stream().map(executorService::submit).toList();
+        try {
+            Awaitility.await()
+                    .pollInterval(Duration.ofSeconds(10))
+                    .timeout(Duration.ofSeconds(11))
+                    .until(() -> true);
+            runners.forEach(runner -> runner.stop = true);
+            executorService.shutdown();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+            long totalCount = 0;
+            for (val future : futures) {
+                // Propagate worker assertion failures instead of silently discarding them.
+                val count = future.get();
+                Assertions.assertTrue(count > 0);
+                totalCount += count;
+            }
+            log.debug("Generated ID count: {}", totalCount);
+            log.debug("Generated ID rate: {}/sec", totalCount / 10);
+        } finally {
+            executorService.shutdownNow();
+            Assertions.assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
+        }
 
+    }
+
+
+    @Test
+    void testGenerateWithConstraintsReturnsSameIdAsGenerated() {
+        val lastSeen = new AtomicReference<Id>();
+        IdValidationConstraint capturingConstraint = new IdValidationConstraint() {
+            @Override
+            public boolean isValid(Id id) {
+                lastSeen.set(id);
+                return true;
+            }
+        };
+        IdGenerator.registerDomainSpecificConstraints("TEST", List.of(capturingConstraint));
+
+        Optional<Id> result = IdGenerator.generateWithConstraints("TEST", "TEST");
+
+        Assertions.assertTrue(result.isPresent());
+        // The returned id must be exactly the same as the one seen during constraint validation.
+        Assertions.assertEquals(lastSeen.get().getId(), result.get().getId(),
+                "Returned ID string must match the one evaluated during constraint validation, not a newly generated one");
+        Assertions.assertEquals(lastSeen.get().getExponent(), result.get().getExponent(),
+                "Exponent must match — a fresh nonce generation on return would produce a different exponent");
+    }
+
+    @Test
+    void testGenerateWithConstraintsReturnsSameIdAsGeneratedAfterRetry() {
+        val attemptCount = new AtomicInteger(0);
+        val lastSeen = new AtomicReference<Id>();
+        IdValidationConstraint retryingConstraint = new IdValidationConstraint() {
+            @Override
+            public boolean isValid(Id id) {
+                lastSeen.set(id);
+                return attemptCount.incrementAndGet() >= 3;
+            }
+        };
+        IdGenerator.registerDomainSpecificConstraints("TEST", List.of(retryingConstraint));
+
+        Optional<Id> result = IdGenerator.generateWithConstraints("TEST", "TEST");
+
+        Assertions.assertTrue(result.isPresent(), "ID must be generated after retries");
+        Assertions.assertEquals(3, attemptCount.get(), "Constraint should have been evaluated exactly 3 times");
+        // The returned id must be the one from the 3rd (passing) attempt — stored in GenerationResult and returned directly.
+        Assertions.assertEquals(lastSeen.get().getId(), result.get().getId(),
+                "Returned ID must be the one that passed the constraint on retry");
+        Assertions.assertEquals(lastSeen.get().getExponent(), result.get().getExponent(),
+                "Exponent must match the passing attempt's id");
     }
 
     @Test
@@ -188,7 +258,7 @@ class IdGeneratorTest {
         val generatedId = IdGenerator.generate("TEST");
         val parsedId = IdGenerator.parse(generatedId.getId()).orElse(null);
         Assertions.assertNotNull(parsedId);
-        Assertions.assertEquals(parsedId.getNode(), nodeId);
+        Assertions.assertEquals(nodeId, parsedId.getNode());
     }
 
     @Test

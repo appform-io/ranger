@@ -16,17 +16,16 @@
 
 package io.appform.ranger.discovery.bundle.id;
 
-import io.appform.ranger.discovery.bundle.id.formatter.IdFormatters;
-import lombok.SneakyThrows;
+import io.appform.ranger.discovery.bundle.util.NodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
 
 /**
  * Test performance between different constructs
@@ -38,20 +37,19 @@ public class IdGeneratorPerfTest extends BenchmarkTest {
     public static class BenchmarkState {
 
         @Setup(Level.Trial)
-        public void setUp() throws IOException {
-            IdGenerator.initialize(23);
+        public void setUp() {
+            NodeUtils.setNode(23);
+            IdGenerator.initialize();
+        }
+
+        @TearDown(Level.Trial)
+        public void tearDown() {
+            IdGenerator.cleanUp();
         }
     }
 
-    @SneakyThrows
-    @Benchmark
-    public void testGenerateBase36(Blackhole blackhole, BenchmarkState state) {
-        IdGenerator.generate("X", IdFormatters.base36());
-    }
-
-    @SneakyThrows
     @Benchmark
     public void testGenerate(Blackhole blackhole, BenchmarkState state) {
-        IdGenerator.generate("X", IdFormatters.original());
+        IdGenerator.generate("X");
     }
 }
