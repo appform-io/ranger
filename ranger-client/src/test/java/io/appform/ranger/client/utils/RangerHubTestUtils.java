@@ -39,6 +39,7 @@ public class RangerHubTestUtils {
                 .nodeRefreshTimeMs(1000)
                 .initialCriteria(new TestCriteria())
                 .deserializer(new TestDeserializer<>())
+                .upstreamId("test-metric")
                 .build();
     }
 
@@ -51,6 +52,7 @@ public class RangerHubTestUtils {
             .useDefaultDataSource(false)
             .serviceDataSource(new StaticDataSource(Set.of(RangerHubTestUtils.service)))
             .deserializer(new TestDeserializer<>())
+            .upstreamId("test-metric")
             .build();
     }
 

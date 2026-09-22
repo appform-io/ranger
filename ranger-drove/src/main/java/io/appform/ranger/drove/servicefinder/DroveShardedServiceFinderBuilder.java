@@ -59,8 +59,8 @@ public class DroveShardedServiceFinderBuilder<T> extends SimpleShardedServiceFin
     }
 
     @Override
-    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
-        return new DroveNodeDataSource<>(service, clientConfig, mapper,
+    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(String upstreamId, Service service) {
+        return new DroveNodeDataSource<>(upstreamId, service, clientConfig, mapper,
                                          Objects.requireNonNullElseGet(droveClient,
                                                                        () -> RangerDroveUtils.buildDroveClient(
                                                                                namespace, clientConfig, mapper)));

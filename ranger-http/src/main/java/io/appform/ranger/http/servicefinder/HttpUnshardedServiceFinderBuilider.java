@@ -36,8 +36,7 @@ public class HttpUnshardedServiceFinderBuilider<T>
     public HttpUnshardedServiceFinderBuilider<T> withClientConfig(final HttpClientConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
-    }
-
+}
     public HttpUnshardedServiceFinderBuilider<T> withObjectMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
         return this;
@@ -54,11 +53,10 @@ public class HttpUnshardedServiceFinderBuilider<T>
     }
 
     @Override
-    protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(Service service) {
-        return new HttpNodeDataSource<>(service, clientConfig,
+    protected NodeDataSource<T, HTTPResponseDataDeserializer<T>> dataSource(String upstreamId, Service service) {
+        return new HttpNodeDataSource<>(upstreamId, service, clientConfig,
                                         Objects.requireNonNullElseGet(httpClient,
                                                                       () -> RangerHttpUtils.httpClient(clientConfig, mapper)));
     }
 
 }
-

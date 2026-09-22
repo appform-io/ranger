@@ -38,8 +38,7 @@ public class DroveUnshardedServiceFinderBuilider<T>
     public DroveUnshardedServiceFinderBuilider<T> withDroveCommunicator(final DroveCommunicator droveClient) {
         this.droveCommunicator = droveClient;
         return this;
-    }
-
+}
     public DroveUnshardedServiceFinderBuilider<T> withClientConfig(final DroveUpstreamConfig clientConfig) {
         this.clientConfig = clientConfig;
         return this;
@@ -56,8 +55,9 @@ public class DroveUnshardedServiceFinderBuilider<T>
     }
 
     @Override
-    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(Service service) {
+    protected NodeDataSource<T, DroveResponseDataDeserializer<T>> dataSource(String upstreamId, Service service) {
         return new DroveNodeDataSource<>(
+                upstreamId,
                 service,
                 clientConfig,
                 mapper,
@@ -66,4 +66,3 @@ public class DroveUnshardedServiceFinderBuilider<T>
     }
 
 }
-

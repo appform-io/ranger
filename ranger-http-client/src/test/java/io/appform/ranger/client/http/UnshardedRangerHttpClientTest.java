@@ -34,6 +34,7 @@ class UnshardedRangerHttpClientTest extends BaseRangerHttpClientTest {
                 .deserializer(this::read)
                 .mapper(getObjectMapper())
                 .nodeRefreshTimeMs(1000)
+                .upstreamId("test-metric")
                 .build();
         client.start();
         val service = RangerTestUtils.getService("test-n", "test-s");

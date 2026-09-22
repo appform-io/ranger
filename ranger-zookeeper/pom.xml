@@ -73,6 +73,12 @@
             <artifactId>ranger-core</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

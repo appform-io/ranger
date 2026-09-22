@@ -26,6 +26,10 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public interface NodeDataSource<T, D extends Deserializer<T>> extends NodeDataStoreConnector<T> {
 
+    String getUpstreamId();
+
+    DataStoreType getDataStoreType();
+
     Optional<List<ServiceNode<T>>> refresh(D deserializer) throws CommunicationException;
 
     default long healthcheckZombieCheckThresholdTime(Service service) {

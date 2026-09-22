@@ -31,6 +31,7 @@ class SimpleRangerZKClientTest extends BaseRangerZKClientTest {
                 .serviceName("s1")
                 .disableWatchers(true)
                 .mapper(getObjectMapper())
+                .upstreamId("test-metric")
                 .build();
         client.start();
         Assertions.assertNotNull( client.getNode().orElse(null));

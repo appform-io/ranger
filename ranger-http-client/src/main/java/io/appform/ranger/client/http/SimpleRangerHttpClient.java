@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 @SuperBuilder
 public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBasedServiceRegistry<T>> {
 
+    private String upstreamId;
     private final String serviceName;
     private final String namespace;
     private final ObjectMapper mapper;
@@ -52,11 +53,13 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
     @Override
     public void start() {
         log.info("Starting the service finder");
+        requireNonNull(upstreamId, "upstreamId can't be null");
         requireNonNull(mapper, "Mapper can't be null");
         requireNonNull(namespace, "namespace can't be null");
         requireNonNull(deserializer, "deserializer can't be null");
 
         this.serviceFinder = HttpServiceFinderBuilders.<T>httpUnshardedServiceFinderBuilider()
+                .withUpstreamId(upstreamId)
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
                 .withNamespace(namespace)
@@ -68,8 +71,7 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
                 .build();
         this.serviceFinder.start();
         log.info("Started the service finder");
-    }
-
+}
     @Override
     public void stop() {
         log.info("Stopping the service finder");
@@ -79,4 +81,3 @@ public class SimpleRangerHttpClient<T> extends AbstractRangerClient<T, ListBased
     }
 
 }
-

@@ -28,6 +28,7 @@ class SimpleRangerHttpClientTest extends BaseRangerHttpClientTest{
     void testSimpleHttpRangerClient(){
         val httpClientConfig = getHttpClientConfig();
         val client = SimpleRangerHttpClient.<TestNodeData>builder()
+                .upstreamId(httpClientConfig.getId())
                 .clientConfig(httpClientConfig)
                 .mapper(getObjectMapper())
                 .httpClient(RangerHttpUtils.httpClient(httpClientConfig, getObjectMapper()))

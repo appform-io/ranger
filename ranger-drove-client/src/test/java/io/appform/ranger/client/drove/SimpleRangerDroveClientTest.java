@@ -28,6 +28,7 @@ class SimpleRangerDroveClientTest extends BaseRangerDroveClientTest {
     @Test
     void testSimpleDroveRangerClient(){
         val client = SimpleRangerDroveClient.<TestNodeData>builder()
+                .upstreamId(getClientConfig().getId())
                 .clientConfig(getClientConfig())
                 .namespace("test")
                 .mapper(getObjectMapper())

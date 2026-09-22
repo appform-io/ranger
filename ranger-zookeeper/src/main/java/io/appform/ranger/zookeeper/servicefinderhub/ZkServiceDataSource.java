@@ -42,7 +42,8 @@ public class ZkServiceDataSource implements ServiceDataSource {
     private CuratorFramework curatorFramework;
     private boolean curatorProvided;
 
-    public ZkServiceDataSource(String namespace,
+    public ZkServiceDataSource(String upstreamId,
+                               String namespace,
                                String connectionString,
                                CuratorFramework curatorFramework){
         this.namespace = namespace;

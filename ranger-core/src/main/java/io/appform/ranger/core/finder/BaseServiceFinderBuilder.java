@@ -47,6 +47,7 @@ public abstract class BaseServiceFinderBuilder
                 B extends BaseServiceFinderBuilder<T, R, F, B, D>,
                 D extends Deserializer<T>> {
 
+    protected String upstreamId;
     protected String namespace;
     protected String serviceName;
     protected int nodeRefreshIntervalMs;
@@ -57,6 +58,11 @@ public abstract class BaseServiceFinderBuilder
     protected final List<Signal<T>> additionalRefreshSignals = new ArrayList<>();
     protected final List<Consumer<Void>> startSignalHandlers = new ArrayList<>();
     protected final List<Consumer<Void>> stopSignalHandlers = new ArrayList<>();
+
+    public B withUpstreamId(final String upstreamId) {
+        this.upstreamId = upstreamId;
+        return (B)this;
+    }
 
     public B withNamespace(final String namespace) {
         this.namespace = namespace;
@@ -136,6 +142,7 @@ public abstract class BaseServiceFinderBuilder
     public abstract F build();
 
     protected F buildFinder() {
+        requireNonNull(upstreamId);
         requireNonNull(namespace);
         requireNonNull(serviceName);
         requireNonNull(deserializer);
@@ -149,7 +156,7 @@ public abstract class BaseServiceFinderBuilder
         val finder = buildFinder(service, shardSelector, nodeSelector);
         val registry = finder.getServiceRegistry();
         val signalGenerators = new ArrayList<Signal<T>>();
-        val nodeDataSource = dataSource(service);
+        val nodeDataSource = dataSource(upstreamId, service);
 
         signalGenerators.add(new ScheduledRegistryUpdateSignal<>(service, nodeRefreshIntervalMs));
         additionalRefreshSignals.addAll(implementationSpecificRefreshSignals(service, nodeDataSource));
@@ -178,7 +185,7 @@ public abstract class BaseServiceFinderBuilder
         return Collections.emptyList();
     }
 
-    protected abstract NodeDataSource<T, D> dataSource(Service service);
+    protected abstract NodeDataSource<T, D> dataSource(String upstreamId, Service service);
 
     protected abstract F buildFinder(
             Service service,

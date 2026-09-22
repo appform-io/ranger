@@ -18,6 +18,7 @@ package io.appform.ranger.http.serviceprovider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.model.NodeDataSink;
+import io.appform.ranger.core.model.DataStoreType;
 import io.appform.ranger.core.model.Service;
 import io.appform.ranger.core.model.ServiceNode;
 import io.appform.ranger.core.util.Exceptions;
@@ -41,13 +42,21 @@ import static java.util.Objects.requireNonNull;
 public class HttpNodeDataSink<T, S extends HttpRequestDataSerializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSink<T, S> {
 
     private final Service service;
+    private final String upstreamId;
     private final ObjectMapper mapper;
 
-    public HttpNodeDataSink(Service service, HttpClientConfig config, ObjectMapper mapper, HttpCommunicator<T> httpClient) {
+    public HttpNodeDataSink(String upstreamId, Service service, HttpClientConfig config, ObjectMapper mapper, HttpCommunicator<T> httpClient) {
         super(config, httpClient);
         this.service = service;
+        this.upstreamId = upstreamId;
         this.mapper = mapper;
     }
+
+    @Override
+    public String getUpstreamId() { return upstreamId; }
+
+    @Override
+    public DataStoreType getDataStoreType() { return DataStoreType.HTTP; }
 
     @Override
     public void updateState(S serializer, ServiceNode<T> serviceNode) {

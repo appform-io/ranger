@@ -69,8 +69,8 @@ public class ZkSimpleUnshardedServiceFinderBuilder<T>
 
     @Override
     protected NodeDataSource<T, ZkNodeDataDeserializer<T>> dataSource(
-            Service service) {
-        return new ZkNodeDataSource<>(service, curatorFramework);
+            String upstreamId, Service service) {
+        return new ZkNodeDataSource<>(upstreamId, service, curatorFramework);
     }
 
 

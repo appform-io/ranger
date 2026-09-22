@@ -37,6 +37,7 @@ import static java.util.Objects.requireNonNull;
 @SuperBuilder
 public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBasedServiceRegistry<T>> {
 
+    private String upstreamId;
     private final String serviceName;
     private final String namespace;
     private final ObjectMapper mapper;
@@ -53,11 +54,13 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     @Override
     public void start() {
         log.info("Starting the service finder");
+        requireNonNull(upstreamId, "upstreamId can't be null");
         requireNonNull(mapper, "Mapper can't be null");
         requireNonNull(namespace, "namespace can't be null");
         requireNonNull(deserializer, "deserializer can't be null");
 
         this.serviceFinder = DroveServiceFinderBuilders.<T>droveUnshardedServiceFinderBuilider()
+                .withUpstreamId(upstreamId)
                 .withClientConfig(clientConfig)
                 .withServiceName(serviceName)
                 .withNamespace(namespace)
@@ -69,8 +72,7 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
                 .build();
         this.serviceFinder.start();
         log.info("Started the service finder");
-    }
-
+}
     @Override
     public void stop() {
         log.info("Stopping the service finder");
@@ -80,4 +82,3 @@ public class SimpleRangerDroveClient<T> extends AbstractRangerClient<T, ListBase
     }
 
 }
-
