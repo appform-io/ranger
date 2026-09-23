@@ -17,12 +17,12 @@
 package io.appform.ranger.id.constraints.impl;
 
 
-import io.appform.ranger.id.Id;
+import io.appform.ranger.id.InternalId;
 
 /**
  * Takes an id and generates a partition
  */
 @FunctionalInterface
 public interface KeyPartitioner {
-    int partition(Id id);
+    int partition(InternalId id);
 }

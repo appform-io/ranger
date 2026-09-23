@@ -22,6 +22,8 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.id.IdGenerator;
+import io.appform.ranger.id.IdGeneratorV2;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;
@@ -82,6 +84,8 @@ class ServiceDiscoveryBundleHierarchicalSelectorTest {
 
     @BeforeEach
     void setup() throws Exception {
+        IdGenerator.cleanUp();
+        IdGeneratorV2.cleanUp();
         when(serverFactory.getApplicationConnectors()).thenReturn(List.of(connectorFactory));
         when(configuration.getServerFactory()).thenReturn(serverFactory);
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());

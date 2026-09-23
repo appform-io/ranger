@@ -20,11 +20,11 @@ package io.appform.ranger.id.constraints;
 import io.appform.ranger.id.Id;
 
 /**
- *
+ * Validates a generated id.
  */
 public interface IdValidationConstraint {
 
-    boolean isValid(Id id);
+    boolean isValid(final Id id);
 
     default boolean failFast() {
         return false;

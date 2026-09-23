@@ -1,0 +1,8 @@
+{
+  "name" : "io.appform.ranger.id.IdGeneratorPerfV2Test.testGenerateSuffixedId",
+  "mode" : "Throughput",
+  "iterations" : 4,
+  "threads" : 1,
+  "forks" : 3,
+  "mean_ops" : 920856.1405703668
+}

@@ -22,7 +22,5 @@ import lombok.Value;
 @Value
 @Builder
 public class IdGenerationInput {
-    String prefix;
     Domain domain;
-
 }

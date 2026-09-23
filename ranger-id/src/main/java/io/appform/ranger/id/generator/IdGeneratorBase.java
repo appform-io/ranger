@@ -1,18 +1,3 @@
-/*
- * Copyright 2025 Authors, Flipkart Internet Pvt. Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.appform.ranger.id.generator;
 
 import com.google.common.base.Preconditions;
@@ -22,17 +7,16 @@ import dev.failsafe.RetryPolicy;
 import io.appform.ranger.id.Domain;
 import io.appform.ranger.id.GenerationResult;
 import io.appform.ranger.id.Id;
-import io.appform.ranger.id.NonceInfo;
+import io.appform.ranger.id.IdConversionUtils;
+import io.appform.ranger.id.InternalId;
 import io.appform.ranger.id.IdValidationState;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
-import io.appform.ranger.id.formatter.IdFormatter;
-import io.appform.ranger.id.formatter.IdFormatters;
-import io.appform.ranger.id.nonce.NonceGenerator;
-import io.appform.ranger.id.request.IdGenerationInput;
-import io.appform.ranger.id.request.IdGenerationRequest;
+import io.appform.ranger.id.formatter.FormattedId;
+import io.appform.ranger.id.nonce.NonceUtils;
+import io.appform.ranger.id.request.IdGenerationInternalRequest;
+import io.appform.ranger.id.NodeUtils;
 import lombok.Getter;
 import lombok.val;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,24 +33,21 @@ import java.util.concurrent.TimeUnit;
 public class IdGeneratorBase {
 
     @Getter
-    private int nodeId;
+    private volatile int nodeId;
+    private boolean initialized;
     private final List<IdValidationConstraint> globalConstraints = new ArrayList<>();
+    @Getter
     private final Map<String, Domain> registeredDomains = new ConcurrentHashMap<>(Map.of(Domain.DEFAULT_DOMAIN_NAME, Domain.DEFAULT));
+    @Getter
     private final FailsafeExecutor<GenerationResult> retryer;
 
-    protected final IdFormatter idFormatter;
-    protected final NonceGenerator nonceGenerator;
-
-    protected IdGeneratorBase(final IdFormatter idFormatter,
-                              final NonceGenerator nonceGenerator) {
-        this.idFormatter = idFormatter;
-        this.nonceGenerator = nonceGenerator;
+    public IdGeneratorBase() {
         val retryPolicy = RetryPolicy.<GenerationResult>builder()
-                .withMaxAttempts(nonceGenerator.readRetryCount())
+                .withMaxAttempts(NonceUtils.readRetryCount())
                 .handleIf(throwable -> true)
                 .handleResultIf(Objects::isNull)
                 .handleResultIf(generationResult -> generationResult.getState() == IdValidationState.INVALID_RETRYABLE)
-                .onRetry(nonceGenerator::retryEventListener)
+                .onRetry(NonceUtils::retryEventListener)
                 .build();
         this.retryer = Failsafe.with(Collections.singletonList(retryPolicy));
     }
@@ -75,6 +56,10 @@ public class IdGeneratorBase {
         globalConstraints.clear();
         registeredDomains.clear();
         nodeId = 0;
+        if (initialized) {
+            NodeUtils.unregisterGenerator();
+            initialized = false;
+        }
     }
 
     public final void registerDomain(final Domain domain) {
@@ -93,28 +78,57 @@ public class IdGeneratorBase {
         registeredDomains.computeIfAbsent(domain, key -> Domain.builder()
                 .domain(domain)
                 .constraints(validationConstraints)
-                .idFormatter(IdFormatters.original())
                 .resolution(TimeUnit.MILLISECONDS)
                 .build());
     }
 
-    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace, final IdFormatter idFormatter) {
-        val dateTime = new DateTime(nonceInfo.getTime());
-        val id = String.format("%s%s", namespace, idFormatter.format(dateTime, getNodeId(), nonceInfo.getExponent()));
-        return Id.builder()
+    public Optional<InternalId> generateWithConstraints(final IdGenerationInternalRequest request, final IdProvider idProvider) {
+        val domain = request.getDomain() != null ? getRegisteredDomains().getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
+        val constraints = request.getConstraints() != null ? request.getConstraints() : domain.getConstraints();
+        return Optional.ofNullable(getRetryer().get(
+                        () -> {
+                            val id = idProvider.apply(request);
+                            return new GenerationResult(
+                                    id.getExponent(), id.getTime(),id,
+                                    validateId(constraints, id, request.isSkipGlobal()),
+                                    domain);
+                        }))
+                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
+                .map(GenerationResult::getInternalId);
+    }
+
+    public final InternalId getIdFromIdInfo(final String id,
+                                            final String prefix,
+                                            final String suffix,
+                                            final FormattedId formattedId) {
+        return InternalId.builder()
                 .id(id)
-                .exponent(nonceInfo.getExponent())
-                .generatedDate(dateTime.toDate())
+                .exponent(formattedId.getExponent())
+                .time(formattedId.getTime())
+                .generatedDate(formattedId.getDateTime().toDate())
                 .node(getNodeId())
+                .prefix(prefix)
+                .suffix(suffix)
                 .build();
     }
 
-    public final Id getIdFromIdInfo(final NonceInfo nonceInfo, final String namespace) {
-        return getIdFromIdInfo(nonceInfo, namespace, idFormatter);
+    public Id getId(final InternalId id) {
+        if (id == null) {
+            return null;
+        }
+        return Id.builder()
+                .id(id.getId())
+                .exponent(id.getExponent())
+                .generatedDate(id.getGeneratedDate())
+                .node(id.getNode())
+                .prefix(id.getPrefix())
+                .suffix(id.getSuffix())
+                .build();
     }
 
-    public final IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final Id id, final boolean skipGlobal) {
+    private IdValidationState validateId(final List<IdValidationConstraint> inConstraints, final InternalId internalId, final boolean skipGlobal) {
         // First evaluate global constraints
+        val id = IdConversionUtils.toId(internalId);
         val failedGlobalConstraint
                 = skipGlobal
                 ? null
@@ -143,68 +157,13 @@ public class IdGeneratorBase {
         return IdValidationState.VALID;
     }
 
-    /**
-     * Generate id with given namespace
-     *
-     * @param namespace String namespace for ID to be generated
-     * @return Generated Id
-     */
-    public final Id generate(final String namespace) {
-        val idInfo = nonceGenerator.generate(namespace);
-        return getIdFromIdInfo(idInfo, namespace);
-    }
-
-
-    public final Id generate(final String namespace, final IdFormatter idFormatter) {
-        val idInfo = nonceGenerator.generate(namespace);
-        return getIdFromIdInfo(idInfo, namespace, idFormatter);
-    }
-
-    /**
-     * Generate id that matches all passed constraints.
-     * NOTE: There are performance implications for this.
-     * The evaluation of constraints will take its toll on id generation rates.
-     *
-     * @param namespace  String namespace
-     * @param domain     Domain for constraint selection
-     * @param skipGlobal Skip global constrains and use only passed ones
-     * @return ID if it could be generated
-     */
-    public final Optional<Id> generateWithConstraints(final String namespace, final String domain, final boolean skipGlobal) {
-        val registeredDomain = registeredDomains.getOrDefault(domain, Domain.DEFAULT);
-        val request = IdGenerationRequest.builder()
-                .prefix(namespace)
-                .constraints(registeredDomain.getConstraints())
-                .skipGlobal(skipGlobal)
-                .domain(registeredDomain.getDomain())
-                .idFormatter(registeredDomain.getIdFormatter())
-                .build();
-        return generateWithConstraints(request);
-    }
-
-    public final Optional<Id> generateWithConstraints(final IdGenerationRequest request) {
-        val domain = request.getDomain() != null ? registeredDomains.getOrDefault(request.getDomain(), Domain.DEFAULT) : Domain.DEFAULT;
-        val idGenerationInput = IdGenerationInput.builder()
-                .prefix(request.getPrefix())
-                .domain(domain)
-                .build();
-        return Optional.ofNullable(retryer.get(
-                        () -> {
-                            val idInfoOptional = nonceGenerator.generateWithConstraints(idGenerationInput);
-                            val id = getIdFromIdInfo(idInfoOptional, request.getPrefix(), request.getIdFormatter());
-                            return new GenerationResult(
-                                    idInfoOptional,
-                                    validateId(request.getConstraints(), id, request.isSkipGlobal()),
-                                    domain);
-                        }))
-                .filter(generationResult -> generationResult.getState() == IdValidationState.VALID)
-                .map(generationResult -> this.getIdFromIdInfo(generationResult.getNonceInfo(), request.getPrefix(), request.getIdFormatter()));
-    }
-
-    public final void setNodeId(int nodeId) {
-        if (this.nodeId > 0) {
-            throw new RuntimeException("Node ID already set");
+    public final synchronized void setNodeId(final int nodeId) {
+        if (initialized) {
+            Preconditions.checkState(this.nodeId == nodeId, "Node ID already set");
+            return;
         }
+        NodeUtils.registerGenerator(nodeId);
         this.nodeId = nodeId;
+        initialized = true;
     }
 }

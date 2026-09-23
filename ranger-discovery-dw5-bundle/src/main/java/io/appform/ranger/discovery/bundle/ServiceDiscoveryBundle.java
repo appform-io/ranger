@@ -55,7 +55,9 @@ import io.appform.ranger.discovery.core.rotationstatus.RotationStatus;
 import io.appform.ranger.discovery.core.selectors.HierarchicalEnvironmentAwareShardSelector;
 import io.appform.ranger.discovery.core.util.ConfigurationUtils;
 import io.appform.ranger.id.IdGenerator;
+import io.appform.ranger.id.IdGeneratorV2;
 import io.appform.ranger.id.NodeIdManager;
+import io.appform.ranger.id.NodeUtils;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
 import io.appform.ranger.zookeeper.ServiceProviderBuilders;
 import io.appform.ranger.zookeeper.serde.ZkNodeDataSerializer;
@@ -343,7 +345,9 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
             serviceProvider.start();
             serviceDiscoveryClient.start();
             val nodeIdManager = new NodeIdManager(curator, serviceName);
-            IdGenerator.initialize(nodeIdManager.fixNodeId(), globalIdConstraints, Collections.emptyMap());
+            NodeUtils.setNode(nodeIdManager.fixNodeId());
+            IdGenerator.initialize(globalIdConstraints, Collections.emptyMap());
+            IdGeneratorV2.initialize(globalIdConstraints, Collections.emptyMap());
             log.debug("Discovery manager has been successfully started.");
         }
 
@@ -353,6 +357,7 @@ public abstract class ServiceDiscoveryBundle<T extends Configuration> implements
             serviceProvider.stop();
             curator.close();
             IdGenerator.cleanUp();
+            IdGeneratorV2.cleanUp();
         }
     }
 
