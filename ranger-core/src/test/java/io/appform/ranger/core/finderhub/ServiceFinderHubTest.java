@@ -139,7 +139,6 @@ class ServiceFinderHubTest {
                                         .withServiceName(service.getServiceName())
                                         .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
                                                 WeightedNodeSelectorConfig.builder()
-                                                        .weightBoostMultiplier(1.5f)
                                                         .minNodeAgeMs(60_000)
                                                         .weightedSelectionThreshold(10)
                                                         .build()))
@@ -233,7 +232,6 @@ class ServiceFinderHubTest {
                                         .withServiceName(service.getServiceName())
                                         .withNodeSelector(new WeightedRandomServiceNodeSelector<>(
                                                 WeightedNodeSelectorConfig.builder()
-                                                        .weightBoostMultiplier(1.5f)
                                                         .minNodeAgeMs(60_000)
                                                         .weightedSelectionThreshold(10)
                                                         .build()))
@@ -257,7 +255,7 @@ class ServiceFinderHubTest {
                                                                            TestNodeData.builder().shardId(1).build(),
                                                                            HealthcheckStatus.healthy,
                                                                            Long.MAX_VALUE,
-                                                                           epochMilli, "HTTP"));
+                                                                           epochMilli - 30_000, "HTTP"));
                                                 return Optional.of(list);
                                             }
 
@@ -304,9 +302,9 @@ class ServiceFinderHubTest {
         double probHost = selectionCounts.get("HOST") / (double) iterations;
         double probHost1 = selectionCounts.get("HOST1") / (double) iterations;
 
-        // Expected probabilities
-        double expectedProbHost = 1.0 * 1.5 / 2;
-        double expectedProbHost1 = 0.5 / 2;
+        // HOST is mature; HOST1 is halfway through warm-up with routing weight 0.5.
+        double expectedProbHost = 1.0 / 1.25;
+        double expectedProbHost1 = 0.25 / 1.25;
 
         // Allow some tolerance due to randomness, e.g., 5%
         double tolerance = 0.02;

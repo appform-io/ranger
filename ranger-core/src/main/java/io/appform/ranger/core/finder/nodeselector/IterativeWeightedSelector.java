@@ -3,7 +3,6 @@ package io.appform.ranger.core.finder.nodeselector;
 import io.appform.ranger.core.finder.nodeselector.weightenricher.WeightEnricher;
 import io.appform.ranger.core.model.ServiceNode;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -13,26 +12,48 @@ public class IterativeWeightedSelector<T> extends AbstractWeightedSelector<T> {
         super(weightAdjusters);
     }
 
+    /**
+     * Selects proportionally to adjusted weights across the pool. If every weight is
+     * zero, selects uniformly so a newly healthy pool can still serve requests.
+     *
+     * @param serviceNodes a non-empty list of eligible nodes
+     * @return the selected node
+     * @throws IllegalArgumentException if the list is empty
+     */
     @Override
     @SuppressWarnings("java:S2245")
     public ServiceNode<T> select(final List<ServiceNode<T>> serviceNodes) {
-        final double[] cumulativeWeights = new double[serviceNodes.size()];
+        final var nodeCount = serviceNodes.size();
+        if (nodeCount == 0) {
+            throw new IllegalArgumentException("serviceNodes must not be empty");
+        }
+        final var cumulativeWeights = new double[nodeCount];
         double totalWeight = 0.0;
 
-        for (int i = 0; i < serviceNodes.size(); i++) {
-            final ServiceNode<T> node = serviceNodes.get(i);
-            double adjustedWeight = adjustWeight(node);
+        for (int i = 0; i < nodeCount; i++) {
+            final var node = serviceNodes.get(i);
+            final var adjustedWeight = adjustWeight(node);
             totalWeight += adjustedWeight;
             cumulativeWeights[i] = totalWeight;
         }
 
-        final double randomValue = ThreadLocalRandom.current().nextDouble(totalWeight);
-        //Returns: index of the search key, if it is contained in the array; otherwise, (-(insertion point) - 1)
-        int index = Arrays.binarySearch(cumulativeWeights, randomValue);
-        if (index < 0) {
-            index = -index - 1;
+        final var random = ThreadLocalRandom.current();
+        if (totalWeight == 0.0) {
+            return serviceNodes.get(random.nextInt(nodeCount));
+        }
+        final var randomValue = random.nextDouble(totalWeight);
+        // Find the first strictly greater cumulative weight, skipping zero-weight intervals.
+        int low = 0;
+        int high = nodeCount - 1;
+        while (low < high) {
+            final var middle = low + (high - low) / 2;
+            if (cumulativeWeights[middle] <= randomValue) {
+                low = middle + 1;
+            } else {
+                high = middle;
+            }
         }
 
-        return serviceNodes.get(index);
+        return serviceNodes.get(low);
     }
 }

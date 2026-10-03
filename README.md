@@ -48,6 +48,60 @@ Use the following maven dependency:
 </dependency>
 ```
 
+### Node selector configuration
+
+`ranger-core` owns the selector configuration types in `io.appform.ranger.core.model`.
+Applications can deserialize `NodeSelectorConfig` using Jackson and create a selector with
+`io.appform.ranger.core.finder.nodeselector.ServiceNodeSelectorFactory`. No platform-specific
+configuration wrapper is needed.
+
+| `type` | Configuration class | Settings and defaults |
+| --- | --- | --- |
+| `weighted` | `WeightedNodeSelectorConfig` | `minNodeAgeMs: 60000`, `weightedSelectionThreshold: 10`. |
+
+Only weighted selection currently has a configuration subtype. Random, round-robin, and warm-up
+round-robin selectors remain available directly through their constructors.
+
+For example, an application can expose a `nodeSelector` field of type `NodeSelectorConfig`:
+
+```yaml
+nodeSelector:
+  type: weighted
+  minNodeAgeMs: 60000
+  weightedSelectionThreshold: 10
+```
+
+```java
+final NodeSelectorConfig config = objectMapper.readValue(
+        "{\"type\":\"weighted\",\"minNodeAgeMs\":60000}", NodeSelectorConfig.class);
+final ServiceNodeSelector<MyNodeData> selector = ServiceNodeSelectorFactory.create(config);
+// Pass selector to the existing finder/client builder or selector override.
+```
+
+Defaults are consistent across no-argument construction, Jackson deserialization, and Lombok
+builders. Selector creation validates settings even without Bean Validation. Applications
+embedding the configuration can also annotate their field with `@Valid` for startup validation.
+The `type` discriminator is required when reading `NodeSelectorConfig`; unknown types are rejected
+by Jackson's default settings. Existing fields explicitly declared as `WeightedNodeSelectorConfig`
+can still omit `type`. The factory requires a non-null config. If the application omits
+selector configuration, retain its existing default or programmatic selector override.
+
+Weighted selection accepts a warm-up duration from 0 to 600000 milliseconds and a selection
+threshold from 1 to 50. It uses exact pool-wide weighted selection at or below the threshold,
+and probabilistic two-node selection above it. The time-based weight increases linearly from
+zero to one and is multiplied by the node's routing weight. Pair-local probabilities differ
+from exact pool-wide probabilities.
+
+Setting `minNodeAgeMs` to zero disables age-based warm-up.
+Warm-up weights are relative preferences, not absolute request-rate limits.
+
+Each factory call returns a fresh selector. This configuration does not change finder defaults.
+Existing selector constructors remain available, except for the removed
+boost multiplier: remove `weightBoostMultiplier` from application config and builder calls;
+`TimeBasedWeightEnricher` now accepts only `minNodeAgeMs`. Consumers using the old API must update
+alongside their Ranger dependency. Custom programmatic `ServiceNodeSelector<T>` implementations
+remain supported.
+
 ## How it works
 There are service providers and service clients. We will look at the interactions from both sides.
 
@@ -606,5 +660,4 @@ When submitting code, please make every effort to follow existing conventions an
 Original Repo
 -------------
 This repo is a fork of: [Ranger](https://github.com/flipkart-incubator/ranger)
-
 

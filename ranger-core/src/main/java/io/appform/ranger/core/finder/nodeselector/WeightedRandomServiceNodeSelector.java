@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector<T> {
 
     public static final long DEFAULT_MIN_NODE_AGE = 60000L;
-    public static final double DEFAULT_BOOST_FACTOR = 1.0;
     public static final int DEFAULT_WEIGHTED_SELECTION_MIN_NODES_THRESHOLD = 10;
     private final ServiceNodeSelector<T> conditionalSelector;
 
@@ -23,8 +22,7 @@ public class WeightedRandomServiceNodeSelector<T> implements ServiceNodeSelector
                 serviceNodes.size() <= weightedNodeSelectorConfig.getWeightedSelectionThreshold();
         final List<WeightEnricher<T>> weightEnrichers = List.of(
                 new RoutingWeightEnricher<>(),
-                new TimeBasedWeightEnricher<>(weightedNodeSelectorConfig.getMinNodeAgeMs(),
-                                              weightedNodeSelectorConfig.getWeightBoostMultiplier())
+                new TimeBasedWeightEnricher<>(weightedNodeSelectorConfig.getMinNodeAgeMs())
                                                                );
 
         this.conditionalSelector = new ConditionalNodeSelector<>(
