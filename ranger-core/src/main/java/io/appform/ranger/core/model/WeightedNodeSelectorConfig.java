@@ -1,5 +1,6 @@
 package io.appform.ranger.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.OptBoolean;
@@ -24,6 +25,8 @@ import static io.appform.ranger.core.finder.nodeselector.WeightedRandomServiceNo
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// weightBoostMultiplier was removed; ignore it so existing configs that still set it keep deserializing.
+@JsonIgnoreProperties({"weightBoostMultiplier"})
 @JsonTypeName("weighted")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", requireTypeIdForSubtypes = OptBoolean.FALSE)
 public class WeightedNodeSelectorConfig extends NodeSelectorConfig {

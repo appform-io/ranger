@@ -2,10 +2,12 @@ package io.appform.ranger.core.finder.nodeselector;
 
 import io.appform.ranger.core.finder.nodeselector.weightenricher.WeightEnricher;
 import io.appform.ranger.core.model.ServiceNode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 public class IterativeWeightedSelector<T> extends AbstractWeightedSelector<T> {
 
     public IterativeWeightedSelector(final List<WeightEnricher<T>> weightAdjusters) {
@@ -39,6 +41,9 @@ public class IterativeWeightedSelector<T> extends AbstractWeightedSelector<T> {
 
         final var random = ThreadLocalRandom.current();
         if (totalWeight == 0.0) {
+            // Should never happen: weight enrichers are expected to keep at least one node routable.
+            log.warn("All {} eligible nodes have zero adjusted weight; falling back to uniform random selection",
+                     nodeCount);
             return serviceNodes.get(random.nextInt(nodeCount));
         }
         final var randomValue = random.nextDouble(totalWeight);
