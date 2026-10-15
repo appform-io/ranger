@@ -38,8 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> extends HttpNodeDataStoreConnector<T> implements NodeDataSource<T, D> {
 
     private final Service service;
-    private final AtomicBoolean upstreamAvailable = new AtomicBoolean(true);
-    private final ScheduledExecutorService resetter = Executors.newSingleThreadScheduledExecutor();
 
     public HttpNodeDataSource(
             final Service service,
@@ -49,7 +47,6 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
         Objects.requireNonNull(config, "client config has not been set for node data");
         Objects.requireNonNull(httpCommunicator, "http communicator has not been set for node data");
         this.service = service;
-        resetter.scheduleWithFixedDelay(() -> upstreamAvailable.set(true), 0, 60, TimeUnit.SECONDS);
     }
 
     @Override
@@ -57,8 +54,4 @@ public class HttpNodeDataSource<T, D extends HTTPResponseDataDeserializer<T>> ex
         return Optional.of(httpCommunicator.listNodes(service, deserializer));
     }
 
-    @Override
-    public boolean isActive() {
-        return upstreamAvailable.get();
-    }
 }

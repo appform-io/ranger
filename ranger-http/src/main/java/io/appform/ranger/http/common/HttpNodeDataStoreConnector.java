@@ -60,6 +60,6 @@ public class HttpNodeDataStoreConnector<T> implements NodeDataStoreConnector<T> 
 
     @Override
     public boolean isActive() {
-        return true;
+        return httpCommunicator != null && httpCommunicator.healthy();
     }
 }
