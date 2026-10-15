@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -39,6 +40,9 @@ public class ScheduledSignal<T> extends Signal<T> {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private ScheduledFuture<?> scheduledFuture = null;
+
+    /* If signal generator is running or not */
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     @Builder
     public ScheduledSignal(
@@ -63,6 +67,10 @@ public class ScheduledSignal<T> extends Signal<T> {
 
     @Override
     public final void start() {
+        if (!running.compareAndSet(false, true)) {
+            log.info("Scheduled signal generator {} is already running", name);
+            return;
+        }
         scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 onSignalReceived();
@@ -75,6 +83,10 @@ public class ScheduledSignal<T> extends Signal<T> {
 
     @Override
     public final void stop() {
+        if (!running.compareAndSet(true, false)) {
+            log.info("Scheduled signal generator {} is not running", name);
+            return;
+        }
         if(null != scheduledFuture) {
             scheduledFuture.cancel(true);
         }
