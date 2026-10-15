@@ -18,6 +18,7 @@ package io.appform.ranger.id.constraints.impl;
 
 import com.google.common.base.Preconditions;
 import io.appform.ranger.id.Id;
+import io.appform.ranger.id.IdConversionUtils;
 import io.appform.ranger.id.constraints.IdValidationConstraint;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,6 @@ public class PartitionValidator implements IdValidationConstraint {
 
     @Override
     public boolean isValid(Id id) {
-        return partition == partitioner.partition(id);
+        return partition == partitioner.partition(IdConversionUtils.toInternalId(id));
     }
 }

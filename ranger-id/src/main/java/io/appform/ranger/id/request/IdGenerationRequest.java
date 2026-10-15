@@ -22,14 +22,21 @@ import lombok.Value;
 
 import java.util.List;
 
+/**
+ * @deprecated no longer used by {@code IdGenerator} or {@code IdGeneratorV2} — both now build their
+ * requests via {@code IdGenerationInternalRequest} / {@code IdGenerationRequestV2}. Kept only to avoid
+ * a source-breaking removal for any external caller that may still reference this type directly;
+ * slated for removal in a future major version.
+ */
+@Deprecated(forRemoval = true)
 @Value
 @Builder
 public class IdGenerationRequest {
 
     String prefix;
+    String suffix;
     String domain;
     boolean skipGlobal;
     List<IdValidationConstraint> constraints;
     IdFormatter idFormatter;
-
 }

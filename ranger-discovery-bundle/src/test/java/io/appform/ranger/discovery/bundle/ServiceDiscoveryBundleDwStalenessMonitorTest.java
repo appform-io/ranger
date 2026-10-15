@@ -22,6 +22,8 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appform.ranger.core.healthcheck.HealthcheckStatus;
 import io.appform.ranger.discovery.core.ServiceDiscoveryConfiguration;
+import io.appform.ranger.id.IdGenerator;
+import io.appform.ranger.id.IdGeneratorV2;
 import io.dropwizard.Configuration;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -93,6 +95,8 @@ class ServiceDiscoveryBundleDwStalenessMonitorTest {
 
     @BeforeEach
     void setup() throws Exception {
+        IdGenerator.cleanUp();
+        IdGeneratorV2.cleanUp();
         healthChecks.register("healthy-once-but-then-sleep5", new HealthCheck() {
 
             @Override

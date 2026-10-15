@@ -1,0 +1,142 @@
+/*
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.appform.ranger.id.request;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import io.appform.ranger.id.IdGeneratorType;
+import io.appform.ranger.id.constraints.IdValidationConstraint;
+import io.appform.ranger.id.decorators.IdDecorator;
+import io.appform.ranger.id.decorators.IdDecorators;
+import io.appform.ranger.id.formatter.IdFormatter;
+import io.appform.ranger.id.formatter.IdFormatters;
+import lombok.Value;
+import lombok.val;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@Value
+public class IdGenerationRequestV2 {
+    final String prefix;
+    final String suffix;
+    final boolean skipGlobal;
+    final String domain;
+    List<IdValidationConstraint> constraints;
+    final IdFormatter idFormatter;
+    final List<IdDecorator> idDecorators;
+    final int idGenerationValue;
+
+    private IdGenerationRequestV2(IdGeneratorRequestBuilder builder) {
+        // Absent prefix/suffix must not become the literal string "null" in generated IDs.
+        this.prefix = Strings.nullToEmpty(builder.prefix);
+        this.suffix = Strings.nullToEmpty(builder.suffix);
+        this.skipGlobal = builder.skipGlobal;
+        this.domain = builder.domain;
+        // Null inherits domain constraints; an empty list explicitly overrides them.
+        this.constraints = builder.constraints == null ? null : List.copyOf(builder.constraints);
+        this.idFormatter = builder.idFormatter;
+        this.idDecorators = List.copyOf(builder.idDecorators);
+        this.idGenerationValue = builder.idGenerationValue;
+    }
+
+    public static IdGeneratorRequestBuilder builder() {
+        return new IdGeneratorRequestBuilder();
+    }
+
+    public static class IdGeneratorRequestBuilder {
+        private String prefix;
+        private String suffix;
+        private boolean skipGlobal;
+        private String domain;
+        private List<IdValidationConstraint> constraints;
+        private IdFormatter idFormatter;
+        private final List<IdDecorator> idDecorators = new ArrayList<>();
+        private int idGenerationValue;
+
+        public IdGeneratorRequestBuilder prefix(final String prefix) {
+            validateIdPrefix(prefix);
+            this.prefix = prefix;
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder suffix(final String suffix) {
+            validateIdSuffix(suffix);
+            this.suffix = suffix;
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder skipGlobal(final boolean skipGlobal) {
+            this.skipGlobal = skipGlobal;
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder domain(final String domain) {
+            this.domain = domain;
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder constraints(final List<IdValidationConstraint> constraints) {
+            this.constraints = constraints;
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder includeBase36() {
+            idDecorators.add(IdDecorators.base36());
+            return this;
+        }
+
+        public IdGeneratorRequestBuilder includeRandomNonce() {
+            validateIdFormatterSelection(idFormatter);
+            idFormatter = IdFormatters.randomNonce();
+            return this;
+        }
+
+        public IdGenerationRequestV2 build() {
+            this.idGenerationValue = IdGeneratorType.findValue(
+                            idFormatter, idDecorators)
+                    .orElseThrow(() -> new RuntimeException("Invalid combination of formatter and decorators"));
+            return new IdGenerationRequestV2(this);
+        }
+
+        private static void validateIdPrefix(final String namespace) {
+            if (Strings.isNullOrEmpty(namespace)) {
+                return;
+            }
+            val idRegex = "^[a-zA-Z]+$";
+            Preconditions.checkArgument(
+                    namespace.matches(idRegex),
+                    "Prefix does not match the required regex: " + idRegex);
+        }
+
+        private static void validateIdSuffix(final String suffix) {
+            if (Strings.isNullOrEmpty(suffix)) {
+                return;
+            }
+            val idRegex = "^[a-zA-Z0-9]+$";
+            Preconditions.checkArgument(
+                    suffix.matches(idRegex),
+                    "Suffix does not match the required regex: " + idRegex);
+        }
+
+        private static void validateIdFormatterSelection(final IdFormatter idFormatter) {
+            Preconditions.checkArgument(
+                    Objects.isNull(idFormatter),
+                    "Only one IdFormatter can be selected per request");
+        }
+    }
+}

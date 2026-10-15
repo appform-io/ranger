@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Authors, Flipkart Internet Pvt. Ltd.
+ * Copyright 2024 Authors, Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appform.ranger.id.formatter;
+package io.appform.ranger.id.generator;
 
-import lombok.Getter;
+import io.appform.ranger.id.InternalId;
+import io.appform.ranger.id.request.IdGenerationInternalRequest;
 
-@Getter
-public enum IdParserType {
-    DEFAULT (0);
+@FunctionalInterface
+public interface IdProvider {
 
-    private final int value;
-
-    IdParserType(final int value) {
-        this.value = value;
-    }
+    InternalId apply(final IdGenerationInternalRequest request);
 }
